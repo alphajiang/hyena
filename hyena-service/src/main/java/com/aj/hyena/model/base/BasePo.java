@@ -4,9 +4,19 @@ import java.util.Date;
 
 public abstract class BasePo extends BaseObject {
 
+    private Long id;
     private Boolean enable;
     private Date createTime;
     private Date updateTime;
+
+    public Long getId() {
+        return id;
+    }
+
+    public BasePo setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
     public Boolean getEnable() {
         return enable;

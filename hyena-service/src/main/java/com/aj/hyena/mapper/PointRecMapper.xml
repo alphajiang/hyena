@@ -1,0 +1,17 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aj.hyena.mapper.PointRecMapper">
+
+    <insert id="addPointRec" useGeneratedKeys="true" keyProperty="rec.id" keyColumn="id">
+        insert into `${tableName}` set
+        `pid` = #{rec.pid},
+        `total` = #{rec.total},
+        `available` = #{rec.available},
+        <if test="rec.tag != null">
+            `tag` = #{rec.tag},
+        </if>
+        `expireTime` = #{rec.expireTime}
+    </insert>
+
+
+</mapper>

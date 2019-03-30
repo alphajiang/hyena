@@ -3,6 +3,7 @@ package com.aj.hyena.service;
 import com.aj.hyena.HyenaConstants;
 import com.aj.hyena.mapper.PointMapper;
 import com.aj.hyena.model.po.PointPo;
+import com.aj.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +17,15 @@ public class PointService {
     @Autowired
     private PointMapper cusPointMapper;
 
+
     @Autowired
     private PointTableService cusPointTableService;
 
+    @Autowired
+    private PointRecService pointRecService;
+
     public PointPo getCusPoint(String type, String cusId) {
-        String tableName = this.getTableName(type);
+        String tableName = TableNameHelper.getPointTableName(type);
         var ret = this.cusPointMapper.getCusPoint(tableName, cusId, false);
         return ret;
     }
@@ -38,10 +43,9 @@ public class PointService {
             cusPoint.setPoint(point);
             this.cusPointMapper.updateCusPoint(tableName, cusPoint);
         }
+        this.pointRecService.addPointRec(type, cusPoint.getId(), point, "", null, null);
         return cusPoint;
     }
 
-    private String getTableName(String type) {
-        return HyenaConstants.PREFIX_POINT_TABLE_NAME + type;
-    }
+
 }

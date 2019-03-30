@@ -2,6 +2,7 @@ package com.aj.hyena.service;
 
 import com.aj.hyena.HyenaConstants;
 import com.aj.hyena.mapper.PointTableMapper;
+import com.aj.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,18 +32,20 @@ public class PointTableService {
     }
 
     public String getOrCreateTable(String type) {
-        String tableName = HyenaConstants.PREFIX_POINT_TABLE_NAME + type;
+        String tableName = TableNameHelper.getPointTableName(type);
         if (!this.tables.contains(tableName)) {
-            this.createTable(tableName);
+            this.createTable(type);
         }
         return tableName;
     }
 
-    private void createTable(String tableName) {
-        this.cusPointTableMapper.createPointTable(tableName);
-        String recTableName = this.getRecTableName(tableName);
-        this.cusPointTableMapper.createPointRecTable(tableName, this.getRecTableName(tableName));
-        this.cusPointTableMapper.createPointLogTable(tableName, recTableName, this.getLogTableName(tableName));
+    private void createTable(String type) {
+        String pointTableName = TableNameHelper.getPointTableName(type);
+        String recTableName = TableNameHelper.getPointRecTableName(type);
+        String recLogTableName = TableNameHelper.getPointRecLogTableName(type);
+        this.cusPointTableMapper.createPointTable(pointTableName);
+        this.cusPointTableMapper.createPointRecTable(pointTableName, recTableName);
+        this.cusPointTableMapper.createPointLogTable(pointTableName, recTableName, recLogTableName);
         this.listTables();
     }
 
@@ -55,11 +58,4 @@ public class PointTableService {
         tables.addAll(tableList);
     }
 
-    private String getRecTableName(String tableName) {
-        return tableName + "_rec";
-    }
-
-    private String getLogTableName(String tableName) {
-        return tableName + "_rec_log";
-    }
 }
