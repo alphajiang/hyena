@@ -1,6 +1,6 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.aj.hyena.mapper.CusPointMapper">
+<mapper namespace="com.aj.hyena.mapper.PointMapper">
 
     <insert id="addPoint">
         insert into `${tableName}` (
@@ -9,7 +9,7 @@
         #{cusId}, #{point} )
     </insert>
 
-    <select id="getCusPoint" resultType="com.aj.hyena.model.po.CusPointPo">
+    <select id="getCusPoint" resultType="com.aj.hyena.model.po.PointPo">
         select cp.*
         from `${tableName}` as cp
         where cp.cusId = #{cusId}

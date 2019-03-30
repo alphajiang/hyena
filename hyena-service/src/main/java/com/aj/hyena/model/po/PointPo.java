@@ -2,7 +2,7 @@ package com.aj.hyena.model.po;
 
 import com.aj.hyena.model.base.BasePo;
 
-public class CusPointPo extends BasePo {
+public class PointPo extends BasePo {
 
     private String cusId;
     private Long point;
@@ -11,7 +11,7 @@ public class CusPointPo extends BasePo {
         return cusId;
     }
 
-    public CusPointPo setCusId(String cusId) {
+    public PointPo setCusId(String cusId) {
         this.cusId = cusId;
         return this;
     }
@@ -20,7 +20,7 @@ public class CusPointPo extends BasePo {
         return point;
     }
 
-    public CusPointPo setPoint(Long point) {
+    public PointPo setPoint(Long point) {
         this.point = point;
         return this;
     }

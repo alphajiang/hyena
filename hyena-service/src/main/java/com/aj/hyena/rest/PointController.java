@@ -1,7 +1,7 @@
 package com.aj.hyena.rest;
 
 import com.aj.hyena.model.base.ObjectResponse;
-import com.aj.hyena.service.CusPointService;
+import com.aj.hyena.service.PointService;
 import com.aj.hyena.utils.LoggerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/hyena/cus/point")
-public class CusPointController {
+@RequestMapping("/hyena/point")
+public class PointController {
 
-    private static final Logger logger = LoggerFactory.getLogger(CusPointController.class);
+    private static final Logger logger = LoggerFactory.getLogger(PointController.class);
 
     @Autowired
-    private CusPointService cusPointService;
+    private PointService cusPointService;
 
     @PostMapping(value = "/addPoint")
     public ObjectResponse<Long> addPoint(HttpServletRequest request,

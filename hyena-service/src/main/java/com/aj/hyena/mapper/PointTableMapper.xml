@@ -1,0 +1,60 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aj.hyena.mapper.PointTableMapper">
+
+    <select id="listCusPointTables" resultType="java.lang.String">
+        show tables like "${prefix}%"
+    </select>
+
+    <update id="createPointTable" flushCache="true">
+        create table if not exists ${pointTableName} (
+            id bigint(20) not null auto_increment primary key,
+            `cusId` varchar(128) not null,
+            `point` bigint(20) not null default 0,
+            `available` bigint(20) not null default 0,
+            `used` bigint(20) not null default 0,
+            `frozen` bigint(20) not null default 0,
+            `expire` bigint(20) not null default 0,
+            `enable` boolean not null default true,
+            `createTime` timestamp default now(),
+            `updateTime` timestamp default now(),
+            unique key ${pointTableName}_cusId(`cusId`)
+        ) engine=InnoDB default charset=utf8mb4
+    </update>
+
+    <update id="createPointRecTable" flushCache="true">
+        create table if not exists ${pointRecTableName} (
+        id bigint(20) not null auto_increment primary key,
+        `pid` bigint(20) not null references ${pointTableName}(`id`),
+        `total` bigint(20) not null default 0,
+        `available` bigint(20) not null default 0,
+        `used` bigint(20) not null default 0,
+        `frozen` bigint(20) not null default 0,
+        `expire` bigint(20) not null default 0,
+        `tag` varchar(128) not null default '',
+        `expireTime` timestamp,
+        `enable` boolean not null default true,
+        `createTime` timestamp default now(),
+        `updateTime` timestamp default now(),
+        index ${pointRecTableName}_tag(`tag`)
+        ) engine=InnoDB default charset=utf8mb4
+    </update>
+
+    <update id="createPointLogTable" flushCache="true">
+        create table if not exists ${pointLogTableName} (
+        id bigint(20) not null auto_increment primary key,
+        `pid` bigint(20) not null references ${pointTableName}(`id`),
+        `recId` bigint(20) not null references ${pointRecTableName}(`id`),
+        `type` tinyint not null default 0 comment '0: increase; 1: decrease; 2: freeze; 3: unfreeze; 4: expire',
+        `delta` bigint(20) not null default 0,
+        `available` bigint(20) not null default 0,
+        `used` bigint(20) not null default 0,
+        `frozen` bigint(20) not null default 0,
+        `expire` bigint(20) not null default 0,
+        `tag` varchar(128) not null default '',
+        `enable` boolean not null default true,
+        `createTime` timestamp default now(),
+        index ${pointLogTableName}_tag(`tag`)
+        ) engine=InnoDB default charset=utf8mb4
+    </update>
+</mapper>
