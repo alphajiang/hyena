@@ -1,0 +1,33 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aj.hyena.mapper.CusPointMapper">
+
+    <insert id="addPoint">
+        insert into `${tableName}` (
+            `cusId`, `point`
+        ) values(
+        #{cusId}, #{point} )
+    </insert>
+
+    <select id="getCusPoint" resultType="com.aj.hyena.model.po.CusPointPo">
+        select cp.*
+        from `${tableName}` as cp
+        where cp.cusId = #{cusId}
+        <if test="lock == true">
+            for update
+        </if>
+    </select>
+
+    <update id="updateCusPoint" >
+        update `${tableName}`
+        set
+        <if test="cusPoint.point != null">
+            point = #{cusPoint.point},
+        </if>
+        <if test="cusPoint.enable != null">
+            enable = #{cusPoint.enable},
+        </if>
+        updateTime = now()
+        where cusId = #{cusPoint.cusId}
+    </update>
+</mapper>

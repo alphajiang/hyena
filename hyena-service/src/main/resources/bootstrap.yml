@@ -1,0 +1,16 @@
+
+spring:
+  application:
+    name: hyenaServiceTest
+
+
+#  config:
+#    additional-location: "file:~/project/conf/hyena"
+#  profiles:
+#    active: common,jdbc,redis,rabbitmq
+
+
+#  cloud:
+#    config:
+#      uri: https://oam.xxx.com
+#      label: dev

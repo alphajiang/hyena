@@ -1,0 +1,20 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aj.hyena.mapper.CusPointTableMapper">
+
+    <select id="listCusPointTables" resultType="java.lang.String">
+        show tables like "${prefix}%"
+    </select>
+
+    <update id="createCusPointTable" flushCache="true">
+        create table if not exists ${tableName} (
+            id bigint(20) not null auto_increment primary key,
+            `cusId` varchar(128) not null,
+            `point` bigint(20) not null default 0,
+            `enable` boolean not null default true,
+            `createTime` timestamp default now(),
+            `updateTime` timestamp default now(),
+            unique key ${tableName}_cusId(`cusId`)
+        ) engine=InnoDB default charset=utf8mb4
+    </update>
+</mapper>

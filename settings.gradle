@@ -1,0 +1,3 @@
+rootProject.name = 'hyena'
+include 'hyena-service'
+//include 'hyena-starter'
