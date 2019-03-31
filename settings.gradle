@@ -1,3 +1,5 @@
 rootProject.name = 'hyena'
-include 'hyena-service'
-//include 'hyena-starter'
+include 'hyena-core'
+include 'hyena-spring-boot-autoconfigure'
+include 'hyena-spring-boot-starter'
+include 'hyena-spring-boot-starter-test'

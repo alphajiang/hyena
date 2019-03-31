@@ -1,0 +1,41 @@
+app:
+  name: HyenaServiceTest
+
+server:
+  address: 0.0.0.0
+  port: 8080
+  use-forward-headers: true
+  compression.enabled: true
+
+
+management:
+  context-path: /admin
+  security:
+    enabled: false
+
+
+
+logging:
+  level:
+    com.aj.hyena: 'DEBUG'
+    org.springframework: 'INFO'
+    
+
+
+
+
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    continue-on-error: false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    name: hyena
+    username: abc
+    password: abcdefg
+    url: jdbc:mysql://xxx.xxx.xxx.xxx:3306/hyena?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
+    initialPoolSize: 1
+    minPoolSize: 1
+    maxPoolSize: 10
+    acquireIncrement: 1
+    maxIdleTime: 10
+    checkoutTimeout: 30000

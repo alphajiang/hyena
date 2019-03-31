@@ -15,7 +15,7 @@
  *
  */
 
-package com.aj.hyena;
+package com.aj.hyena.demo;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
