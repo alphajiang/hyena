@@ -4,9 +4,9 @@
 
     <insert id="addPoint">
         insert into `${tableName}` (
-            `cusId`, `point`
+            `cusId`, `point`, `available`
         ) values(
-        #{cusId}, #{point} )
+        #{cusId}, #{point}, #{point} )
     </insert>
 
     <select id="getCusPoint" resultType="com.aj.hyena.model.po.PointPo">
@@ -23,6 +23,18 @@
         set
         <if test="cusPoint.point != null">
             point = #{cusPoint.point},
+        </if>
+        <if test="cusPoint.available != null">
+            available = #{cusPoint.available},
+        </if>
+        <if test="cusPoint.used != null">
+            used = #{cusPoint.used},
+        </if>
+        <if test="cusPoint.frozen != null">
+            frozen = #{cusPoint.frozen},
+        </if>
+        <if test="cusPoint.expire != null">
+            expire = #{cusPoint.expire},
         </if>
         <if test="cusPoint.enable != null">
             enable = #{cusPoint.enable},
