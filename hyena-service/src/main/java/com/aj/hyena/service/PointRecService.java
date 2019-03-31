@@ -81,10 +81,9 @@ public class PointRecService {
         String recTableName = TableNameHelper.getPointRecTableName(type);
         this.pointRecMapper.addPointRec(recTableName, rec);
 
-        recLog.setPid(pointId).setRecId(rec.getId()).setType(PointRecLogType.INCREASE.code())
-                .setDelta(point).setAvailable(point)
-                .setUsed(0L).setFrozen(0L).setExpire(0L).setNote(note);
-        this.pointRecLogService.addPointRecLog(type, recLog);
+        this.pointRecLogService.addLogByRec(type, PointRecLogType.INCREASE,
+                rec, point, note);
+
     }
 
     public void decreasePoint(String type, PointRecPo rec, long point, String note){
@@ -103,11 +102,8 @@ public class PointRecService {
 
         }
 
-        PointRecLogPo recLog = new PointRecLogPo();
-        recLog.setPid(rec.getPid()).setRecId(rec.getId()).setType(PointRecLogType.DECREASE.code())
-                .setDelta(delta).setAvailable(rec.getAvailable())
-                .setUsed(rec.getUsed()).setFrozen(rec.getFrozen()).setExpire(rec.getExpire()).setNote(note);
-        this.pointRecLogService.addPointRecLog(type, recLog);
+        this.pointRecLogService.addLogByRec(type, PointRecLogType.DECREASE,
+                rec, delta, note);
     }
 
     public void decreasePointUnfreeze(String type, PointRecPo rec, long point, String note){
@@ -126,11 +122,46 @@ public class PointRecService {
 
         }
 
-        PointRecLogPo recLog = new PointRecLogPo();
-        recLog.setPid(rec.getPid()).setRecId(rec.getId()).setType(PointRecLogType.DECREASE.code())
-                .setDelta(delta).setAvailable(rec.getAvailable())
-                .setUsed(rec.getUsed()).setFrozen(rec.getFrozen()).setExpire(rec.getExpire()).setNote(note);
-        this.pointRecLogService.addPointRecLog(type, recLog);
+        this.pointRecLogService.addLogByRec(type, PointRecLogType.DECREASE,
+                rec, delta, note);
+    }
+
+    public void freezePoint(String type, PointRecPo rec, long point, String note){
+
+        long delta = point;
+        if (rec.getAvailable() < delta) {
+            delta = rec.getAvailable();
+            long frozen = rec.getFrozen() + rec.getAvailable();
+            rec.setAvailable(0L).setFrozen(frozen);
+            this.updatePointRec(type, rec);
+        } else {
+            long available = rec.getAvailable() - point;
+            long frozen = rec.getFrozen() + point;
+            rec.setAvailable(available).setFrozen(frozen);
+            this.updatePointRec(type, rec);
+
+        }
+        this.pointRecLogService.addLogByRec(type, PointRecLogType.FREEZE,
+                rec, delta, note);
+    }
+
+    public void unfreezePoint(String type, PointRecPo rec, long point, String note){
+
+        long delta = point;
+        if (rec.getFrozen() < delta) {
+            delta = rec.getFrozen();
+            long available = rec.getAvailable() + rec.getFrozen();
+            rec.setFrozen(0L).setAvailable(available);
+            this.updatePointRec(type, rec);
+        } else {
+            long frozen = rec.getFrozen() - point;
+            long available = rec.getAvailable() + point;
+            rec.setAvailable(available).setFrozen(frozen);
+            this.updatePointRec(type, rec);
+
+        }
+        this.pointRecLogService.addLogByRec(type, PointRecLogType.UNFREEZE,
+                rec, delta, note);
     }
 
     public void updatePointRec(String type, PointRecPo rec) {

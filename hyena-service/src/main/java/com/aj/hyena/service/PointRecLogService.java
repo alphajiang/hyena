@@ -19,6 +19,8 @@ package com.aj.hyena.service;
 
 import com.aj.hyena.mapper.PointRecLogMapper;
 import com.aj.hyena.model.po.PointRecLogPo;
+import com.aj.hyena.model.po.PointRecPo;
+import com.aj.hyena.model.type.PointRecLogType;
 import com.aj.hyena.utils.TableNameHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,8 +31,20 @@ public class PointRecLogService {
     @Autowired
     private PointRecLogMapper pointRecLogMapper;
 
+    public void addLogByRec(String type, PointRecLogType eventType, PointRecPo rec, long delta, String note) {
 
-    public void addPointRecLog(String type, PointRecLogPo recLog) {
+        PointRecLogPo recLog = new PointRecLogPo();
+        recLog.setPid(rec.getPid()).setRecId(rec.getId()).setType(eventType.code())
+                .setDelta(delta).setNote(note);
+        recLog.setAvailable(rec.getAvailable() == null ? 0L : rec.getAvailable());
+        recLog.setUsed(rec.getUsed() == null ? 0L : rec.getUsed());
+        recLog.setFrozen(rec.getFrozen() == null ? 0L : rec.getFrozen());
+        recLog.setExpire(rec.getExpire() == null ? 0L : rec.getExpire());
+        recLog.setNote(note == null ? "" : note);
+        this.addPointRecLog(type, recLog);
+    }
+
+    private void addPointRecLog(String type, PointRecLogPo recLog) {
         String tableName = TableNameHelper.getPointRecLogTableName(type);
         this.pointRecLogMapper.addPointRecLog(tableName, recLog);
     }
