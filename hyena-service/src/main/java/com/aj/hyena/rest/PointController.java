@@ -98,4 +98,34 @@ public class PointController {
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
+
+    @PostMapping(value = "/freeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ObjectResponse<Long> freezePoint(HttpServletRequest request,
+                                            @RequestParam(defaultValue = "default") String type,
+                                            @RequestParam String cusId,
+                                            @RequestParam long point,
+                                            @RequestParam(defaultValue = "") String note) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+
+        Long cusPoint = cusPoint = this.cusPointService.freezePoint(type, cusId, point, note);
+
+        ObjectResponse<Long> res = new ObjectResponse<>(cusPoint);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
+
+    @PostMapping(value = "/unfreeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ObjectResponse<Long> unfreezePoint(HttpServletRequest request,
+                                            @RequestParam(defaultValue = "default") String type,
+                                            @RequestParam String cusId,
+                                            @RequestParam long point,
+                                            @RequestParam(defaultValue = "") String note) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+
+        Long cusPoint = cusPoint = this.cusPointService.unfreezePoint(type, cusId, point, note);
+
+        ObjectResponse<Long> res = new ObjectResponse<>(cusPoint);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
 }

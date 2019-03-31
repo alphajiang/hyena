@@ -202,6 +202,116 @@ public class PointService {
         return ret;
     }
 
+    @Transactional
+    public long freezePoint(String type, String cusId, long point, String note) {
+        logger.info("freeze. type = {}, cusId = {}, point = {}", type, cusId, point);
+        PointPo curPoint = this.getCusPoint(type, cusId, true);
+        HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
+                "can't find point to the cusId: " + cusId, Level.WARN);
+        HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= point, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+                "no enough available point");
+
+        long gap = point;
+        try {
+            do {
+                gap = this.freezePointLoop(type, cusId, gap, note);
+                logger.debug("gap = {}", gap);
+            } while (gap > 0L);
+        } catch (HyenaNoPointException e) {
+
+        }
+        HyenaAssert.isTrue(gap == 0L, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+                "no enough available point!");
+        curPoint.setAvailable(curPoint.getAvailable() - point).setFrozen(curPoint.getFrozen() + point);
+        this.update(type, curPoint);
+        return gap;
+    }
+
+    private long freezePointLoop(String type, String cusId, long point, String note) {
+        logger.info("freeze. type = {}, cusId = {}, point = {}", type, cusId, point);
+        ListPointRecParam param = new ListPointRecParam();
+        param.setCusId(cusId).setAvailable(true).setLock(true)
+                .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
+                .setSize(5);
+        var recList = this.pointRecService.listPointRec(type, param);
+        if (recList.isEmpty()) {
+            throw new HyenaNoPointException("no enough point", Level.DEBUG);
+        }
+        long sum = 0L;
+        for (PointRecPo rec : recList) {
+            long gap = point - sum;
+            if (gap < 1L) {
+                logger.warn("gap = {} !!!", gap);
+                break;
+            } else if (rec.getAvailable() < gap) {
+                sum += rec.getAvailable();
+
+                this.pointRecService.freezePoint(type, rec, gap, note);
+            } else {
+                sum += gap;
+                this.pointRecService.freezePoint(type, rec, gap, note);
+                break;
+            }
+        }
+        var ret = point - sum;
+        logger.debug("ret = {}", ret);
+        return ret;
+    }
+
+    @Transactional
+    public long unfreezePoint(String type, String cusId, long point, String note) {
+        logger.info("unfreeze. type = {}, cusId = {}, point = {}", type, cusId, point);
+        PointPo curPoint = this.getCusPoint(type, cusId, true);
+        HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
+                "can't find point to the cusId: " + cusId, Level.WARN);
+        HyenaAssert.isTrue(curPoint.getFrozen().longValue() >= point, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+                "no enough frozen point");
+
+        long gap = point;
+        try {
+            do {
+                gap = this.unfreezePointLoop(type, cusId, gap, note);
+                logger.debug("gap = {}", gap);
+            } while (gap > 0L);
+        } catch (HyenaNoPointException e) {
+
+        }
+        HyenaAssert.isTrue(gap == 0L, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+                "no enough frozen point!");
+        curPoint.setAvailable(curPoint.getAvailable() + point).setFrozen(curPoint.getFrozen() - point);
+        this.update(type, curPoint);
+        return gap;
+    }
+
+    private long unfreezePointLoop(String type, String cusId, long point, String note) {
+        logger.info("unfreeze. type = {}, cusId = {}, point = {}", type, cusId, point);
+        ListPointRecParam param = new ListPointRecParam();
+        param.setCusId(cusId).setFrozen(true).setLock(true)
+                .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
+                .setSize(5);
+        var recList = this.pointRecService.listPointRec(type, param);
+        if (recList.isEmpty()) {
+            throw new HyenaNoPointException("no enough point", Level.DEBUG);
+        }
+        long sum = 0L;
+        for (PointRecPo rec : recList) {
+            long gap = point - sum;
+            if (gap < 1L) {
+                logger.warn("gap = {} !!!", gap);
+                break;
+            } else if (rec.getFrozen() < gap) {
+                sum += rec.getFrozen();
+                this.pointRecService.unfreezePoint(type, rec, gap, note);
+            } else {
+                sum += gap;
+                this.pointRecService.unfreezePoint(type, rec, gap, note);
+                break;
+            }
+        }
+        var ret = point - sum;
+        logger.debug("ret = {}", ret);
+        return ret;
+    }
 
     private void update(String type, PointPo point) {
         this.cusPointMapper.updateCusPoint(TableNameHelper.getPointTableName(type), point);
