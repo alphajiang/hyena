@@ -15,9 +15,9 @@
  *
  */
 
-package com.aj.hyena.service;
+package com.aj.hyena.ds.service;
 
-import com.aj.hyena.mapper.PointRecMapper;
+import com.aj.hyena.ds.mapper.PointRecMapper;
 import com.aj.hyena.model.param.ListPointRecParam;
 import com.aj.hyena.model.po.PointRecLogPo;
 import com.aj.hyena.model.po.PointRecPo;

@@ -1,9 +1,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.aj.hyena.mapper.PointTableMapper">
+<mapper namespace="com.aj.hyena.ds.mapper.PointTableMapper">
 
     <select id="listCusPointTables" resultType="java.lang.String">
-        show tables like "${prefix}%"
+        show tables
     </select>
 
     <update id="createPointTable" flushCache="true">
@@ -23,7 +23,7 @@
     </update>
 
     <update id="createPointRecTable" flushCache="true">
-        create table if not exists ${pointRecTableName} (
+        create table if not exists ${pointTableName}_rec (
         id bigint(20) not null auto_increment primary key,
         `pid` bigint(20) not null references ${pointTableName}(`id`),
         `total` bigint(20) not null default 0,
@@ -35,16 +35,19 @@
         `expireTime` datetime,
         `enable` boolean not null default true,
         `createTime` timestamp default now(),
-        `updateTime` timestamp default now(),
-        index ${pointRecTableName}_tag(`tag`)
+        `updateTime` timestamp default now()
         ) engine=InnoDB default charset=utf8mb4
     </update>
 
+    <update id="createPointRecTableIndex" flushCache="true">
+        create index ${pointTableName}_rec_tag ON ${pointTableName}_rec(tag)
+    </update>
+
     <update id="createPointLogTable" flushCache="true">
-        create table if not exists ${pointLogTableName} (
+        create table if not exists ${pointTableName}_rec_log (
         id bigint(20) not null auto_increment primary key,
         `pid` bigint(20) not null references ${pointTableName}(`id`),
-        `recId` bigint(20) not null references ${pointRecTableName}(`id`),
+        `recId` bigint(20) not null references ${pointTableName}_rec(`id`),
         `type` tinyint not null default 0 comment '1: increase; 2: decrease; 3: freeze; 4: unfreeze; 5: expire',
         `delta` bigint(20) not null default 0,
         `available` bigint(20) not null default 0,
@@ -54,8 +57,11 @@
         `tag` varchar(128) not null default '',
         `note` text,
         `enable` boolean not null default true,
-        `createTime` timestamp default now(),
-        index ${pointLogTableName}_tag(`tag`)
+        `createTime` timestamp default now()
         ) engine=InnoDB default charset=utf8mb4
+    </update>
+
+    <update id="createPointLogTableIndex" flushCache="true">
+        create index ${pointTableName}_rec_log_tag ON ${pointTableName}_rec_log(tag)
     </update>
 </mapper>

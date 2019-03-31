@@ -44,14 +44,17 @@ logging:
 
 
 spring:
+  h2:
+    console:
+      enabled: true
   datasource:
-    type: com.zaxxer.hikari.HikariDataSource
+#    type: com.zaxxer.hikari.HikariDataSource
     continue-on-error: false
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.h2.Driver
     name: hyena
-    username: abc
-    password: abcdefg
-    url: jdbc:mysql://xxx.xxx.xxx.xxx:3306/hyena?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
+    username: sa
+    password:
+    url: jdbc:h2:mem:testdbsa
     initialPoolSize: 1
     minPoolSize: 1
     maxPoolSize: 10

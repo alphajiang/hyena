@@ -1,6 +1,6 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.aj.hyena.mapper.PointMapper">
+<mapper namespace="com.aj.hyena.ds.mapper.PointMapper">
 
     <insert id="addPoint">
         insert into `${tableName}` (

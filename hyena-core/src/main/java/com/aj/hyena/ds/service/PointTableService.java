@@ -15,10 +15,10 @@
  *
  */
 
-package com.aj.hyena.service;
+package com.aj.hyena.ds.service;
 
 import com.aj.hyena.HyenaConstants;
-import com.aj.hyena.mapper.PointTableMapper;
+import com.aj.hyena.ds.mapper.PointTableMapper;
 import com.aj.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,17 +58,22 @@ public class PointTableService {
 
     private void createTable(String type) {
         String pointTableName = TableNameHelper.getPointTableName(type);
-        String recTableName = TableNameHelper.getPointRecTableName(type);
-        String recLogTableName = TableNameHelper.getPointRecLogTableName(type);
         this.cusPointTableMapper.createPointTable(pointTableName);
-        this.cusPointTableMapper.createPointRecTable(pointTableName, recTableName);
-        this.cusPointTableMapper.createPointLogTable(pointTableName, recTableName, recLogTableName);
+        this.cusPointTableMapper.createPointRecTable(pointTableName);
+        this.cusPointTableMapper.createPointRecTableIndex(pointTableName);
+        this.cusPointTableMapper.createPointLogTable(pointTableName);
+        this.cusPointTableMapper.createPointLogTableIndex(pointTableName);
         this.listTables();
     }
 
     private synchronized void listTables() {
         List<String> tableList = this.cusPointTableMapper.listCusPointTables(HyenaConstants.PREFIX_POINT_TABLE_NAME);
-        tableList = tableList.stream().filter(name -> !(name.endsWith("_rec") || name.endsWith("_rec_log")))
+
+        logger.info("a tableList = {}", tableList);
+
+        tableList = tableList.stream().map(name -> name.toLowerCase())
+                .filter(name ->  name.startsWith(HyenaConstants.PREFIX_POINT_TABLE_NAME)
+                && !(name.endsWith("_rec") || name.endsWith("_rec_log")))
                 .collect(Collectors.toList());
         logger.info("tableList = {}", tableList);
         tables.clear();

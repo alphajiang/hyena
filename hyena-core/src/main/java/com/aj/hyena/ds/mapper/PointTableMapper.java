@@ -15,14 +15,25 @@
  *
  */
 
-package com.aj.hyena.mapper;
+package com.aj.hyena.ds.mapper;
 
-import com.aj.hyena.model.po.PointRecLogPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
-public interface PointRecLogMapper {
-    void addPointRecLog(@Param(value = "tableName") String tableName,
-                        @Param(value = "recLog") PointRecLogPo recLog);
+public interface PointTableMapper {
+    List<String> listCusPointTables(@Param(value = "prefix") String prefix);
+
+    void createPointTable(@Param(value = "pointTableName") String pointTableName);
+
+    void createPointRecTable(@Param(value = "pointTableName") String pointTableName);
+
+    void createPointRecTableIndex(@Param(value = "pointTableName") String pointTableName);
+
+    void createPointLogTable(@Param(value = "pointTableName") String pointTableName);
+
+    void createPointLogTableIndex(@Param(value = "pointTableName") String pointTableName);
+
 }

@@ -21,10 +21,11 @@ import com.aj.hyena.model.base.ListResponse;
 import com.aj.hyena.model.base.ObjectResponse;
 import com.aj.hyena.model.param.ListPointRecParam;
 import com.aj.hyena.model.param.SortParam;
+import com.aj.hyena.model.po.PointPo;
 import com.aj.hyena.model.po.PointRecPo;
 import com.aj.hyena.model.type.SortOrder;
-import com.aj.hyena.service.PointRecService;
-import com.aj.hyena.service.PointService;
+import com.aj.hyena.ds.service.PointRecService;
+import com.aj.hyena.ds.service.PointService;
 import com.aj.hyena.utils.LoggerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,20 +68,20 @@ public class PointController {
     }
 
     @PostMapping(value = "/increase", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ObjectResponse<Long> increasePoint(HttpServletRequest request,
+    public ObjectResponse<PointPo> increasePoint(HttpServletRequest request,
                                               @RequestParam(defaultValue = "default") String type,
                                               @RequestParam String cusId,
                                               @RequestParam long point) {
         logger.info(LoggerHelper.formatEnterLog(request));
 
         var cusPoint = this.cusPointService.increasePoint(type, cusId, point);
-        ObjectResponse<Long> res = new ObjectResponse<>(cusPoint.getPoint());
+        ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
 
     @PostMapping(value = "/decrease", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ObjectResponse<Long> decreasePoint(HttpServletRequest request,
+    public ObjectResponse<PointPo> decreasePoint(HttpServletRequest request,
                                               @RequestParam(defaultValue = "default") String type,
                                               @RequestParam String cusId,
                                               @RequestParam long point,
@@ -88,43 +89,43 @@ public class PointController {
                                               @RequestParam(defaultValue = "") String note) {
         logger.info(LoggerHelper.formatEnterLog(request));
 
-        Long cusPoint = null;
+        PointPo cusPoint = null;
         if (unfreeze) {
             cusPoint = this.cusPointService.decreasePointUnfreeze(type, cusId, point, note);
         } else {
             cusPoint = this.cusPointService.decreasePoint(type, cusId, point, note);
         }
-        ObjectResponse<Long> res = new ObjectResponse<>(cusPoint);
+        ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
 
     @PostMapping(value = "/freeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ObjectResponse<Long> freezePoint(HttpServletRequest request,
+    public ObjectResponse<PointPo> freezePoint(HttpServletRequest request,
                                             @RequestParam(defaultValue = "default") String type,
                                             @RequestParam String cusId,
                                             @RequestParam long point,
                                             @RequestParam(defaultValue = "") String note) {
         logger.info(LoggerHelper.formatEnterLog(request));
 
-        Long cusPoint = cusPoint = this.cusPointService.freezePoint(type, cusId, point, note);
+        PointPo cusPoint = cusPoint = this.cusPointService.freezePoint(type, cusId, point, note);
 
-        ObjectResponse<Long> res = new ObjectResponse<>(cusPoint);
+        ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
 
     @PostMapping(value = "/unfreeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ObjectResponse<Long> unfreezePoint(HttpServletRequest request,
+    public ObjectResponse<PointPo> unfreezePoint(HttpServletRequest request,
                                             @RequestParam(defaultValue = "default") String type,
                                             @RequestParam String cusId,
                                             @RequestParam long point,
                                             @RequestParam(defaultValue = "") String note) {
         logger.info(LoggerHelper.formatEnterLog(request));
 
-        Long cusPoint = cusPoint = this.cusPointService.unfreezePoint(type, cusId, point, note);
+        PointPo cusPoint = cusPoint = this.cusPointService.unfreezePoint(type, cusId, point, note);
 
-        ObjectResponse<Long> res = new ObjectResponse<>(cusPoint);
+        ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }

@@ -1,3 +1,6 @@
+
+
+
 /*
  *  Copyright (C) 2019 Alpha Jiang. All rights reserved.
  *
@@ -15,27 +18,25 @@
  *
  */
 
-package com.aj.hyena.demo;
+package com.aj.hyena;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+
+@ComponentScan(basePackages = { "com.aj.hyena" })
 @SpringBootApplication
-@ComponentScan({ "com.aj.hyena" })
-@MapperScan(basePackages = { "com.aj.hyena.ds.mapper" })
 @EnableTransactionManagement
-public class HyenaMain {
-    private static final Logger logger = LoggerFactory.getLogger(HyenaMain.class);
+public class HyenaTestMain {
+    private final static Logger logger = LoggerFactory.getLogger(HyenaTestMain.class);
 
     public static void main(String[] args) {
-        logger.info("starting......");
-        new SpringApplicationBuilder(HyenaMain.class).web(WebApplicationType.SERVLET).run(args);
+        logger.info("starting....");
+        SpringApplication.run(HyenaTestMain.class, args);
         logger.info("started");
     }
 }

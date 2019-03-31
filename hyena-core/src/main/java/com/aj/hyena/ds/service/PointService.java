@@ -15,10 +15,10 @@
  *
  */
 
-package com.aj.hyena.service;
+package com.aj.hyena.ds.service;
 
 import com.aj.hyena.HyenaConstants;
-import com.aj.hyena.mapper.PointMapper;
+import com.aj.hyena.ds.mapper.PointMapper;
 import com.aj.hyena.model.exception.HyenaNoPointException;
 import com.aj.hyena.model.param.ListPointRecParam;
 import com.aj.hyena.model.param.SortParam;
@@ -83,7 +83,7 @@ public class PointService {
     }
 
     @Transactional
-    public long decreasePoint(String type, String cusId, long point, String note) {
+    public PointPo decreasePoint(String type, String cusId, long point, String note) {
         logger.info("decrease. type = {}, cusId = {}, point = {}", type, cusId, point);
         PointPo curPoint = this.getCusPoint(type, cusId, true);
         logger.debug("curPoint = {}", curPoint);
@@ -110,7 +110,7 @@ public class PointService {
         curPoint.setPoint(curPoint.getPoint() - point).setAvailable(curPoint.getAvailable() - point)
                 .setUsed(curPoint.getUsed() + point);
         this.update(type, curPoint);
-        return gap;
+        return curPoint;
     }
 
     private long decreasePointLoop(String type, String cusId, long point, String note) {
@@ -144,7 +144,7 @@ public class PointService {
     }
 
     @Transactional
-    public long decreasePointUnfreeze(String type, String cusId, long point, String note) {
+    public PointPo decreasePointUnfreeze(String type, String cusId, long point, String note) {
         logger.info("decrease unfreeze. type = {}, cusId = {}, point = {}", type, cusId, point);
         PointPo curPoint = this.getCusPoint(type, cusId, true);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
@@ -168,7 +168,7 @@ public class PointService {
         curPoint.setPoint(curPoint.getPoint() - point).setFrozen(curPoint.getFrozen() - point)
                 .setUsed(curPoint.getUsed() + point);
         this.update(type, curPoint);
-        return gap;
+        return curPoint;
     }
 
     private long decreasePointUnfreezeLoop(String type, String cusId, long point, String note) {
@@ -203,7 +203,7 @@ public class PointService {
     }
 
     @Transactional
-    public long freezePoint(String type, String cusId, long point, String note) {
+    public PointPo freezePoint(String type, String cusId, long point, String note) {
         logger.info("freeze. type = {}, cusId = {}, point = {}", type, cusId, point);
         PointPo curPoint = this.getCusPoint(type, cusId, true);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
@@ -224,7 +224,7 @@ public class PointService {
                 "no enough available point!");
         curPoint.setAvailable(curPoint.getAvailable() - point).setFrozen(curPoint.getFrozen() + point);
         this.update(type, curPoint);
-        return gap;
+        return curPoint;
     }
 
     private long freezePointLoop(String type, String cusId, long point, String note) {
@@ -259,7 +259,7 @@ public class PointService {
     }
 
     @Transactional
-    public long unfreezePoint(String type, String cusId, long point, String note) {
+    public PointPo unfreezePoint(String type, String cusId, long point, String note) {
         logger.info("unfreeze. type = {}, cusId = {}, point = {}", type, cusId, point);
         PointPo curPoint = this.getCusPoint(type, cusId, true);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
@@ -280,7 +280,7 @@ public class PointService {
                 "no enough frozen point!");
         curPoint.setAvailable(curPoint.getAvailable() + point).setFrozen(curPoint.getFrozen() - point);
         this.update(type, curPoint);
-        return gap;
+        return curPoint;
     }
 
     private long unfreezePointLoop(String type, String cusId, long point, String note) {

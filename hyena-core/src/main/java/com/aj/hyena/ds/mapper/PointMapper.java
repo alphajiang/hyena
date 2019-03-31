@@ -15,23 +15,22 @@
  *
  */
 
-package com.aj.hyena.mapper;
+package com.aj.hyena.ds.mapper;
 
+import com.aj.hyena.model.po.PointPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
-
 @Mapper
-public interface PointTableMapper {
-    List<String> listCusPointTables(@Param(value = "prefix") String prefix);
+public interface PointMapper {
+    Integer addPoint(@Param(value="tableName") String tableName,
+                     @Param(value="cusId") String cusId,
+                     @Param(value="point") long point);
 
-    void createPointTable(@Param(value = "pointTableName") String pointTableName);
+    PointPo getCusPoint(@Param(value="tableName") String tableName,
+                        @Param(value="cusId") String cusId,
+                        @Param(value="lock") boolean lock);
 
-    void createPointRecTable(@Param(value = "pointTableName") String pointTableName,
-                             @Param(value = "pointRecTableName") String pointRecTableName);
-
-    void createPointLogTable(@Param(value = "pointTableName") String pointTableName,
-                             @Param(value = "pointRecTableName") String pointRecTableName,
-                             @Param(value = "pointLogTableName") String pointLogTableName);
+    void updateCusPoint(@Param(value="tableName") String tableName,
+                        @Param(value="cusPoint") PointPo cusPoint);
 }

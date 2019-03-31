@@ -1,6 +1,6 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.aj.hyena.mapper.PointRecLogMapper">
+<mapper namespace="com.aj.hyena.ds.mapper.PointRecLogMapper">
 
     <insert id="addPointRecLog">
         insert into `${tableName}` set

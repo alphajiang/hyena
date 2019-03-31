@@ -1,6 +1,6 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.aj.hyena.mapper.PointRecMapper">
+<mapper namespace="com.aj.hyena.ds.mapper.PointRecMapper">
 
     <insert id="addPointRec" useGeneratedKeys="true" keyProperty="rec.id" keyColumn="id">
         insert into `${tableName}` set
