@@ -15,21 +15,42 @@
  *
  */
 
-package com.aj.hyena.spring.boot.autoconfigure;
+package com.aj.hyena.model.type;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+public enum PointStatus {
 
-@ConfigurationProperties(prefix = HyenaProperties.HYENA_PREFIX)
-public class HyenaProperties {
-    public static final String HYENA_PREFIX = "hyena";
+    INCREASE(1),    // 增加
 
-    private String idempotent;
+    DECREASE(2),    // 减少(使用)
 
-    public String getIdempotent() {
-        return idempotent;
+    FREEZE(3),      // 冻结
+
+    UNFREEZE(4),    // 解冻
+
+    EXPIRE(5),      // 过期
+
+    CANCEL(6),      // 作废
+
+    UNKNOWN(0)
+    ;
+
+
+    private final int code;
+
+    PointStatus(int code) {
+        this.code = code;
     }
 
-    public void setIdempotent(String idempotent) {
-        this.idempotent = idempotent;
+    public static PointStatus fromCode(int code){
+        for (PointStatus type : values()) {
+            if (type.code == code) {
+                return type;
+            }
+        }
+        return UNKNOWN;
+    }
+
+    public int code() {
+        return this.code;
     }
 }

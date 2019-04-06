@@ -15,21 +15,20 @@
  *
  */
 
-package com.aj.hyena.spring.boot.autoconfigure;
+package com.aj.hyena.model.type;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+public enum CalcType {
+    INCREASE,
 
-@ConfigurationProperties(prefix = HyenaProperties.HYENA_PREFIX)
-public class HyenaProperties {
-    public static final String HYENA_PREFIX = "hyena";
+    DECREASE,
 
-    private String idempotent;
+    DECREASE_FROZEN,
 
-    public String getIdempotent() {
-        return idempotent;
-    }
+    FREEZE,
 
-    public void setIdempotent(String idempotent) {
-        this.idempotent = idempotent;
-    }
+    UNFREEZE,
+
+    EXPIRE,
+
+    CANCEL
 }

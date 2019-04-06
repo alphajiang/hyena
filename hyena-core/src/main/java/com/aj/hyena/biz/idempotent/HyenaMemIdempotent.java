@@ -15,40 +15,29 @@
  *
  */
 
-package com.aj.hyena.model.type;
+package com.aj.hyena.biz.idempotent;
 
-public enum PointRecLogType {
+import com.aj.hyena.model.base.BaseResponse;
 
-    INCREASE(1),
+public class HyenaMemIdempotent implements HyenaIdempotent {
 
-    DECREASE(2),
-
-    FREEZE(3),
-
-    UNFREEZE(4),
-
-    EXPIRE(5),
-
-    UNKNOWN(0)
-    ;
-
-
-    private final int code;
-
-    PointRecLogType(int code) {
-        this.code = code;
+    @Override
+    public String getByKey(String seq){
+        return "";
     }
 
-    public static PointRecLogType fromCode(int code){
-        for (PointRecLogType type : values()) {
-            if (type.code == code) {
-                return type;
-            }
-        }
-        return UNKNOWN;
+    @Override
+    public void setByKey(String seq, BaseResponse obj){
+
     }
 
-    public int code() {
-        return this.code;
+    @Override
+    public boolean lock(String seq) {
+        return true;
+    }
+
+    @Override
+    public void unlock(String seq) {
+
     }
 }

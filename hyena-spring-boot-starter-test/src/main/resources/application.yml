@@ -21,6 +21,9 @@ logging:
     org.springframework: 'INFO'
     
 
+hyena:
+  idempotent: redis
+
 
 
 
@@ -30,8 +33,8 @@ spring:
     continue-on-error: false
     driver-class-name: com.mysql.cj.jdbc.Driver
     name: hyena
-    username: abc
-    password: abcdefg
+    username: xxxx
+    password: xxxx
     url: jdbc:mysql://xxx.xxx.xxx.xxx:3306/hyena?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
     initialPoolSize: 1
     minPoolSize: 1
@@ -39,3 +42,15 @@ spring:
     acquireIncrement: 1
     maxIdleTime: 10
     checkoutTimeout: 30000
+  redis:
+    database: 3
+    host: xxx.xxx.xxx.xxx
+    port: 6379
+    password: xxx
+    timeout: 4000
+    ssl: false
+    pool:
+      max-active: 1024
+      max-idle: 200
+      max-wait: 10000
+      min-idle: 0

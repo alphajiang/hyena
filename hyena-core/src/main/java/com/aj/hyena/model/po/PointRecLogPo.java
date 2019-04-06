@@ -36,6 +36,7 @@ public class PointRecLogPo extends BasePo {
     private Long available;
     private Long used;
     private Long frozen;
+    private Long cancelled;
     private Long expire;
     private String tag;
     private String note;
@@ -100,6 +101,15 @@ public class PointRecLogPo extends BasePo {
 
     public PointRecLogPo setFrozen(Long frozen) {
         this.frozen = frozen;
+        return this;
+    }
+
+    public Long getCancelled() {
+        return cancelled;
+    }
+
+    public PointRecLogPo setCancelled(Long cancelled) {
+        this.cancelled = cancelled;
         return this;
     }
 

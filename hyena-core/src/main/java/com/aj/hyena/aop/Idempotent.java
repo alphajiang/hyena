@@ -15,21 +15,12 @@
  *
  */
 
-package com.aj.hyena.spring.boot.autoconfigure;
+package com.aj.hyena.aop;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-@ConfigurationProperties(prefix = HyenaProperties.HYENA_PREFIX)
-public class HyenaProperties {
-    public static final String HYENA_PREFIX = "hyena";
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Idempotent {
 
-    private String idempotent;
-
-    public String getIdempotent() {
-        return idempotent;
-    }
-
-    public void setIdempotent(String idempotent) {
-        this.idempotent = idempotent;
-    }
 }

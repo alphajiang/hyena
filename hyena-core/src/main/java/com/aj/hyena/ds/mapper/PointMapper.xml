@@ -18,6 +18,39 @@
         </if>
     </select>
 
+    <select id="listPoint" resultType="com.aj.hyena.model.po.PointPo">
+        select pt.*
+        from `${pointTableName}` as pt
+        where 1=1
+
+        <if test="param.enable != null">
+            and pt.enable = #{param.enable}
+        </if>
+        <if test="@com.aj.hyena.utils.StringUtils@isNotBlank( param.sk )">
+            <bind name="pattern" value="'%' + sk + '%'"/>
+            and (
+            pt.cusId like #{pattern}
+            )
+        </if>
+        <if test="@com.aj.hyena.utils.CollectionUtils@isNotEmpty( param.sorts )">
+            <foreach item="sort" collection="param.sorts"
+                     open="order by" separator="," close=" ">
+                ${sort.columnsString} ${sort.order}
+            </foreach>
+        </if>
+        <choose>
+            <when test="param.start != null and param.size != null">
+                limit #{param.start},#{param.size}
+            </when>
+            <when test="param.size != null">
+                limit #{param.size}
+            </when>
+        </choose>
+        <if test="param.lock == true">
+            for update
+        </if>
+    </select>
+
     <update id="updateCusPoint" >
         update `${tableName}`
         set
@@ -40,6 +73,6 @@
             enable = #{cusPoint.enable},
         </if>
         updateTime = now()
-        where cusId = #{cusPoint.cusId}
+        where id = #{cusPoint.id}
     </update>
 </mapper>

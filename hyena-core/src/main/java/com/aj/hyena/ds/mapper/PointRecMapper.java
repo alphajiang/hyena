@@ -27,6 +27,9 @@ import java.util.List;
 @Mapper
 public interface PointRecMapper {
 
+    PointRecPo getById(@Param(value = "pointTableName") String pointTableName,
+                       @Param(value = "id") long id,
+                       @Param(value = "lock") boolean lock);
 
     void addPointRec(@Param(value = "tableName") String tableName,
                      @Param(value = "rec") PointRecPo rec);

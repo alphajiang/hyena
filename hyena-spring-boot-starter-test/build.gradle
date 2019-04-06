@@ -14,7 +14,7 @@ test {
 }
 
 dependencies {
-    implementation project(':hyena-spring-boot-starter')
+    implementation project(':hyena-spring-boot-starter') 
     //implementation('org.springframework.cloud:spring-cloud-config-server')
 
     implementation("org.springframework.boot:spring-boot-starter:${springBootVersion}")

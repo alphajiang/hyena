@@ -15,21 +15,15 @@
  *
  */
 
-package com.aj.hyena.spring.boot.autoconfigure;
+package com.aj.hyena.biz.idempotent;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.aj.hyena.model.base.BaseResponse;
 
-@ConfigurationProperties(prefix = HyenaProperties.HYENA_PREFIX)
-public class HyenaProperties {
-    public static final String HYENA_PREFIX = "hyena";
+public interface HyenaIdempotent {
 
-    private String idempotent;
+    boolean lock(String seq);
+    void unlock(String seq);
+    String getByKey(String seq);
+    void setByKey(String seq, BaseResponse obj);
 
-    public String getIdempotent() {
-        return idempotent;
-    }
-
-    public void setIdempotent(String idempotent) {
-        this.idempotent = idempotent;
-    }
 }

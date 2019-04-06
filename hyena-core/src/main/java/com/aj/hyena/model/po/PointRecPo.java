@@ -28,6 +28,7 @@ public class PointRecPo extends BasePo {
     private Long available;
     private Long used;
     private Long frozen;
+    private Long cancelled;
     private Long expire;
     private String tag;
     private Date expireTime;
@@ -74,6 +75,15 @@ public class PointRecPo extends BasePo {
 
     public PointRecPo setFrozen(Long frozen) {
         this.frozen = frozen;
+        return this;
+    }
+
+    public Long getCancelled() {
+        return cancelled;
+    }
+
+    public PointRecPo setCancelled(Long cancelled) {
+        this.cancelled = cancelled;
         return this;
     }
 

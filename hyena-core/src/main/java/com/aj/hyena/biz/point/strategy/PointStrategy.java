@@ -15,21 +15,15 @@
  *
  */
 
-package com.aj.hyena.spring.boot.autoconfigure;
+package com.aj.hyena.biz.point.strategy;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.aj.hyena.biz.point.PointUsage;
+import com.aj.hyena.model.po.PointPo;
+import com.aj.hyena.model.type.CalcType;
 
-@ConfigurationProperties(prefix = HyenaProperties.HYENA_PREFIX)
-public class HyenaProperties {
-    public static final String HYENA_PREFIX = "hyena";
+public interface PointStrategy {
 
-    private String idempotent;
+    CalcType getType();
 
-    public String getIdempotent() {
-        return idempotent;
-    }
-
-    public void setIdempotent(String idempotent) {
-        this.idempotent = idempotent;
-    }
+    PointPo process(PointUsage usage);
 }

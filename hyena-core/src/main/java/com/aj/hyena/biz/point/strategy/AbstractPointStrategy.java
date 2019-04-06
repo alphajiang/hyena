@@ -15,40 +15,33 @@
  *
  */
 
-package com.aj.hyena;
+package com.aj.hyena.biz.point.strategy;
 
+import com.aj.hyena.biz.point.PointUsage;
 import com.aj.hyena.ds.service.PointTableService;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import com.aj.hyena.utils.HyenaAssert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.util.UUID;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = HyenaTestMain.class)
-@Transactional
-public abstract class HyenaTestBase {
+public abstract class AbstractPointStrategy implements PointStrategy {
 
     @Autowired
-    private PointTableService pointTableService;
-
-    private String pointType = "";
-
-    public HyenaTestBase() {
-        this.pointType = UUID.randomUUID().toString().substring(0, 6);
-    }
+    private PointTableService cusPointTableService;
 
 
+    @PostConstruct
     public void init() {
-        pointTableService.getOrCreateTable(this.pointType);
+        PointStrategyFactory.addStrategy(this);
     }
 
-    public String getPointType() {
-        return this.pointType;
+    protected void preProcess(PointUsage usage) {
+        //String tableName =
+        HyenaAssert.notBlank(usage.getType(), "invalid parameter, 'type' can't blank");
+        HyenaAssert.notBlank(usage.getCusId(), "invalid parameter, 'cusId' can't blank");
+        HyenaAssert.isTrue(usage.getPoint() > 0L, "invalid parameter, 'point' must great than 0");
+
+        this.cusPointTableService.getOrCreateTable(usage.getType());
+        //logger.debug("tableName = {}", tableName);
     }
 }

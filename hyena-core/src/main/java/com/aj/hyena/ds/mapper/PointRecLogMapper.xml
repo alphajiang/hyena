@@ -11,6 +11,7 @@
         `available` = #{recLog.available},
         `used` = #{recLog.used},
         `frozen` = #{recLog.frozen},
+        `cancelled` = #{recLog.cancelled},
         `expire` = #{recLog.expire},
         <if test="recLog.tag != null">
             `tag` = #{recLog.tag},

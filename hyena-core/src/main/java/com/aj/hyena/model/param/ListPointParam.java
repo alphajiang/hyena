@@ -15,21 +15,7 @@
  *
  */
 
-package com.aj.hyena.spring.boot.autoconfigure;
+package com.aj.hyena.model.param;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-@ConfigurationProperties(prefix = HyenaProperties.HYENA_PREFIX)
-public class HyenaProperties {
-    public static final String HYENA_PREFIX = "hyena";
-
-    private String idempotent;
-
-    public String getIdempotent() {
-        return idempotent;
-    }
-
-    public void setIdempotent(String idempotent) {
-        this.idempotent = idempotent;
-    }
+public class ListPointParam extends BaseListParam{
 }

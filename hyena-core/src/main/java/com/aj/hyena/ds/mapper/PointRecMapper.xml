@@ -2,6 +2,15 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.aj.hyena.ds.mapper.PointRecMapper">
 
+
+    <select id="getById" resultType="com.aj.hyena.model.po.PointRecPo">
+        select rec.* from `${pointTableName}_rec` as rec
+        where rec.id = #{id}
+        <if test="lock == true">
+            for update
+        </if>
+    </select>
+
     <insert id="addPointRec" useGeneratedKeys="true" keyProperty="rec.id" keyColumn="id">
         insert into `${tableName}` set
         `pid` = #{rec.pid},
@@ -71,6 +80,9 @@
         </if>
         <if test="rec.expire != null">
             expire = #{rec.expire},
+        </if>
+        <if test="rec.cancelled != null">
+            cancelled = #{rec.cancelled},
         </if>
         <if test="rec.enable != null">
             `enable` = #{rec.enable},

@@ -17,14 +17,17 @@
 
 package com.aj.hyena.ds.service;
 
+import com.aj.hyena.HyenaConstants;
 import com.aj.hyena.ds.mapper.PointRecMapper;
 import com.aj.hyena.model.param.ListPointRecParam;
 import com.aj.hyena.model.po.PointRecLogPo;
 import com.aj.hyena.model.po.PointRecPo;
-import com.aj.hyena.model.type.PointRecLogType;
+import com.aj.hyena.model.type.PointStatus;
+import com.aj.hyena.utils.HyenaAssert;
 import com.aj.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +44,11 @@ public class PointRecService {
 
     @Autowired
     private PointRecLogService pointRecLogService;
+
+    public PointRecPo getById(String type, long id, boolean lock) {
+        String pointTableName = TableNameHelper.getPointTableName(type);
+        return this.pointRecMapper.getById(pointTableName, id, lock);
+    }
 
 
     public List<PointRecPo> listPointRec(String type, ListPointRecParam param) {
@@ -81,12 +89,12 @@ public class PointRecService {
         String recTableName = TableNameHelper.getPointRecTableName(type);
         this.pointRecMapper.addPointRec(recTableName, rec);
 
-        this.pointRecLogService.addLogByRec(type, PointRecLogType.INCREASE,
+        this.pointRecLogService.addLogByRec(type, PointStatus.INCREASE,
                 rec, point, note);
 
     }
 
-    public void decreasePoint(String type, PointRecPo rec, long point, String note){
+    public void decreasePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
         if (rec.getAvailable() < delta) {
@@ -102,11 +110,11 @@ public class PointRecService {
 
         }
 
-        this.pointRecLogService.addLogByRec(type, PointRecLogType.DECREASE,
+        this.pointRecLogService.addLogByRec(type, PointStatus.DECREASE,
                 rec, delta, note);
     }
 
-    public void decreasePointUnfreeze(String type, PointRecPo rec, long point, String note){
+    public void decreasePointUnfreeze(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
         if (rec.getFrozen() < delta) {
@@ -122,11 +130,11 @@ public class PointRecService {
 
         }
 
-        this.pointRecLogService.addLogByRec(type, PointRecLogType.DECREASE,
+        this.pointRecLogService.addLogByRec(type, PointStatus.DECREASE,
                 rec, delta, note);
     }
 
-    public void freezePoint(String type, PointRecPo rec, long point, String note){
+    public void freezePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
         if (rec.getAvailable() < delta) {
@@ -141,11 +149,11 @@ public class PointRecService {
             this.updatePointRec(type, rec);
 
         }
-        this.pointRecLogService.addLogByRec(type, PointRecLogType.FREEZE,
+        this.pointRecLogService.addLogByRec(type, PointStatus.FREEZE,
                 rec, delta, note);
     }
 
-    public void unfreezePoint(String type, PointRecPo rec, long point, String note){
+    public void unfreezePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
         if (rec.getFrozen() < delta) {
@@ -160,12 +168,21 @@ public class PointRecService {
             this.updatePointRec(type, rec);
 
         }
-        this.pointRecLogService.addLogByRec(type, PointRecLogType.UNFREEZE,
+        this.pointRecLogService.addLogByRec(type, PointStatus.UNFREEZE,
                 rec, delta, note);
     }
 
+    public void cancelPointRec(String type, PointRecPo rec, String note){
+        long available = rec.getAvailable();
+        rec.setAvailable(0L).setCancelled(available);
+        this.updatePointRec(type, rec);
+
+        this.pointRecLogService.addLogByRec(type, PointStatus.CANCEL,
+                rec, available, note);
+    }
+
     public void updatePointRec(String type, PointRecPo rec) {
-        if(rec.getAvailable() == 0L && rec.getFrozen() == 0L) {
+        if (rec.getAvailable() == 0L && rec.getFrozen() == 0L) {
             // totally used
             rec.setEnable(false);
         }

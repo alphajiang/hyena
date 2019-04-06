@@ -24,6 +24,8 @@ import java.util.List;
 
 public class BaseListParam extends BaseObject {
 
+    private String type;
+
     @ApiModelProperty(value = "搜索关键词")
     private String sk = "";
 
@@ -42,6 +44,15 @@ public class BaseListParam extends BaseObject {
     @ApiModelProperty(value = "排序方式")
     private List<SortParam> sorts;
 
+
+    public String getType() {
+        return type;
+    }
+
+    public BaseListParam setType(String type) {
+        this.type = type;
+        return this;
+    }
 
     public String getSk() {
         return sk;
