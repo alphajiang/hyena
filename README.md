@@ -19,6 +19,21 @@
 /hyena/point/listPointRecord
 
 ## 示例代码
+Maven
+<pre>
+<dependency>
+    <groupId>io.github.alphajiang</groupId>
+    <artifactId>hyena-spring-boot-starter</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+</dependency>
+</pre>
+Gradle
+<pre>
+dependencies {
+    implementation("io.github.alphajiang:hyena-spring-boot-starter:0.0.1-SNAPSHOT")
+}
+</pre>
+Java代码
 <pre>
 @SpringBootApplication
 @ComponentScan({ "io.github.alphajiang.hyena" })
