@@ -44,18 +44,7 @@ public class BaseResponse extends BaseObject {
         this.error = error;
     }
 
-    public BaseResponse() {
 
-    }
-
-    public BaseResponse(int status) {
-        this.status = status;
-    }
-
-    public BaseResponse(int status, String error) {
-        this.status = status;
-        this.error = error;
-    }
 
     public int getStatus() {
         return status;
