@@ -17,7 +17,7 @@ management:
 
 logging:
   level:
-    com.aj.hyena: 'DEBUG'
+    io.github.alphajiang.hyena: 'DEBUG'
     org.springframework: 'INFO'
     
 

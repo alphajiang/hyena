@@ -1,0 +1,95 @@
+<!--
+  ~  Copyright (C) 2019 Alpha Jiang. All rights reserved.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  ~
+  -->
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.alphajiang.hyena.ds.mapper.PointMapper">
+
+    <insert id="addPoint">
+        insert into `${tableName}` (
+            `cusId`, `point`, `available`
+        ) values(
+        #{cusId}, #{point}, #{point} )
+    </insert>
+
+    <select id="getCusPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">
+        select cp.*
+        from `${tableName}` as cp
+        where cp.cusId = #{cusId}
+        <if test="lock == true">
+            for update
+        </if>
+    </select>
+
+    <select id="listPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">
+        select pt.*
+        from `${pointTableName}` as pt
+        where 1=1
+
+        <if test="param.enable != null">
+            and pt.enable = #{param.enable}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
+            <bind name="pattern" value="'%' + sk + '%'"/>
+            and (
+            pt.cusId like #{pattern}
+            )
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.sorts )">
+            <foreach item="sort" collection="param.sorts"
+                     open="order by" separator="," close=" ">
+                ${sort.columnsString} ${sort.order}
+            </foreach>
+        </if>
+        <choose>
+            <when test="param.start != null and param.size != null">
+                limit #{param.start},#{param.size}
+            </when>
+            <when test="param.size != null">
+                limit #{param.size}
+            </when>
+        </choose>
+        <if test="param.lock == true">
+            for update
+        </if>
+    </select>
+
+    <update id="updateCusPoint" >
+        update `${tableName}`
+        set
+        <if test="cusPoint.point != null">
+            point = #{cusPoint.point},
+        </if>
+        <if test="cusPoint.available != null">
+            available = #{cusPoint.available},
+        </if>
+        <if test="cusPoint.used != null">
+            used = #{cusPoint.used},
+        </if>
+        <if test="cusPoint.frozen != null">
+            frozen = #{cusPoint.frozen},
+        </if>
+        <if test="cusPoint.expire != null">
+            expire = #{cusPoint.expire},
+        </if>
+        <if test="cusPoint.enable != null">
+            enable = #{cusPoint.enable},
+        </if>
+        updateTime = now()
+        where id = #{cusPoint.id}
+    </update>
+</mapper>

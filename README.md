@@ -21,8 +21,8 @@
 ## 示例代码
 <pre>
 @SpringBootApplication
-@ComponentScan({ "com.aj.hyena" })
-@MapperScan(basePackages = { "com.aj.hyena.ds.mapper" })
+@ComponentScan({ "io.github.alphajiang.hyena" })
+@MapperScan(basePackages = { "io.github.alphajiang.hyena.ds.mapper" })
 @EnableTransactionManagement
 public class HyenaMain {
     public static void main(String[] args) {

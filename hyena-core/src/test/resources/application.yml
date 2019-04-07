@@ -17,29 +17,9 @@ management:
 
 logging:
   level:
-    com.aj.hyena: 'DEBUG'
+    io.github.alphajiang.hyena: 'DEBUG'
     org.springframework: 'INFO'
     
-#spring:
-#  cloud:
-#    client:
-#      hostname: 192.168.100.14
-#eureka:
-#  instance:
-#    hostname: localhost
-#  client:
-#    registerWithEureka: false
-#    fetchRegistry: true
-#    healthcheck:
-#      enabled: true
-#    serviceUrl:
-#      defaultZone: https://aaa:bbb@eureka.xxxx.com/eureka/
-#mybatis:
-#  mapper-locations: classpath*:com/xxxx/park/**/*Mapper.xml
-##  configuration:
-##    log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
-##    aggressive-lazy-loading: false
-#  configuration-properties: classpath*:application-service-mybatis.xml
 
 
 
@@ -48,7 +28,6 @@ spring:
     console:
       enabled: true
   datasource:
-#    type: com.zaxxer.hikari.HikariDataSource
     continue-on-error: false
     driver-class-name: org.h2.Driver
     name: hyena
