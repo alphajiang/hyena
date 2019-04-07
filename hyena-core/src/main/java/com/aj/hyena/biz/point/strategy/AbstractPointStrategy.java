@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 
-public abstract class AbstractPointStrategy implements PointStrategy {
+abstract class AbstractPointStrategy implements PointStrategy {
 
     @Autowired
     private PointTableService cusPointTableService;
@@ -35,7 +35,7 @@ public abstract class AbstractPointStrategy implements PointStrategy {
         PointStrategyFactory.addStrategy(this);
     }
 
-    protected void preProcess(PointUsage usage) {
+    void preProcess(PointUsage usage) {
         //String tableName =
         HyenaAssert.notBlank(usage.getType(), "invalid parameter, 'type' can't blank");
         HyenaAssert.notBlank(usage.getCusId(), "invalid parameter, 'cusId' can't blank");

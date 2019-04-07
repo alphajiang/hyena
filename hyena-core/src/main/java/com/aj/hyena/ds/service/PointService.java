@@ -44,14 +44,13 @@ public class PointService {
 
     public PointPo getCusPoint(String type, String cusId, boolean lock) {
         String tableName = TableNameHelper.getPointTableName(type);
-        var ret = this.pointMapper.getCusPoint(tableName, cusId, lock);
-        return ret;
+        return this.pointMapper.getCusPoint(tableName, cusId, lock);
     }
 
     public boolean addPoint(String type, String cusId, long point) {
         String tableName = TableNameHelper.getPointTableName(type);
         Integer ret = this.pointMapper.addPoint(tableName, cusId, point);
-        return ret != null && ret.intValue() > 0 ? true : false;
+        return ret != null && ret.intValue() > 0;
     }
 
     public List<PointPo> listPoint(ListPointParam param) {

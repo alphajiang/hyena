@@ -26,20 +26,20 @@ public class BaseException extends RuntimeException {
     private final Level logLevel;
 
 
-    public BaseException(int code, String msg) {
+    BaseException(int code, String msg) {
         super(msg);
         this.code = code;
         logLevel = Level.ERROR;
     }
 
-    public BaseException(int code, String msg, Throwable e) {
+    BaseException(int code, String msg, Throwable e) {
         super(msg, e);
         this.code = code;
         logLevel = Level.ERROR;
     }
 
 
-    public BaseException(int code, String msg, Level logLevel) {
+    BaseException(int code, String msg, Level logLevel) {
         super(msg);
         this.code = code;
         this.logLevel = logLevel;

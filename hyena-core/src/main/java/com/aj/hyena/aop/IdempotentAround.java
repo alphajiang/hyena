@@ -20,6 +20,7 @@ package com.aj.hyena.aop;
 import com.aj.hyena.HyenaConstants;
 import com.aj.hyena.biz.idempotent.HyenaIdempotent;
 import com.aj.hyena.model.base.BaseResponse;
+import com.aj.hyena.model.param.PointOpParam;
 import com.aj.hyena.utils.JsonUtils;
 import com.aj.hyena.utils.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -48,13 +49,18 @@ public class IdempotentAround {
     public Object around(ProceedingJoinPoint point) throws Throwable {
         Method method = ((MethodSignature) point.getSignature()).getMethod();
 
+        Idempotent shelter = method.getAnnotation(Idempotent.class);
+        String name = shelter.name();
         Object[] args = point.getArgs();
         HttpServletRequest request = (HttpServletRequest) args[0];
-        BaseResponse res = null;
+        PointOpParam param = (PointOpParam) args[1];
+        BaseResponse res;
 
-        String seq = request.getParameter(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY);
+        // String seq = request.getParameter(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY);
+        String seq = param.getSeq();
+        request.setAttribute(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY, seq);
 
-        res = this.preProceed(seq, method);
+        res = this.preProceed(name, param, method);
 
         if (res != null) {
             return res;
@@ -62,24 +68,27 @@ public class IdempotentAround {
 
         res = (BaseResponse) point.proceed(point.getArgs());
 
-        this.postProceed(seq, res);
+        this.postProceed(name, param, res);
         return res;
     }
 
-    private BaseResponse preProceed(String seq, Method method) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private BaseResponse preProceed(String name, PointOpParam param, Method method)
+            throws NoSuchMethodException, IllegalAccessException,
+            InvocationTargetException, InstantiationException {
 
         BaseResponse res = null;
-        if (StringUtils.isBlank(seq)) {
+        if (StringUtils.isBlank(param.getSeq())) {
             return res;
         }
-        String resMsg = this.hyenaIdempotent.getByKey(seq);
+        String key = getKey(name, param);
+        String resMsg = this.hyenaIdempotent.getByKey(key);
         if (StringUtils.isNotBlank(resMsg)) {    // cache match
             res = (BaseResponse) JsonUtils.fromJson(resMsg, method.getReturnType());
             logger.info("idempotent cache matched. res = {}", JsonUtils.toJsonString(res));
             return res;
         }
 
-        if (!this.hyenaIdempotent.lock(seq)) {
+        if (!this.hyenaIdempotent.lock(key)) {
             res = (BaseResponse) method.getReturnType().getDeclaredConstructor().newInstance();
             res.setStatus(HyenaConstants.RES_CODE_DUPLICATE_IDEMPOTENT);
             res.setError("请勿重复提交");
@@ -88,11 +97,26 @@ public class IdempotentAround {
         return res;
     }
 
-    private void postProceed(String seq, BaseResponse res) {
-        if (StringUtils.isNotBlank(seq)) {
-            this.hyenaIdempotent.setByKey(seq, res);
+    private void postProceed(String name, PointOpParam param, BaseResponse res) {
+        if (StringUtils.isNotBlank(param.getSeq())) {
+            String key = getKey(name, param);
+            res.setSeq(param.getSeq());
+            this.hyenaIdempotent.setByKey(key, res);
 
-            this.hyenaIdempotent.unlock(seq);
+            this.hyenaIdempotent.unlock(key);
         }
     }
+
+    private String getKey(String name, PointOpParam param) {
+        StringBuilder buf = new StringBuilder();
+        if (StringUtils.isNotBlank(name)) {
+            buf.append(name).append("-");
+        }
+        if (StringUtils.isNotBlank(param.getType())) {
+            buf.append(param.getType()).append("-");
+        }
+        buf.append(param.getSeq());
+        return buf.toString();
+    }
+
 }

@@ -18,15 +18,12 @@
 package com.aj.hyena;
 
 import com.aj.hyena.ds.service.PointTableService;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.UUID;
 
 @RunWith(SpringRunner.class)
@@ -37,7 +34,7 @@ public abstract class HyenaTestBase {
     @Autowired
     private PointTableService pointTableService;
 
-    private String pointType = "";
+    private String pointType;
 
     public HyenaTestBase() {
         this.pointType = UUID.randomUUID().toString().substring(0, 6);

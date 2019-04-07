@@ -15,15 +15,16 @@
  *
  */
 
-package com.aj.hyena.aop;
+package com.aj.hyena.model.param;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+public class PointCancelParam extends PointOpParam {
+    private Long recId; // 积分记录的ID
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Idempotent {
-    /**
-     * the name part of idempotent key
-     */
-    String name() default "";
+    public Long getRecId() {
+        return recId;
+    }
+
+    public void setRecId(Long recId) {
+        this.recId = recId;
+    }
 }

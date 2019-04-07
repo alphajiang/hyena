@@ -69,7 +69,6 @@ public class LoggerHelper {
             sb.append(" } ");
             // sb.append(MessageFormat.format("params = {0}",
             // req.getParameterMap()));
-
         }
         return sb.toString();
 

@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +43,8 @@ public class HyenaExceptionHandler {
 
         String errorMsg;
         int status;
+        String seq = this.getSeq(request);
+
         if (exception instanceof HttpMessageNotReadableException) {
             HttpMessageNotReadableException exp = (HttpMessageNotReadableException) exception;
             status = HyenaConstants.RES_CODE_PARAMETER_ERROR;
@@ -50,7 +53,12 @@ public class HyenaExceptionHandler {
         } else if (exception instanceof MethodArgumentNotValidException) {
             MethodArgumentNotValidException exp = (MethodArgumentNotValidException) exception;
             status = HyenaConstants.RES_CODE_PARAMETER_ERROR;
-            errorMsg = exp.getBindingResult().getFieldError().getDefaultMessage();
+            FieldError fieldError = exp.getBindingResult().getFieldError();
+            if (fieldError != null) {
+                errorMsg = fieldError.getDefaultMessage();
+            } else {
+                errorMsg = "参数错误..";
+            }
             logger.warn("param = {}, message = {}", exp.getParameter(), errorMsg, exp);
 
         } else if (exception instanceof MissingServletRequestParameterException) {
@@ -83,10 +91,18 @@ public class HyenaExceptionHandler {
         BaseResponse res = new BaseResponse();
         res.setStatus(status);
         res.setError(errorMsg);
+        res.setSeq(seq);
         return res;
 
     }
 
+    private String getSeq(NativeWebRequest request) {
+        try {
+            return (String) request.getAttribute(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY, 0);
+        } catch (Exception e) {
+            return "";
+        }
+    }
 
     private void logException(BaseException exp) {
         if (exp.getLogLevel() == Level.ERROR) {

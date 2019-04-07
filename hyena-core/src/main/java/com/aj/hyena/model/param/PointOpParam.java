@@ -15,63 +15,63 @@
  *
  */
 
-package com.aj.hyena.biz.point;
+package com.aj.hyena.model.param;
 
 import com.aj.hyena.model.base.BaseObject;
 
-public class PointUsage extends BaseObject {
-    private String type;
+public class PointOpParam extends BaseObject {
+    private String seq;
+    private String type = "default";
     private String cusId;
     private long point;
-    private Long recId; // 积分记录的ID
-    private String note;
+    private String tag;
+    private String note = "";
 
+    public String getSeq() {
+        return seq;
+    }
+
+    public void setSeq(String seq) {
+        this.seq = seq;
+    }
 
     public String getType() {
         return type;
     }
 
-    public PointUsage setType(String type) {
+    public void setType(String type) {
         this.type = type;
-        return this;
     }
-
 
     public String getCusId() {
         return cusId;
     }
 
-    public PointUsage setCusId(String cusId) {
+    public void setCusId(String cusId) {
         this.cusId = cusId;
-        return this;
     }
 
     public long getPoint() {
         return point;
     }
 
-    public PointUsage setPoint(long point) {
+    public void setPoint(long point) {
         this.point = point;
-        return this;
     }
 
-    public Long getRecId() {
-        return recId;
+    public String getTag() {
+        return tag;
     }
 
-    public PointUsage setRecId(Long recId) {
-        this.recId = recId;
-        return this;
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public String getNote() {
         return note;
     }
 
-    public PointUsage setNote(String note) {
+    public void setNote(String note) {
         this.note = note;
-        return this;
     }
-
-
 }

@@ -18,9 +18,7 @@
 package com.aj.hyena.ds.mapper;
 
 import com.aj.hyena.model.param.ListPointParam;
-import com.aj.hyena.model.param.ListPointRecParam;
 import com.aj.hyena.model.po.PointPo;
-import com.aj.hyena.model.po.PointRecPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,18 +26,18 @@ import java.util.List;
 
 @Mapper
 public interface PointMapper {
-    Integer addPoint(@Param(value="tableName") String tableName,
-                     @Param(value="cusId") String cusId,
-                     @Param(value="point") long point);
+    Integer addPoint(@Param(value = "tableName") String tableName,
+                     @Param(value = "cusId") String cusId,
+                     @Param(value = "point") long point);
 
-    PointPo getCusPoint(@Param(value="tableName") String tableName,
-                        @Param(value="cusId") String cusId,
-                        @Param(value="lock") boolean lock);
+    PointPo getCusPoint(@Param(value = "tableName") String tableName,
+                        @Param(value = "cusId") String cusId,
+                        @Param(value = "lock") boolean lock);
 
 
     List<PointPo> listPoint(@Param(value = "pointTableName") String pointTableName,
-                                  @Param(value = "param") ListPointParam param);
+                            @Param(value = "param") ListPointParam param);
 
-    void updateCusPoint(@Param(value="tableName") String tableName,
-                        @Param(value="cusPoint") PointPo cusPoint);
+    void updateCusPoint(@Param(value = "tableName") String tableName,
+                        @Param(value = "cusPoint") PointPo cusPoint);
 }

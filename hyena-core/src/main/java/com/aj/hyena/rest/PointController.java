@@ -19,14 +19,13 @@ package com.aj.hyena.rest;
 
 import com.aj.hyena.aop.Idempotent;
 import com.aj.hyena.biz.point.PointUsage;
+import com.aj.hyena.biz.point.PointUsageBuilder;
 import com.aj.hyena.biz.point.PointUsageFacade;
 import com.aj.hyena.ds.service.PointRecService;
 import com.aj.hyena.ds.service.PointService;
 import com.aj.hyena.model.base.ListResponse;
 import com.aj.hyena.model.base.ObjectResponse;
-import com.aj.hyena.model.param.ListPointParam;
-import com.aj.hyena.model.param.ListPointRecParam;
-import com.aj.hyena.model.param.SortParam;
+import com.aj.hyena.model.param.*;
 import com.aj.hyena.model.po.PointPo;
 import com.aj.hyena.model.po.PointRecPo;
 import com.aj.hyena.model.type.SortOrder;
@@ -74,94 +73,94 @@ public class PointController {
     public ListResponse<PointRecPo> listPointRecord(HttpServletRequest request,
                                                     @RequestParam(defaultValue = "default") String type,
                                                     @RequestParam(required = false) String cusId,
+                                                    @RequestParam(required = false) Boolean enable,
                                                     @RequestParam(defaultValue = "0") long start,
                                                     @RequestParam(defaultValue = "10") int size) {
         logger.info(LoggerHelper.formatEnterLog(request));
 
         ListPointRecParam param = new ListPointRecParam();
-        param.setCusId(cusId).setAvailable(true);
-        param.setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)))
+        param.setCusId(cusId);
+        param.setEnable(enable).setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)))
                 .setStart(start).setSize(size);
-        //param.getSorts().add();
         var list = this.pointRecService.listPointRec(type, param);
         ListResponse<PointRecPo> res = new ListResponse<>(list);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
 
-    @Idempotent
+    @Idempotent(name = "increase-point")
     @PostMapping(value = "/increase", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> increasePoint(HttpServletRequest request,
-                                                 @RequestParam(defaultValue = "default") String type,
-                                                 @RequestParam String cusId,
-                                                 @RequestParam long point) {
-        logger.info(LoggerHelper.formatEnterLog(request));
-        PointUsage usage = new PointUsage();
-        usage.setType(type).setCusId(cusId).setPoint(point);
+                                                 @RequestBody PointOpParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request) + " param = {}", param);
+        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         PointPo ret = this.pointUsageFacade.increase(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
 
-    @Idempotent
+    @Idempotent(name = "decrease-point")
     @PostMapping(value = "/decrease", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> decreasePoint(HttpServletRequest request,
-                                                 @RequestParam(defaultValue = "default") String type,
-                                                 @RequestParam String cusId,
-                                                 @RequestParam long point,
-                                                 @RequestParam(defaultValue = "false") boolean unfreeze,
-                                                 @RequestParam(defaultValue = "") String note) {
+                                                 @RequestBody PointOpParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
-
-        PointUsage usage = new PointUsage();
-        usage.setType(type).setCusId(cusId).setPoint(point).setNote(note);
-
-        PointPo ret = null;
-
-        //PointPo cusPoint = null;
-        if (unfreeze) {
-            ret = this.pointUsageFacade.decreaseFrozen(usage);
-            //cusPoint = this.pointService.decreasePointUnfreeze(type, cusId, point, note);
-        } else {
-            ret = this.pointUsageFacade.decrease(usage);
-            //cusPoint = this.pointService.decreasePoint(type, cusId, point, note);
-        }
+        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        PointPo ret = this.pointUsageFacade.decrease(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
 
-    @Idempotent
+
+    @Idempotent(name = "decreaseFrozen-point")
+    @PostMapping(value = "/decreaseFrozen", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ObjectResponse<PointPo> decreaseFrozenPoint(HttpServletRequest request,
+                                                       @RequestBody PointOpParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        PointPo ret = this.pointUsageFacade.decreaseFrozen(usage);
+        ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
+
+
+    @Idempotent(name = "freeze-point")
     @PostMapping(value = "/freeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> freezePoint(HttpServletRequest request,
-                                               @RequestParam(defaultValue = "default") String type,
-                                               @RequestParam String cusId,
-                                               @RequestParam long point,
-                                               @RequestParam(defaultValue = "") String note) {
+                                               @RequestBody PointOpParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
 
-        PointUsage usage = new PointUsage();
-        usage.setType(type).setCusId(cusId).setPoint(point).setNote(note);
+        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         PointPo cusPoint = this.pointUsageFacade.freeze(usage);
+        ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
+
+    @Idempotent(name = "unfreeze-point")
+    @PostMapping(value = "/unfreeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ObjectResponse<PointPo> unfreezePoint(HttpServletRequest request,
+                                                 @RequestBody PointOpParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+
+        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        PointPo cusPoint = this.pointUsageFacade.unfreeze(usage);
 
         ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
 
-    @Idempotent
-    @PostMapping(value = "/unfreeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ObjectResponse<PointPo> unfreezePoint(HttpServletRequest request,
-                                                 @RequestParam(defaultValue = "default") String type,
-                                                 @RequestParam String cusId,
-                                                 @RequestParam long point,
-                                                 @RequestParam(defaultValue = "") String note) {
+    @Idempotent(name = "cancel-point")
+    @PostMapping(value = "/cancel", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ObjectResponse<PointPo> cancelPoint(HttpServletRequest request,
+                                               @RequestBody PointCancelParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
 
-        PointUsage usage = new PointUsage();
-        usage.setType(type).setCusId(cusId).setPoint(point).setNote(note);
-        PointPo cusPoint = this.pointUsageFacade.unfreeze(usage);
+        PointUsage usage = PointUsageBuilder.fromPointCancelParam(param);
+        PointPo cusPoint = this.pointUsageFacade.cancel(usage);
 
         ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));

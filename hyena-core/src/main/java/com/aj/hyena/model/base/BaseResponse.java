@@ -23,10 +23,26 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class BaseResponse extends BaseObject {
 
 
-    protected int status = HyenaConstants.RES_CODE_SUCCESS;
+    private int status = HyenaConstants.RES_CODE_SUCCESS;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    protected String error = "";
+    private String error = "";
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String seq;
+
+    public BaseResponse() {
+
+    }
+
+    public BaseResponse(int status) {
+        this.status = status;
+    }
+
+    public BaseResponse(int status, String error) {
+        this.status = status;
+        this.error = error;
+    }
 
     public BaseResponse() {
 
@@ -47,6 +63,14 @@ public class BaseResponse extends BaseObject {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getSeq() {
+        return seq;
+    }
+
+    public void setSeq(String seq) {
+        this.seq = seq;
     }
 
     public String getError() {

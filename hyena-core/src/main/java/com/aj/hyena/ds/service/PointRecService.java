@@ -17,17 +17,14 @@
 
 package com.aj.hyena.ds.service;
 
-import com.aj.hyena.HyenaConstants;
 import com.aj.hyena.ds.mapper.PointRecMapper;
 import com.aj.hyena.model.param.ListPointRecParam;
 import com.aj.hyena.model.po.PointRecLogPo;
 import com.aj.hyena.model.po.PointRecPo;
 import com.aj.hyena.model.type.PointStatus;
-import com.aj.hyena.utils.HyenaAssert;
 import com.aj.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,12 +57,6 @@ public class PointRecService {
     /**
      * 增加积分
      *
-     * @param type
-     * @param pointId
-     * @param point
-     * @param tag
-     * @param expireTime
-     * @param note
      */
     public void addPointRec(String type, long pointId, long point, String tag, Date expireTime, String note) {
         logger.info("type = {}, pointId = {}, point = {}, tag = {}, expireTime = {}, note = {}",
@@ -172,7 +163,7 @@ public class PointRecService {
                 rec, delta, note);
     }
 
-    public void cancelPointRec(String type, PointRecPo rec, String note){
+    public void cancelPointRec(String type, PointRecPo rec, String note) {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setCancelled(available);
         this.updatePointRec(type, rec);

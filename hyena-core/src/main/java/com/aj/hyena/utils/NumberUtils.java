@@ -15,15 +15,28 @@
  *
  */
 
-package com.aj.hyena.aop;
+package com.aj.hyena.utils;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+public class NumberUtils {
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Idempotent {
-    /**
-     * the name part of idempotent key
-     */
-    String name() default "";
+
+    public static long parseLong(String val, long defaultValue) {
+        long ret = defaultValue;
+        try {
+            ret = Long.parseLong(val);
+        } catch (Exception ignored) {
+
+        }
+        return ret;
+    }
+
+    public static long parseLong(byte[] val, long defaultValue) {
+        if (val == null) {
+            return defaultValue;
+        } else {
+            return NumberUtils.parseLong(new String(val), defaultValue);
+        }
+    }
+
+
 }

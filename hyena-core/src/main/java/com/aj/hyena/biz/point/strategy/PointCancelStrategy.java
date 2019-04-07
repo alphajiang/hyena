@@ -68,6 +68,8 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         if (rec.getCancelled() > 0) {
             return curPoint;
         }
+        logger.info("curPoint = {}", curPoint);
+        logger.info("rec = {}", rec);
         HyenaAssert.isTrue(rec.getFrozen().longValue() < 1L,
                 HyenaConstants.RES_CODE_STATUS_ERROR,
                 "can't cancel frozen point record");

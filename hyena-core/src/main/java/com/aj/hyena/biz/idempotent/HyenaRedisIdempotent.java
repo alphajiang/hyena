@@ -19,8 +19,11 @@ package com.aj.hyena.biz.idempotent;
 
 import com.aj.hyena.model.base.BaseResponse;
 import com.aj.hyena.utils.JsonUtils;
+import com.aj.hyena.utils.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -52,32 +55,13 @@ public class HyenaRedisIdempotent implements HyenaIdempotent {
 
     public boolean lock(String seq) {
 
-        String lock = getCacheLockKey(seq);
+        String lockKey = getCacheLockKey(seq);
+        HyenaRedisCallback callback = new HyenaRedisCallback(lockKey);
 
-        return redisStringTemplate.execute((RedisCallback<Boolean>) connection -> {
-
-            Boolean acquire = connection.setNX(lock.getBytes(), String.valueOf(getExpireTime()).getBytes());
-
-            if (acquire) {
-                return true;
-            } else {
-
-                byte[] value = connection.get(lock.getBytes());
-
-                if (value != null && value.length > 0) {
-
-                    long expireTime = Long.parseLong(new String(value));
-
-                    if (expireTime < System.currentTimeMillis()) {
-                        byte[] oldValue = connection.getSet(lock.getBytes(), String.valueOf(getExpireTime()).getBytes());
-
-                        return Long.parseLong(new String(oldValue)) < System.currentTimeMillis();
-                    }
-                }
-            }
-            return false;
-        });
+        Boolean ret = redisStringTemplate.execute(callback);
+        return ret != null && ret;
     }
+
 
     public void unlock(String seq) {
         logger.debug("unlock seq = {}", seq);
@@ -85,15 +69,49 @@ public class HyenaRedisIdempotent implements HyenaIdempotent {
     }
 
 
-    private long getExpireTime() {
-        return System.currentTimeMillis() + CACHE_LOCK_TIME_SECONDS * 1000 + 1;
-    }
-
     private String getCacheKey(String seq) {
         return CACHE_KEY_PREFIX + seq;
     }
 
     private String getCacheLockKey(String seq) {
         return CACHE_LOCK_KEY_PREFIX + seq;
+    }
+
+    public static class HyenaRedisCallback implements RedisCallback<Boolean> {
+
+        private String lockKey;
+
+        HyenaRedisCallback(String lockKey) {
+            this.lockKey = lockKey;
+        }
+
+        @Override
+        public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
+            Boolean acquire = connection.setNX(lockKey.getBytes(), String.valueOf(getExpireTime()).getBytes());
+
+            if (acquire != null && acquire) {
+                connection.pExpireAt(lockKey.getBytes(), getExpireTime());
+                return true;
+            } else {
+
+                byte[] value = connection.get(lockKey.getBytes());
+
+                if (value != null && value.length > 0) {
+
+                    long expireTime = Long.parseLong(new String(value));
+
+                    if (expireTime < System.currentTimeMillis()) {
+                        long oldValue = NumberUtils.parseLong(connection.getSet(lockKey.getBytes(),
+                                String.valueOf(getExpireTime()).getBytes()), 0L);
+                        return oldValue < System.currentTimeMillis();
+                    }
+                }
+            }
+            return false;
+        }
+
+        private long getExpireTime() {
+            return System.currentTimeMillis() + CACHE_LOCK_TIME_SECONDS * 1000 + 1;
+        }
     }
 }
