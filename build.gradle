@@ -14,8 +14,6 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 
 
-
-
 ext {
     //springFrameworkVersion = '4.3.11.RELEASE'
     springBootVersion = '2.1.3.RELEASE'
@@ -24,6 +22,8 @@ ext {
     //JAXB_VERSION = '2.3.0'
     jacksonVersion = "2.9.4"
 }
+
+
 allprojects {
     group = 'io.github.alphajiang'
     version = '0.0.1-SNAPSHOT'
@@ -56,7 +56,11 @@ allprojects {
 }
 
 
+
 subprojects {
+    apply plugin: 'maven'
+    apply plugin: 'signing'
+
     tasks.withType(AbstractCompile) {
         options.compilerArgs += ["--add-modules", "java.xml.bind"]
     }
@@ -67,6 +71,66 @@ subprojects {
 
     configurations.all {
         exclude module: 'spring-boot-starter-logging'
+    }
+
+    task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+        from javadoc
+    }
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives javadocJar, sourcesJar
+    }
+
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                //beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                pom.project {
+                    name 'hyena'
+                    packaging 'jar'
+                    // optionally artifactId can be defined here
+                    description 'Micro service for user score hosting. '
+                    url 'https://github.com/alphajiang/hyena'
+
+                    scm {
+                        connection 'https://github.com/alphajiang/hyena.git'
+                        developerConnection 'https://github.com/alphajiang/hyena.git'
+                        url 'https://github.com/alphajiang/hyena.git'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'alphajiang'
+                            name 'Alpha Jiang'
+                            email 'alphajiang@163.com'
+                        }
+                    }
+                }
+            }
+        }
     }
 
     dependencies {
@@ -102,9 +166,3 @@ subprojects {
 
 
 
-//dependencies {
-//
-//    implementation project(':valet-model')
-//    implementation project(':valet-common')
-//    compile('org.springframework.boot:spring-boot-starter-data-rest')
-//}

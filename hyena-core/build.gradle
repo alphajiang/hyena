@@ -1,5 +1,6 @@
 
 
+archivesBaseName  = "hyena-core"
 
 sourceSets {
     main {
@@ -29,3 +30,9 @@ dependencies {
     runtimeOnly('com.h2database:h2:1.4.199')
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
+
+
+//signing {
+//    sign configurations.archives
+//}
+
