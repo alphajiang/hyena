@@ -1,4 +1,5 @@
 
+archivesBaseName  = "hyena-spring-boot-autoconfigure"
 
 sourceSets {
     main {
