@@ -11,7 +11,7 @@ sourceSets {
 }
 
 test {
-    //include 'org/aj/**'
+    include 'io/github/alphajiang/hyena/**'
 
 }
 
