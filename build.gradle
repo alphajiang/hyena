@@ -38,14 +38,23 @@ allprojects {
         mavenCentral()
     }
 
-    dependencyManagement {
-        imports {
-            mavenBom "org.springframework.cloud:spring-cloud-dependencies:Greenwich.SR1"
-        }
-    }
+//    dependencyManagement {
+//        imports {
+//            mavenBom "org.springframework.cloud:spring-cloud-dependencies:Greenwich.SR1"
+//        }
+//    }
 
 }
-
+//dependencies {
+//    compile project(':hyena-core')
+//
+//}
+bootJar {
+    enabled = false
+}
+jar {
+    enabled = false
+}
 
 
 subprojects {
@@ -70,7 +79,8 @@ subprojects {
     }
 
     signing {
-        sign configurations.archives
+        // un-comment the line for release signing 
+        // sign configurations.archives
     }
 
 
