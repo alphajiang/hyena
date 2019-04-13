@@ -16,17 +16,8 @@ test {
 
 dependencies {
     implementation project(':hyena-core')
-    //implementation('org.springframework.cloud:spring-cloud-config-server')
 
     implementation("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:${springBootVersion}")
-    //implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
-    //implementation("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
-    //implementation("org.springframework.boot:spring-boot-starter-data-redis:${springBootVersion}")
 
-    //compile('mysql:mysql-connector-java:8.0.11')
-//    compile('org.mybatis:mybatis:3.2.7')
-//    compile('org.mybatis:mybatis-spring:1.2.2')
-
-  //  testImplementation('org.springframework.cloud:spring-cloud-starter-config')
 }

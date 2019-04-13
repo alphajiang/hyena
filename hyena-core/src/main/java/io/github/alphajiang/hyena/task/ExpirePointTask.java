@@ -47,7 +47,7 @@ public class ExpirePointTask {
     @Autowired
     private PointRecService pointRecService;
 
-    @Scheduled(fixedRate = 60 * 60 * 1000)  // every 1 hour
+    @Scheduled(fixedRate = 60 * 60 * 1000, initialDelay = 30 * 1000)  // every 1 hour
     public void expirePointTask() {
         logger.debug(">>");
 

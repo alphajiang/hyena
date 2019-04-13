@@ -24,13 +24,24 @@ Maven
 <dependency>
     <groupId>io.github.alphajiang</groupId>
     <artifactId>hyena-spring-boot-starter</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 Gradle
 ```
+plugins {
+	id 'org.springframework.boot' version '2.1.4.RELEASE'
+	id 'java'
+}
+apply plugin: 'io.spring.dependency-management'
 dependencies {
-    implementation("io.github.alphajiang:hyena-spring-boot-starter:0.0.1-SNAPSHOT")
+    implementation("io.github.alphajiang:hyena-spring-boot-starter:0.0.3")
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.0.1'
+	implementation("org.springframework.boot:spring-boot-starter")
+	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-jdbc")
+
+	runtimeOnly 'mysql:mysql-connector-java'
 }
 ```
 Java代码
@@ -39,6 +50,7 @@ Java代码
 @ComponentScan({ "io.github.alphajiang.hyena" })
 @MapperScan(basePackages = { "io.github.alphajiang.hyena.ds.mapper" })
 @EnableTransactionManagement
+@EnableScheduling
 public class HyenaMain {
     public static void main(String[] args) {
         new SpringApplicationBuilder(HyenaMain.class).web(WebApplicationType.SERVLET).run(args);
