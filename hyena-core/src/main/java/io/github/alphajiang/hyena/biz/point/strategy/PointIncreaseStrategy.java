@@ -51,9 +51,9 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     public PointPo process(PointUsage usage) {
         logger.info("increase. usage = {}", usage);
         super.preProcess(usage);
-        var cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getCusId(), true);
+        var cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), true);
         if (cusPoint == null) {
-            this.pointService.addPoint(usage.getType(), usage.getCusId(), usage.getPoint());
+            this.pointService.addPoint(usage.getType(), usage.getUid(), usage.getPoint());
         } else {
             var point2Update = new PointPo();
             point2Update.setPoint(cusPoint.getPoint() + usage.getPoint())
@@ -61,9 +61,9 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
                     .setId(cusPoint.getId());
             this.pointService.update(usage.getType(), point2Update);
         }
-        cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getCusId(), false);
+        cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), false);
         this.pointRecService.addPointRec(usage.getType(), cusPoint.getId(),
-                usage.getPoint(), "", null, null);
+                usage.getPoint(), "", usage.getExpireTime(), null);
         return cusPoint;
     }
 }

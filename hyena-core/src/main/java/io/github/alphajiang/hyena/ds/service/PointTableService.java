@@ -44,8 +44,12 @@ public class PointTableService {
     @PostConstruct
     public void init() {
         logger.info(">>");
-        this.listTables();
+        this.refreshTables();
         logger.info("<<");
+    }
+
+    public List<String> listTable() {
+        return List.copyOf(this.tables);
     }
 
     public String getOrCreateTable(String type) {
@@ -63,17 +67,18 @@ public class PointTableService {
         this.cusPointTableMapper.createPointRecTableIndex(pointTableName);
         this.cusPointTableMapper.createPointLogTable(pointTableName);
         this.cusPointTableMapper.createPointLogTableIndex(pointTableName);
-        this.listTables();
+        this.refreshTables();
     }
 
-    private synchronized void listTables() {
+
+    private synchronized void refreshTables() {
         List<String> tableList = this.cusPointTableMapper.listCusPointTables(HyenaConstants.PREFIX_POINT_TABLE_NAME);
 
         logger.info("a tableList = {}", tableList);
 
         tableList = tableList.stream().map(name -> name.toLowerCase())
-                .filter(name ->  name.startsWith(HyenaConstants.PREFIX_POINT_TABLE_NAME)
-                && !(name.endsWith("_rec") || name.endsWith("_rec_log")))
+                .filter(name -> name.startsWith(HyenaConstants.PREFIX_POINT_TABLE_NAME)
+                        && !(name.endsWith("_rec") || name.endsWith("_rec_log")))
                 .collect(Collectors.toList());
         logger.info("tableList = {}", tableList);
         tables.clear();

@@ -42,7 +42,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         long number = 80L;
         long resultNumber = this.point.getPoint() - number;
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId(this.cusId).setPoint(number).setNote("test_decreasePoint");
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number).setNote("test_decreasePoint");
         PointPo result = this.pointDecreaseStrategy.process(usage);
         logger.info("result = {}", result);
         Assert.assertEquals(resultNumber, result.getPoint().longValue());
@@ -57,7 +57,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
     public void test_decreasePoint2() {
 
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId(this.cusId).setPoint(555L).setNote("test_decreasePoint2");
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(555L).setNote("test_decreasePoint2");
         super.point = this.pointIncreaseStrategy.process(usage);
 
 
@@ -65,7 +65,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         long resultNumber = this.point.getPoint() - number;
 
         usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId(this.cusId).setPoint(number).setNote("test_decreasePoint2");
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number).setNote("test_decreasePoint2");
 
         PointPo result = this.pointDecreaseStrategy.process(usage);
         logger.info("result = {}", result);

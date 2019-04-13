@@ -38,7 +38,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
     void preProcess(PointUsage usage) {
         //String tableName =
         HyenaAssert.notBlank(usage.getType(), "invalid parameter, 'type' can't blank");
-        HyenaAssert.notBlank(usage.getCusId(), "invalid parameter, 'cusId' can't blank");
+        HyenaAssert.notBlank(usage.getUid(), "invalid parameter, 'uid' can't blank");
         HyenaAssert.isTrue(usage.getPoint() > 0L, "invalid parameter, 'point' must great than 0");
 
         this.cusPointTableService.getOrCreateTable(usage.getType());

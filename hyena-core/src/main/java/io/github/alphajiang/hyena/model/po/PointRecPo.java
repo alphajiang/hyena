@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.model.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.github.alphajiang.hyena.model.base.BasePo;
 
 import java.util.Date;
@@ -31,6 +32,8 @@ public class PointRecPo extends BasePo {
     private Long cancelled;
     private Long expire;
     private String tag;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date expireTime;
 
     public long getPid() {

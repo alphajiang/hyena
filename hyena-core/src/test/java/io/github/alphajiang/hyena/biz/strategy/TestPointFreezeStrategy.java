@@ -43,7 +43,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         long number = 80L;
         long resultAvailable = this.point.getPoint() - number;
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId(this.cusId).setPoint(number).setNote("test_freezePoint");
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number).setNote("test_freezePoint");
         PointPo result = this.pointFreezeStrategy.process(usage);
         logger.info("result = {}", result);
         Assert.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());

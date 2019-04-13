@@ -24,12 +24,14 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
-@ComponentScan({ "io.github.alphajiang.hyena" })
-@MapperScan(basePackages = { "io.github.alphajiang.hyena.ds.mapper" })
+@ComponentScan({"io.github.alphajiang.hyena"})
+@MapperScan(basePackages = {"io.github.alphajiang.hyena.ds.mapper"})
 @EnableTransactionManagement
+@EnableScheduling
 public class HyenaMain {
     private static final Logger logger = LoggerFactory.getLogger(HyenaMain.class);
 

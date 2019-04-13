@@ -40,20 +40,29 @@
     </insert>
 
 
-    <select id="listPointRec" resultType="io.github.alphajiang.hyena.model.po.PointRecPo">
-        select rec.*
+    <select id="listPointRec" resultType="io.github.alphajiang.hyena.model.dto.PointRec">
+        select rec.*, p.uid as uid
         from `${pointTableName}_rec` as rec
         left join `${pointTableName}` as p on rec.pid = p.id
         where 1=1
-        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.cusId )">
-            and p.cusId = #{param.cusId}
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
+            and p.uid = #{param.uid}
         </if>
         <if test="param.available == true">
             and rec.available > 0
         </if>
-        <if test="param.frozen == true">
-            and rec.frozen > 0
+        <choose>
+            <when test="param.frozen != null and param.frozen == true">
+                and rec.frozen > 0
+            </when>
+            <when test="param.frozen != null and param.frozen == false">
+                and rec.frozen = 0
+            </when>
+        </choose>
+        <if test="param.expireTime != null">
+            and rec.expireTime &lt; #{param.expireTime}
         </if>
+
         <if test="param.enable != null">
             and rec.enable = #{param.enable}
         </if>

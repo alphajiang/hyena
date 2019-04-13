@@ -88,4 +88,9 @@ public class PointUsageFacade {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.CANCEL);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
+
+    public PointPo expire(PointUsage usage) {
+        Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.EXPIRE);
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+    }
 }

@@ -17,48 +17,23 @@
 
 package io.github.alphajiang.hyena.model.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.lang.Nullable;
+
 import java.util.Date;
 
-public class ListPointRecParam extends BaseListParam {
+public class PointIncreaseParam extends PointOpParam {
 
-    private String uid;
-    private boolean available = false;
-    private Boolean frozen;
+    @Nullable
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date expireTime;
 
-    public String getUid() {
-        return uid;
-    }
-
-    public ListPointRecParam setUid(String uid) {
-        this.uid = uid;
-        return this;
-    }
-
-    public boolean getAvailable() {
-        return available;
-    }
-
-    public ListPointRecParam setAvailable(boolean available) {
-        this.available = available;
-        return this;
-    }
-
-    public Boolean getFrozen() {
-        return frozen;
-    }
-
-    public ListPointRecParam setFrozen(Boolean frozen) {
-        this.frozen = frozen;
-        return this;
-    }
-
+    @Nullable
     public Date getExpireTime() {
         return expireTime;
     }
 
-    public ListPointRecParam setExpireTime(Date expireTime) {
+    public void setExpireTime(@Nullable Date expireTime) {
         this.expireTime = expireTime;
-        return this;
     }
 }

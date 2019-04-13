@@ -22,7 +22,7 @@ import io.github.alphajiang.hyena.model.base.BaseObject;
 public class PointOpParam extends BaseObject {
     private String seq;
     private String type = "default";
-    private String cusId;
+    private String uid;
     private long point;
     private String tag;
     private String note = "";
@@ -43,12 +43,12 @@ public class PointOpParam extends BaseObject {
         this.type = type;
     }
 
-    public String getCusId() {
-        return cusId;
+    public String getUid() {
+        return uid;
     }
 
-    public void setCusId(String cusId) {
-        this.cusId = cusId;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public long getPoint() {

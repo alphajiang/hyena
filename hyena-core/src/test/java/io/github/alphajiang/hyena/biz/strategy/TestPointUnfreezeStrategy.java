@@ -44,11 +44,11 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
 
 
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId(this.cusId).setPoint(80L).setNote("test_unfreezePoint");
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(80L).setNote("test_unfreezePoint");
         this.point = this.pointFreezeStrategy.process(usage);
-        
+
         usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId(this.cusId).setPoint(unfreezeNumber).setNote("test_unfreezePoint");
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(unfreezeNumber).setNote("test_unfreezePoint");
         PointPo result = this.pointUnfreezeStrategy.process(usage);
         logger.info("result = {}", result);
         Assert.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());

@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.ds.service;
 
 import io.github.alphajiang.hyena.ds.mapper.PointRecMapper;
+import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
@@ -39,6 +40,7 @@ public class PointRecService {
     @Autowired
     private PointRecMapper pointRecMapper;
 
+
     @Autowired
     private PointRecLogService pointRecLogService;
 
@@ -48,7 +50,7 @@ public class PointRecService {
     }
 
 
-    public List<PointRecPo> listPointRec(String type, ListPointRecParam param) {
+    public List<PointRec> listPointRec(String type, ListPointRecParam param) {
         logger.debug("type = {}, param = {}", type, param);
         String pointTableName = TableNameHelper.getPointTableName(type);
         return this.pointRecMapper.listPointRec(pointTableName, param);
@@ -56,7 +58,6 @@ public class PointRecService {
 
     /**
      * 增加积分
-     *
      */
     public void addPointRec(String type, long pointId, long point, String tag, Date expireTime, String note) {
         logger.info("type = {}, pointId = {}, point = {}, tag = {}, expireTime = {}, note = {}",
@@ -169,6 +170,15 @@ public class PointRecService {
         this.updatePointRec(type, rec);
 
         this.pointRecLogService.addLogByRec(type, PointStatus.CANCEL,
+                rec, available, note);
+    }
+
+    public void expirePointRec(String type, PointRecPo rec, String note) {
+        long available = rec.getAvailable();
+        rec.setAvailable(0L).setExpire(available).setEnable(false);
+        this.updatePointRec(type, rec);
+
+        this.pointRecLogService.addLogByRec(type, PointStatus.EXPIRE,
                 rec, available, note);
     }
 

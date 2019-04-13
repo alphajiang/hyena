@@ -20,6 +20,7 @@ package io.github.alphajiang.hyena.biz.strategy;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.ds.service.PointRecService;
+import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
@@ -44,15 +45,15 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
     @Test
     public void test_cancelPoint() {
         ListPointRecParam param = new ListPointRecParam();
-        param.setCusId(super.cusId).setStart(0L).setSize(1);
-        List<PointRecPo> recList = this.pointRecService.listPointRec(super.getPointType(), param);
-        PointRecPo rec = recList.get(0);
+        param.setUid(super.uid).setStart(0L).setSize(1);
+        List<PointRec> recList = this.pointRecService.listPointRec(super.getPointType(), param);
+        PointRec rec = recList.get(0);
 
         long number = rec.getAvailable();
         long resultAvailable = this.point.getPoint() - number;
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setRecId(rec.getId())
-                .setCusId(this.cusId).setPoint(number).setNote("test_cancelPoint");
+                .setUid(this.uid).setPoint(number).setNote("test_cancelPoint");
         PointPo result = this.pointCancelStrategy.process(usage);
         logger.info("result = {}", result);
         Assert.assertEquals(this.point.getPoint().longValue() - number, result.getPoint().longValue());

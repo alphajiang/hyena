@@ -21,20 +21,19 @@ import io.github.alphajiang.hyena.model.base.BasePo;
 
 public class PointPo extends BasePo {
 
-    private String cusId;
+    private String uid;
     private Long point;
     private Long available;
     private Long used;
     private Long frozen;
     private Long expire;
 
-
-    public String getCusId() {
-        return cusId;
+    public String getUid() {
+        return uid;
     }
 
-    public PointPo setCusId(String cusId) {
-        this.cusId = cusId;
+    public PointPo setUid(String uid) {
+        this.uid = uid;
         return this;
     }
 

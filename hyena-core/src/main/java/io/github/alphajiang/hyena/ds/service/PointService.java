@@ -42,14 +42,14 @@ public class PointService {
 //    @Autowired
 //    private PointRecService pointRecService;
 
-    public PointPo getCusPoint(String type, String cusId, boolean lock) {
+    public PointPo getCusPoint(String type, String uid, boolean lock) {
         String tableName = TableNameHelper.getPointTableName(type);
-        return this.pointMapper.getCusPoint(tableName, cusId, lock);
+        return this.pointMapper.getCusPoint(tableName, uid, lock);
     }
 
-    public boolean addPoint(String type, String cusId, long point) {
+    public boolean addPoint(String type, String uid, long point) {
         String tableName = TableNameHelper.getPointTableName(type);
-        Integer ret = this.pointMapper.addPoint(tableName, cusId, point);
+        Integer ret = this.pointMapper.addPoint(tableName, uid, point);
         return ret != null && ret.intValue() > 0;
     }
 

@@ -21,15 +21,15 @@
 
     <insert id="addPoint">
         insert into `${tableName}` (
-            `cusId`, `point`, `available`
+        `uid`, `point`, `available`
         ) values(
-        #{cusId}, #{point}, #{point} )
+        #{uid}, #{point}, #{point} )
     </insert>
 
     <select id="getCusPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">
         select cp.*
         from `${tableName}` as cp
-        where cp.cusId = #{cusId}
+        where cp.uid = #{uid}
         <if test="lock == true">
             for update
         </if>
@@ -46,7 +46,7 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
             <bind name="pattern" value="'%' + sk + '%'"/>
             and (
-            pt.cusId like #{pattern}
+            pt.uid like #{pattern}
             )
         </if>
         <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.sorts )">

@@ -19,12 +19,15 @@ package io.github.alphajiang.hyena.biz.point;
 
 import io.github.alphajiang.hyena.model.base.BaseObject;
 
+import java.util.Date;
+
 public class PointUsage extends BaseObject {
     private String type;
-    private String cusId;
+    private String uid;
     private long point;
     private Long recId; // 积分记录的ID
     private String note;
+    private Date expireTime;
 
 
     public String getType() {
@@ -37,12 +40,12 @@ public class PointUsage extends BaseObject {
     }
 
 
-    public String getCusId() {
-        return cusId;
+    public String getUid() {
+        return uid;
     }
 
-    public PointUsage setCusId(String cusId) {
-        this.cusId = cusId;
+    public PointUsage setUid(String uid) {
+        this.uid = uid;
         return this;
     }
 
@@ -73,5 +76,11 @@ public class PointUsage extends BaseObject {
         return this;
     }
 
+    public Date getExpireTime() {
+        return expireTime;
+    }
 
+    public void setExpireTime(Date expireTime) {
+        this.expireTime = expireTime;
+    }
 }

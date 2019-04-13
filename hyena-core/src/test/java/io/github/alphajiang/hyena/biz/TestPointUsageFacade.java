@@ -33,44 +33,16 @@ public class TestPointUsageFacade extends HyenaTestBase {
     @Autowired
     private PointUsageFacade pointUsageFacade;
 
-//    private String cusId = "";
-//    private PointPo point;
-//
-//    @Before
-//    public void init() {
-//        cusId = UUID.randomUUID().toString().substring(0, 4);
-//        long number = 100;
-//        PointUsage usage = new PointUsage();
-//        usage.setType(super.getPointType()).setCusId(cusId).setPoint(number);
-//        Optional<PointPo> ret = this.pointUsageFacade.increase(usage);
-//        this.point = ret.get();
-//        logger.info("point = {}", point);
-//        Assert.assertEquals(number, point.getPoint().longValue());
-//        Assert.assertEquals(number, point.getAvailable().longValue());
-//        Assert.assertEquals(0L, point.getUsed().longValue());
-//        Assert.assertEquals(0L, point.getFrozen().longValue());
-//        Assert.assertEquals(0L, point.getExpire().longValue());
-//        Assert.assertEquals(true, point.getEnable().booleanValue());
-//    }
 
     @Test
     public void test_increase() {
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId("test_increase").setPoint(99887L);
+        usage.setType(super.getPointType()).setUid("test_increase").setPoint(99887L);
         PointPo ret = this.pointUsageFacade.increase(usage);
         logger.info("point = {}", ret);
         Assert.assertNotNull(ret);
 
     }
 
-//    @Test
-//    public void test_decrease() {
-//        PointUsage usage = new PointUsage();
-//        usage.setType(super.getPointType()).setCusId("test_decrease").setPoint(99887L);
-//        Optional<PointPo> ret = this.pointUsageFacade.decrease(usage);
-//        ret.ifPresentOrElse(obj -> logger.info("point = {}", obj), () -> {
-//            logger.error("decrease failed!!!!");
-//            Assert.fail();
-//        });
-//    }
+
 }

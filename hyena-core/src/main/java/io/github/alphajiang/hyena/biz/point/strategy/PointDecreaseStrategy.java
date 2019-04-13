@@ -58,12 +58,12 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
     public PointPo process(PointUsage usage) {
         logger.info("decrease. usage = {}", usage);
         super.preProcess(usage);
-        PointPo curPoint = this.pointService.getCusPoint(usage.getType(), usage.getCusId(), true);
+        PointPo curPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), true);
         logger.debug("curPoint = {}", curPoint);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
-                "can't find point to the cusId: " + usage.getCusId(), Level.WARN);
+                "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.notNull(curPoint.getAvailable(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
-                "can't find point to the cusId: " + usage.getCusId(), Level.WARN);
+                "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= usage.getPoint(),
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                 "no enough available point. current available point is " + curPoint.getAvailable());
@@ -73,7 +73,7 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
 
         try {
             do {
-                gap = this.decreasePointLoop(usage.getType(), usage.getCusId(), gap, usage.getNote());
+                gap = this.decreasePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
                 logger.debug("gap = {}", gap);
             } while (gap > 0L);
         } catch (HyenaNoPointException e) {
@@ -92,10 +92,10 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         return curPoint;
     }
 
-    private long decreasePointLoop(String type, String cusId, long point, String note) {
-        logger.info("decrease. type = {}, cusId = {}, point = {}", type, cusId, point);
+    private long decreasePointLoop(String type, String uid, long point, String note) {
+        logger.info("decrease. type = {}, uid = {}, point = {}", type, uid, point);
         ListPointRecParam param = new ListPointRecParam();
-        param.setCusId(cusId).setAvailable(true).setLock(true)
+        param.setUid(uid).setAvailable(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
                 .setSize(5);
         var recList = this.pointRecService.listPointRec(type, param);

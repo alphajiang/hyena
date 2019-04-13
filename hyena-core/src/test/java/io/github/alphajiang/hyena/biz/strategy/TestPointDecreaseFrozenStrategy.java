@@ -49,13 +49,13 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
 
 
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId(this.cusId).setPoint(freezeNumber)
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(freezeNumber)
                 .setNote("test_decreasePointUnfreeze");
 
         this.pointFreezeStrategy.process(usage);
 
         usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId(this.cusId).setPoint(useNumber)
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(useNumber)
                 .setNote("test_decreasePointUnfreeze");
         PointPo result = this.pointDecreaseFrozenStrategy.process(usage);
         logger.info("result = {}", result);

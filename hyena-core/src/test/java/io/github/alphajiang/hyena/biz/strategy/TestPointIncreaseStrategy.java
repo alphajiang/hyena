@@ -38,7 +38,7 @@ public class TestPointIncreaseStrategy extends TestPointStrategyBase {
         long number = 123L;
         long resultNumber = this.point.getPoint() + number;
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId(this.cusId).setPoint(number);
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number);
         PointPo result = this.pointIncreaseStrategy.process(usage);
         logger.info("result = {}", result);
         Assert.assertEquals(resultNumber, result.getPoint().longValue());

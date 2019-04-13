@@ -35,16 +35,16 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
     @Autowired
     protected PointStrategy pointIncreaseStrategy;
 
-    protected String cusId = "";
+    protected String uid = "";
     protected PointPo point;
 
     @Before
     public void init() {
         super.init();
-        cusId = UUID.randomUUID().toString().substring(0, 4);
+        uid = UUID.randomUUID().toString().substring(0, 4);
         long number = 100;
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setCusId(this.cusId).setPoint(100);
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(100);
         this.point = this.pointIncreaseStrategy.process(usage);
         logger.info("point = {}", point);
         Assert.assertEquals(number, point.getPoint().longValue());

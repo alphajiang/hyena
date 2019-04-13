@@ -25,12 +25,11 @@ import io.github.alphajiang.hyena.ds.service.PointRecService;
 import io.github.alphajiang.hyena.ds.service.PointService;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
+import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.*;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.LoggerHelper;
-import io.github.alphajiang.hyena.model.param.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,20 +70,20 @@ public class PointController {
     }
 
     @GetMapping(value = "/listPointRecord", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ListResponse<PointRecPo> listPointRecord(HttpServletRequest request,
-                                                    @RequestParam(defaultValue = "default") String type,
-                                                    @RequestParam(required = false) String cusId,
-                                                    @RequestParam(required = false) Boolean enable,
-                                                    @RequestParam(defaultValue = "0") long start,
-                                                    @RequestParam(defaultValue = "10") int size) {
+    public ListResponse<PointRec> listPointRecord(HttpServletRequest request,
+                                                  @RequestParam(defaultValue = "default") String type,
+                                                  @RequestParam(required = false) String uid,
+                                                  @RequestParam(required = false) Boolean enable,
+                                                  @RequestParam(defaultValue = "0") long start,
+                                                  @RequestParam(defaultValue = "10") int size) {
         logger.info(LoggerHelper.formatEnterLog(request));
 
         ListPointRecParam param = new ListPointRecParam();
-        param.setCusId(cusId);
+        param.setUid(uid);
         param.setEnable(enable).setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)))
                 .setStart(start).setSize(size);
         var list = this.pointRecService.listPointRec(type, param);
-        ListResponse<PointRecPo> res = new ListResponse<>(list);
+        ListResponse<PointRec> res = new ListResponse<>(list);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
@@ -92,9 +91,9 @@ public class PointController {
     @Idempotent(name = "increase-point")
     @PostMapping(value = "/increase", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> increasePoint(HttpServletRequest request,
-                                                 @RequestBody PointOpParam param) {
+                                                 @RequestBody PointIncreaseParam param) {
         logger.info(LoggerHelper.formatEnterLog(request) + " param = {}", param);
-        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        PointUsage usage = PointUsageBuilder.fromPointIncreaseParam(param);
         PointPo ret = this.pointUsageFacade.increase(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));

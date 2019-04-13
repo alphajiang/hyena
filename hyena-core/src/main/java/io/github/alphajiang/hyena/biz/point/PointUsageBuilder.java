@@ -18,14 +18,22 @@
 package io.github.alphajiang.hyena.biz.point;
 
 import io.github.alphajiang.hyena.model.param.PointCancelParam;
+import io.github.alphajiang.hyena.model.param.PointIncreaseParam;
 import io.github.alphajiang.hyena.model.param.PointOpParam;
 
 public class PointUsageBuilder {
 
     public static PointUsage fromPointOpParam(PointOpParam param) {
         PointUsage usage = new PointUsage();
-        usage.setType(param.getType()).setCusId(param.getCusId()).setPoint(param.getPoint())
+        usage.setType(param.getType()).setUid(param.getUid()).setPoint(param.getPoint())
                 .setNote(param.getNote());
+        return usage;
+    }
+
+    public static PointUsage fromPointIncreaseParam(PointIncreaseParam param) {
+        PointUsage usage = new PointUsage();
+        usage.setType(param.getType()).setUid(param.getUid()).setPoint(param.getPoint())
+                .setNote(param.getNote()).setExpireTime(param.getExpireTime());
         return usage;
     }
 

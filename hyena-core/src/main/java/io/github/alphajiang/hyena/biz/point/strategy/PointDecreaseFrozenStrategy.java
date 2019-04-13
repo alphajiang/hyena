@@ -58,11 +58,11 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     public PointPo process(PointUsage usage) {
         logger.info("decrease frozen. usage = {}", usage);
         super.preProcess(usage);
-        PointPo curPoint = this.pointService.getCusPoint(usage.getType(), usage.getCusId(), true);
+        PointPo curPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), true);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
-                "can't find point to the cusId: " + usage.getCusId(), Level.WARN);
+                "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.notNull(curPoint.getFrozen(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
-                "can't find point to the cusId: " + usage.getCusId(), Level.WARN);
+                "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.isTrue(curPoint.getFrozen().longValue() >= usage.getPoint(),
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                 "no enough frozen point");
@@ -70,7 +70,7 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         long gap = usage.getPoint();
         try {
             do {
-                gap = this.decreasePointUnfreezeLoop(usage.getType(), usage.getCusId(), gap, usage.getNote());
+                gap = this.decreasePointUnfreezeLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
                 logger.debug("gap = {}", gap);
             } while (gap > 0L);
         } catch (HyenaNoPointException e) {
@@ -89,10 +89,10 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         return curPoint;
     }
 
-    private long decreasePointUnfreezeLoop(String type, String cusId, long point, String note) {
-        logger.info("decrease unfreeze. type = {}, cusId = {}, point = {}", type, cusId, point);
+    private long decreasePointUnfreezeLoop(String type, String uid, long point, String note) {
+        logger.info("decrease unfreeze. type = {}, uid = {}, point = {}", type, uid, point);
         ListPointRecParam param = new ListPointRecParam();
-        param.setCusId(cusId).setFrozen(true).setLock(true)
+        param.setUid(uid).setFrozen(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
                 .setSize(5);
         var recList = this.pointRecService.listPointRec(type, param);
