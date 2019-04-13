@@ -1,4 +1,8 @@
 # Hyena
+
+
+![GitHub](https://img.shields.io/github/license/alphajiang/hyena.svg)
+
 用户余额/积分微服务
 ## 积分相关接口
 ### 增加积分
