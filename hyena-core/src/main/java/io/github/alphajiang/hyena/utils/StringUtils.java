@@ -17,9 +17,6 @@
 
 package io.github.alphajiang.hyena.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class StringUtils {
     public static String upperCase(final String str) {
         if (str == null) {
@@ -58,67 +55,5 @@ public class StringUtils {
         return !isBlank(cs);
     }
 
-
-    /**
-     * 将逗号分割的字符串转换为long型数组
-     *
-     * @param in 使用逗号分割的字符串, 如: 12,2345,3345
-     * @return 数字数组
-     */
-    public static List<Long> parseLongIds(String in) {
-        if (in == null) {
-            return new ArrayList<>();
-        }
-        List<Long> result = new ArrayList<>();
-        for (String t : in.split(",")) {
-            if (isBlank(t)) {
-                continue;
-
-            }
-            try {
-                long v = Long.valueOf(t);
-                result.add(v);
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-        return result;
-    }
-
-    public static List<Integer> parseIntegerIds(String in) {
-        if (in == null) {
-            return new ArrayList<>();
-        }
-        List<Integer> result = new ArrayList<>();
-        for (String t : in.split(",")) {
-            if (isBlank(t)) {
-                continue;
-
-            }
-            try {
-                int v = Integer.valueOf(t);
-                result.add(v);
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-        return result;
-    }
-
-    public static List<String> splitStringList(String in) {
-        if (in == null) {
-            return new ArrayList<>();
-        }
-        List<String> result = new ArrayList<>();
-        for (String t : in.split(",")) {
-            if (isBlank(t)) {
-                continue;
-
-            }
-            result.add(t);
-
-        }
-        return result;
-    }
 
 }

@@ -19,12 +19,18 @@ package io.github.alphajiang.hyena.rest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.github.alphajiang.hyena.HyenaTestBase;
+import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
+import io.github.alphajiang.hyena.ds.service.PointRecService;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.dto.PointRec;
+import io.github.alphajiang.hyena.model.param.ListPointRecParam;
+import io.github.alphajiang.hyena.model.param.PointCancelParam;
 import io.github.alphajiang.hyena.model.param.PointIncreaseParam;
 import io.github.alphajiang.hyena.model.param.PointOpParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.JsonUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,14 +46,18 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 
-//@RunWith(SpringRunner.class)
-//@SpringBootTest
 @AutoConfigureMockMvc
 public class TestPointController extends HyenaTestBase {
     private final Logger logger = LoggerFactory.getLogger(TestPointController.class);
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private PointUsageFacade pointUsageFacade;
+
+    @Autowired
+    private PointRecService pointRecService;
 
 
     @Before
@@ -92,6 +102,7 @@ public class TestPointController extends HyenaTestBase {
         param.setType(super.getPointType());
         param.setUid(super.getUid());
         param.setPoint(9876L);
+        param.setSeq("gewgewglekjwklehjoipvnbldsalkdjglajd");
         RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(JsonUtils.toJsonString(param));
@@ -143,5 +154,79 @@ public class TestPointController extends HyenaTestBase {
         Assert.assertNotNull(result);
     }
 
+    @Test
+    public void test_decreaseFrozen() throws Exception {
+        PointUsage freeze = new PointUsage();
+        freeze.setPoint(9L).setType(super.getPointType()).setUid(super.getUid());
+        this.pointUsageFacade.freeze(freeze);
 
+        PointOpParam param = new PointOpParam();
+        param.setType(super.getPointType());
+        param.setUid(super.getUid());
+        param.setPoint(9L);
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decreaseFrozen")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(JsonUtils.toJsonString(param));
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+
+        });
+        PointPo result = res.getData();
+        Assert.assertNotNull(result);
+    }
+
+
+    @Test
+    public void test_unfreeze() throws Exception {
+        PointUsage freeze = new PointUsage();
+        freeze.setPoint(9L).setType(super.getPointType()).setUid(super.getUid());
+        this.pointUsageFacade.freeze(freeze);
+
+        PointOpParam param = new PointOpParam();
+        param.setType(super.getPointType());
+        param.setUid(super.getUid());
+        param.setPoint(9L);
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/unfreeze")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(JsonUtils.toJsonString(param));
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+
+        });
+        PointPo result = res.getData();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void test_cancel() throws Exception {
+
+
+        ListPointRecParam listParam = new ListPointRecParam();
+        listParam.setFrozen(false).setUid(super.getUid()).setType(super.getPointType());
+        List<PointRec> recList = this.pointRecService.listPointRec(super.getPointType(), listParam);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(recList));
+        PointRec rec = recList.iterator().next();
+
+
+        PointCancelParam param = new PointCancelParam();
+        param.setType(super.getPointType());
+        param.setUid(super.getUid());
+        param.setPoint(rec.getAvailable());
+        param.setRecId(rec.getId());
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/cancel")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(JsonUtils.toJsonString(param));
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+
+        });
+        PointPo result = res.getData();
+        Assert.assertNotNull(result);
+    }
 }
