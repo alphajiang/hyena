@@ -33,7 +33,8 @@ public class HyenaAssert {
     /**
      * 用于判断状态. 不匹配时抛出 ParkStatusException
      *
-     * @param message 错误提示文案
+     * @param expression 判断条件
+     * @param message    错误提示文案
      */
     public static void isTrueStatus(boolean expression, String message) {
         if (!expression) {
