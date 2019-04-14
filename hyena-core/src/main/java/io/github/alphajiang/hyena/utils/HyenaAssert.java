@@ -18,10 +18,12 @@
 package io.github.alphajiang.hyena.utils;
 
 import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.model.exception.BaseException;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.exception.HyenaStatusException;
 import org.slf4j.event.Level;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
 public class HyenaAssert {
@@ -52,6 +54,18 @@ public class HyenaAssert {
     public static void isTrue(boolean expression, int code, String message) {
         if (!expression) {
             throw new HyenaServiceException(code, message, Level.WARN);
+        }
+    }
+
+    public static <T extends BaseException> void isTrue(boolean expression,
+                                                        Class<T> exceptionType,
+                                                        String message) {
+        if (!expression) {
+            try {
+                throw exceptionType.getDeclaredConstructor(String.class).newInstance(message);
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                throw new HyenaServiceException(message, Level.ERROR);
+            }
         }
     }
 

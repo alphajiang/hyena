@@ -19,6 +19,7 @@ package io.github.alphajiang.hyena.biz.strategy;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
+import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,4 +77,12 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         Assert.assertEquals(0L, result.getExpire().longValue());
     }
 
+    @Test(expected = HyenaNoPointException.class)
+    public void test_decreasePoint_not_enough() {
+        PointUsage usage = new PointUsage();
+        long number = 9999999L;
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number).setNote("test_decreasePoint_not_enough");
+        this.pointDecreaseStrategy.process(usage);
+        Assert.fail();
+    }
 }
