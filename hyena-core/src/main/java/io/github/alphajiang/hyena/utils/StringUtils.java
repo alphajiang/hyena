@@ -62,8 +62,8 @@ public class StringUtils {
     /**
      * 将逗号分割的字符串转换为long型数组
      *
-     * @param in
-     * @return
+     * @param in 使用逗号分割的字符串, 如: 12,2345,3345
+     * @return 数字数组
      */
     public static List<Long> parseLongIds(String in) {
         if (in == null) {

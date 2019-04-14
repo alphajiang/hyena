@@ -31,8 +31,8 @@ public class PointUsageFacade {
     /**
      * 增加积分
      *
-     * @param usage
-     * @return
+     * @param usage 增加积分参数
+     * @return 增加后的用户积分
      */
     public PointPo increase(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.INCREASE);
@@ -42,8 +42,8 @@ public class PointUsageFacade {
     /**
      * 减少(使用)积分
      *
-     * @param usage
-     * @return
+     * @param usage 减少积分参数
+     * @return 减少后的用户积分
      */
     public PointPo decrease(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.DECREASE);
@@ -53,8 +53,8 @@ public class PointUsageFacade {
     /**
      * 减少(使用)已冻结的积分
      *
-     * @param usage
-     * @return
+     * @param usage 减少积分参数
+     * @return 减少后的用户积分
      */
     public PointPo decreaseFrozen(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.DECREASE_FROZEN);
@@ -65,8 +65,8 @@ public class PointUsageFacade {
     /**
      * 冻结积分
      *
-     * @param usage
-     * @return
+     * @param usage 冻结参数
+     * @return 冻结后的用户积分
      */
     public PointPo freeze(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.FREEZE);
@@ -76,8 +76,8 @@ public class PointUsageFacade {
     /**
      * 解冻积分
      *
-     * @param usage
-     * @return
+     * @param usage 解冻参数
+     * @return 解冻后的用户积分
      */
     public PointPo unfreeze(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.UNFREEZE);

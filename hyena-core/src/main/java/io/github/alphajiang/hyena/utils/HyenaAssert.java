@@ -33,7 +33,7 @@ public class HyenaAssert {
     /**
      * 用于判断状态. 不匹配时抛出 ParkStatusException
      *
-     * @param message
+     * @param message 错误提示文案
      */
     public static void isTrueStatus(boolean expression, String message) {
         if (!expression) {
@@ -64,8 +64,8 @@ public class HyenaAssert {
     /**
      * 判断字符段 expression 是否为空. 默认抛出参数错误
      *
-     * @param expression
-     * @param message
+     * @param expression 判断条件
+     * @param message    错误提示文案
      */
     public static void notBlank(String expression, String message) {
         HyenaAssert.notBlank(expression, HyenaConstants.RES_CODE_SERVICE_ERROR, message);
@@ -74,9 +74,9 @@ public class HyenaAssert {
     /**
      * 判断输入的expression是否为空字串
      *
-     * @param expression
-     * @param code
-     * @param message
+     * @param expression 判断条件
+     * @param code       错误码
+     * @param message    错误提示文案
      */
     public static void notBlank(String expression, int code, String message) {
         if (!StringUtils.isNotBlank(expression)) {
@@ -105,8 +105,8 @@ public class HyenaAssert {
     /**
      * 判断对象obj是否为null. 默认抛出参数错误(status = 10000 的错误)
      *
-     * @param obj
-     * @param message
+     * @param obj     要校验的对象
+     * @param message 错误提示文案
      */
     public static void notNull(Object obj, String message) {
         HyenaAssert.notNull(obj, HyenaConstants.RES_CODE_SERVICE_ERROR, message);
@@ -115,9 +115,9 @@ public class HyenaAssert {
     /**
      * 判断对象obj是否为null.
      *
-     * @param obj
-     * @param code
-     * @param message
+     * @param obj     要校验的对象
+     * @param code    错误码
+     * @param message 错误提示文案
      */
     public static void notNull(Object obj, int code, String message) {
         if (obj == null) {
@@ -134,8 +134,8 @@ public class HyenaAssert {
     /**
      * 判断Collection对象是否为null或空
      *
-     * @param obj
-     * @param message
+     * @param obj     要校验的对象
+     * @param message 错误提示文案
      */
     public static void notEmpty(Collection<?> obj, String message) {
         if (CollectionUtils.isEmpty(obj)) {

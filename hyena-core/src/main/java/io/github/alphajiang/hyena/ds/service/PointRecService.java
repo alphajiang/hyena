@@ -56,8 +56,16 @@ public class PointRecService {
         return this.pointRecMapper.listPointRec(pointTableName, param);
     }
 
+
     /**
      * 增加积分
+     *
+     * @param type       积分类型
+     * @param pointId    积分ID
+     * @param point      数量
+     * @param tag        标签
+     * @param expireTime 过期时间
+     * @param note       备注
      */
     public void addPointRec(String type, long pointId, long point, String tag, Date expireTime, String note) {
         logger.info("type = {}, pointId = {}, point = {}, tag = {}, expireTime = {}, note = {}",
