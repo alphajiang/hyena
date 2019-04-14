@@ -140,17 +140,17 @@ subprojects {
 //        toolVersion = "0.8.3"
 //        reportsDir = file("$buildDir/customJacocoReportDir")
 //    }
-    jacocoTestReport {
-        reports {
-            xml.enabled true
-            xml.destination file("${buildDir}/reports/jacoco/report.xml")
-            html.enabled false
-            csv.enabled false
-        }
-    }
-    coveralls {
-        jacocoReportPath '${buildDir}/reports/jacoco/report.xml'
-    }
+//    jacocoTestReport {
+//        reports {
+//            xml.enabled true
+//            xml.destination file("${buildDir}/reports/jacoco/report.xml")
+//            html.enabled true
+//            csv.enabled false
+//        }
+//    }
+//    coveralls {
+//        jacocoReportPath "${buildDir}/reports/jacoco/report.xml"
+//    }
 
     dependencies {
 
@@ -161,23 +161,42 @@ subprojects {
     }
 }
 
+// Only report code coverage for projects that are distributed
+def publishedProjects = subprojects.findAll { it.path == ':hyena-core' }
 
-
-task codeCoverageReport(type: JacocoReport) {
-    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
-
-    subprojects.each {
-        sourceSets it.sourceSets.main
+task jacocoMerge(type: JacocoMerge) {
+    publishedProjects.each { subproject ->
+        executionData subproject.tasks.withType(Test)
     }
-
-//    reports {
-//        xml.enabled true
-//        xml.destination file("${buildDir}/reports/jacoco/report.xml")
-//        html.enabled false
-//        csv.enabled false
-//    }
+    doFirst {
+        executionData = files(executionData.findAll { it.exists() })
+    }
 }
 
-codeCoverageReport.dependsOn {
-    subprojects*.test
+task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
+    description = 'Generates an aggregate report from all subprojects'
+    dependsOn publishedProjects.test, jacocoMerge
+
+    additionalSourceDirs = files(publishedProjects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(publishedProjects.sourceSets.main.allSource.srcDirs)
+    classDirectories = files(publishedProjects.sourceSets.main.output)
+    executionData jacocoMerge.destinationFile
+
+    reports {
+        html.enabled = true // human readable
+        xml.enabled = true // required by coveralls
+    }
+}
+
+coveralls {
+    sourceDirs = publishedProjects.sourceSets.main.allSource.srcDirs.flatten()
+    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+}
+
+tasks.coveralls {
+    group = 'Coverage reports'
+    description = 'Uploads the aggregated coverage report to Coveralls'
+
+    dependsOn jacocoRootReport
+    // onlyIf { System.env.'CI' && !JavaVersion.current().isJava9Compatible() }
 }

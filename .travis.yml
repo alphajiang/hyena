@@ -6,7 +6,7 @@ jdk:
 script:
   - ./gradlew clean build check test
 after_success:
-  - ./gradlew test jacocoTestReport coveralls
+  - ./gradlew jacocoTestReport coveralls
 
 
 
