@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Idempotent {
     /**
-     * the name part of idempotent key
+     * @return the name part of idempotent key
      */
     String name() default "";
 }

@@ -28,11 +28,11 @@ public interface PointTableMapper {
 
     void createPointTable(@Param(value = "pointTableName") String pointTableName);
 
-    void createPointRecTable(@Param(value = "pointTableName") String pointTableName);
+    Integer createPointRecTable(@Param(value = "pointTableName") String pointTableName);
 
     void createPointRecTableIndex(@Param(value = "pointTableName") String pointTableName);
 
-    void createPointLogTable(@Param(value = "pointTableName") String pointTableName);
+    Integer createPointLogTable(@Param(value = "pointTableName") String pointTableName);
 
     void createPointLogTableIndex(@Param(value = "pointTableName") String pointTableName);
 

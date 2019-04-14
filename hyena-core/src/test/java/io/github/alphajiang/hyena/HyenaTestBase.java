@@ -17,8 +17,14 @@
 
 package io.github.alphajiang.hyena;
 
+import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
 import io.github.alphajiang.hyena.ds.service.PointTableService;
+import io.github.alphajiang.hyena.model.po.PointPo;
+import org.junit.Assert;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -30,22 +36,47 @@ import java.util.UUID;
 @SpringBootTest(classes = HyenaTestMain.class)
 @Transactional
 public abstract class HyenaTestBase {
+    private final Logger logger = LoggerFactory.getLogger(HyenaTestBase.class);
 
     @Autowired
     private PointTableService pointTableService;
 
+    @Autowired
+    private PointUsageFacade pointUsageFacade;
+
     private String pointType;
 
+    private String uid;
+
+    private PointUsage initialPointUsage;
+
     public HyenaTestBase() {
-        this.pointType = UUID.randomUUID().toString().substring(0, 6);
+        String random = UUID.randomUUID().toString().replace("-", "");
+        this.pointType = random.substring(0, 6);
+        this.uid = random.substring(7, 12);
+        this.initialPointUsage = new PointUsage();
+        this.initialPointUsage.setType(this.pointType).setUid(this.uid).setPoint(99887L);
     }
 
 
     public void init() {
         pointTableService.getOrCreateTable(this.pointType);
+
+        PointPo ret = this.pointUsageFacade.increase(this.initialPointUsage);
+        logger.info("point = {}", ret);
+        Assert.assertNotNull(ret);
+
     }
 
     public String getPointType() {
         return this.pointType;
+    }
+
+    public String getUid() {
+        return this.uid;
+    }
+
+    public PointUsage getInitialPointUsage() {
+        return initialPointUsage;
     }
 }

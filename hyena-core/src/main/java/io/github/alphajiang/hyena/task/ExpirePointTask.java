@@ -65,7 +65,7 @@ public class ExpirePointTask {
         param.setFrozen(false).setExpireTime(new Date()).setType(type).setEnable(true);
         List<PointRec> pointRecList = this.pointRecService.listPointRec(type, param);
 
-        pointRecList.stream().filter(rec1 -> rec1.getFrozen() < 1L).forEach(rec -> {
+        pointRecList.stream().forEach(rec -> {
             try {
                 PointUsage usage = new PointUsage();
                 usage.setUid(rec.getUid()).setPoint(rec.getAvailable())

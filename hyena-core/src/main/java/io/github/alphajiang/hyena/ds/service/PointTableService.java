@@ -37,7 +37,7 @@ public class PointTableService {
 
 
     @Autowired
-    private PointTableMapper cusPointTableMapper;
+    private PointTableMapper pointTableMapper;
 
     private Set<String> tables = new ConcurrentSkipListSet<>();
 
@@ -62,17 +62,21 @@ public class PointTableService {
 
     private void createTable(String type) {
         String pointTableName = TableNameHelper.getPointTableName(type);
-        this.cusPointTableMapper.createPointTable(pointTableName);
-        this.cusPointTableMapper.createPointRecTable(pointTableName);
-        this.cusPointTableMapper.createPointRecTableIndex(pointTableName);
-        this.cusPointTableMapper.createPointLogTable(pointTableName);
-        this.cusPointTableMapper.createPointLogTableIndex(pointTableName);
+        this.pointTableMapper.createPointTable(pointTableName);
+        Integer ret = this.pointTableMapper.createPointRecTable(pointTableName);
+        if (ret != null && ret.intValue() > 0) {
+            this.pointTableMapper.createPointRecTableIndex(pointTableName);
+        }
+        ret = this.pointTableMapper.createPointLogTable(pointTableName);
+        if (ret != null && ret.intValue() > 0) {
+            this.pointTableMapper.createPointLogTableIndex(pointTableName);
+        }
         this.refreshTables();
     }
 
 
     private synchronized void refreshTables() {
-        List<String> tableList = this.cusPointTableMapper.listCusPointTables(HyenaConstants.PREFIX_POINT_TABLE_NAME);
+        List<String> tableList = this.pointTableMapper.listCusPointTables(HyenaConstants.PREFIX_POINT_TABLE_NAME);
 
         logger.info("a tableList = {}", tableList);
 
