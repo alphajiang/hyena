@@ -6,7 +6,7 @@ jdk:
 script:
   - ./gradlew clean build check test
 after_success:
-  - ./gradlew jacocoTestReport coveralls
+  - ./gradlew -Djdk.tls.client.protocols="TLSv1,TLSv1.1,TLSv1.2" jacocoTestReport coveralls
 
 
 
