@@ -2,7 +2,7 @@
 
 
 [![Travis (.org) branch](https://img.shields.io/travis/alphajiang/hyena/master.svg)](https://travis-ci.org/alphajiang/hyena)
-[![Coveralls github branch](https://img.shields.io/coveralls/github/alphajiang/hyena/master.svg)](https://coveralls.io/github/alphajiang/hyena?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/alphajiang/hyena/badge.svg?branch=master)](https://coveralls.io/github/alphajiang/hyena?branch=master)
 [![Maven](https://img.shields.io/maven-central/v/io.github.alphajiang/hyena-spring-boot-starter.svg)](https://search.maven.org/search?q=g:io.github.alphajiang)
 [![License](https://img.shields.io/github/license/alphajiang/hyena.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
