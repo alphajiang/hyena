@@ -40,7 +40,7 @@
 | 参数名 | 类型 | 含义 | 备注 |
 | :-- | :-- | :-- | :-- | 
 | status | number | 接口调用返回结果 | 0 表示成功, 其他都表示接口调用失败 |
-| seq | string | 请求序列号 | 返回请求消息里的序列号. 仅当请求消息有seq时, 响应消息才会返回seq. |
+| seq | string | 请求序列号 | 返回请求消息里的序列号. <br />仅当请求消息有seq时, 响应消息才会返回seq. |
 | data.uid | string | 用户标识 | |
 | data.point | number | 用户总有效积分 | |
 | data.available | number | 当前可用积分 | |
