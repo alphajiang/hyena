@@ -4,6 +4,7 @@ archivesBaseName  = "hyena-core"
 
 sourceSets {
     main {
+        coverage = true
         resources {
             srcDirs "src/main/resources", "src/main/java"
         }

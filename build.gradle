@@ -163,14 +163,14 @@ task codeCoverageReport(type: JacocoReport) {
 
     // Add all relevant sourcesets from the subprojects 
     subprojects.each {
-        sourceSets it.sourceSets.main
+        sourceSets it.sourceSets.main { ext.coverage = true}
     }
 
     reports {
         xml.enabled true
         xml.destination = file("${buildDir}/reports/jacoco/report.xml")
-        html.enabled true
-        html.destination = file("${buildDir}/reports/jacoco")
+        html.enabled false
+        //html.destination = file("${buildDir}/reports/jacoco")
         csv.enabled false
     }
 }
