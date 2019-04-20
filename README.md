@@ -13,9 +13,7 @@
 + URL: /hyena/point/increase
 + Http Method: Post
 + Content-Type: application/json;charset=utf-8
-
-
-<b>请求参数</b>
++ 请求参数
 
 | 参数名 | 类型 | 含义 | 必传 | 备注 |
 | :-- | :-- | :-- | :-- | :-- |
@@ -27,7 +25,7 @@
 | tag | string | 自定义标签 |  | |
 | note | string | 备注 | ||
  
- <b>请求消息示例</b>
++ 请求消息示例
 ```
 {
     "uid" : "user_123",
@@ -35,7 +33,7 @@
 }    
 ```
 
-<b>返回结果</b>
++ 返回结果
 
 | 参数名 | 类型 | 含义 | 备注 |
 | :-- | :-- | :-- | :-- | 
@@ -48,7 +46,7 @@
 | data.frozen | number | 当前冻结的积分 | |
 | data.expire | number | 已过期的积分 | |
 
- <b>返回结果示例</b>
+ + 返回结果示例
 ```
 {
     "status" : 0,
