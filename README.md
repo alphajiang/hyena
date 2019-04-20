@@ -9,7 +9,19 @@
 用户余额/积分微服务
 ## 积分相关接口
 ### 增加积分
-/hyena/point/increase
++ URL: /hyena/point/increase
++ Http Method: Post
++ Content-Type: application/json;charset=utf-8
+
+<b>请求参数</b>
+
+| 参数名 | 类型 | 含义 | 备注 |
+| :-- | :-- | :-- | :-- |
+| seq | string | 请求序列号. 1, 用于匹配请求消息和响应消息; 2, 做接口幂等性校验. 序列号为空时表示不做匹配及幂等性校验. | 每次新的请求使用不同的随机字串. 如果是重送请求使用相同的序列号 |
+| type | string | 积分类型 | 可自定义类型, 用于存储'积分', '余额', 'XX币'等. |
+| expireTime | string | 过期时间. 不传表示永不过期. | 格式为 "yyyy-MM-dd HH:mm:ss", 如: 2018-10-25 18:34:32 表示2018年10月25日18点34分32秒过期 |
+ 
+
 ### 冻结积分
 /hyena/point/freeze
 ### 解冻积分
