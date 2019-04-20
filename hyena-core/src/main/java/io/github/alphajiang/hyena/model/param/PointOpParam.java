@@ -24,7 +24,6 @@ public class PointOpParam extends BaseObject {
     private String type = "default";
     private String uid;
     private long point;
-    private String tag;
     private String note = "";
 
     public String getSeq() {
@@ -57,14 +56,6 @@ public class PointOpParam extends BaseObject {
 
     public void setPoint(long point) {
         this.point = point;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
     }
 
     public String getNote() {

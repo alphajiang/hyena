@@ -24,9 +24,22 @@ import java.util.Date;
 
 public class PointIncreaseParam extends PointOpParam {
 
+
+    private String tag;
+
     @Nullable
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date expireTime;
+
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
 
     @Nullable
     public Date getExpireTime() {

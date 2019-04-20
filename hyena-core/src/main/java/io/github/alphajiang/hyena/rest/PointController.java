@@ -37,6 +37,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -91,8 +92,8 @@ public class PointController {
     @Idempotent(name = "increase-point")
     @PostMapping(value = "/increase", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> increasePoint(HttpServletRequest request,
-                                                 @RequestBody PointIncreaseParam param) {
-        logger.info(LoggerHelper.formatEnterLog(request) + " param = {}", param);
+                                                 @RequestBody @NotNull PointIncreaseParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointIncreaseParam(param);
         PointPo ret = this.pointUsageFacade.increase(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
@@ -104,7 +105,7 @@ public class PointController {
     @PostMapping(value = "/decrease", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> decreasePoint(HttpServletRequest request,
                                                  @RequestBody PointOpParam param) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(request, false));
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         PointPo ret = this.pointUsageFacade.decrease(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);

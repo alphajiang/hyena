@@ -18,10 +18,12 @@
 package io.github.alphajiang.hyena.rest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
 import io.github.alphajiang.hyena.ds.service.PointRecService;
+import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.dto.PointRec;
@@ -80,6 +82,18 @@ public class TestPointController extends HyenaTestBase {
         Assert.assertFalse(list.isEmpty());
     }
 
+    @Test
+    public void test_listPoint_fail_a() throws Exception {
+
+        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPoint")
+                .param("type", "invalid_type_test");
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
+
+        Assert.assertFalse(res.getStatus() == HyenaConstants.RES_CODE_SUCCESS);
+    }
 
     @Test
     public void test_listPointRecord() throws Exception {
@@ -115,6 +129,40 @@ public class TestPointController extends HyenaTestBase {
         PointPo result = res.getData();
         Assert.assertNotNull(result);
     }
+
+    @Test
+    public void test_increase_fail() throws Exception {
+        StringBuilder buf = new StringBuilder();
+        buf.append("{").append("\"uid\":\"").append(super.getUid()).append("\",")
+                .append("\"point\":\"").append("abcd").append("\"")
+                .append("}");
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(buf.toString());
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
+        Assert.assertEquals(HyenaConstants.RES_CODE_PARAMETER_ERROR, res.getStatus());
+    }
+
+    @Test
+    public void test_increase_fail_b() throws Exception {
+        StringBuilder buf = new StringBuilder();
+        buf.append("{").append("\"uid\":\"").append(super.getUid()).append("\",")
+                .append("\"point\":\"").append(123).append("\",")
+                .append("\"type\":null")
+                .append("}");
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(buf.toString());
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
+        Assert.assertEquals(HyenaConstants.RES_CODE_PARAMETER_ERROR, res.getStatus());
+    }
+
 
     @Test
     public void test_decrease() throws Exception {

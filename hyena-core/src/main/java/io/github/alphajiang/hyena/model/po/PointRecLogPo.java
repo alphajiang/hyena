@@ -38,7 +38,6 @@ public class PointRecLogPo extends BasePo {
     private Long frozen;
     private Long cancelled;
     private Long expire;
-    private String tag;
     private String note;
 
     public long getPid() {
@@ -122,14 +121,6 @@ public class PointRecLogPo extends BasePo {
         return this;
     }
 
-    public String getTag() {
-        return tag;
-    }
-
-    public PointRecLogPo setTag(String tag) {
-        this.tag = tag;
-        return this;
-    }
 
     public String getNote() {
         return note;

@@ -66,8 +66,10 @@ public class PointRecService {
      * @param tag        标签
      * @param expireTime 过期时间
      * @param note       备注
+     * @return 返回积分记录ID
      */
-    public void addPointRec(String type, long pointId, long point, String tag, Date expireTime, String note) {
+    public long addPointRec(String type, long pointId, long point,
+                            String tag, Date expireTime, String note) {
         logger.info("type = {}, pointId = {}, point = {}, tag = {}, expireTime = {}, note = {}",
                 type, pointId, point, tag, expireTime, note);
         PointRecPo rec = new PointRecPo();
@@ -75,23 +77,19 @@ public class PointRecService {
         rec.setPid(pointId).setTotal(point).setAvailable(point);
         if (tag == null) {
             rec.setTag("");
-            recLog.setTag("");
         } else {
             rec.setTag(tag);
-            recLog.setTag(tag);
         }
         if (expireTime != null) {
             rec.setExpireTime(expireTime);
         }
-//        if(!StringUtils.isEmpty(note)){
-//            rec.setNote(note);
-//        }
         String recTableName = TableNameHelper.getPointRecTableName(type);
         this.pointRecMapper.addPointRec(recTableName, rec);
 
+
         this.pointRecLogService.addLogByRec(type, PointStatus.INCREASE,
                 rec, point, note);
-
+        return rec.getId();
     }
 
     public void decreasePoint(String type, PointRecPo rec, long point, String note) {

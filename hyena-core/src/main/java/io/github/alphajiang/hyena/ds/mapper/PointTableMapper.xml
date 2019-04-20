@@ -73,7 +73,6 @@
         `frozen` bigint(20) not null default 0,
         `cancelled` bigint(20) not null default 0,
         `expire` bigint(20) not null default 0,
-        `tag` varchar(128) not null default '',
         `note` text,
         `enable` boolean not null default true,
         `createTime` timestamp default now()
@@ -81,6 +80,6 @@
     </update>
 
     <update id="createPointLogTableIndex" flushCache="true">
-        create index ${pointTableName}_rec_log_tag ON ${pointTableName}_rec_log(tag)
+        create index ${pointTableName}_rec_log_recId ON ${pointTableName}_rec_log(recId)
     </update>
 </mapper>

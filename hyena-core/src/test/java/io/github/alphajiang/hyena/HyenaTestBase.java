@@ -50,6 +50,8 @@ public abstract class HyenaTestBase {
 
     private PointUsage initialPointUsage;
 
+    private PointPo userPoint;
+
     public HyenaTestBase() {
         String random = UUID.randomUUID().toString().replace("-", "");
         this.pointType = random.substring(0, 6);
@@ -62,9 +64,9 @@ public abstract class HyenaTestBase {
     public void init() {
         pointTableService.getOrCreateTable(this.pointType);
 
-        PointPo ret = this.pointUsageFacade.increase(this.initialPointUsage);
-        logger.info("point = {}", ret);
-        Assert.assertNotNull(ret);
+        userPoint = this.pointUsageFacade.increase(this.initialPointUsage);
+        logger.info("userPoint = {}", userPoint);
+        Assert.assertNotNull(userPoint);
 
     }
 
@@ -78,5 +80,9 @@ public abstract class HyenaTestBase {
 
     public PointUsage getInitialPointUsage() {
         return initialPointUsage;
+    }
+
+    public PointPo getUserPoint() {
+        return this.userPoint;
     }
 }

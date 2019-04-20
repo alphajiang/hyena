@@ -30,9 +30,6 @@
         `frozen` = #{recLog.frozen},
         `cancelled` = #{recLog.cancelled},
         `expire` = #{recLog.expire},
-        <if test="recLog.tag != null">
-            `tag` = #{recLog.tag},
-        </if>
         `note` = #{recLog.note}
     </insert>
 

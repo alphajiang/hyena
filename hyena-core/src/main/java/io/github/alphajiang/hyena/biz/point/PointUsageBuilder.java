@@ -33,6 +33,7 @@ public class PointUsageBuilder {
     public static PointUsage fromPointIncreaseParam(PointIncreaseParam param) {
         PointUsage usage = new PointUsage();
         usage.setType(param.getType()).setUid(param.getUid()).setPoint(param.getPoint())
+                .setTag(param.getTag())
                 .setNote(param.getNote()).setExpireTime(param.getExpireTime());
         return usage;
     }
