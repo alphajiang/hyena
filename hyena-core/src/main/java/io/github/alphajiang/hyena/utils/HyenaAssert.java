@@ -19,6 +19,7 @@ package io.github.alphajiang.hyena.utils;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.model.exception.BaseException;
+import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.exception.HyenaStatusException;
 import org.slf4j.event.Level;
@@ -33,41 +34,31 @@ public class HyenaAssert {
     }
 
     /**
-     * 用于判断状态. 不匹配时抛出 ParkStatusException
+     * 用于判断状态. 不匹配时抛出 HyenaStatusException
      *
      * @param expression 判断条件
      * @param message    错误提示文案
      */
-    public static void isTrueStatus(boolean expression, String message) {
-        if (!expression) {
-            throw new HyenaStatusException(message);
-        }
-    }
-
-
     public static void isTrue(boolean expression, String message) {
-        if (!expression) {
-            throw new HyenaServiceException(message, Level.WARN);
-        }
+        HyenaAssert.isTrue(expression, HyenaConstants.RES_CODE_STATUS_ERROR, message);
     }
 
     public static void isTrue(boolean expression, int code, String message) {
+        HyenaAssert.isTrue(expression, code, message, Level.WARN);
+    }
+
+    public static void isTrue(boolean expression, int code, String message, Level logLevel) {
+        HyenaAssert.isTrue(expression, code, message, logLevel, HyenaStatusException.class);
+    }
+
+    public static <T extends BaseException> void isTrue(boolean expression, int code,
+                                                        String message, Level logLevel,
+                                                        Class<T> exceptionType) {
         if (!expression) {
-            throw new HyenaServiceException(code, message, Level.WARN);
+            throw HyenaAssert.genException(code, message, logLevel, exceptionType);
         }
     }
 
-    public static <T extends BaseException> void isTrue(boolean expression,
-                                                        Class<T> exceptionType,
-                                                        String message) {
-        if (!expression) {
-            try {
-                throw exceptionType.getDeclaredConstructor(String.class).newInstance(message);
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new HyenaServiceException(message, Level.ERROR);
-            }
-        }
-    }
 
     public static void equals(String expect, String actual, String message) {
 
@@ -83,7 +74,7 @@ public class HyenaAssert {
      * @param message    错误提示文案
      */
     public static void notBlank(String expression, String message) {
-        HyenaAssert.notBlank(expression, HyenaConstants.RES_CODE_SERVICE_ERROR, message);
+        HyenaAssert.notBlank(expression, HyenaConstants.RES_CODE_PARAMETER_ERROR, message);
     }
 
     /**
@@ -94,26 +85,40 @@ public class HyenaAssert {
      * @param message    错误提示文案
      */
     public static void notBlank(String expression, int code, String message) {
-        if (!StringUtils.isNotBlank(expression)) {
-            throw new HyenaServiceException(code, message);
-        }
+        HyenaAssert.notBlank(expression, code, message, Level.INFO);
     }
 
     public static void notBlank(String expression, int code, String message, Level logLevel) {
+        HyenaAssert.notBlank(expression, code, message, logLevel, HyenaParameterException.class);
+    }
+
+    public static <T extends BaseException> void notBlank(String expression, int code,
+                                                          String message, Level logLevel,
+                                                          Class<T> exceptionType) {
         if (!StringUtils.isNotBlank(expression)) {
-            throw new HyenaServiceException(code, message, logLevel);
+            throw HyenaAssert.genException(code, message, logLevel, exceptionType);
         }
     }
 
+
+
     public static void isNull(Object obj, String message) {
-        if (obj != null) {
-            throw new HyenaServiceException(message);
-        }
+        HyenaAssert.isNull(obj, HyenaConstants.RES_CODE_PARAMETER_ERROR, message);
     }
 
     public static void isNull(Object obj, int code, String message) {
+        HyenaAssert.isNull(obj, code, message, Level.WARN);
+    }
+
+    public static void isNull(Object obj, int code, String message, Level logLevel) {
+        HyenaAssert.isNull(obj, code, message, logLevel, HyenaParameterException.class);
+    }
+
+    public static <T extends BaseException> void isNull(Object obj, int code,
+                                                        String message, Level logLevel,
+                                                        Class<T> exceptionType) {
         if (obj != null) {
-            throw new HyenaServiceException(code, message);
+            throw HyenaAssert.genException(code, message, logLevel, exceptionType);
         }
     }
 
@@ -124,7 +129,7 @@ public class HyenaAssert {
      * @param message 错误提示文案
      */
     public static void notNull(Object obj, String message) {
-        HyenaAssert.notNull(obj, HyenaConstants.RES_CODE_SERVICE_ERROR, message);
+        HyenaAssert.notNull(obj, HyenaConstants.RES_CODE_PARAMETER_ERROR, message);
     }
 
     /**
@@ -135,14 +140,19 @@ public class HyenaAssert {
      * @param message 错误提示文案
      */
     public static void notNull(Object obj, int code, String message) {
-        if (obj == null) {
-            throw new HyenaServiceException(code, message, Level.WARN);
-        }
+        HyenaAssert.notNull(obj, code, message, Level.WARN);
     }
 
+
     public static void notNull(Object obj, int code, String message, Level logLevel) {
+        HyenaAssert.notNull(obj, code, message, logLevel, HyenaParameterException.class);
+    }
+
+    public static <T extends BaseException> void notNull(Object obj, int code,
+                                                         String message, Level logLevel,
+                                                         Class<T> exceptionType) {
         if (obj == null) {
-            throw new HyenaServiceException(code, message, logLevel);
+            throw HyenaAssert.genException(code, message, logLevel, exceptionType);
         }
     }
 
@@ -155,6 +165,19 @@ public class HyenaAssert {
     public static void notEmpty(Collection<?> obj, String message) {
         if (CollectionUtils.isEmpty(obj)) {
             throw new HyenaServiceException(HyenaConstants.RES_CODE_SERVICE_ERROR, message);
+        }
+    }
+
+
+    private static <T extends BaseException> BaseException genException(int code,
+                                                                        String message,
+                                                                        Level logLevel,
+                                                                        Class<T> exceptionType) {
+        try {
+            throw exceptionType.getDeclaredConstructor(int.class, String.class, Level.class)
+                    .newInstance(code, message, logLevel);
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new HyenaServiceException(message, Level.ERROR);
         }
     }
 }

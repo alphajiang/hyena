@@ -18,7 +18,6 @@
 package io.github.alphajiang.hyena.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
@@ -27,7 +26,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestJsonUtils extends HyenaTestBase {
+public class TestJsonUtils {
     private final Logger logger = LoggerFactory.getLogger(TestJsonUtils.class);
 
     @Test

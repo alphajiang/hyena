@@ -28,25 +28,9 @@ public class HyenaNoPointException extends BaseException {
     }
 
 
-    public HyenaNoPointException(String msg, Throwable e) {
-        super(CODE, msg, e);
-    }
-
-    public HyenaNoPointException(int code, String msg, Throwable e) {
-        super(code, msg, e);
-    }
-
     public HyenaNoPointException(int code, String msg, Level logLevel) {
         super(code, msg, logLevel);
 
     }
 
-    public HyenaNoPointException(String msg) {
-        super(CODE, msg);
-    }
-
-
-    public HyenaNoPointException(int code, String msg) {
-        super(code, msg);
-    }
 }

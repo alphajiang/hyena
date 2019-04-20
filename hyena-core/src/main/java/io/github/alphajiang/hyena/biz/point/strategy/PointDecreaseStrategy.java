@@ -65,8 +65,10 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         HyenaAssert.notNull(curPoint.getAvailable(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= usage.getPoint(),
-                HyenaNoPointException.class,
-                "no enough available point. current available point is " + curPoint.getAvailable());
+                HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+                "no enough available point. current available point is " + curPoint.getAvailable(),
+                Level.WARN,
+                HyenaNoPointException.class);
 
 
         long gap = usage.getPoint();

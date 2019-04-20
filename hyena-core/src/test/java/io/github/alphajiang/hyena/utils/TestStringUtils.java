@@ -17,11 +17,10 @@
 
 package io.github.alphajiang.hyena.utils;
 
-import io.github.alphajiang.hyena.HyenaTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestStringUtils extends HyenaTestBase {
+public class TestStringUtils {
 
 
     @Test

@@ -17,11 +17,10 @@
 
 package io.github.alphajiang.hyena.utils;
 
-import io.github.alphajiang.hyena.HyenaTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestNumberUtils extends HyenaTestBase {
+public class TestNumberUtils {
 
     @Test
     public void test_parseLong_bytes() {

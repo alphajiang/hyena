@@ -29,22 +29,25 @@ public class CollectionUtils {
     }
 
     public static String join(final Collection<?> coll, String separate) {
-        if(isEmpty(coll)) {
+        if (isEmpty(coll)) {
             return "";
         }
         StringBuilder buf = new StringBuilder();
-        coll.stream().forEach(o -> {
-            buf.append(separate);
-            if(o instanceof Character) {
-                buf.append((Character)o);
-            }else {
-                buf.append(o.toString());
+        coll.stream().filter(a -> a != null).forEach(o -> {
+
+            if (o instanceof Character) {
+                buf.append(separate).append((Character) o);
+            } else if (o instanceof String) {
+                if (StringUtils.isNotBlank((String) o)) {
+                    buf.append(separate).append((String) o);
+                }
+            } else {
+                buf.append(separate).append(o.toString());
             }
         });
-        if(buf.length() < separate.length()) {
+        if (buf.length() < separate.length()) {
             return "";
-        }
-        else {
+        } else {
             return buf.substring(separate.length());
         }
     }

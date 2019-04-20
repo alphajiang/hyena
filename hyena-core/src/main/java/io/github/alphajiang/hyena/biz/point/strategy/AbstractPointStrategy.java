@@ -17,7 +17,6 @@
 
 package io.github.alphajiang.hyena.biz.point.strategy;
 
-import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointTableService;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
@@ -38,9 +37,9 @@ abstract class AbstractPointStrategy implements PointStrategy {
 
     void preProcess(PointUsage usage) {
         //String tableName =
-        HyenaAssert.notBlank(usage.getType(), HyenaConstants.RES_CODE_PARAMETER_ERROR, "invalid parameter, 'type' can't blank");
-        HyenaAssert.notBlank(usage.getUid(), HyenaConstants.RES_CODE_PARAMETER_ERROR, "invalid parameter, 'uid' can't blank");
-        HyenaAssert.isTrue(usage.getPoint() > 0L, HyenaConstants.RES_CODE_PARAMETER_ERROR, "invalid parameter, 'point' must great than 0");
+        HyenaAssert.notBlank(usage.getType(), "invalid parameter, 'type' can't blank");
+        HyenaAssert.notBlank(usage.getUid(), "invalid parameter, 'uid' can't blank");
+        HyenaAssert.isTrue(usage.getPoint() > 0L, "invalid parameter, 'point' must great than 0");
 
         this.cusPointTableService.getOrCreateTable(usage.getType());
         //logger.debug("tableName = {}", tableName);
