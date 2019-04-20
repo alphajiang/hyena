@@ -4,9 +4,10 @@ jdk:
   - openjdk11
 
 script:
-  - ./gradlew clean build check test
+  - ./gradlew clean build check
+  - ./gradlew codeCoverageReport
 after_success:
-  - ./gradlew jacocoTestReport coveralls
+  - bash <(curl -s https://codecov.io/bash)
 
 
 

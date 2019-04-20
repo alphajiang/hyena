@@ -155,43 +155,27 @@ subprojects {
 //        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
     }
 }
+task codeCoverageReport(type: JacocoReport) {
 
-// Only report code coverage for projects that are distributed
-def publishedProjects = subprojects.findAll { it.path == ':hyena-core' }
+    // Gather execution data from all subprojects
+    // (change this if you e.g. want to calculate unit test/integration test coverage separately)
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
 
-task jacocoMerge(type: JacocoMerge) {
-    publishedProjects.each { subproject ->
-        executionData subproject.tasks.withType(Test)
+    // Add all relevant sourcesets from the subprojects 
+    subprojects.each {
+        sourceSets it.sourceSets.main
     }
-    doFirst {
-        executionData = files(executionData.findAll { it.exists() })
-    }
-}
-
-task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
-    description = 'Generates an aggregate report from all subprojects'
-    dependsOn publishedProjects.test, jacocoMerge
-
-    additionalSourceDirs = files(publishedProjects.sourceSets.main.allSource.srcDirs)
-    sourceDirectories = files(publishedProjects.sourceSets.main.allSource.srcDirs)
-    classDirectories = files(publishedProjects.sourceSets.main.output)
-    executionData jacocoMerge.destinationFile
 
     reports {
-        html.enabled = true // human readable
-        xml.enabled = true // required by coveralls
+        xml.enabled true
+        xml.destination = file("${buildDir}/reports/jacoco/report.xml")
+        html.enabled true
+        html.destination = file("${buildDir}/reports/jacoco")
+        csv.enabled false
     }
 }
 
-coveralls {
-    sourceDirs = publishedProjects.sourceSets.main.allSource.srcDirs.flatten()
-    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
-}
-
-tasks.coveralls {
-    group = 'Coverage reports'
-    description = 'Uploads the aggregated coverage report to Coveralls'
-
-    dependsOn jacocoRootReport
-    //onlyIf { System.env.'CI' && !JavaVersion.current().isJava9Compatible() }
+// always run the tests before generating the report
+codeCoverageReport.dependsOn {
+    subprojects*.test
 }
