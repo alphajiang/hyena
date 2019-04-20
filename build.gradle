@@ -42,17 +42,10 @@ allprojects {
         mavenCentral()
     }
 
-//    dependencyManagement {
-//        imports {
-//            mavenBom "org.springframework.cloud:spring-cloud-dependencies:Greenwich.SR1"
-//        }
-//    }
+
 
 }
-//dependencies {
-//    compile project(':hyena-core')
-//
-//}
+
 bootJar {
     enabled = false
 }
@@ -66,7 +59,7 @@ subprojects {
 
     apply plugin: 'maven'
     apply plugin: 'signing'
-    apply plugin: 'io.spring.dependency-management'
+    //apply plugin: 'io.spring.dependency-management'
 
 
     task javadocJar(type: Jar) {
