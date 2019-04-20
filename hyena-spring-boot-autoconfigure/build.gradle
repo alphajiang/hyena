@@ -9,10 +9,7 @@ sourceSets {
     }
 }
 
-test {
-    //include 'org/aj/**'
 
-}
 
 dependencies {
     implementation project(':hyena-core')
