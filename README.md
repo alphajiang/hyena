@@ -20,7 +20,7 @@
 | seq | string | 请求序列号. <br />1, 用于匹配请求消息和响应消息; <br />2, 做接口幂等性校验. <br />序列号为空时表示不做匹配及幂等性校验. |  | 每次新的请求使用不同的随机字串. 如果是重送请求使用相同的序列号 |
 | type | string | 积分类型 | | 可自定义类型, 用于存储'积分', '余额', 'XX币'等. 为空时, 自动创建类型为'default'的积分 |
 | uid | string | 用户标识 | 是 | |
-| point | number | 积分数量 | 是 | |
+| point | number | 积分数量 | 是 | 要增加的积分数量 |
 | expireTime | string | 过期时间. 不传表示永不过期. | | 格式为 "yyyy-MM-dd HH:mm:ss". <br />如: 2018-10-25 18:34:32 表示2018年10月25日18点34分32秒过期 |
 | tag | string | 自定义标签 |  | |
 | note | string | 备注 | ||
@@ -66,22 +66,69 @@
 + URL: /hyena/point/freeze
 + Http Method: Post
 + Content-Type: application/json;charset=utf-8
++ 请求参数
+
+| 参数名 | 类型 | 含义 | 必传 | 备注 |
+| :-- | :-- | :-- | :-- | :-- |
+| seq | string | 请求序列号.  |  |  |
+| type | string | 积分类型 | | 与增加积分时的类型一致 |
+| uid | string | 用户标识 | 是 | |
+| point | number | 积分数量 | 是 | 要冻结的积分数量 |
+| note | string | 备注 | ||
+
++ 返回结果. 数据结构与增加积分的数据结构一致.
 
 ### 解冻积分
 + 解冻指定用户的积分,解冻的积分数量不能超过当前用户已冻结的积分数量. 调用成功后返回用户积分明细.
 + URL: /hyena/point/unfreeze
 + Http Method: Post
 + Content-Type: application/json;charset=utf-8
-### 使用积分
++ 请求参数
+
+| 参数名 | 类型 | 含义 | 必传 | 备注 |
+| :-- | :-- | :-- | :-- | :-- |
+| seq | string | 请求序列号.  |  |  |
+| type | string | 积分类型 | | 与冻结积分时的类型一致 |
+| uid | string | 用户标识 | 是 | |
+| point | number | 积分数量 | 是 | 要解冻的积分数量 |
+| note | string | 备注 | ||
+
++ 返回结果. 数据结构与增加积分的数据结构一致.
+
+### 消费积分
 + 用户积分消费后调用该接口. 被消费的积分数量不能超过当前可用积分. 调用成功后返回用户积分明细.
 + URL: /hyena/point/decrease
 + Http Method: Post
 + Content-Type: application/json;charset=utf-8
-### 使用已冻结积分
++ 请求参数
+
+| 参数名 | 类型 | 含义 | 必传 | 备注 |
+| :-- | :-- | :-- | :-- | :-- |
+| seq | string | 请求序列号.  |  |  |
+| type | string | 积分类型 | | 与增加积分时的类型一致 |
+| uid | string | 用户标识 | 是 | |
+| point | number | 积分数量 | 是 | 要消费的积分数量 |
+| note | string | 备注 | ||
+
++ 返回结果. 数据结构与增加积分的数据结构一致.
+
+### 消费已冻结积分
 + 用户消费已冻结的积分后调用该接口. 被消费的积分数量不能超过当前已冻结的积分. 调用成功后返回用户积分明细.
 + URL: /hyena/point/decreaseFrozen
 + Http Method: Post
 + Content-Type: application/json;charset=utf-8
++ 请求参数
+
+| 参数名 | 类型 | 含义 | 必传 | 备注 |
+| :-- | :-- | :-- | :-- | :-- |
+| seq | string | 请求序列号.  |  |  |
+| type | string | 积分类型 | | 与冻结积分时的类型一致 |
+| uid | string | 用户标识 | 是 | |
+| point | number | 积分数量 | 是 | 要消费的积分数量 |
+| note | string | 备注 | ||
+
++ 返回结果. 数据结构与增加积分的数据结构一致.
+
 ### 撤销积分
 + 撤销之前给用户增加的积分. 调用成功后返回用户积分明细.
 + URL: /hyena/point/cancel
