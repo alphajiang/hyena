@@ -17,7 +17,11 @@
 
 package io.github.alphajiang.hyena.model.param;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class PointCancelParam extends PointOpParam {
+
+    @ApiModelProperty(value = "要撤销的积分记录ID")
     private Long recId; // 积分记录的ID
 
     public Long getRecId() {

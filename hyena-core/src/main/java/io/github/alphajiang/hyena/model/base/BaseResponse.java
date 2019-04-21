@@ -17,13 +17,19 @@
 
 package io.github.alphajiang.hyena.model.base;
 
-import io.github.alphajiang.hyena.HyenaConstants;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.github.alphajiang.hyena.HyenaConstants;
 
 public class BaseResponse extends BaseObject {
 
 
     private int status = HyenaConstants.RES_CODE_SUCCESS;
+
+    private static final BaseResponse SUCCESS_RES = new BaseResponse(HyenaConstants.RES_CODE_SUCCESS);
+
+    public static final BaseResponse success() {
+        return SUCCESS_RES;
+    }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String error = "";

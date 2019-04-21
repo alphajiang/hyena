@@ -1,20 +1,13 @@
 
 archivesBaseName  = "hyena-spring-boot-autoconfigure"
 
-sourceSets {
-    main {
-        resources {
-            srcDirs "src/main/resources", "src/main/java"
-        }
-    }
-}
-
-
 
 dependencies {
     implementation project(':hyena-core')
 
     implementation("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:${springBootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+    implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
 
 }

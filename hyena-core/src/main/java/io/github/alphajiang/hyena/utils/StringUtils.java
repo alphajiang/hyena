@@ -17,6 +17,8 @@
 
 package io.github.alphajiang.hyena.utils;
 
+import io.github.alphajiang.hyena.HyenaConstants;
+
 public class StringUtils {
     public static String upperCase(final String str) {
         if (str == null) {
@@ -53,6 +55,13 @@ public class StringUtils {
 
     public static boolean isNotBlank(final String cs) {
         return !isBlank(cs);
+    }
+
+    public static String replaceFirst(final String str, final String prefix) {
+        if (isBlank(str)) {
+            return "";
+        }
+        return str.replaceFirst(HyenaConstants.PREFIX_POINT_TABLE_NAME, "");
     }
 
 

@@ -17,11 +17,16 @@
 
 package io.github.alphajiang.hyena.model.param;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
 
 public class ListPointRecParam extends BaseListParam {
 
+
+    @ApiModelProperty(value = "用户ID")
     private String uid;
+
     private boolean available = false;
     private Boolean frozen;
     private Date expireTime;

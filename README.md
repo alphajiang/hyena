@@ -8,6 +8,8 @@
 
 用户余额/积分微服务
 ## 积分相关接口
+更多接口介绍可查看swagger文档. swagger-ui的访问URL /swagger-ui.html
+ 
 ### 增加积分
 + 给指定用户增加积分,调用成功后返回该用户的积分明细.
 + URL: /hyena/point/increase
@@ -144,6 +146,8 @@
 + URL: /hyena/point/listPointRecord
 + Http Method: GET
 + Content-Type: application/json;charset=utf-8
+
+
 
 ## 示例代码
 Maven

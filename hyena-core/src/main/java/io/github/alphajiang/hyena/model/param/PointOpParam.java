@@ -18,12 +18,22 @@
 package io.github.alphajiang.hyena.model.param;
 
 import io.github.alphajiang.hyena.model.base.BaseObject;
+import io.swagger.annotations.ApiModelProperty;
 
 public class PointOpParam extends BaseObject {
+    @ApiModelProperty(value = "请求消息序列号", example = "")
     private String seq;
+
+    @ApiModelProperty(value = "积分类型", example = "score")
     private String type = "default";
+
+    @ApiModelProperty(value = "用户ID", example = "customer_abc123")
     private String uid;
+
+    @ApiModelProperty(value = "积分数量", example = "1000")
     private long point;
+
+    @ApiModelProperty(value = "备注", example = "this is a note")
     private String note = "";
 
     public String getSeq() {
