@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.ds.service;
 
 import io.github.alphajiang.hyena.ds.mapper.PointRecMapper;
+import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -49,11 +51,24 @@ public class PointRecService {
         return this.pointRecMapper.getById(pointTableName, id, lock);
     }
 
+    @Transactional
+    public ListResponse<PointRec> listPointRec4Page(String type, ListPointRecParam param) {
+        var list = this.listPointRec(type, param);
+        var total = this.countPointRec(type, param);
+        var ret = new ListResponse<>(list, total);
+        return ret;
+    }
 
     public List<PointRec> listPointRec(String type, ListPointRecParam param) {
         logger.debug("type = {}, param = {}", type, param);
         String pointTableName = TableNameHelper.getPointTableName(type);
         return this.pointRecMapper.listPointRec(pointTableName, param);
+    }
+
+    public long countPointRec(String type, ListPointRecParam param) {
+        String pointTableName = TableNameHelper.getPointTableName(type);
+        Long ret = this.pointRecMapper.countPointRec(pointTableName, param);
+        return ret == null ? 0L : ret.longValue();
     }
 
 

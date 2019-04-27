@@ -99,7 +99,8 @@ public class TestPointController extends HyenaTestBase {
     public void test_listPointRecord() throws Exception {
 
         RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPointRecord")
-                .param("type", super.getPointType());
+                .param("type", super.getPointType())
+                .param("tag", super.getTag());
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
@@ -108,6 +109,7 @@ public class TestPointController extends HyenaTestBase {
         });
         List<PointRec> list = res.getData();
         Assert.assertFalse(list.isEmpty());
+        Assert.assertTrue(res.getTotal() > 0L);
     }
 
     @Test

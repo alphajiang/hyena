@@ -82,17 +82,17 @@ public class PointController {
             HttpServletRequest request,
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
             @ApiParam(value = "用户ID") @RequestParam(required = false) String uid,
+            @ApiParam(value = "标签") @RequestParam(required = false) String tag,
             @RequestParam(required = false) Boolean enable,
             @ApiParam(value = "请求记录的开始") @RequestParam(defaultValue = "0") long start,
             @ApiParam(value = "请求记录数量") @RequestParam(defaultValue = "10") int size) {
         logger.info(LoggerHelper.formatEnterLog(request));
 
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(uid);
+        param.setUid(uid).setTag(tag);
         param.setEnable(enable).setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)))
                 .setStart(start).setSize(size);
-        var list = this.pointRecService.listPointRec(type, param);
-        ListResponse<PointRec> res = new ListResponse<>(list);
+        var res = this.pointRecService.listPointRec4Page(type, param);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }

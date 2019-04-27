@@ -46,6 +46,8 @@ public abstract class HyenaTestBase {
 
     private String pointType;
 
+    private String tag;
+
     private String uid;
 
     private PointUsage initialPointUsage;
@@ -56,8 +58,9 @@ public abstract class HyenaTestBase {
         String random = UUID.randomUUID().toString().replace("-", "");
         this.pointType = random.substring(0, 6);
         this.uid = random.substring(7, 12);
+        this.tag = random.substring(13, 16);
         this.initialPointUsage = new PointUsage();
-        this.initialPointUsage.setType(this.pointType).setUid(this.uid).setPoint(99887L);
+        this.initialPointUsage.setType(this.pointType).setTag(tag).setUid(this.uid).setPoint(99887L);
     }
 
 
@@ -84,5 +87,9 @@ public abstract class HyenaTestBase {
 
     public PointPo getUserPoint() {
         return this.userPoint;
+    }
+
+    public String getTag() {
+        return this.tag;
     }
 }

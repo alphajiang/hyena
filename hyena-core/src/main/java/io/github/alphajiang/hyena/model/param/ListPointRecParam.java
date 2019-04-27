@@ -27,6 +27,9 @@ public class ListPointRecParam extends BaseListParam {
     @ApiModelProperty(value = "用户ID")
     private String uid;
 
+    @ApiModelProperty(value = "标签")
+    private String tag;
+
     private boolean available = false;
     private Boolean frozen;
     private Date expireTime;
@@ -37,6 +40,15 @@ public class ListPointRecParam extends BaseListParam {
 
     public ListPointRecParam setUid(String uid) {
         this.uid = uid;
+        return this;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public ListPointRecParam setTag(String tag) {
+        this.tag = tag;
         return this;
     }
 

@@ -48,6 +48,9 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
         </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
+            and rec.tag = #{param.tag}
+        </if>
         <if test="param.available == true">
             and rec.available > 0
         </if>
@@ -89,6 +92,44 @@
         <if test="param.lock == true">
             for update
         </if>
+    </select>
+
+    <select id="countPointRec" resultType="Long">
+        select count(distinct rec.id)
+        from `${pointTableName}_rec` as rec
+        left join `${pointTableName}` as p on rec.pid = p.id
+        where 1=1
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
+            and p.uid = #{param.uid}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
+            and rec.tag = #{param.tag}
+        </if>
+        <if test="param.available == true">
+            and rec.available > 0
+        </if>
+        <choose>
+            <when test="param.frozen != null and param.frozen == true">
+                and rec.frozen > 0
+            </when>
+            <when test="param.frozen != null and param.frozen == false">
+                and rec.frozen = 0
+            </when>
+        </choose>
+        <if test="param.expireTime != null">
+            and rec.expireTime &lt; #{param.expireTime}
+        </if>
+
+        <if test="param.enable != null">
+            and rec.enable = #{param.enable}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
+            <bind name="pattern" value="'%' + sk + '%'"/>
+            and (
+            rec.tag like #{pattern}
+            )
+        </if>
+
     </select>
 
 

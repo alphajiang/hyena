@@ -39,6 +39,9 @@ public interface PointRecMapper {
     List<PointRec> listPointRec(@Param(value = "pointTableName") String pointTableName,
                                 @Param(value = "param") ListPointRecParam param);
 
+    Long countPointRec(@Param(value = "pointTableName") String pointTableName,
+                       @Param(value = "param") ListPointRecParam param);
+
     void updatePointRec(@Param(value = "pointTableName") String pointTableName,
                         @Param(value = "rec") PointRecPo rec);
 }
