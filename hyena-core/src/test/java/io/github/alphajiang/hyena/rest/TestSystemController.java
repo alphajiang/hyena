@@ -66,7 +66,7 @@ public class TestSystemController extends HyenaTestBase {
     @Test
     public void test_addPointType() throws Exception {
         String pointType = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/system/addPointType/" + pointType);
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/system/addPointType").param("name", pointType);
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);

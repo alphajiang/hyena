@@ -58,11 +58,11 @@ public class SystemController {
     }
 
     @ApiOperation(value = "新增积分类型")
-    @PostMapping(value = "/addPointType/{type}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/addPointType", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public BaseResponse addPointType(HttpServletRequest request,
-                                     @ApiParam(value = "积分类型", example = "score") @PathVariable String type) {
-        logger.info(LoggerHelper.formatEnterLog(request) + " type = " + type);
-        this.pointTableService.getOrCreateTable(type);
+                                     @ApiParam(value = "积分类型", example = "score") @RequestParam(name = "name", required = true) String name) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+        this.pointTableService.getOrCreateTable(name);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return BaseResponse.success();
     }
