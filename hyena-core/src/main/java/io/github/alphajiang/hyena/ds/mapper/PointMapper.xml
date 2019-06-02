@@ -68,6 +68,22 @@
         </if>
     </select>
 
+    <select id="countPoint" resultType="Long">
+        select count(distinct pt.id)
+        from `${pointTableName}` as pt
+        where 1=1
+
+        <if test="param.enable != null">
+            and pt.enable = #{param.enable}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
+            <bind name="pattern" value="'%' + sk + '%'"/>
+            and (
+            pt.uid like #{pattern}
+            )
+        </if>
+    </select>
+
     <update id="updateCusPoint" >
         update `${tableName}`
         set

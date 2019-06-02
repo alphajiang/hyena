@@ -38,6 +38,10 @@ public interface PointMapper {
     List<PointPo> listPoint(@Param(value = "pointTableName") String pointTableName,
                             @Param(value = "param") ListPointParam param);
 
+
+    long countPoint(@Param(value = "pointTableName") String pointTableName,
+                    @Param(value = "param") ListPointParam param);
+
     void updateCusPoint(@Param(value = "tableName") String tableName,
                         @Param(value = "cusPoint") PointPo cusPoint);
 }

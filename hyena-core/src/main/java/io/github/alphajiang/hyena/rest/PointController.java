@@ -70,8 +70,7 @@ public class PointController {
         ListPointParam param = new ListPointParam();
         param.setType(type).setSorts(List.of(SortParam.as("pt.id", SortOrder.desc)))
                 .setStart(start).setSize(size);
-        var list = this.pointService.listPoint(param);
-        ListResponse<PointPo> res = new ListResponse<>(list);
+        var res = this.pointService.listPoint4Page(param);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }

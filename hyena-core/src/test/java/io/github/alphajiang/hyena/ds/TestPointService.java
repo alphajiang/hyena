@@ -19,6 +19,7 @@ package io.github.alphajiang.hyena.ds;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.ds.service.PointService;
+import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.param.ListPointParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -57,4 +58,14 @@ public class TestPointService extends HyenaTestBase {
         Assert.assertFalse(list.isEmpty());
     }
 
+    @Test
+    public void test_listPoint4Page() {
+        ListPointParam param = new ListPointParam();
+        param.setEnable(null);
+        param.setType(super.getPointType());
+        ListResponse<PointPo> ret = this.pointService.listPoint4Page(param);
+        logger.info("ret = {}", ret);
+        Assert.assertTrue(ret.getTotal() > 0L);
+        Assert.assertFalse(ret.getData().isEmpty());
+    }
 }

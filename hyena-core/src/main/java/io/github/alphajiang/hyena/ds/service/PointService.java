@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.ds.service;
 
 import io.github.alphajiang.hyena.ds.mapper.PointMapper;
+import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.param.ListPointParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
@@ -57,6 +58,15 @@ public class PointService {
         logger.debug("param = {}", param);
         String pointTableName = TableNameHelper.getPointTableName(param.getType());
         return this.pointMapper.listPoint(pointTableName, param);
+    }
+
+    public ListResponse<PointPo> listPoint4Page(ListPointParam param) {
+        logger.debug("param = {}", param);
+        String pointTableName = TableNameHelper.getPointTableName(param.getType());
+        var list = this.pointMapper.listPoint(pointTableName, param);
+        var total = this.pointMapper.countPoint(pointTableName, param);
+        ListResponse<PointPo> res = new ListResponse<>(list, total);
+        return res;
     }
 
 
