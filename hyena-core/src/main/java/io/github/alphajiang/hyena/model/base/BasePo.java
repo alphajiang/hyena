@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.model.base;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Date;
 
@@ -30,6 +31,7 @@ public abstract class BasePo extends BaseObject {
     private Date createTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Date updateTime;
 
     public Long getId() {

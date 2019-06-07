@@ -34,4 +34,103 @@
     </insert>
 
 
+    <select id="listPointRecLog" resultType="io.github.alphajiang.hyena.model.dto.PointRecLog">
+        select log.*, p.uid as uid
+        from `${pointTableName}_rec_log` as log
+        left join `${pointTableName}_rec` as rec on rec.id = log.recId
+        left join `${pointTableName}` as p on rec.pid = p.id
+        where 1=1
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
+            and p.uid = #{param.uid}
+        </if>
+        <if test="param.recId &gt; 0">
+            and log.recId = #{param.recId}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
+            and rec.tag = #{param.tag}
+        </if>
+        <if test="param.available == true">
+            and rec.available > 0
+        </if>
+        <choose>
+            <when test="param.frozen != null and param.frozen == true">
+                and rec.frozen > 0
+            </when>
+            <when test="param.frozen != null and param.frozen == false">
+                and rec.frozen = 0
+            </when>
+        </choose>
+        <if test="param.expireTime != null">
+            and rec.expireTime &lt; #{param.expireTime}
+        </if>
+
+        <if test="param.enable != null">
+            and rec.enable = #{param.enable}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
+            <bind name="pattern" value="'%' + sk + '%'"/>
+            and (
+            rec.tag like #{pattern}
+            )
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.sorts )">
+            <foreach item="sort" collection="param.sorts"
+                     open="order by" separator="," close=" ">
+                ${sort.columnsString} ${sort.order}
+            </foreach>
+        </if>
+        <choose>
+            <when test="param.start != null and param.size != null">
+                limit #{param.start},#{param.size}
+            </when>
+            <when test="param.size != null">
+                limit #{param.size}
+            </when>
+        </choose>
+        <if test="param.lock == true">
+            for update
+        </if>
+    </select>
+
+    <select id="countPointRecLog" resultType="Long">
+        select count(distinct log.id)
+        from `${pointTableName}_rec_log` as log
+        left join `${pointTableName}_rec` as rec on rec.id = log.recId
+        left join `${pointTableName}` as p on rec.pid = p.id
+        where 1=1
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
+            and p.uid = #{param.uid}
+        </if>
+        <if test="param.recId &gt; 0">
+            and log.recId = #{param.recId}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
+            and rec.tag = #{param.tag}
+        </if>
+        <if test="param.available == true">
+            and rec.available > 0
+        </if>
+        <choose>
+            <when test="param.frozen != null and param.frozen == true">
+                and rec.frozen > 0
+            </when>
+            <when test="param.frozen != null and param.frozen == false">
+                and rec.frozen = 0
+            </when>
+        </choose>
+        <if test="param.expireTime != null">
+            and rec.expireTime &lt; #{param.expireTime}
+        </if>
+
+        <if test="param.enable != null">
+            and rec.enable = #{param.enable}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
+            <bind name="pattern" value="'%' + sk + '%'"/>
+            and (
+            rec.tag like #{pattern}
+            )
+        </if>
+
+    </select>
 </mapper>

@@ -18,15 +18,24 @@
 package io.github.alphajiang.hyena.ds.service;
 
 import io.github.alphajiang.hyena.ds.mapper.PointRecLogMapper;
+import io.github.alphajiang.hyena.model.base.ListResponse;
+import io.github.alphajiang.hyena.model.dto.PointRecLog;
+import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class PointRecLogService {
+    private static final Logger logger = LoggerFactory.getLogger(PointRecLogService.class);
 
     @Autowired
     private PointRecLogMapper pointRecLogMapper;
@@ -48,5 +57,25 @@ public class PointRecLogService {
     private void addPointRecLog(String type, PointRecLogPo recLog) {
         String tableName = TableNameHelper.getPointRecLogTableName(type);
         this.pointRecLogMapper.addPointRecLog(tableName, recLog);
+    }
+
+    @Transactional
+    public ListResponse<PointRecLog> listPointRecLog4Page(String type, ListPointRecLogParam param) {
+        var list = this.listPointRecLog(type, param);
+        var total = this.countPointRecLog(type, param);
+        var ret = new ListResponse<>(list, total);
+        return ret;
+    }
+
+    public List<PointRecLog> listPointRecLog(String type, ListPointRecLogParam param) {
+        logger.debug("type = {}, param = {}", type, param);
+        String pointTableName = TableNameHelper.getPointTableName(type);
+        return this.pointRecLogMapper.listPointRecLog(pointTableName, param);
+    }
+
+    public long countPointRecLog(String type, ListPointRecLogParam param) {
+        String pointTableName = TableNameHelper.getPointTableName(type);
+        Long ret = this.pointRecLogMapper.countPointRecLog(pointTableName, param);
+        return ret == null ? 0L : ret.longValue();
     }
 }

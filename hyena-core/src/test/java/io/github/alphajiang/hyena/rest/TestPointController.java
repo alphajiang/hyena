@@ -27,6 +27,7 @@ import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.dto.PointRec;
+import io.github.alphajiang.hyena.model.dto.PointRecLog;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.param.PointCancelParam;
 import io.github.alphajiang.hyena.model.param.PointIncreaseParam;
@@ -113,6 +114,24 @@ public class TestPointController extends HyenaTestBase {
         Assert.assertFalse(list.isEmpty());
         Assert.assertTrue(res.getTotal() > 0L);
     }
+
+    @Test
+    public void test_listPointRecordLog() throws Exception {
+
+        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPointRecordLog")
+                .param("type", super.getPointType())
+                .param("tag", super.getTag());
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        ListResponse<PointRecLog> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointRecLog>>() {
+
+        });
+        List<PointRecLog> list = res.getData();
+        Assert.assertFalse(list.isEmpty());
+        Assert.assertTrue(res.getTotal() > 0L);
+    }
+
 
     @Test
     public void test_increase() throws Exception {

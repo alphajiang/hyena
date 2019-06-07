@@ -21,11 +21,13 @@ import io.github.alphajiang.hyena.aop.Idempotent;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageBuilder;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
+import io.github.alphajiang.hyena.ds.service.PointRecLogService;
 import io.github.alphajiang.hyena.ds.service.PointRecService;
 import io.github.alphajiang.hyena.ds.service.PointService;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.dto.PointRec;
+import io.github.alphajiang.hyena.model.dto.PointRecLog;
 import io.github.alphajiang.hyena.model.param.*;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.SortOrder;
@@ -58,6 +60,9 @@ public class PointController {
 
     @Autowired
     private PointRecService pointRecService;
+
+    @Autowired
+    private PointRecLogService pointRecLogService;
 
     @ApiOperation(value = "获取积分列表")
     @GetMapping(value = "/listPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -92,6 +97,30 @@ public class PointController {
         param.setEnable(enable).setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)))
                 .setStart(start).setSize(size);
         var res = this.pointRecService.listPointRec4Page(type, param);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
+
+    @ApiOperation(value = "获取记录历史明细列表")
+    @GetMapping(value = "/listPointRecordLog", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<PointRecLog> listPointRecordLog(
+            HttpServletRequest request,
+            @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+            @ApiParam(value = "用户ID") @RequestParam(required = false) String uid,
+            @ApiParam(value = "recId") @RequestParam(defaultValue = "0") long recId,
+            @ApiParam(value = "标签") @RequestParam(required = false) String tag,
+            @RequestParam(required = false) Boolean enable,
+            @ApiParam(value = "请求记录的开始") @RequestParam(defaultValue = "0") long start,
+            @ApiParam(value = "请求记录数量") @RequestParam(defaultValue = "10") int size) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+
+        ListPointRecLogParam param = new ListPointRecLogParam();
+        param.setUid(uid).setRecId(recId).setTag(tag);
+        param.setEnable(enable).setSorts(List.of(SortParam.as("log.id", SortOrder.desc)))
+                .setStart(start).setSize(size);
+        var res = this.pointRecLogService.listPointRecLog4Page(type, param);
+
+
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
