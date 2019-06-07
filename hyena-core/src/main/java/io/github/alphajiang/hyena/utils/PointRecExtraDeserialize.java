@@ -15,20 +15,18 @@
  *
  */
 
-package io.github.alphajiang.hyena.model.dto;
+package io.github.alphajiang.hyena.utils;
 
-import io.github.alphajiang.hyena.model.po.PointRecPo;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 
-public class PointRec extends PointRecPo {
-    private String uid;
+import java.io.IOException;
 
+public class PointRecExtraDeserialize extends JsonDeserializer<Object> {
 
-    public String getUid() {
-        return uid;
-    }
-
-    public PointRec setUid(String uid) {
-        this.uid = uid;
-        return this;
+    @Override
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return null;
     }
 }

@@ -46,7 +46,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @AutoConfigureMockMvc
 public class TestPointController extends HyenaTestBase {
@@ -119,6 +121,10 @@ public class TestPointController extends HyenaTestBase {
         param.setUid(super.getUid());
         param.setPoint(9876L);
         param.setSeq("gewgewglekjwklehjoipvnbldsalkdjglajd");
+        Map<String, Object> extra = new HashMap<>();
+        extra.put("aaa", "bbbb");
+        extra.put("ccc", 123);
+        param.setExtra(JsonUtils.toJsonString(extra));
         RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(JsonUtils.toJsonString(param));

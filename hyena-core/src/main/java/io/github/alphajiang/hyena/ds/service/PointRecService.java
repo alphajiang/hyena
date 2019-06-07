@@ -24,6 +24,7 @@ import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +85,7 @@ public class PointRecService {
      * @return 返回积分记录ID
      */
     public long addPointRec(String type, long pointId, long point,
-                            String tag, Date expireTime, String note) {
+                            String tag, String extra, Date expireTime, String note) {
         logger.info("type = {}, pointId = {}, point = {}, tag = {}, expireTime = {}, note = {}",
                 type, pointId, point, tag, expireTime, note);
         PointRecPo rec = new PointRecPo();
@@ -94,6 +95,9 @@ public class PointRecService {
             rec.setTag("");
         } else {
             rec.setTag(tag);
+        }
+        if (StringUtils.isNotBlank(extra)) {
+            rec.setExtra(extra);
         }
         if (expireTime != null) {
             rec.setExpireTime(expireTime);

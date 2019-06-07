@@ -18,7 +18,9 @@
 package io.github.alphajiang.hyena.model.po;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.alphajiang.hyena.model.base.BasePo;
+import io.github.alphajiang.hyena.utils.PointRecExtraSerialize;
 
 import java.util.Date;
 
@@ -32,6 +34,8 @@ public class PointRecPo extends BasePo {
     private Long cancelled;
     private Long expire;
     private String tag;
+
+    private String extra;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date expireTime;
@@ -108,6 +112,17 @@ public class PointRecPo extends BasePo {
         return this;
     }
 
+    @JsonSerialize(using = PointRecExtraSerialize.class)
+    public String getExtra() {
+        return extra;
+    }
+
+
+    public PointRecPo setExtra(String extra) {
+        this.extra = extra;
+        return this;
+    }
+
     public Date getExpireTime() {
         return expireTime;
     }
@@ -116,4 +131,6 @@ public class PointRecPo extends BasePo {
         this.expireTime = expireTime;
         return this;
     }
+
+
 }

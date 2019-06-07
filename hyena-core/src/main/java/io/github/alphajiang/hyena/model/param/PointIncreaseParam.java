@@ -29,6 +29,8 @@ public class PointIncreaseParam extends PointOpParam {
     @ApiModelProperty(value = "标签", example = "")
     private String tag;
 
+    private Object extra;
+
     @Nullable
     @ApiModelProperty(value = "过期时间", example = "2025-10-24 15:34:46")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
@@ -43,6 +45,15 @@ public class PointIncreaseParam extends PointOpParam {
         this.tag = tag;
     }
 
+
+    public Object getExtra() {
+        return extra;
+    }
+
+    public PointIncreaseParam setExtra(Object extra) {
+        this.extra = extra;
+        return this;
+    }
 
     @Nullable
     public Date getExpireTime() {

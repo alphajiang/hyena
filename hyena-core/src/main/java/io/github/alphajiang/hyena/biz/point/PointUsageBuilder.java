@@ -20,6 +20,7 @@ package io.github.alphajiang.hyena.biz.point;
 import io.github.alphajiang.hyena.model.param.PointCancelParam;
 import io.github.alphajiang.hyena.model.param.PointIncreaseParam;
 import io.github.alphajiang.hyena.model.param.PointOpParam;
+import io.github.alphajiang.hyena.utils.JsonUtils;
 
 public class PointUsageBuilder {
 
@@ -33,7 +34,7 @@ public class PointUsageBuilder {
     public static PointUsage fromPointIncreaseParam(PointIncreaseParam param) {
         PointUsage usage = new PointUsage();
         usage.setType(param.getType()).setUid(param.getUid()).setPoint(param.getPoint())
-                .setTag(param.getTag())
+                .setTag(param.getTag()).setExtra(JsonUtils.toJsonString(param.getExtra()))
                 .setNote(param.getNote()).setExpireTime(param.getExpireTime());
         return usage;
     }

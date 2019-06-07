@@ -36,6 +36,9 @@
         <if test="rec.tag != null">
             `tag` = #{rec.tag},
         </if>
+        <if test="rec.extra != null">
+            `extra` = #{rec.extra},
+        </if>
         `expireTime` = #{rec.expireTime}
     </insert>
 
@@ -150,6 +153,9 @@
         </if>
         <if test="rec.cancelled != null">
             cancelled = #{rec.cancelled},
+        </if>
+        <if test="rec.extra != null">
+            extra = #{rec.extra},
         </if>
         <if test="rec.enable != null">
             `enable` = #{rec.enable},

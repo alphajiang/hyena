@@ -63,7 +63,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         }
         cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), false);
         this.pointRecService.addPointRec(usage.getType(), cusPoint.getId(),
-                usage.getPoint(), usage.getTag(), usage.getExpireTime(), null);
+                usage.getPoint(), usage.getTag(), usage.getExtra(), usage.getExpireTime(), null);
         return cusPoint;
     }
 }

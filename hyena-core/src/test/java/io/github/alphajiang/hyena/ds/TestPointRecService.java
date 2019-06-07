@@ -41,8 +41,9 @@ public class TestPointRecService extends HyenaTestBase {
     public void test_decreasePointUnfreeze() {
         long pointId = super.getUserPoint().getId();
         // 增加并冻结第一笔积分
-        long recId = pointRecService.addPointRec(super.getPointType(), pointId, 10, "test", null, null);
+        long recId = pointRecService.addPointRec(super.getPointType(), pointId, 10, "test", "{\"abc\" : 123, \"def\" : \"jkl\"}", null, null);
         var recA = pointRecService.getById(super.getPointType(), recId, false);
+        logger.info("recA = {}", recA);
         pointRecService.freezePoint(super.getPointType(), recA, 20, null);
 
         recA = pointRecService.getById(super.getPointType(), recId, false);
@@ -54,7 +55,7 @@ public class TestPointRecService extends HyenaTestBase {
     public void test_unfreezePoint() {
         long pointId = super.getUserPoint().getId();
         // 增加并冻结第一笔积分
-        long recId = pointRecService.addPointRec(super.getPointType(), pointId, 10, "test", null, null);
+        long recId = pointRecService.addPointRec(super.getPointType(), pointId, 10, "test", "{\"abc\" : 123}", null, null);
         var recA = pointRecService.getById(super.getPointType(), recId, false);
         pointRecService.freezePoint(super.getPointType(), recA, 20, null);
 

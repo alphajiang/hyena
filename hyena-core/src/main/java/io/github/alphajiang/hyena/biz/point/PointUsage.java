@@ -27,6 +27,7 @@ public class PointUsage extends BaseObject {
     private long point;
     private Long recId; // 积分记录的ID
     private String tag;
+    private String extra;
     private String note;
     private Date expireTime;
 
@@ -74,6 +75,15 @@ public class PointUsage extends BaseObject {
 
     public PointUsage setTag(String tag) {
         this.tag = tag;
+        return this;
+    }
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public PointUsage setExtra(String extra) {
+        this.extra = extra;
         return this;
     }
 

@@ -50,6 +50,7 @@
         `cancelled` bigint(20) not null default 0,
         `expire` bigint(20) not null default 0,
         `tag` varchar(128) not null default '',
+        `extra` text,
         `expireTime` datetime,
         `enable` boolean not null default true,
         `createTime` timestamp default now(),
