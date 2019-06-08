@@ -23,6 +23,7 @@ import io.github.alphajiang.hyena.model.po.PointRecPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
@@ -44,4 +45,10 @@ public interface PointRecMapper {
 
     void updatePointRec(@Param(value = "pointTableName") String pointTableName,
                         @Param(value = "rec") PointRecPo rec);
+
+
+    Long getIncreasedPoint(@Param(value = "pointTableName") String pointTableName,
+                           @Param(value = "uid") String uid,
+                           @Param(value = "start") Date start,
+                           @Param(value = "end") Date end);
 }

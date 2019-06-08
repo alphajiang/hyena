@@ -33,6 +33,13 @@ public class PointOpParam extends BaseObject {
     @ApiModelProperty(value = "积分数量", example = "1000")
     private long point;
 
+
+    @ApiModelProperty(value = "标签", example = "")
+    private String tag;
+
+
+    private Object extra;
+
     @ApiModelProperty(value = "备注", example = "this is a note")
     private String note = "";
 
@@ -66,6 +73,23 @@ public class PointOpParam extends BaseObject {
 
     public void setPoint(long point) {
         this.point = point;
+    }
+
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public Object getExtra() {
+        return extra;
+    }
+
+    public void setExtra(Object extra) {
+        this.extra = extra;
     }
 
     public String getNote() {

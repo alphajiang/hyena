@@ -19,7 +19,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.alphajiang.hyena.ds.mapper.PointRecLogMapper">
 
-    <insert id="addPointRecLog">
+    <insert id="addPointRecLog" useGeneratedKeys="true" keyProperty="recLog.id" keyColumn="id">
         insert into `${tableName}` set
         `pid` = #{recLog.pid},
         `recId` = #{recLog.recId},
@@ -40,6 +40,9 @@
         left join `${pointTableName}_rec` as rec on rec.id = log.recId
         left join `${pointTableName}` as p on rec.pid = p.id
         where 1=1
+        <if test="param.pid &gt; 0">
+            and p.id = #{param.pid}
+        </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
         </if>
@@ -49,20 +52,7 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}
         </if>
-        <if test="param.available == true">
-            and rec.available > 0
-        </if>
-        <choose>
-            <when test="param.frozen != null and param.frozen == true">
-                and rec.frozen > 0
-            </when>
-            <when test="param.frozen != null and param.frozen == false">
-                and rec.frozen = 0
-            </when>
-        </choose>
-        <if test="param.expireTime != null">
-            and rec.expireTime &lt; #{param.expireTime}
-        </if>
+
 
         <if test="param.enable != null">
             and rec.enable = #{param.enable}
@@ -98,6 +88,9 @@
         left join `${pointTableName}_rec` as rec on rec.id = log.recId
         left join `${pointTableName}` as p on rec.pid = p.id
         where 1=1
+        <if test="param.pid &gt; 0">
+            and p.id = #{param.pid}
+        </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
         </if>
@@ -106,20 +99,6 @@
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}
-        </if>
-        <if test="param.available == true">
-            and rec.available > 0
-        </if>
-        <choose>
-            <when test="param.frozen != null and param.frozen == true">
-                and rec.frozen > 0
-            </when>
-            <when test="param.frozen != null and param.frozen == false">
-                and rec.frozen = 0
-            </when>
-        </choose>
-        <if test="param.expireTime != null">
-            and rec.expireTime &lt; #{param.expireTime}
         </if>
 
         <if test="param.enable != null">

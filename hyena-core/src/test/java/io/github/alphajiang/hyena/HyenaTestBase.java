@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
 import io.github.alphajiang.hyena.ds.service.PointTableService;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.utils.JsonUtils;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -30,6 +31,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RunWith(SpringRunner.class)
@@ -59,8 +62,12 @@ public abstract class HyenaTestBase {
         this.pointType = random.substring(0, 6);
         this.uid = random.substring(7, 12);
         this.tag = random.substring(13, 16);
+        Map<String, Object> extra = new HashMap<>();
+        extra.put("aaa", "bbbb");
+        extra.put("ccc", 123L);
         this.initialPointUsage = new PointUsage();
-        this.initialPointUsage.setType(this.pointType).setTag(tag).setUid(this.uid).setPoint(99887L);
+        this.initialPointUsage.setType(this.pointType).setTag(tag).setUid(this.uid).setPoint(99887L)
+                .setExtra(JsonUtils.toJsonString(extra));
     }
 
 

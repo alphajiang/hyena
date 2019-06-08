@@ -84,8 +84,8 @@ public class PointRecService {
      * @param note       备注
      * @return 返回积分记录ID
      */
-    public long addPointRec(String type, long pointId, long point,
-                            String tag, String extra, Date expireTime, String note) {
+    public PointRecPo addPointRec(String type, long pointId, long point,
+                                  String tag, String extra, Date expireTime, String note) {
         logger.info("type = {}, pointId = {}, point = {}, tag = {}, expireTime = {}, note = {}",
                 type, pointId, point, tag, expireTime, note);
         PointRecPo rec = new PointRecPo();
@@ -106,16 +106,13 @@ public class PointRecService {
         this.pointRecMapper.addPointRec(recTableName, rec);
 
 
-        this.pointRecLogService.addLogByRec(type, PointStatus.INCREASE,
-                rec, point, note);
-        return rec.getId();
+        return rec;
     }
 
-    public void decreasePoint(String type, PointRecPo rec, long point, String note) {
+    public PointRecPo decreasePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
         if (rec.getAvailable() < delta) {
-            delta = rec.getAvailable();
             long used = rec.getUsed() + rec.getAvailable();
             rec.setAvailable(0L).setUsed(used);
             this.updatePointRec(type, rec);
@@ -126,9 +123,7 @@ public class PointRecService {
             this.updatePointRec(type, rec);
 
         }
-
-        this.pointRecLogService.addLogByRec(type, PointStatus.DECREASE,
-                rec, delta, note);
+        return rec;
     }
 
     public void decreasePointUnfreeze(String type, PointRecPo rec, long point, String note) {
@@ -215,5 +210,20 @@ public class PointRecService {
         this.pointRecMapper.updatePointRec(TableNameHelper.getPointTableName(type), rec);
 
 
+    }
+
+    /**
+     * 查询 从start到end间总共增加的积分数量
+     *
+     * @param type
+     * @param uid
+     * @param start
+     * @param end
+     * @return
+     */
+    public long getIncreasedPoint(String type, String uid, Date start, Date end) {
+        String pointTableName = TableNameHelper.getPointTableName(type);
+        Long ret = this.pointRecMapper.getIncreasedPoint(pointTableName, uid, start, end);
+        return ret == null ? 0L : ret;
     }
 }

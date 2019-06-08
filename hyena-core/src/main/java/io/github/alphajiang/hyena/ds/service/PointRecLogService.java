@@ -40,7 +40,7 @@ public class PointRecLogService {
     @Autowired
     private PointRecLogMapper pointRecLogMapper;
 
-    public void addLogByRec(String type, PointStatus eventType, PointRecPo rec, long delta, String note) {
+    public PointRecLogPo addLogByRec(String type, PointStatus eventType, PointRecPo rec, long delta, String note) {
 
         PointRecLogPo recLog = new PointRecLogPo();
         recLog.setPid(rec.getPid()).setRecId(rec.getId()).setType(eventType.code())
@@ -52,6 +52,7 @@ public class PointRecLogService {
         recLog.setExpire(rec.getExpire() == null ? 0L : rec.getExpire());
         recLog.setNote(note == null ? "" : note);
         this.addPointRecLog(type, recLog);
+        return recLog;
     }
 
     private void addPointRecLog(String type, PointRecLogPo recLog) {
@@ -61,6 +62,7 @@ public class PointRecLogService {
 
     @Transactional
     public ListResponse<PointRecLog> listPointRecLog4Page(String type, ListPointRecLogParam param) {
+        logger.debug("type = {}, param = {}", type, param);
         var list = this.listPointRecLog(type, param);
         var total = this.countPointRecLog(type, param);
         var ret = new ListResponse<>(list, total);
@@ -68,7 +70,6 @@ public class PointRecLogService {
     }
 
     public List<PointRecLog> listPointRecLog(String type, ListPointRecLogParam param) {
-        logger.debug("type = {}, param = {}", type, param);
         String pointTableName = TableNameHelper.getPointTableName(type);
         return this.pointRecLogMapper.listPointRecLog(pointTableName, param);
     }

@@ -26,6 +26,7 @@ import io.github.alphajiang.hyena.ds.service.PointRecService;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
+import io.github.alphajiang.hyena.model.dto.PointLog;
 import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.dto.PointRecLog;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
@@ -34,6 +35,7 @@ import io.github.alphajiang.hyena.model.param.PointIncreaseParam;
 import io.github.alphajiang.hyena.model.param.PointOpParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
+import io.github.alphajiang.hyena.utils.DateUtils;
 import io.github.alphajiang.hyena.utils.JsonUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,6 +49,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,6 +99,23 @@ public class TestPointController extends HyenaTestBase {
         BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
 
         Assert.assertFalse(res.getStatus() == HyenaConstants.RES_CODE_SUCCESS);
+    }
+
+    @Test
+    public void test_listPointLog() throws Exception {
+
+        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPointLog")
+                .param("type", super.getPointType())
+                .param("tag", super.getTag());
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        ListResponse<PointLog> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointLog>>() {
+
+        });
+        List<PointLog> list = res.getData();
+        Assert.assertFalse(list.isEmpty());
+        Assert.assertTrue(res.getTotal() > 0L);
     }
 
     @Test
@@ -303,5 +323,29 @@ public class TestPointController extends HyenaTestBase {
         });
         PointPo result = res.getData();
         Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void test_getIncreasedPoint() throws Exception {
+
+        Calendar start = Calendar.getInstance();
+        start.add(Calendar.DATE, -1);
+        Calendar end = Calendar.getInstance();
+        end.add(Calendar.DATE, 1);
+
+        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/getIncreasedPoint")
+                .param("type", super.getPointType())
+                .param("uid", super.getUid())
+                .param("start", DateUtils.toYyyyMmDdHhMmSs(start))
+                .param("end", DateUtils.toYyyyMmDdHhMmSs(end));
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        ObjectResponse<Long> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<Long>>() {
+
+        });
+        Long result = res.getData();
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.longValue() > 0L);
     }
 }

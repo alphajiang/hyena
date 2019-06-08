@@ -11,6 +11,12 @@ sourceSets {
     }
 }
 
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Greenwich.SR1"
+    }
+}
+
 dependencies {
     implementation project(':hyena-spring-boot-starter')
 
@@ -19,6 +25,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
 
+    implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 
     implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
     runtimeOnly("io.springfox:springfox-swagger-ui:${swaggerVersion}")

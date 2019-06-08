@@ -19,14 +19,18 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.ds.service.PointLogService;
+import io.github.alphajiang.hyena.ds.service.PointRecLogService;
 import io.github.alphajiang.hyena.ds.service.PointRecService;
 import io.github.alphajiang.hyena.ds.service.PointService;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import org.slf4j.Logger;
@@ -36,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -46,7 +51,13 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
     private PointService pointService;
 
     @Autowired
+    private PointLogService pointLogService;
+
+    @Autowired
     private PointRecService pointRecService;
+
+    @Autowired
+    private PointRecLogService pointRecLogService;
 
     @Override
     public CalcType getType() {
@@ -72,10 +83,11 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
 
 
         long gap = usage.getPoint();
-
+        List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
-                gap = this.decreasePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
+                recLogs = this.decreasePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
+                gap = gap - recLogs.stream().mapToLong(PointRecLogPo::getDelta).sum();
                 logger.debug("gap = {}", gap);
             } while (gap > 0L);
         } catch (HyenaNoPointException e) {
@@ -83,18 +95,18 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         }
         HyenaAssert.isTrue(gap == 0L, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                 "no enough available point!");
-        curPoint.setPoint(curPoint.getPoint() - usage.getPoint())
-                .setAvailable(curPoint.getAvailable() - usage.getPoint())
+        curPoint.setAvailable(curPoint.getAvailable() - usage.getPoint())
                 .setUsed(curPoint.getUsed() + usage.getPoint());
         var point2Update = new PointPo();
-        point2Update.setPoint(curPoint.getPoint()).setAvailable(curPoint.getAvailable())
+        point2Update.setAvailable(curPoint.getAvailable())
                 .setUsed(curPoint.getUsed())
                 .setId(curPoint.getId());
         this.pointService.update(usage.getType(), point2Update);
+        this.pointLogService.addPointLog(usage.getType(), curPoint, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);
         return curPoint;
     }
 
-    private long decreasePointLoop(String type, String uid, long point, String note) {
+    private List<PointRecLogPo> decreasePointLoop(String type, String uid, long point, String note) {
         logger.info("decrease. type = {}, uid = {}, point = {}", type, uid, point);
         ListPointRecParam param = new ListPointRecParam();
         param.setUid(uid).setAvailable(true).setLock(true)
@@ -105,6 +117,7 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
             throw new HyenaNoPointException("no enough point", Level.DEBUG);
         }
         long sum = 0L;
+        List<PointRecLogPo> recLogs = new ArrayList<>();
         for (PointRecPo rec : recList) {
             long gap = point - sum;
             if (gap < 1L) {
@@ -112,15 +125,24 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
                 break;
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
-                this.pointRecService.decreasePoint(type, rec, gap, note);
+                var retRec = this.pointRecService.decreasePoint(type, rec, gap, note);
+
+
+                var recLog = this.pointRecLogService.addLogByRec(type, PointStatus.DECREASE,
+                        retRec, rec.getAvailable(), note);
+                recLogs.add(recLog);
             } else {
                 sum += gap;
-                this.pointRecService.decreasePoint(type, rec, gap, note);
+                var retRec = this.pointRecService.decreasePoint(type, rec, gap, note);
+
+                var recLog = this.pointRecLogService.addLogByRec(type, PointStatus.DECREASE,
+                        retRec, gap, note);
+                recLogs.add(recLog);
                 break;
             }
         }
         var ret = point - sum;
         logger.debug("ret = {}", ret);
-        return ret;
+        return recLogs;
     }
 }

@@ -1,0 +1,84 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.alphajiang.hyena.ds.mapper.PointLogMapper">
+
+    <insert id="addPointLog">
+        insert into `${pointTableName}_log` (
+        `uid`, `recLogIds`, `delta`, `point`, `available`,
+        `used`, `frozen`, `expire`, `type`,
+        `tag`, `extra`, `note`
+        ) values(
+        #{pointLog.uid}, #{pointLog.recLogIds}, #{pointLog.delta}, #{pointLog.point}, #{pointLog.available},
+        #{pointLog.used}, #{pointLog.frozen}, #{pointLog.expire}, #{pointLog.type},
+        #{pointLog.tag}, #{pointLog.extra}, #{pointLog.note} )
+    </insert>
+
+    <select id="listPointLog" resultType="io.github.alphajiang.hyena.model.dto.PointLog">
+        select log.*
+        from `${pointTableName}_log` as log
+
+        where 1=1
+        <if test="param.pid &gt; 0">
+            and log.pid = #{param.pid}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
+            and log.uid = #{param.uid}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
+            and log.tag = #{param.tag}
+        </if>
+
+        <if test="param.enable != null">
+            and log.enable = #{param.enable}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
+            <bind name="pattern" value="'%' + sk + '%'"/>
+            and (
+            log.tag like #{pattern}
+            )
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.sorts )">
+            <foreach item="sort" collection="param.sorts"
+                     open="order by" separator="," close=" ">
+                ${sort.columnsString} ${sort.order}
+            </foreach>
+        </if>
+        <choose>
+            <when test="param.start != null and param.size != null">
+                limit #{param.start},#{param.size}
+            </when>
+            <when test="param.size != null">
+                limit #{param.size}
+            </when>
+        </choose>
+        <if test="param.lock == true">
+            for update
+        </if>
+    </select>
+
+    <select id="countPointLog" resultType="Long">
+        select count(distinct log.id)
+        from `${pointTableName}_log` as log
+        where 1=1
+        <if test="param.pid &gt; 0">
+            and log.pid = #{param.pid}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
+            and log.uid = #{param.uid}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
+            and log.tag = #{param.tag}
+        </if>
+
+        <if test="param.enable != null">
+            and log.enable = #{param.enable}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
+            <bind name="pattern" value="'%' + sk + '%'"/>
+            and (
+            log.tag like #{pattern}
+            )
+        </if>
+
+    </select>
+</mapper>

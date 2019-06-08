@@ -18,15 +18,20 @@
 package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.ds.service.PointLogService;
+import io.github.alphajiang.hyena.ds.service.PointRecLogService;
 import io.github.alphajiang.hyena.ds.service.PointRecService;
 import io.github.alphajiang.hyena.ds.service.PointService;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.type.PointStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 增加积分
@@ -39,7 +44,13 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     private PointService pointService;
 
     @Autowired
+    private PointLogService pointLogService;
+
+    @Autowired
     private PointRecService pointRecService;
+
+    @Autowired
+    private PointRecLogService pointRecLogService;
 
     @Override
     public CalcType getType() {
@@ -62,8 +73,12 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
             this.pointService.update(usage.getType(), point2Update);
         }
         cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), false);
-        this.pointRecService.addPointRec(usage.getType(), cusPoint.getId(),
-                usage.getPoint(), usage.getTag(), usage.getExtra(), usage.getExpireTime(), null);
+        var pointRec = this.pointRecService.addPointRec(usage.getType(), cusPoint.getId(),
+                usage.getPoint(), usage.getTag(), usage.getExtra(), usage.getExpireTime(), usage.getNote());
+        var recLog = this.pointRecLogService.addLogByRec(usage.getType(), PointStatus.INCREASE,
+                pointRec, usage.getPoint(), usage.getNote());
+        var recLogs = List.of(recLog);
+        this.pointLogService.addPointLog(usage.getType(), cusPoint, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);
         return cusPoint;
     }
 }

@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class PointRecExtraSerialize extends JsonSerializer<String> {
-    private static final Logger logger = LoggerFactory.getLogger(PointRecExtraSerialize.class);
+public class JacksonStringSerialize extends JsonSerializer<String> {
+    private static final Logger logger = LoggerFactory.getLogger(JacksonStringSerialize.class);
 
     @Override
     public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {

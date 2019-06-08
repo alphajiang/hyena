@@ -63,13 +63,15 @@ public class PointTableService {
     private void createTable(String type) {
         String pointTableName = TableNameHelper.getPointTableName(type);
         this.pointTableMapper.createPointTable(pointTableName);
+        this.pointTableMapper.createPointLogTable(pointTableName);
+
         Integer ret = this.pointTableMapper.createPointRecTable(pointTableName);
         if (ret != null && ret.intValue() > 0) {
             this.pointTableMapper.createPointRecTableIndex(pointTableName);
         }
-        ret = this.pointTableMapper.createPointLogTable(pointTableName);
+        ret = this.pointTableMapper.createPointRecordLogTable(pointTableName);
         if (ret != null && ret.intValue() > 0) {
-            this.pointTableMapper.createPointLogTableIndex(pointTableName);
+            this.pointTableMapper.createPointRecordLogTableIndex(pointTableName);
         }
         this.refreshTables();
     }
@@ -82,7 +84,7 @@ public class PointTableService {
 
         tableList = tableList.stream().map(name -> name.toLowerCase())
                 .filter(name -> name.startsWith(HyenaConstants.PREFIX_POINT_TABLE_NAME)
-                        && !(name.endsWith("_rec") || name.endsWith("_rec_log")))
+                        && !(name.endsWith("_log") || name.endsWith("_rec")))
                 .collect(Collectors.toList());
         logger.info("tableList = {}", tableList);
         tables.clear();

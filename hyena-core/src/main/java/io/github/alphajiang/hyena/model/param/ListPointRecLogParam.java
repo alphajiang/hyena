@@ -19,14 +19,14 @@ package io.github.alphajiang.hyena.model.param;
 
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.Date;
-
 public class ListPointRecLogParam extends BaseListParam {
 
 
     @ApiModelProperty(value = "用户ID")
     private String uid;
 
+    @ApiModelProperty(value = "用户记录ID")
+    private long pid;
 
     @ApiModelProperty(value = "积分记录ID")
     private long recId;
@@ -35,9 +35,7 @@ public class ListPointRecLogParam extends BaseListParam {
     @ApiModelProperty(value = "标签")
     private String tag;
 
-    private boolean available = false;
-    private Boolean frozen;
-    private Date expireTime;
+
 
     public String getUid() {
         return uid;
@@ -45,6 +43,15 @@ public class ListPointRecLogParam extends BaseListParam {
 
     public ListPointRecLogParam setUid(String uid) {
         this.uid = uid;
+        return this;
+    }
+
+    public long getPid() {
+        return pid;
+    }
+
+    public ListPointRecLogParam setPid(long pid) {
+        this.pid = pid;
         return this;
     }
 
@@ -66,30 +73,5 @@ public class ListPointRecLogParam extends BaseListParam {
         return this;
     }
 
-    public boolean getAvailable() {
-        return available;
-    }
 
-    public ListPointRecLogParam setAvailable(boolean available) {
-        this.available = available;
-        return this;
-    }
-
-    public Boolean getFrozen() {
-        return frozen;
-    }
-
-    public ListPointRecLogParam setFrozen(Boolean frozen) {
-        this.frozen = frozen;
-        return this;
-    }
-
-    public Date getExpireTime() {
-        return expireTime;
-    }
-
-    public ListPointRecLogParam setExpireTime(Date expireTime) {
-        this.expireTime = expireTime;
-        return this;
-    }
 }

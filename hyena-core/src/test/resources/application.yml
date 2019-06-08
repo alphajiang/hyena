@@ -19,7 +19,8 @@ logging:
   level:
     io.github.alphajiang.hyena: 'DEBUG'
     org.springframework: 'INFO'
-    
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] - %logger{36}.%M\\(%line\\) - %msg%n"
 
 
 

@@ -39,6 +39,28 @@
         ) engine=InnoDB default charset=utf8mb4
     </update>
 
+    <update id="createPointLogTable" flushCache="true">
+        create table if not exists ${pointTableName}_log (
+        id bigint(20) not null auto_increment primary key,
+        `uid` varchar(128) not null,
+        `recLogIds` varchar(256) not null default '',
+        `type` tinyint not null default 0 comment '1: increase; 2: decrease; 3: freeze; 4: unfreeze; 5: expire; 6:
+        cancel',
+        `delta` bigint(20) not null default 0,
+        `point` bigint(20) not null default 0,
+        `available` bigint(20) not null default 0,
+        `used` bigint(20) not null default 0,
+        `frozen` bigint(20) not null default 0,
+        `expire` bigint(20) not null default 0,
+        `tag` varchar(128) not null default '',
+        `extra` text,
+        `note` text,
+        `enable` boolean not null default true,
+        `createTime` timestamp default now(),
+        `updateTime` timestamp default now()
+        ) engine=InnoDB default charset=utf8mb4
+    </update>
+
     <update id="createPointRecTable" flushCache="true">
         create table if not exists ${pointTableName}_rec (
         id bigint(20) not null auto_increment primary key,
@@ -62,7 +84,7 @@
         create index ${pointTableName}_rec_tag ON ${pointTableName}_rec(tag)
     </update>
 
-    <update id="createPointLogTable" flushCache="true">
+    <update id="createPointRecordLogTable" flushCache="true">
         create table if not exists ${pointTableName}_rec_log (
         id bigint(20) not null auto_increment primary key,
         `pid` bigint(20) not null references ${pointTableName}(`id`),
@@ -80,7 +102,7 @@
         ) engine=InnoDB default charset=utf8mb4
     </update>
 
-    <update id="createPointLogTableIndex" flushCache="true">
+    <update id="createPointRecordLogTableIndex" flushCache="true">
         create index ${pointTableName}_rec_log_recId ON ${pointTableName}_rec_log(recId)
     </update>
 </mapper>

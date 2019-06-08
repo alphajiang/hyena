@@ -17,32 +17,43 @@
 
 package io.github.alphajiang.hyena.model.param;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
-import org.springframework.lang.Nullable;
 
-import java.util.Date;
+public class ListPointLogParam extends BaseListParam {
+    @ApiModelProperty(value = "用户ID")
+    private String uid;
 
-public class PointIncreaseParam extends PointOpParam {
-
-
-
-    @Nullable
-    @ApiModelProperty(value = "过期时间", example = "2025-10-24 15:34:46")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
-    private Date expireTime;
+    @ApiModelProperty(value = "用户记录ID")
+    private long pid;
 
 
+    @ApiModelProperty(value = "标签")
+    private String tag;
 
-
-
-
-    @Nullable
-    public Date getExpireTime() {
-        return expireTime;
+    public String getUid() {
+        return uid;
     }
 
-    public void setExpireTime(@Nullable Date expireTime) {
-        this.expireTime = expireTime;
+    public ListPointLogParam setUid(String uid) {
+        this.uid = uid;
+        return this;
+    }
+
+    public long getPid() {
+        return pid;
+    }
+
+    public ListPointLogParam setPid(long pid) {
+        this.pid = pid;
+        return this;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public ListPointLogParam setTag(String tag) {
+        this.tag = tag;
+        return this;
     }
 }

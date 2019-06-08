@@ -21,15 +21,12 @@ import io.github.alphajiang.hyena.model.base.BasePo;
 
 public class PointRecLogPo extends BasePo {
 
+    private String uid;
     private long pid;
     private long recId;
 
     /**
-     * 0: increase;
-     * 1: decrease;
-     * 2: freeze;
-     * 3: unfreeze;
-     * 4: expire
+     * PointStatus
      */
     private Integer type;
     private Long delta;
@@ -39,6 +36,16 @@ public class PointRecLogPo extends BasePo {
     private Long cancelled;
     private Long expire;
     private String note;
+
+
+    public String getUid() {
+        return uid;
+    }
+
+    public PointRecLogPo setUid(String uid) {
+        this.uid = uid;
+        return this;
+    }
 
     public long getPid() {
         return pid;

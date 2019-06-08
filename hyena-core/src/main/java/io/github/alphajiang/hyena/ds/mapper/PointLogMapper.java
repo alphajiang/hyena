@@ -17,25 +17,22 @@
 
 package io.github.alphajiang.hyena.ds.mapper;
 
+import io.github.alphajiang.hyena.model.dto.PointLog;
+import io.github.alphajiang.hyena.model.param.ListPointLogParam;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 @Mapper
-public interface PointTableMapper {
-    List<String> listCusPointTables(@Param(value = "prefix") String prefix);
+public interface PointLogMapper {
+    long addPointLog(@Param(value = "pointTableName") String pointTableName,
+                     @Param(value = "pointLog") PointLogPo pointLog);
 
-    void createPointTable(@Param(value = "pointTableName") String pointTableName);
+    List<PointLog> listPointLog(@Param(value = "pointTableName") String pointTableName,
+                                @Param(value = "param") ListPointLogParam param);
 
-    void createPointLogTable(@Param(value = "pointTableName") String pointTableName);
-
-    Integer createPointRecTable(@Param(value = "pointTableName") String pointTableName);
-
-    void createPointRecTableIndex(@Param(value = "pointTableName") String pointTableName);
-
-    Integer createPointRecordLogTable(@Param(value = "pointTableName") String pointTableName);
-
-    void createPointRecordLogTableIndex(@Param(value = "pointTableName") String pointTableName);
-
+    Long countPointLog(@Param(value = "pointTableName") String pointTableName,
+                       @Param(value = "param") ListPointLogParam param);
 }

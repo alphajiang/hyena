@@ -163,4 +163,13 @@
         updateTime = now()
         where id = #{rec.id}
     </update>
+
+
+    <select id="getIncreasedPoint" resultType="java.lang.Long">
+        select sum(rec.total)
+        from `${pointTableName}_rec` as rec
+        left join `${pointTableName}` as p on rec.pid = p.id
+        where p.uid = #{uid}
+        and rec.createTime between #{start} and #{end}
+    </select>
 </mapper>

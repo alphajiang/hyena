@@ -17,46 +17,63 @@
 
 package io.github.alphajiang.hyena.model.po;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.alphajiang.hyena.model.base.BasePo;
 import io.github.alphajiang.hyena.utils.JacksonStringDeserialize;
 import io.github.alphajiang.hyena.utils.JacksonStringSerialize;
 
-import java.util.Date;
+public class PointLogPo extends BasePo {
 
-public class PointRecPo extends BasePo {
-
-    private long pid;
-    private Long total;
+    private String uid;
+    private String recLogIds;
+    private Long delta;
+    private Long point;
     private Long available;
     private Long used;
     private Long frozen;
-    private Long cancelled;
     private Long expire;
+    /**
+     * PointStatus
+     */
+    private Integer type;
     private String tag;
-
     private String extra;
+    private String note;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
-    private Date expireTime;
-
-    public long getPid() {
-        return pid;
+    public String getUid() {
+        return uid;
     }
 
-    public PointRecPo setPid(long pid) {
-        this.pid = pid;
+    public PointLogPo setUid(String uid) {
+        this.uid = uid;
         return this;
     }
 
-    public Long getTotal() {
-        return total;
+    public String getRecLogIds() {
+        return recLogIds;
     }
 
-    public PointRecPo setTotal(Long total) {
-        this.total = total;
+    public PointLogPo setRecLogIds(String recLogIds) {
+        this.recLogIds = recLogIds;
+        return this;
+    }
+
+    public Long getDelta() {
+        return delta;
+    }
+
+    public PointLogPo setDelta(Long delta) {
+        this.delta = delta;
+        return this;
+    }
+
+    public Long getPoint() {
+        return point;
+    }
+
+    public PointLogPo setPoint(Long point) {
+        this.point = point;
         return this;
     }
 
@@ -64,7 +81,7 @@ public class PointRecPo extends BasePo {
         return available;
     }
 
-    public PointRecPo setAvailable(Long available) {
+    public PointLogPo setAvailable(Long available) {
         this.available = available;
         return this;
     }
@@ -73,7 +90,7 @@ public class PointRecPo extends BasePo {
         return used;
     }
 
-    public PointRecPo setUsed(Long used) {
+    public PointLogPo setUsed(Long used) {
         this.used = used;
         return this;
     }
@@ -82,17 +99,8 @@ public class PointRecPo extends BasePo {
         return frozen;
     }
 
-    public PointRecPo setFrozen(Long frozen) {
+    public PointLogPo setFrozen(Long frozen) {
         this.frozen = frozen;
-        return this;
-    }
-
-    public Long getCancelled() {
-        return cancelled;
-    }
-
-    public PointRecPo setCancelled(Long cancelled) {
-        this.cancelled = cancelled;
         return this;
     }
 
@@ -100,8 +108,17 @@ public class PointRecPo extends BasePo {
         return expire;
     }
 
-    public PointRecPo setExpire(Long expire) {
+    public PointLogPo setExpire(Long expire) {
         this.expire = expire;
+        return this;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public PointLogPo setType(Integer type) {
+        this.type = type;
         return this;
     }
 
@@ -109,7 +126,7 @@ public class PointRecPo extends BasePo {
         return tag;
     }
 
-    public PointRecPo setTag(String tag) {
+    public PointLogPo setTag(String tag) {
         this.tag = tag;
         return this;
     }
@@ -120,19 +137,17 @@ public class PointRecPo extends BasePo {
     }
 
     @JsonDeserialize(using = JacksonStringDeserialize.class)
-    public PointRecPo setExtra(String extra) {
+    public PointLogPo setExtra(String extra) {
         this.extra = extra;
         return this;
     }
 
-    public Date getExpireTime() {
-        return expireTime;
+    public String getNote() {
+        return note;
     }
 
-    public PointRecPo setExpireTime(Date expireTime) {
-        this.expireTime = expireTime;
+    public PointLogPo setNote(String note) {
+        this.note = note;
         return this;
     }
-
-
 }
