@@ -70,21 +70,21 @@ public class PointLogService {
     }
 
     @Transactional
-    public ListResponse<PointLog> listPointLog4Page(String type, ListPointLogParam param) {
-        logger.debug("type = {}, param = {}", type, param);
-        var list = this.listPointLog(type, param);
-        var total = this.countPointLog(type, param);
+    public ListResponse<PointLog> listPointLog4Page(ListPointLogParam param) {
+        logger.debug("param = {}", param);
+        var list = this.listPointLog(param);
+        var total = this.countPointLog(param);
         var ret = new ListResponse<>(list, total);
         return ret;
     }
 
-    public List<PointLog> listPointLog(String type, ListPointLogParam param) {
-        String pointTableName = TableNameHelper.getPointTableName(type);
+    public List<PointLog> listPointLog(ListPointLogParam param) {
+        String pointTableName = TableNameHelper.getPointTableName(param.getType());
         return this.pointLogMapper.listPointLog(pointTableName, param);
     }
 
-    public long countPointLog(String type, ListPointLogParam param) {
-        String pointTableName = TableNameHelper.getPointTableName(type);
+    public long countPointLog(ListPointLogParam param) {
+        String pointTableName = TableNameHelper.getPointTableName(param.getType());
         Long ret = this.pointLogMapper.countPointLog(pointTableName, param);
         return ret == null ? 0L : ret.longValue();
     }

@@ -27,7 +27,13 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and log.tag = #{param.tag}
         </if>
-
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.logTypes )">
+            and log.`type` in
+            <foreach item="logType" collection="param.logTypes"
+                     open="(" separator="," close=")">
+                #{logType}
+            </foreach>
+        </if>
         <if test="param.enable != null">
             and log.enable = #{param.enable}
         </if>
@@ -69,7 +75,13 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and log.tag = #{param.tag}
         </if>
-
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.logTypes )">
+            and log.`type` in
+            <foreach item="logType" collection="param.logTypes"
+                     open="(" separator="," close=")">
+                #{logType}
+            </foreach>
+        </if>
         <if test="param.enable != null">
             and log.enable = #{param.enable}
         </if>

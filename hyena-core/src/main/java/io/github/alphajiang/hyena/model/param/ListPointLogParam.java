@@ -19,16 +19,22 @@ package io.github.alphajiang.hyena.model.param;
 
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.List;
+
 public class ListPointLogParam extends BaseListParam {
     @ApiModelProperty(value = "用户ID")
     private String uid;
 
-    @ApiModelProperty(value = "用户记录ID")
+    @ApiModelProperty(value = "积分记录ID")
     private long pid;
 
 
     @ApiModelProperty(value = "标签")
     private String tag;
+
+    // PointStatus
+
+    private List<Integer> logTypes;
 
     public String getUid() {
         return uid;
@@ -54,6 +60,15 @@ public class ListPointLogParam extends BaseListParam {
 
     public ListPointLogParam setTag(String tag) {
         this.tag = tag;
+        return this;
+    }
+
+    public List<Integer> getLogTypes() {
+        return logTypes;
+    }
+
+    public ListPointLogParam setLogTypes(List<Integer> logTypes) {
+        this.logTypes = logTypes;
         return this;
     }
 }

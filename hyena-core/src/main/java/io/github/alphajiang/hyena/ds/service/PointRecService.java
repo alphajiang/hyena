@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.ds.service;
 
+import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.mapper.PointRecMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointRec;
@@ -76,33 +77,32 @@ public class PointRecService {
     /**
      * 增加积分
      *
-     * @param type       积分类型
-     * @param pointId    积分ID
-     * @param point      数量
-     * @param tag        标签
-     * @param expireTime 过期时间
-     * @param note       备注
-     * @return 返回积分记录ID
+     * @param param   参数
+     * @param pointId 积分ID
+     * @return 返回积分记录
      */
-    public PointRecPo addPointRec(String type, long pointId, long point,
-                                  String tag, String extra, Date expireTime, String note) {
-        logger.info("type = {}, pointId = {}, point = {}, tag = {}, expireTime = {}, note = {}",
-                type, pointId, point, tag, expireTime, note);
+    public PointRecPo addPointRec(PointUsage param, long pointId) {
+        logger.info("param = {}", param);
         PointRecPo rec = new PointRecPo();
         PointRecLogPo recLog = new PointRecLogPo();
-        rec.setPid(pointId).setTotal(point).setAvailable(point);
-        if (tag == null) {
+        rec.setPid(pointId).setTotal(param.getPoint()).setAvailable(param.getPoint());
+        if (param.getTag() == null) {
             rec.setTag("");
         } else {
-            rec.setTag(tag);
+            rec.setTag(param.getTag());
         }
-        if (StringUtils.isNotBlank(extra)) {
-            rec.setExtra(extra);
+        if (StringUtils.isNotBlank(param.getExtra())) {
+            rec.setExtra(param.getExtra());
         }
-        if (expireTime != null) {
-            rec.setExpireTime(expireTime);
+        if (param.getIssueTime() != null) {
+            rec.setIssueTime(param.getIssueTime());
+        } else {
+            rec.setIssueTime(new Date());
         }
-        String recTableName = TableNameHelper.getPointRecTableName(type);
+        if (param.getExpireTime() != null) {
+            rec.setExpireTime(param.getExpireTime());
+        }
+        String recTableName = TableNameHelper.getPointRecTableName(param.getType());
         this.pointRecMapper.addPointRec(recTableName, rec);
 
 
@@ -126,7 +126,7 @@ public class PointRecService {
         return rec;
     }
 
-    public void decreasePointUnfreeze(String type, PointRecPo rec, long point, String note) {
+    public PointRecLogPo decreasePointUnfreeze(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
         if (rec.getFrozen() < delta) {
@@ -142,8 +142,9 @@ public class PointRecService {
 
         }
 
-        this.pointRecLogService.addLogByRec(type, PointStatus.DECREASE,
+        var recLog = this.pointRecLogService.addLogByRec(type, PointStatus.DECREASE,
                 rec, delta, note);
+        return recLog;
     }
 
     public void freezePoint(String type, PointRecPo rec, long point, String note) {

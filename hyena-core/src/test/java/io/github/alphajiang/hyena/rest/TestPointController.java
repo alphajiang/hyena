@@ -29,11 +29,9 @@ import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.dto.PointLog;
 import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.dto.PointRecLog;
-import io.github.alphajiang.hyena.model.param.ListPointRecParam;
-import io.github.alphajiang.hyena.model.param.PointCancelParam;
-import io.github.alphajiang.hyena.model.param.PointIncreaseParam;
-import io.github.alphajiang.hyena.model.param.PointOpParam;
+import io.github.alphajiang.hyena.model.param.*;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DateUtils;
 import io.github.alphajiang.hyena.utils.JsonUtils;
@@ -74,10 +72,33 @@ public class TestPointController extends HyenaTestBase {
     }
 
     @Test
+    public void test_getPoint() throws Exception {
+
+        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/getPoint")
+                .param("type", super.getPointType())
+                .param("uid", super.getUid());
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+
+        });
+        PointPo ret = res.getData();
+        Assert.assertNotNull(ret);
+    }
+
+    @Test
     public void test_listPoint() throws Exception {
 
-        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPoint")
-                .param("type", super.getPointType());
+        ListPointParam param = new ListPointParam();
+        param.setType(super.getPointType());
+        param.setUidList(List.of(super.getUid()));
+        param.setStart(0L).setSize(10);
+
+
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPoint")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
@@ -91,8 +112,14 @@ public class TestPointController extends HyenaTestBase {
     @Test
     public void test_listPoint_fail_a() throws Exception {
 
+
+        ListPointParam param = new ListPointParam();
+        param.setType("invalid_type_test");
+        param.setStart(0L).setSize(10);
+
         RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPoint")
-                .param("type", "invalid_type_test");
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
@@ -104,9 +131,15 @@ public class TestPointController extends HyenaTestBase {
     @Test
     public void test_listPointLog() throws Exception {
 
-        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPointLog")
-                .param("type", super.getPointType())
-                .param("tag", super.getTag());
+        ListPointLogParam param = new ListPointLogParam();
+        param.setType(super.getPointType());
+        param.setUid(super.getUid());
+        param.setLogTypes(List.of(PointStatus.INCREASE.code()));
+        param.setStart(0L).setSize(10);
+
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointLog")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);

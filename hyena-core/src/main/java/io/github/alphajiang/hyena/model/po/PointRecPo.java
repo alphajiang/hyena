@@ -18,11 +18,13 @@
 package io.github.alphajiang.hyena.model.po;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.alphajiang.hyena.model.base.BasePo;
 import io.github.alphajiang.hyena.utils.JacksonStringDeserialize;
 import io.github.alphajiang.hyena.utils.JacksonStringSerialize;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
 
@@ -38,6 +40,11 @@ public class PointRecPo extends BasePo {
     private String tag;
 
     private String extra;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty(value = "发放时间")
+    private Date issueTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date expireTime;
@@ -111,6 +118,15 @@ public class PointRecPo extends BasePo {
 
     public PointRecPo setTag(String tag) {
         this.tag = tag;
+        return this;
+    }
+
+    public Date getIssueTime() {
+        return issueTime;
+    }
+
+    public PointRecPo setIssueTime(Date issueTime) {
+        this.issueTime = issueTime;
         return this;
     }
 

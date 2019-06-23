@@ -73,17 +73,27 @@ public class PointController {
     @Autowired
     private PointRecLogService pointRecLogService;
 
-    @ApiOperation(value = "获取积分列表")
-    @GetMapping(value = "/listPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ListResponse<PointPo> listPoint(
+    @ApiOperation(value = "获取积分信息")
+    @GetMapping(value = "/getPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ObjectResponse<PointPo> getPoint(
             HttpServletRequest request,
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @ApiParam(value = "请求记录的开始") @RequestParam(defaultValue = "0") long start,
-            @ApiParam(value = "请求记录数量") @RequestParam(defaultValue = "10") int size) {
+            @ApiParam(value = "用户ID") @RequestParam String uid) {
         logger.info(LoggerHelper.formatEnterLog(request));
-        ListPointParam param = new ListPointParam();
-        param.setType(type).setSorts(List.of(SortParam.as("pt.id", SortOrder.desc)))
-                .setStart(start).setSize(size);
+        var ret = this.pointService.getCusPoint(type, uid, false);
+        ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
+
+
+    @ApiOperation(value = "获取积分列表")
+    @PostMapping(value = "/listPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<PointPo> listPoint(HttpServletRequest request,
+                                           @RequestBody ListPointParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
+
+        param.setSorts(List.of(SortParam.as("pt.id", SortOrder.desc)));
         var res = this.pointService.listPoint4Page(param);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
@@ -91,23 +101,14 @@ public class PointController {
 
 
     @ApiOperation(value = "获取变更明细列表")
-    @GetMapping(value = "/listPointLog", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/listPointLog", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ListResponse<PointLog> listPointLog(
             HttpServletRequest request,
-            @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @ApiParam(value = "Point ID") @RequestParam(defaultValue = "0") long pid,
-            @ApiParam(value = "用户ID") @RequestParam(required = false) String uid,
-            @ApiParam(value = "标签") @RequestParam(required = false) String tag,
-            @RequestParam(required = false) Boolean enable,
-            @ApiParam(value = "请求记录的开始") @RequestParam(defaultValue = "0") long start,
-            @ApiParam(value = "请求记录数量") @RequestParam(defaultValue = "10") int size) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+            @RequestBody ListPointLogParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
 
-        ListPointLogParam param = new ListPointLogParam();
-        param.setPid(pid).setUid(uid).setTag(tag);
-        param.setEnable(enable).setSorts(List.of(SortParam.as("log.id", SortOrder.desc)))
-                .setStart(start).setSize(size);
-        var res = this.pointLogService.listPointLog4Page(type, param);
+        param.setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
+        var res = this.pointLogService.listPointLog4Page(param);
 
 
         logger.info(LoggerHelper.formatLeaveLog(request));

@@ -39,6 +39,7 @@
         <if test="rec.extra != null">
             `extra` = #{rec.extra},
         </if>
+        `issueTime` = #{rec.issueTime},
         `expireTime` = #{rec.expireTime}
     </insert>
 
@@ -156,6 +157,9 @@
         </if>
         <if test="rec.extra != null">
             extra = #{rec.extra},
+        </if>
+        <if test="rec.issueTime != null">
+            issueTime = #{rec.issueTime},
         </if>
         <if test="rec.enable != null">
             `enable` = #{rec.enable},

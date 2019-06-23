@@ -86,8 +86,9 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
-                recLogs = this.decreasePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
-                gap = gap - recLogs.stream().mapToLong(PointRecLogPo::getDelta).sum();
+                var recLogsRet = this.decreasePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
+                gap = gap - recLogsRet.stream().mapToLong(PointRecLogPo::getDelta).sum();
+                recLogs.addAll(recLogsRet);
                 logger.debug("gap = {}", gap);
             } while (gap > 0L);
         } catch (HyenaNoPointException e) {
@@ -141,8 +142,8 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
                 break;
             }
         }
-        var ret = point - sum;
-        logger.debug("ret = {}", ret);
+        //var ret = point - sum;
+        logger.debug("sum = {}", sum);
         return recLogs;
     }
 }

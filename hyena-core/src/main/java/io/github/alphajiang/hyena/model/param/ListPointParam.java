@@ -17,5 +17,17 @@
 
 package io.github.alphajiang.hyena.model.param;
 
+import java.util.List;
+
 public class ListPointParam extends BaseListParam{
+
+    private List<String> uidList;
+
+    public List<String> getUidList() {
+        return uidList;
+    }
+
+    public void setUidList(List<String> uidList) {
+        this.uidList = uidList;
+    }
 }

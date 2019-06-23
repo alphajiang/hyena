@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.ds;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
+import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointRecService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,7 +45,12 @@ public class TestPointRecService extends HyenaTestBase {
     public void test_decreasePointUnfreeze() {
         long pointId = super.getUserPoint().getId();
         // 增加并冻结第一笔积分
-        var pointRec = pointRecService.addPointRec(super.getPointType(), pointId, 10, "test", "{\"abc\" : 123, \"def\" : \"jkl\"}", null, null);
+        PointUsage param = new PointUsage();
+        param.setType(super.getPointType()).setPoint(10).setTag("test")
+                .setExtra("{\"abc\" : 123, \"def\" : \"jkl\"}")
+                .setNote(null)
+                .setExpireTime(null);
+        var pointRec = pointRecService.addPointRec(param, pointId);
         var recA = pointRecService.getById(super.getPointType(), pointRec.getId(), false);
         logger.info("recA = {}", recA);
         pointRecService.freezePoint(super.getPointType(), recA, 20, null);
@@ -57,8 +63,13 @@ public class TestPointRecService extends HyenaTestBase {
     @Test
     public void test_unfreezePoint() {
         long pointId = super.getUserPoint().getId();
+        PointUsage param = new PointUsage();
+        param.setType(super.getPointType()).setPoint(10).setTag("test")
+                .setExtra("{\"abc\" : 123}")
+                .setNote(null)
+                .setExpireTime(null);
         // 增加并冻结第一笔积分
-        var pointRec = pointRecService.addPointRec(super.getPointType(), pointId, 10, "test", "{\"abc\" : 123}", null, null);
+        var pointRec = pointRecService.addPointRec(param, pointId);
         var recA = pointRecService.getById(super.getPointType(), pointRec.getId(), false);
         pointRecService.freezePoint(super.getPointType(), recA, 20, null);
 

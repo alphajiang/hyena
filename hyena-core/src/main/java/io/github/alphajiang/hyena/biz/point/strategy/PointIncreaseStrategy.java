@@ -73,12 +73,12 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
             this.pointService.update(usage.getType(), point2Update);
         }
         cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), false);
-        var pointRec = this.pointRecService.addPointRec(usage.getType(), cusPoint.getId(),
-                usage.getPoint(), usage.getTag(), usage.getExtra(), usage.getExpireTime(), usage.getNote());
+        var pointRec = this.pointRecService.addPointRec(usage, cusPoint.getId());
         var recLog = this.pointRecLogService.addLogByRec(usage.getType(), PointStatus.INCREASE,
                 pointRec, usage.getPoint(), usage.getNote());
         var recLogs = List.of(recLog);
-        this.pointLogService.addPointLog(usage.getType(), cusPoint, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);
+        this.pointLogService.addPointLog(usage.getType(), cusPoint, usage.getPoint(),
+                usage.getTag(), usage.getExtra(), recLogs);
         return cusPoint;
     }
 }

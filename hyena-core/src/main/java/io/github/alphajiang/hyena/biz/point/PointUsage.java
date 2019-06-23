@@ -29,6 +29,7 @@ public class PointUsage extends BaseObject {
     private String tag;
     private String extra;
     private String note;
+    private Date issueTime;
     private Date expireTime;
 
 
@@ -93,6 +94,15 @@ public class PointUsage extends BaseObject {
 
     public PointUsage setNote(String note) {
         this.note = note;
+        return this;
+    }
+
+    public Date getIssueTime() {
+        return issueTime;
+    }
+
+    public PointUsage setIssueTime(Date issueTime) {
+        this.issueTime = issueTime;
         return this;
     }
 

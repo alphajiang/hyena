@@ -39,7 +39,12 @@
         select pt.*
         from `${pointTableName}` as pt
         where 1=1
-
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.uidList )">
+            and pt.uid in
+            <foreach collection="param.uidList" open="(" close=")" item="uid" separator=",">
+                #{uid}
+            </foreach>
+        </if>
         <if test="param.enable != null">
             and pt.enable = #{param.enable}
         </if>
@@ -72,7 +77,12 @@
         select count(distinct pt.id)
         from `${pointTableName}` as pt
         where 1=1
-
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.uidList )">
+            and pt.uid in
+            <foreach collection="param.uidList" open="(" close=")" item="uid" separator=",">
+                #{uid}
+            </foreach>
+        </if>
         <if test="param.enable != null">
             and pt.enable = #{param.enable}
         </if>
