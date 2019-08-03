@@ -81,6 +81,7 @@ public class PointRecService {
      * @param pointId 积分ID
      * @return 返回积分记录
      */
+    @Transactional
     public PointRecPo addPointRec(PointUsage param, long pointId) {
         logger.info("param = {}", param);
         PointRecPo rec = new PointRecPo();
@@ -109,6 +110,7 @@ public class PointRecService {
         return rec;
     }
 
+    @Transactional
     public PointRecPo decreasePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -126,6 +128,7 @@ public class PointRecService {
         return rec;
     }
 
+    @Transactional
     public PointRecLogPo decreasePointUnfreeze(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -147,6 +150,7 @@ public class PointRecService {
         return recLog;
     }
 
+    @Transactional
     public PointRecPo freezePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -167,6 +171,7 @@ public class PointRecService {
         return rec;
     }
 
+    @Transactional
     public PointRecPo unfreezePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -187,6 +192,7 @@ public class PointRecService {
         return rec;
     }
 
+    @Transactional
     public void cancelPointRec(String type, PointRecPo rec, String note) {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setCancelled(available);
@@ -196,6 +202,7 @@ public class PointRecService {
                 rec, available, note);
     }
 
+    @Transactional
     public void expirePointRec(String type, PointRecPo rec, String note) {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setExpire(available).setEnable(false);
@@ -205,6 +212,7 @@ public class PointRecService {
                 rec, available, note);
     }
 
+    @Transactional
     public void updatePointRec(String type, PointRecPo rec) {
         if (rec.getAvailable() == 0L && rec.getFrozen() == 0L) {
             // totally used

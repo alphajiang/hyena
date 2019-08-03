@@ -40,6 +40,7 @@ public class PointRecLogService {
     @Autowired
     private PointRecLogMapper pointRecLogMapper;
 
+    @Transactional
     public PointRecLogPo addLogByRec(String type, PointStatus eventType, PointRecPo rec, long delta, String note) {
 
         PointRecLogPo recLog = new PointRecLogPo();
