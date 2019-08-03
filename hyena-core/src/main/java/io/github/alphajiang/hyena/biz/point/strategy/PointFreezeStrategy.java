@@ -81,7 +81,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = RuntimeException.class)
     public PointPo process(PointUsage usage) {
         logger.info("freeze. usage = {}", usage);
         super.preProcess(usage);
