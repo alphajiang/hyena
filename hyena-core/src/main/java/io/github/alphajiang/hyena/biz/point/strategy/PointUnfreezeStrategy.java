@@ -19,14 +19,18 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.ds.service.PointLogService;
+import io.github.alphajiang.hyena.ds.service.PointRecLogService;
 import io.github.alphajiang.hyena.ds.service.PointRecService;
 import io.github.alphajiang.hyena.ds.service.PointService;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import org.slf4j.Logger;
@@ -36,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -47,6 +52,12 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
 
     @Autowired
     private PointRecService pointRecService;
+
+    @Autowired
+    private PointLogService pointLogService;
+
+    @Autowired
+    private PointRecLogService pointRecLogService;
 
     @Override
     public CalcType getType() {
@@ -66,9 +77,12 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
                 "no enough frozen point");
 
         long gap = usage.getPoint();
+        List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
-                gap = this.unfreezePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
+                var recLogsRet = this.unfreezePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
+                gap = gap - recLogsRet.stream().mapToLong(PointRecLogPo::getDelta).sum();
+                recLogs.addAll(recLogsRet);
                 logger.debug("gap = {}", gap);
             } while (gap > 0L);
         } catch (HyenaNoPointException e) {
@@ -82,10 +96,11 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
         point2Update.setAvailable(curPoint.getAvailable()).setFrozen(curPoint.getFrozen())
                 .setId(curPoint.getId());
         this.pointService.update(usage.getType(), point2Update);
+        this.pointLogService.addPointLog(usage.getType(), curPoint, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);
         return curPoint;
     }
 
-    private long unfreezePointLoop(String type, String uid, long point, String note) {
+    private List<PointRecLogPo> unfreezePointLoop(String type, String uid, long point, String note) {
         logger.info("unfreeze. type = {}, uid = {}, point = {}", type, uid, point);
         ListPointRecParam param = new ListPointRecParam();
         param.setUid(uid).setFrozen(true).setLock(true)
@@ -96,6 +111,7 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
             throw new HyenaNoPointException("no enough point", Level.DEBUG);
         }
         long sum = 0L;
+        List<PointRecLogPo> recLogs = new ArrayList<>();
         for (PointRecPo rec : recList) {
             long gap = point - sum;
             if (gap < 1L) {
@@ -103,15 +119,22 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
                 break;
             } else if (rec.getFrozen() < gap) {
                 sum += rec.getFrozen();
-                this.pointRecService.unfreezePoint(type, rec, gap, note);
+                long delta = rec.getFrozen();
+                var retRec = this.pointRecService.unfreezePoint(type, rec, gap, note);
+                var recLog = this.pointRecLogService.addLogByRec(type, PointStatus.UNFREEZE,
+                        retRec, delta, note);
+                recLogs.add(recLog);
             } else {
                 sum += gap;
-                this.pointRecService.unfreezePoint(type, rec, gap, note);
+                var retRec = this.pointRecService.unfreezePoint(type, rec, gap, note);
+                var recLog = this.pointRecLogService.addLogByRec(type, PointStatus.UNFREEZE,
+                        retRec, gap, note);
+                recLogs.add(recLog);
                 break;
             }
         }
         var ret = point - sum;
         logger.debug("ret = {}", ret);
-        return ret;
+        return recLogs;
     }
 }

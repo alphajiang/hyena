@@ -126,11 +126,12 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
                 break;
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
+                long delta = rec.getAvailable();
                 var retRec = this.pointRecService.decreasePoint(type, rec, gap, note);
 
 
                 var recLog = this.pointRecLogService.addLogByRec(type, PointStatus.DECREASE,
-                        retRec, rec.getAvailable(), note);
+                        retRec, delta, note);
                 recLogs.add(recLog);
             } else {
                 sum += gap;

@@ -147,7 +147,7 @@ public class PointRecService {
         return recLog;
     }
 
-    public void freezePoint(String type, PointRecPo rec, long point, String note) {
+    public PointRecPo freezePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
         if (rec.getAvailable() < delta) {
@@ -164,9 +164,10 @@ public class PointRecService {
         }
         this.pointRecLogService.addLogByRec(type, PointStatus.FREEZE,
                 rec, delta, note);
+        return rec;
     }
 
-    public void unfreezePoint(String type, PointRecPo rec, long point, String note) {
+    public PointRecPo unfreezePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
         if (rec.getFrozen() < delta) {
@@ -183,6 +184,7 @@ public class PointRecService {
         }
         this.pointRecLogService.addLogByRec(type, PointStatus.UNFREEZE,
                 rec, delta, note);
+        return rec;
     }
 
     public void cancelPointRec(String type, PointRecPo rec, String note) {
