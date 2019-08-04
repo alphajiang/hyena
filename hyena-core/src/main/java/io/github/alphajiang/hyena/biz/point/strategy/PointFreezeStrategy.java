@@ -24,6 +24,7 @@ import io.github.alphajiang.hyena.ds.service.PointRecLogService;
 import io.github.alphajiang.hyena.ds.service.PointRecService;
 import io.github.alphajiang.hyena.ds.service.PointService;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -59,29 +61,14 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
     @Autowired
     private PointRecLogService pointRecLogService;
 
+
     @Override
     public CalcType getType() {
         return CalcType.FREEZE;
     }
 
-    public static void main(String[] args) {
-        List<PointRecLogPo> list = new ArrayList<>();
-        PointRecLogPo rec = new PointRecLogPo();
-        rec.setDelta(27L);
-        list.add(rec);
-
-        PointRecLogPo rec2 = new PointRecLogPo();
-        rec2.setDelta(100L);
-        list.add(rec2);
-
-        long gap = 127L;
-        gap = gap - list.stream().mapToLong(PointRecLogPo::getDelta).sum();
-        System.out.println(gap);
-
-    }
-
     @Override
-    @Transactional(rollbackFor = RuntimeException.class)
+    @Transactional(propagation = Propagation.MANDATORY)
     public PointPo process(PointUsage usage) {
         logger.info("freeze. usage = {}", usage);
         super.preProcess(usage);
@@ -104,8 +91,11 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
         } catch (HyenaNoPointException e) {
 
         }
-        HyenaAssert.isTrue(gap == 0L, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
-                "no enough available point!");
+        if (gap != 0L) {
+            logger.warn("no enough available point! gap = {}", gap);
+            throw new HyenaServiceException("no enough available point!");
+        }
+
         curPoint.setAvailable(curPoint.getAvailable() - usage.getPoint())
                 .setFrozen(curPoint.getFrozen() + usage.getPoint());
         var point2Update = new PointPo();

@@ -22,6 +22,7 @@ import io.github.alphajiang.hyena.biz.point.strategy.PointStrategyFactory;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ public class PointUsageFacade {
      * @param usage 增加积分参数
      * @return 增加后的用户积分
      */
+    @Transactional
     public PointPo increase(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.INCREASE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
@@ -45,6 +47,7 @@ public class PointUsageFacade {
      * @param usage 减少积分参数
      * @return 减少后的用户积分
      */
+    @Transactional
     public PointPo decrease(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.DECREASE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
@@ -56,6 +59,7 @@ public class PointUsageFacade {
      * @param usage 减少积分参数
      * @return 减少后的用户积分
      */
+    @Transactional
     public PointPo decreaseFrozen(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.DECREASE_FROZEN);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
@@ -68,6 +72,7 @@ public class PointUsageFacade {
      * @param usage 冻结参数
      * @return 冻结后的用户积分
      */
+    @Transactional
     public PointPo freeze(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.FREEZE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
@@ -79,16 +84,19 @@ public class PointUsageFacade {
      * @param usage 解冻参数
      * @return 解冻后的用户积分
      */
+    @Transactional
     public PointPo unfreeze(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.UNFREEZE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
 
+    @Transactional
     public PointPo cancel(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.CANCEL);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
 
+    @Transactional
     public PointPo expire(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.EXPIRE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();

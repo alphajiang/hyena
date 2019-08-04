@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -61,6 +62,7 @@ public class PointRecService {
         return ret;
     }
 
+    @Transactional
     public List<PointRec> listPointRec(String type, ListPointRecParam param) {
         logger.debug("type = {}, param = {}", type, param);
         String pointTableName = TableNameHelper.getPointTableName(type);
@@ -81,6 +83,7 @@ public class PointRecService {
      * @param pointId 积分ID
      * @return 返回积分记录
      */
+    //@Transactional(propagation = Propagation.MANDATORY)   ??????
     @Transactional
     public PointRecPo addPointRec(PointUsage param, long pointId) {
         logger.info("param = {}", param);
@@ -110,7 +113,7 @@ public class PointRecService {
         return rec;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public PointRecPo decreasePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -128,7 +131,7 @@ public class PointRecService {
         return rec;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public PointRecLogPo decreasePointUnfreeze(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -150,7 +153,7 @@ public class PointRecService {
         return recLog;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public PointRecPo freezePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -171,7 +174,7 @@ public class PointRecService {
         return rec;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public PointRecPo unfreezePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -192,7 +195,7 @@ public class PointRecService {
         return rec;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public void cancelPointRec(String type, PointRecPo rec, String note) {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setCancelled(available);
@@ -202,7 +205,7 @@ public class PointRecService {
                 rec, available, note);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public void expirePointRec(String type, PointRecPo rec, String note) {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setExpire(available).setEnable(false);
@@ -212,7 +215,7 @@ public class PointRecService {
                 rec, available, note);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public void updatePointRec(String type, PointRecPo rec) {
         if (rec.getAvailable() == 0L && rec.getFrozen() == 0L) {
             // totally used

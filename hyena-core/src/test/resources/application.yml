@@ -19,6 +19,10 @@ logging:
   level:
     io.github.alphajiang.hyena: 'DEBUG'
     org.springframework: 'INFO'
+    org.springframework.transaction: DEBUG
+    org.springframework.jdbc: DEBUG
+    com.zaxxer.hikari: INFO
+
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] - %logger{36}.%M\\(%line\\) - %msg%n"
 
@@ -37,7 +41,7 @@ spring:
     url: jdbc:h2:mem:testdbsa
     initialPoolSize: 1
     minPoolSize: 1
-    maxPoolSize: 10
+    maxPoolSize: 20
     acquireIncrement: 1
     maxIdleTime: 10
     checkoutTimeout: 30000

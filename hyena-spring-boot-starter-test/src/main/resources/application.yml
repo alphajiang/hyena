@@ -17,8 +17,8 @@ management:
 
 logging:
   level:
-    io.github.alphajiang.hyena: 'DEBUG'
-    org.springframework: 'INFO'
+    io.github.alphajiang.hyena: DEBUG
+    org.springframework: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36}.%M\\(%line\\) - %msg%n"
 

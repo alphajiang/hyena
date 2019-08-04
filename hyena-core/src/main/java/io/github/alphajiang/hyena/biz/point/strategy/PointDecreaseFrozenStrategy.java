@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public PointPo process(PointUsage usage) {
         logger.info("decrease frozen. usage = {}", usage);
         super.preProcess(usage);
