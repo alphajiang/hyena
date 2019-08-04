@@ -155,19 +155,19 @@ Maven
 <dependency>
     <groupId>io.github.alphajiang</groupId>
     <artifactId>hyena-spring-boot-starter</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
 </dependency>
 ```
 Gradle
 ```
 plugins {
-	id 'org.springframework.boot' version '2.1.4.RELEASE'
+	id 'org.springframework.boot' version '2.1.6.RELEASE'
 	id 'java'
 }
 apply plugin: 'io.spring.dependency-management'
 dependencies {
-    implementation("io.github.alphajiang:hyena-spring-boot-starter:0.0.4")
-	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.0.1'
+    implementation("io.github.alphajiang:hyena-spring-boot-starter:0.0.5")
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.0'
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
