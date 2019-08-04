@@ -48,9 +48,10 @@ public class PointService {
         return this.pointMapper.getCusPoint(tableName, uid, lock);
     }
 
-    public boolean addPoint(String type, String uid, long point) {
+    public boolean addPoint(String type, String uid, String name, long point) {
         String tableName = TableNameHelper.getPointTableName(type);
-        Integer ret = this.pointMapper.addPoint(tableName, uid, point);
+        Integer ret = this.pointMapper.addPoint(tableName, uid,
+                name == null ? "" : name, point);
         return ret != null && ret.intValue() > 0;
     }
 

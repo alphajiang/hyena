@@ -30,6 +30,9 @@ public class PointOpParam extends BaseObject {
     @ApiModelProperty(value = "用户ID", example = "customer_abc123")
     private String uid;
 
+    @ApiModelProperty(value = "显示名称", example = "Tom")
+    private String name;
+
     @ApiModelProperty(value = "积分数量", example = "1000")
     private long point;
 
@@ -65,6 +68,14 @@ public class PointOpParam extends BaseObject {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public long getPoint() {

@@ -27,6 +27,7 @@
         create table if not exists ${pointTableName} (
             id bigint(20) not null auto_increment primary key,
         `uid` varchar(128) not null,
+        `name` varchar(256) not null default '',
             `point` bigint(20) not null default 0,
             `available` bigint(20) not null default 0,
             `used` bigint(20) not null default 0,

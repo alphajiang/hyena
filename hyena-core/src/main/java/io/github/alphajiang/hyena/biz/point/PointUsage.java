@@ -18,12 +18,19 @@
 package io.github.alphajiang.hyena.biz.point;
 
 import io.github.alphajiang.hyena.model.base.BaseObject;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
 public class PointUsage extends BaseObject {
     private String type;
     private String uid;
+    private String name;
     private long point;
     private Long recId; // 积分记录的ID
     private String tag;
@@ -33,84 +40,5 @@ public class PointUsage extends BaseObject {
     private Date expireTime;
 
 
-    public String getType() {
-        return type;
-    }
 
-    public PointUsage setType(String type) {
-        this.type = type;
-        return this;
-    }
-
-
-    public String getUid() {
-        return uid;
-    }
-
-    public PointUsage setUid(String uid) {
-        this.uid = uid;
-        return this;
-    }
-
-    public long getPoint() {
-        return point;
-    }
-
-    public PointUsage setPoint(long point) {
-        this.point = point;
-        return this;
-    }
-
-    public Long getRecId() {
-        return recId;
-    }
-
-    public PointUsage setRecId(Long recId) {
-        this.recId = recId;
-        return this;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public PointUsage setTag(String tag) {
-        this.tag = tag;
-        return this;
-    }
-
-    public String getExtra() {
-        return extra;
-    }
-
-    public PointUsage setExtra(String extra) {
-        this.extra = extra;
-        return this;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public PointUsage setNote(String note) {
-        this.note = note;
-        return this;
-    }
-
-    public Date getIssueTime() {
-        return issueTime;
-    }
-
-    public PointUsage setIssueTime(Date issueTime) {
-        this.issueTime = issueTime;
-        return this;
-    }
-
-    public Date getExpireTime() {
-        return expireTime;
-    }
-
-    public void setExpireTime(Date expireTime) {
-        this.expireTime = expireTime;
-    }
 }

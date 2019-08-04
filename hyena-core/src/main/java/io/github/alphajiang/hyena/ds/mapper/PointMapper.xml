@@ -21,9 +21,9 @@
 
     <insert id="addPoint">
         insert into `${tableName}` (
-        `uid`, `point`, `available`
+        `uid`, `name`, `point`, `available`
         ) values(
-        #{uid}, #{point}, #{point} )
+        #{uid}, #{name}, #{point}, #{point} )
     </insert>
 
     <select id="getCusPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">
@@ -52,6 +52,7 @@
             <bind name="pattern" value="'%' + sk + '%'"/>
             and (
             pt.uid like #{pattern}
+            or pt.`name` like #{pattern}
             )
         </if>
         <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.sorts )">
@@ -97,6 +98,9 @@
     <update id="updateCusPoint" >
         update `${tableName}`
         set
+        <if test="cusPoint.name != null">
+            `name` = #{cusPoint.name},
+        </if>
         <if test="cusPoint.point != null">
             point = #{cusPoint.point},
         </if>

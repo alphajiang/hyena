@@ -65,11 +65,13 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         super.preProcess(usage);
         var cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), true);
         if (cusPoint == null) {
-            this.pointService.addPoint(usage.getType(), usage.getUid(), usage.getPoint());
+            this.pointService.addPoint(usage.getType(), usage.getUid(),
+                    usage.getName(), usage.getPoint());
         } else {
             var point2Update = new PointPo();
             point2Update.setPoint(cusPoint.getPoint() + usage.getPoint())
                     .setAvailable(cusPoint.getAvailable() + usage.getPoint())
+                    .setName(usage.getName())
                     .setId(cusPoint.getId());
             this.pointService.update(usage.getType(), point2Update);
         }

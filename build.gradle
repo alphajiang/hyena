@@ -13,10 +13,11 @@ apply plugin: 'eclipse'
 
 ext {
     springBootVersion = "2.1.6.RELEASE"
+    springCloudVersion = "Greenwich.SR2"
     mybatisStarterVersion = '2.1.0'
     swaggerVersion = '2.9.2'
-    
-    springCloudVersion = "Greenwich.SR2"
+    lombokVersion = '1.18.8'
+
 }
 
 
@@ -134,6 +135,10 @@ subprojects {
     dependencies {
 
 
+        compileOnly("org.projectlombok:lombok:${lombokVersion}")
+        annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+        testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+        testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
 
         testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 

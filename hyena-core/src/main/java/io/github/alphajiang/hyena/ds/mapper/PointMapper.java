@@ -28,6 +28,7 @@ import java.util.List;
 public interface PointMapper {
     Integer addPoint(@Param(value = "tableName") String tableName,
                      @Param(value = "uid") String uid,
+                     @Param(value = "name") String name,
                      @Param(value = "point") long point);
 
     PointPo getCusPoint(@Param(value = "tableName") String tableName,

@@ -43,7 +43,7 @@ public class TestPointService extends HyenaTestBase {
     public void init() {
         super.init();
 
-        this.pointService.addPoint(super.getPointType(), "gewgewgew", 998876L);
+        this.pointService.addPoint(super.getPointType(), "gewgewgew", "ut tom", 998876L);
     }
 
 
