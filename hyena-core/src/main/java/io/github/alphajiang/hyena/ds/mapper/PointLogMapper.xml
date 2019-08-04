@@ -38,7 +38,7 @@
             and log.enable = #{param.enable}
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
-            <bind name="pattern" value="'%' + sk + '%'"/>
+            <bind name="pattern" value="'%' + param.sk + '%'"/>
             and (
             log.tag like #{pattern}
             )
@@ -86,7 +86,7 @@
             and log.enable = #{param.enable}
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
-            <bind name="pattern" value="'%' + sk + '%'"/>
+            <bind name="pattern" value="'%' + param.sk + '%'"/>
             and (
             log.tag like #{pattern}
             )

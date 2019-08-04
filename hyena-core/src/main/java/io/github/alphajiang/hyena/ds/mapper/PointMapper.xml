@@ -49,7 +49,7 @@
             and pt.enable = #{param.enable}
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
-            <bind name="pattern" value="'%' + sk + '%'"/>
+            <bind name="pattern" value="'%' + param.sk + '%'"/>
             and (
             pt.uid like #{pattern}
             or pt.`name` like #{pattern}
@@ -88,7 +88,7 @@
             and pt.enable = #{param.enable}
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
-            <bind name="pattern" value="'%' + sk + '%'"/>
+            <bind name="pattern" value="'%' + param.sk + '%'"/>
             and (
             pt.uid like #{pattern}
             )
