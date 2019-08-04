@@ -83,8 +83,8 @@ public class PointRecService {
      * @param pointId 积分ID
      * @return 返回积分记录
      */
-    //@Transactional(propagation = Propagation.MANDATORY)   ??????
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)   //??????
+    //@Transactional
     public PointRecPo addPointRec(PointUsage param, long pointId) {
         logger.info("param = {}", param);
         PointRecPo rec = new PointRecPo();
@@ -229,11 +229,11 @@ public class PointRecService {
     /**
      * 查询 从start到end间总共增加的积分数量
      *
-     * @param type
-     * @param uid
-     * @param start
-     * @param end
-     * @return
+     * @param type 积分类型
+     * @param uid 账户ID
+     * @param start 开始时间
+     * @param end 结束时间
+     * @return 返回增长的积分数量
      */
     public long getIncreasedPoint(String type, String uid, Date start, Date end) {
         String pointTableName = TableNameHelper.getPointTableName(type);
