@@ -100,6 +100,10 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         var cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), false);
         this.pointLogService.addPointLog(usage.getType(), cusPoint, usage.getPoint(),
                 usage.getTag(), usage.getExtra(), recLogs);
+
+
+
+
         return curPoint;
     }
 

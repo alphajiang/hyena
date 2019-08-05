@@ -191,9 +191,10 @@ public class PointController {
     @ApiOperation(value = "消费已冻结的用户积分")
     @PostMapping(value = "/decreaseFrozen", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> decreaseFrozenPoint(HttpServletRequest request,
-                                                       @RequestBody PointOpParam param) {
+                                                       @RequestBody PointDecreaseParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        usage.setUnfreezePoint(param.getUnfreezePoint());
         PointPo ret = this.pointUsageFacade.decreaseFrozen(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));

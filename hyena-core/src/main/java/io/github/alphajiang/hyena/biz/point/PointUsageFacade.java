@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategyFactory;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +63,14 @@ public class PointUsageFacade {
     @Transactional
     public PointPo decreaseFrozen(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.DECREASE_FROZEN);
+        if(usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L){
+            // 有需要解冻的积分, 先做解冻操作
+            Optional<PointStrategy> unfreezeStrategy = PointStrategyFactory.getStrategy(CalcType.UNFREEZE);
+            PointUsage usage4Unfreeze = new PointUsage();
+            BeanUtils.copyProperties(usage, usage4Unfreeze);
+            usage4Unfreeze.setPoint(usage.getUnfreezePoint());
+            unfreezeStrategy.ifPresent(act -> act.process(usage4Unfreeze));
+        }
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
 

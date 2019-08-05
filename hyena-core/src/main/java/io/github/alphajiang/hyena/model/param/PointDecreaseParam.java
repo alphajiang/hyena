@@ -15,31 +15,14 @@
  *
  */
 
-package io.github.alphajiang.hyena.biz.point;
+package io.github.alphajiang.hyena.model.param;
 
-import io.github.alphajiang.hyena.model.base.BaseObject;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
-
-import java.util.Date;
 
 @Data
-@Accessors(chain = true)
-@EqualsAndHashCode(callSuper = false)
-public class PointUsage extends BaseObject {
-    private String type;
-    private String uid;
-    private String name;
-    private long point;
-    private Long unfreezePoint; // 消费积分时同时解冻的积分数量
-    private Long recId; // 积分记录的ID
-    private String tag;
-    private String extra;
-    private String note;
-    private Date issueTime;
-    private Date expireTime;
+public class PointDecreaseParam extends PointOpParam {
 
-
-
+    @ApiModelProperty(value = "解冻积分数量", example = "1000")
+    private Long unfreezePoint;
 }

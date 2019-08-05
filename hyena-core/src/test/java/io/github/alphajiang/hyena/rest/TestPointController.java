@@ -305,6 +305,34 @@ public class TestPointController extends HyenaTestBase {
         Assert.assertNotNull(result);
     }
 
+    /**
+     *
+     * 消费积分, 同时解冻积分
+     */
+    @Test
+    public void test_decreaseFrozen_unfreeze() throws Exception {
+        PointUsage freeze = new PointUsage();
+        freeze.setPoint(14L).setType(super.getPointType()).setUid(super.getUid());
+        this.pointUsageFacade.freeze(freeze);
+
+        PointDecreaseParam param = new PointDecreaseParam();
+        param.setType(super.getPointType());
+        param.setUid(super.getUid());
+        param.setUnfreezePoint(5L); // 要做解冻的部分
+        param.setPoint(9L); // 要消费的部分
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decreaseFrozen")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(JsonUtils.toJsonString(param));
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+
+        });
+        PointPo result = res.getData();
+        Assert.assertNotNull(result);
+    }
+
 
     @Test
     public void test_unfreeze() throws Exception {
