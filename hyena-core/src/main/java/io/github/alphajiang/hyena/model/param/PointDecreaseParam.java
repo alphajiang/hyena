@@ -19,8 +19,12 @@ package io.github.alphajiang.hyena.model.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
 public class PointDecreaseParam extends PointOpParam {
 
     @ApiModelProperty(value = "解冻积分数量", example = "1000")

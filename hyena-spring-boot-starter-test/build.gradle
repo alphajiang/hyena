@@ -13,7 +13,7 @@ sourceSets {
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Greenwich.SR1"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Greenwich.SR2"
     }
 }
 
