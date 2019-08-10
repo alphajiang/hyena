@@ -19,7 +19,7 @@ package io.github.alphajiang.hyena.biz.strategy;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
-import io.github.alphajiang.hyena.ds.service.PointRecService;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -40,13 +40,13 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
     private PointStrategy pointCancelStrategy;
 
     @Autowired
-    private PointRecService pointRecService;
+    private PointRecDs pointRecDs;
 
     @Test
     public void test_cancelPoint() {
         ListPointRecParam param = new ListPointRecParam();
         param.setUid(super.uid).setStart(0L).setSize(1);
-        List<PointRec> recList = this.pointRecService.listPointRec(super.getPointType(), param);
+        List<PointRec> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
         PointRec rec = recList.get(0);
 
         long number = rec.getAvailable();
@@ -62,7 +62,7 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
         Assert.assertEquals(0L, result.getFrozen().longValue());
         Assert.assertEquals(0L, result.getExpire().longValue());
 
-        PointRecPo resultRec = this.pointRecService.getById(super.getPointType(), rec.getId(), false);
+        PointRecPo resultRec = this.pointRecDs.getById(super.getPointType(), rec.getId(), false);
         logger.info("resultRec = {}", resultRec);
         Assert.assertFalse(resultRec.getEnable());
         Assert.assertTrue(resultRec.getAvailable().longValue() == 0L);

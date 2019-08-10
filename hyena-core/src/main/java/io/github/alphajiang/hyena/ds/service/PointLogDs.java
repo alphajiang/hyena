@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class PointLogService {
-    private static final Logger logger = LoggerFactory.getLogger(PointLogService.class);
+public class PointLogDs {
+    private static final Logger logger = LoggerFactory.getLogger(PointLogDs.class);
 
     @Autowired
     private PointLogMapper pointLogMapper;

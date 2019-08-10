@@ -18,7 +18,7 @@
 package io.github.alphajiang.hyena.rest;
 
 import io.github.alphajiang.hyena.HyenaConstants;
-import io.github.alphajiang.hyena.ds.service.PointTableService;
+import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.utils.LoggerHelper;
@@ -42,13 +42,13 @@ public class SystemController {
     private static final Logger logger = LoggerFactory.getLogger(SystemController.class);
 
     @Autowired
-    private PointTableService pointTableService;
+    private PointTableDs pointTableDs;
 
     @ApiOperation(value = "获取积分类型列表")
     @GetMapping(value = "/listPointType", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ListResponse<String> listPointType(HttpServletRequest request) {
         logger.debug(LoggerHelper.formatEnterLog(request));
-        var list = this.pointTableService.listTable();
+        var list = this.pointTableDs.listTable();
         list = list.stream()
                 .map(o -> StringUtils.replaceFirst(o, HyenaConstants.PREFIX_POINT_TABLE_NAME))
                 .collect(Collectors.toList());
@@ -62,7 +62,7 @@ public class SystemController {
     public BaseResponse addPointType(HttpServletRequest request,
                                      @ApiParam(value = "积分类型", example = "score") @RequestParam(name = "name", required = true) String name) {
         logger.info(LoggerHelper.formatEnterLog(request));
-        this.pointTableService.getOrCreateTable(name);
+        this.pointTableDs.getOrCreateTable(name);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return BaseResponse.success();
     }

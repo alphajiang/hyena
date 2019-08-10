@@ -19,7 +19,7 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.ds.service.PointTableService;
+import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,7 +28,7 @@ import javax.annotation.PostConstruct;
 abstract class AbstractPointStrategy implements PointStrategy {
 
     @Autowired
-    private PointTableService cusPointTableService;
+    private PointTableDs cusPointTableDs;
 
 
     @PostConstruct
@@ -42,7 +42,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
         HyenaAssert.notBlank(usage.getUid(), "invalid parameter, 'uid' can't blank");
         HyenaAssert.isTrue(usage.getPoint() > 0L, HyenaConstants.RES_CODE_PARAMETER_ERROR, "invalid parameter, 'point' must great than 0");
 
-        this.cusPointTableService.getOrCreateTable(usage.getType());
+        this.cusPointTableDs.getOrCreateTable(usage.getType());
         //logger.debug("tableName = {}", tableName);
     }
 }

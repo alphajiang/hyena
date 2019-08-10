@@ -19,10 +19,10 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.ds.service.PointLogService;
-import io.github.alphajiang.hyena.ds.service.PointRecLogService;
-import io.github.alphajiang.hyena.ds.service.PointRecService;
-import io.github.alphajiang.hyena.ds.service.PointService;
+import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
@@ -50,16 +50,16 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
     private static final Logger logger = LoggerFactory.getLogger(PointFreezeStrategy.class);
 
     @Autowired
-    private PointService pointService;
+    private PointDs pointDs;
 
     @Autowired
-    private PointRecService pointRecService;
+    private PointRecDs pointRecDs;
 
     @Autowired
-    private PointLogService pointLogService;
+    private PointLogDs pointLogDs;
 
     @Autowired
-    private PointRecLogService pointRecLogService;
+    private PointRecLogDs pointRecLogDs;
 
 
     @Override
@@ -72,7 +72,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
     public PointPo process(PointUsage usage) {
         logger.info("freeze. usage = {}", usage);
         super.preProcess(usage);
-        PointPo curPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), true);
+        PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= usage.getPoint(),
@@ -101,8 +101,8 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
         var point2Update = new PointPo();
         point2Update.setAvailable(curPoint.getAvailable())
                 .setFrozen(curPoint.getFrozen()).setId(curPoint.getId());
-        this.pointService.update(usage.getType(), point2Update);
-        this.pointLogService.addPointLog(usage.getType(), curPoint, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);
+        this.pointDs.update(usage.getType(), point2Update);
+        this.pointLogDs.addPointLog(usage.getType(), curPoint, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);
         return curPoint;
     }
 
@@ -112,7 +112,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
         param.setUid(uid).setAvailable(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
                 .setSize(5);
-        var recList = this.pointRecService.listPointRec(type, param);
+        var recList = this.pointRecDs.listPointRec(type, param);
         if (recList.isEmpty()) {
             throw new HyenaNoPointException("no enough point", Level.DEBUG);
         }
@@ -126,14 +126,14 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
                 long delta = rec.getAvailable();
-                var retRec = this.pointRecService.freezePoint(type, rec, gap, note);
-                var recLog = this.pointRecLogService.addLogByRec(type, PointStatus.FREEZE,
+                var retRec = this.pointRecDs.freezePoint(type, rec, gap, note);
+                var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.FREEZE,
                         retRec, delta, note);
                 recLogs.add(recLog);
             } else {
                 //sum += gap;
-                var retRec = this.pointRecService.freezePoint(type, rec, gap, note);
-                var recLog = this.pointRecLogService.addLogByRec(type, PointStatus.FREEZE,
+                var retRec = this.pointRecDs.freezePoint(type, rec, gap, note);
+                var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.FREEZE,
                         retRec, gap, note);
                 recLogs.add(recLog);
                 break;

@@ -18,7 +18,7 @@
 package io.github.alphajiang.hyena.ds;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
-import io.github.alphajiang.hyena.ds.service.PointService;
+import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.param.ListPointParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
@@ -33,17 +33,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-public class TestPointService extends HyenaTestBase {
-    private final Logger logger = LoggerFactory.getLogger(TestPointService.class);
+public class TestPointDs extends HyenaTestBase {
+    private final Logger logger = LoggerFactory.getLogger(TestPointDs.class);
 
     @Autowired
-    private PointService pointService;
+    private PointDs pointDs;
 
     @Before
     public void init() {
         super.init();
 
-        this.pointService.addPoint(super.getPointType(), "gewgewgew", "ut tom", 998876L);
+        this.pointDs.addPoint(super.getPointType(), "gewgewgew", "ut tom", 998876L);
     }
 
 
@@ -53,7 +53,7 @@ public class TestPointService extends HyenaTestBase {
         param.setEnable(true).setSorts(List.of(SortParam.as("pt.id", SortOrder.desc)))
                 .setStart(0L).setSize(5);
         param.setType(super.getPointType());
-        List<PointPo> list = this.pointService.listPoint(param);
+        List<PointPo> list = this.pointDs.listPoint(param);
         logger.info("list = {}", list);
         Assert.assertFalse(list.isEmpty());
     }
@@ -63,7 +63,7 @@ public class TestPointService extends HyenaTestBase {
         ListPointParam param = new ListPointParam();
         param.setEnable(null);
         param.setType(super.getPointType());
-        ListResponse<PointPo> ret = this.pointService.listPoint4Page(param);
+        ListResponse<PointPo> ret = this.pointDs.listPoint4Page(param);
         logger.info("ret = {}", ret);
         Assert.assertTrue(ret.getTotal() > 0L);
         Assert.assertFalse(ret.getData().isEmpty());

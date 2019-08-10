@@ -22,7 +22,7 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
-import io.github.alphajiang.hyena.ds.service.PointRecService;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
@@ -63,7 +63,7 @@ public class TestPointController extends HyenaTestBase {
     private PointUsageFacade pointUsageFacade;
 
     @Autowired
-    private PointRecService pointRecService;
+    private PointRecDs pointRecDs;
 
 
     @Before
@@ -363,7 +363,7 @@ public class TestPointController extends HyenaTestBase {
 
         ListPointRecParam listParam = new ListPointRecParam();
         listParam.setFrozen(false).setUid(super.getUid()).setType(super.getPointType());
-        List<PointRec> recList = this.pointRecService.listPointRec(super.getPointType(), listParam);
+        List<PointRec> recList = this.pointRecDs.listPointRec(super.getPointType(), listParam);
         Assert.assertTrue(CollectionUtils.isNotEmpty(recList));
         PointRec rec = recList.iterator().next();
 

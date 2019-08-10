@@ -30,8 +30,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PointService {
-    private static final Logger logger = LoggerFactory.getLogger(PointService.class);
+public class PointDs {
+    private static final Logger logger = LoggerFactory.getLogger(PointDs.class);
 
     @Autowired
     private PointMapper pointMapper;

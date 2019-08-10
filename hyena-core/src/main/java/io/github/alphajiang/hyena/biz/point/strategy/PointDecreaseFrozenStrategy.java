@@ -19,9 +19,9 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.ds.service.PointLogService;
-import io.github.alphajiang.hyena.ds.service.PointRecService;
-import io.github.alphajiang.hyena.ds.service.PointService;
+import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
@@ -47,13 +47,13 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     private static final Logger logger = LoggerFactory.getLogger(PointDecreaseFrozenStrategy.class);
 
     @Autowired
-    private PointService pointService;
+    private PointDs pointDs;
 
     @Autowired
-    private PointRecService pointRecService;
+    private PointRecDs pointRecDs;
 
     @Autowired
-    private PointLogService pointLogService;
+    private PointLogDs pointLogDs;
 
     @Override
     public CalcType getType() {
@@ -65,7 +65,7 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     public PointPo process(PointUsage usage) {
         logger.info("decrease frozen. usage = {}", usage);
         super.preProcess(usage);
-        PointPo curPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), true);
+        PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.notNull(curPoint.getFrozen(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
@@ -95,10 +95,10 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         var point2Update = new PointPo();
         point2Update.setPoint(curPoint.getPoint()).setFrozen(curPoint.getFrozen())
                 .setUsed(curPoint.getUsed()).setId(curPoint.getId());
-        this.pointService.update(usage.getType(), point2Update);
+        this.pointDs.update(usage.getType(), point2Update);
 
-        var cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), false);
-        this.pointLogService.addPointLog(usage.getType(), cusPoint, usage.getPoint(),
+        var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
+        this.pointLogDs.addPointLog(usage.getType(), cusPoint, usage.getPoint(),
                 usage.getTag(), usage.getExtra(), recLogs);
 
 
@@ -113,7 +113,7 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         param.setUid(uid).setFrozen(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
                 .setSize(5);
-        var recList = this.pointRecService.listPointRec(type, param);
+        var recList = this.pointRecDs.listPointRec(type, param);
         if (recList.isEmpty()) {
             throw new HyenaNoPointException("no enough point", Level.DEBUG);
         }
@@ -127,11 +127,11 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
             } else if (rec.getFrozen() < gap) {
                 sum += rec.getFrozen();
 
-                var recLog = this.pointRecService.decreasePointUnfreeze(type, rec, gap, note);
+                var recLog = this.pointRecDs.decreasePointUnfreeze(type, rec, gap, note);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                var recLog = this.pointRecService.decreasePointUnfreeze(type, rec, gap, note);
+                var recLog = this.pointRecDs.decreasePointUnfreeze(type, rec, gap, note);
                 recLogs.add(recLog);
                 break;
             }

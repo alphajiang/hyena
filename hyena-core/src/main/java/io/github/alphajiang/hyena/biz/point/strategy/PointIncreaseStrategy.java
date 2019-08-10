@@ -18,10 +18,10 @@
 package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.ds.service.PointLogService;
-import io.github.alphajiang.hyena.ds.service.PointRecLogService;
-import io.github.alphajiang.hyena.ds.service.PointRecService;
-import io.github.alphajiang.hyena.ds.service.PointService;
+import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointStatus;
@@ -42,16 +42,16 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     private static final Logger logger = LoggerFactory.getLogger(PointIncreaseStrategy.class);
 
     @Autowired
-    private PointService pointService;
+    private PointDs pointDs;
 
     @Autowired
-    private PointLogService pointLogService;
+    private PointLogDs pointLogDs;
 
     @Autowired
-    private PointRecService pointRecService;
+    private PointRecDs pointRecDs;
 
     @Autowired
-    private PointRecLogService pointRecLogService;
+    private PointRecLogDs pointRecLogDs;
 
     @Override
     public CalcType getType() {
@@ -63,9 +63,9 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     public PointPo process(PointUsage usage) {
         logger.info("increase. usage = {}", usage);
         super.preProcess(usage);
-        var cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), true);
+        var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
         if (cusPoint == null) {
-            this.pointService.addPoint(usage.getType(), usage.getUid(),
+            this.pointDs.addPoint(usage.getType(), usage.getUid(),
                     usage.getName(), usage.getPoint());
         } else {
             var point2Update = new PointPo();
@@ -73,14 +73,14 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
                     .setAvailable(cusPoint.getAvailable() + usage.getPoint())
                     .setName(usage.getName())
                     .setId(cusPoint.getId());
-            this.pointService.update(usage.getType(), point2Update);
+            this.pointDs.update(usage.getType(), point2Update);
         }
-        cusPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), false);
-        var pointRec = this.pointRecService.addPointRec(usage, cusPoint.getId());
-        var recLog = this.pointRecLogService.addLogByRec(usage.getType(), PointStatus.INCREASE,
+        cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
+        var pointRec = this.pointRecDs.addPointRec(usage, cusPoint.getId());
+        var recLog = this.pointRecLogDs.addLogByRec(usage.getType(), PointStatus.INCREASE,
                 pointRec, usage.getPoint(), usage.getNote());
         var recLogs = List.of(recLog);
-        this.pointLogService.addPointLog(usage.getType(), cusPoint, usage.getPoint(),
+        this.pointLogDs.addPointLog(usage.getType(), cusPoint, usage.getPoint(),
                 usage.getTag(), usage.getExtra(), recLogs);
         return cusPoint;
     }

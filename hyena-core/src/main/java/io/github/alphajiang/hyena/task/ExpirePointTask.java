@@ -20,8 +20,8 @@ package io.github.alphajiang.hyena.task;
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
-import io.github.alphajiang.hyena.ds.service.PointRecService;
-import io.github.alphajiang.hyena.ds.service.PointTableService;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import org.slf4j.Logger;
@@ -42,16 +42,16 @@ public class ExpirePointTask {
     private PointUsageFacade pointUsageFacade;
 
     @Autowired
-    private PointTableService pointTableService;
+    private PointTableDs pointTableDs;
 
     @Autowired
-    private PointRecService pointRecService;
+    private PointRecDs pointRecDs;
 
     @Scheduled(fixedRate = 60 * 60 * 1000, initialDelay = 30 * 1000)  // every 1 hour
     public void expirePointTask() {
         logger.debug(">>");
 
-        List<String> tables = this.pointTableService.listTable();
+        List<String> tables = this.pointTableDs.listTable();
         tables.forEach(t -> {
             String type = t.replaceFirst(HyenaConstants.PREFIX_POINT_TABLE_NAME, "");
             this.expirePointByType(type);
@@ -63,7 +63,7 @@ public class ExpirePointTask {
 
         ListPointRecParam param = new ListPointRecParam();
         param.setFrozen(false).setExpireTime(new Date()).setType(type).setEnable(true);
-        List<PointRec> pointRecList = this.pointRecService.listPointRec(type, param);
+        List<PointRec> pointRecList = this.pointRecDs.listPointRec(type, param);
 
         pointRecList.stream().forEach(rec -> {
             try {

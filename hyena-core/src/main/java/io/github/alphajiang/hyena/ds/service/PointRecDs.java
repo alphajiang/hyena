@@ -38,8 +38,8 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class PointRecService {
-    private static final Logger logger = LoggerFactory.getLogger(PointRecService.class);
+public class PointRecDs {
+    private static final Logger logger = LoggerFactory.getLogger(PointRecDs.class);
 
 
     @Autowired
@@ -47,7 +47,7 @@ public class PointRecService {
 
 
     @Autowired
-    private PointRecLogService pointRecLogService;
+    private PointRecLogDs pointRecLogDs;
 
     public PointRecPo getById(String type, long id, boolean lock) {
         String pointTableName = TableNameHelper.getPointTableName(type);
@@ -148,7 +148,7 @@ public class PointRecService {
 
         }
 
-        var recLog = this.pointRecLogService.addLogByRec(type, PointStatus.DECREASE,
+        var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.DECREASE,
                 rec, delta, note);
         return recLog;
     }
@@ -169,7 +169,7 @@ public class PointRecService {
             this.updatePointRec(type, rec);
 
         }
-        this.pointRecLogService.addLogByRec(type, PointStatus.FREEZE,
+        this.pointRecLogDs.addLogByRec(type, PointStatus.FREEZE,
                 rec, delta, note);
         return rec;
     }
@@ -190,7 +190,7 @@ public class PointRecService {
             this.updatePointRec(type, rec);
 
         }
-        this.pointRecLogService.addLogByRec(type, PointStatus.UNFREEZE,
+        this.pointRecLogDs.addLogByRec(type, PointStatus.UNFREEZE,
                 rec, delta, note);
         return rec;
     }
@@ -201,7 +201,7 @@ public class PointRecService {
         rec.setAvailable(0L).setCancelled(available);
         this.updatePointRec(type, rec);
 
-        this.pointRecLogService.addLogByRec(type, PointStatus.CANCEL,
+        this.pointRecLogDs.addLogByRec(type, PointStatus.CANCEL,
                 rec, available, note);
     }
 
@@ -211,7 +211,7 @@ public class PointRecService {
         rec.setAvailable(0L).setExpire(available).setEnable(false);
         this.updatePointRec(type, rec);
 
-        this.pointRecLogService.addLogByRec(type, PointStatus.EXPIRE,
+        this.pointRecLogDs.addLogByRec(type, PointStatus.EXPIRE,
                 rec, available, note);
     }
 

@@ -21,10 +21,10 @@ import io.github.alphajiang.hyena.aop.Idempotent;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageBuilder;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
-import io.github.alphajiang.hyena.ds.service.PointLogService;
-import io.github.alphajiang.hyena.ds.service.PointRecLogService;
-import io.github.alphajiang.hyena.ds.service.PointRecService;
-import io.github.alphajiang.hyena.ds.service.PointService;
+import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.dto.PointLog;
@@ -62,16 +62,16 @@ public class PointController {
     private PointUsageFacade pointUsageFacade;
 
     @Autowired
-    private PointService pointService;
+    private PointDs pointDs;
 
     @Autowired
-    private PointLogService pointLogService;
+    private PointLogDs pointLogDs;
 
     @Autowired
-    private PointRecService pointRecService;
+    private PointRecDs pointRecDs;
 
     @Autowired
-    private PointRecLogService pointRecLogService;
+    private PointRecLogDs pointRecLogDs;
 
     @ApiOperation(value = "获取积分信息")
     @GetMapping(value = "/getPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -80,7 +80,7 @@ public class PointController {
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
             @ApiParam(value = "用户ID") @RequestParam String uid) {
         logger.info(LoggerHelper.formatEnterLog(request));
-        var ret = this.pointService.getCusPoint(type, uid, false);
+        var ret = this.pointDs.getCusPoint(type, uid, false);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
@@ -94,7 +94,7 @@ public class PointController {
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
 
         param.setSorts(List.of(SortParam.as("pt.id", SortOrder.desc)));
-        var res = this.pointService.listPoint4Page(param);
+        var res = this.pointDs.listPoint4Page(param);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
@@ -108,7 +108,7 @@ public class PointController {
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
 
         param.setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
-        var res = this.pointLogService.listPointLog4Page(param);
+        var res = this.pointLogDs.listPointLog4Page(param);
 
 
         logger.info(LoggerHelper.formatLeaveLog(request));
@@ -131,7 +131,7 @@ public class PointController {
         param.setUid(uid).setTag(tag);
         param.setEnable(enable).setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)))
                 .setStart(start).setSize(size);
-        var res = this.pointRecService.listPointRec4Page(type, param);
+        var res = this.pointRecDs.listPointRec4Page(type, param);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
@@ -153,7 +153,7 @@ public class PointController {
         param.setUid(uid).setRecId(recId).setTag(tag);
         param.setEnable(enable).setSorts(List.of(SortParam.as("log.id", SortOrder.desc)))
                 .setStart(start).setSize(size);
-        var res = this.pointRecLogService.listPointRecLog4Page(type, param);
+        var res = this.pointRecLogDs.listPointRecLog4Page(type, param);
 
 
         logger.info(LoggerHelper.formatLeaveLog(request));
@@ -165,11 +165,13 @@ public class PointController {
     @PostMapping(value = "/increase", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> increasePoint(HttpServletRequest request,
                                                  @RequestBody @NotNull PointIncreaseParam param) {
+        long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointIncreaseParam(param);
         PointPo ret = this.pointUsageFacade.increase(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));
+        debugPerformance(startTime);
         return res;
     }
 
@@ -178,11 +180,13 @@ public class PointController {
     @PostMapping(value = "/decrease", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> decreasePoint(HttpServletRequest request,
                                                  @RequestBody PointOpParam param) {
+        long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(request, false));
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         PointPo ret = this.pointUsageFacade.decrease(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));
+        debugPerformance(startTime);
         return res;
     }
 
@@ -192,12 +196,14 @@ public class PointController {
     @PostMapping(value = "/decreaseFrozen", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> decreaseFrozenPoint(HttpServletRequest request,
                                                        @RequestBody PointDecreaseParam param) {
+        long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(request));
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         usage.setUnfreezePoint(param.getUnfreezePoint());
         PointPo ret = this.pointUsageFacade.decreaseFrozen(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));
+        debugPerformance(startTime);
         return res;
     }
 
@@ -207,12 +213,14 @@ public class PointController {
     @PostMapping(value = "/freeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> freezePoint(HttpServletRequest request,
                                                @RequestBody PointOpParam param) {
+        long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(request));
 
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         PointPo cusPoint = this.pointUsageFacade.freeze(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));
+        debugPerformance(startTime);
         return res;
     }
 
@@ -221,6 +229,7 @@ public class PointController {
     @PostMapping(value = "/unfreeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> unfreezePoint(HttpServletRequest request,
                                                  @RequestBody PointOpParam param) {
+        long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(request));
 
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
@@ -228,6 +237,7 @@ public class PointController {
 
         ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));
+        debugPerformance(startTime);
         return res;
     }
 
@@ -259,7 +269,7 @@ public class PointController {
         try {
             Calendar calStart = DateUtils.fromYyyyMmDdHhMmSs(strStart);
             Calendar calEnd = DateUtils.fromYyyyMmDdHhMmSs(strEnd);
-            var ret = this.pointRecService.getIncreasedPoint(type, uid, calStart.getTime(), calEnd.getTime());
+            var ret = this.pointRecDs.getIncreasedPoint(type, uid, calStart.getTime(), calEnd.getTime());
 
             ObjectResponse<Long> res = new ObjectResponse<>(ret);
             logger.info(LoggerHelper.formatLeaveLog(request) + " ret = {}", ret);
@@ -270,4 +280,10 @@ public class PointController {
         }
     }
 
+    private void debugPerformance(long startTime) {
+        long curTime = System.nanoTime();
+        if (curTime - startTime > 2000L * 1000000) {
+            logger.warn("延迟过大...{}. ", (curTime - startTime) / 1000000);
+        }
+    }
 }

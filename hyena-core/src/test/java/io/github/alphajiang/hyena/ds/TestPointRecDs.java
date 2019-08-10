@@ -19,7 +19,7 @@ package io.github.alphajiang.hyena.ds;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.ds.service.PointRecService;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,12 +29,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Calendar;
 
-public class TestPointRecService extends HyenaTestBase {
-    private final Logger logger = LoggerFactory.getLogger(TestPointRecService.class);
+public class TestPointRecDs extends HyenaTestBase {
+    private final Logger logger = LoggerFactory.getLogger(TestPointRecDs.class);
 
 
     @Autowired
-    private PointRecService pointRecService;
+    private PointRecDs pointRecDs;
 
     @Before
     public void init() {
@@ -50,13 +50,13 @@ public class TestPointRecService extends HyenaTestBase {
                 .setExtra("{\"abc\" : 123, \"def\" : \"jkl\"}")
                 .setNote(null)
                 .setExpireTime(null);
-        var pointRec = pointRecService.addPointRec(param, pointId);
-        var recA = pointRecService.getById(super.getPointType(), pointRec.getId(), false);
+        var pointRec = pointRecDs.addPointRec(param, pointId);
+        var recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
         logger.info("recA = {}", recA);
-        pointRecService.freezePoint(super.getPointType(), recA, 20, null);
+        pointRecDs.freezePoint(super.getPointType(), recA, 20, null);
 
-        recA = pointRecService.getById(super.getPointType(), pointRec.getId(), false);
-        pointRecService.decreasePointUnfreeze(super.getPointType(), recA, 20, null);
+        recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
+        pointRecDs.decreasePointUnfreeze(super.getPointType(), recA, 20, null);
     }
 
 
@@ -69,12 +69,12 @@ public class TestPointRecService extends HyenaTestBase {
                 .setNote(null)
                 .setExpireTime(null);
         // 增加并冻结第一笔积分
-        var pointRec = pointRecService.addPointRec(param, pointId);
-        var recA = pointRecService.getById(super.getPointType(), pointRec.getId(), false);
-        pointRecService.freezePoint(super.getPointType(), recA, 20, null);
+        var pointRec = pointRecDs.addPointRec(param, pointId);
+        var recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
+        pointRecDs.freezePoint(super.getPointType(), recA, 20, null);
 
-        recA = pointRecService.getById(super.getPointType(), pointRec.getId(), false);
-        pointRecService.unfreezePoint(super.getPointType(), recA, 20, null);
+        recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
+        pointRecDs.unfreezePoint(super.getPointType(), recA, 20, null);
 
     }
 
@@ -84,7 +84,7 @@ public class TestPointRecService extends HyenaTestBase {
         start.add(Calendar.DATE, -1);
         Calendar end = Calendar.getInstance();
         end.add(Calendar.DATE, 1);
-        long increased = this.pointRecService.getIncreasedPoint(super.getPointType(),
+        long increased = this.pointRecDs.getIncreasedPoint(super.getPointType(),
                 super.getUid(), start.getTime(), end.getTime());
         logger.info("increased = {}", increased);
         Assert.assertEquals(super.getUserPoint().getPoint().longValue(), increased);

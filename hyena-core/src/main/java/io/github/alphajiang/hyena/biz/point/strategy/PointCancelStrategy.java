@@ -19,8 +19,8 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.ds.service.PointRecService;
-import io.github.alphajiang.hyena.ds.service.PointService;
+import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
@@ -38,10 +38,10 @@ public class PointCancelStrategy extends AbstractPointStrategy {
     private static final Logger logger = LoggerFactory.getLogger(PointCancelStrategy.class);
 
     @Autowired
-    private PointService pointService;
+    private PointDs pointDs;
 
     @Autowired
-    private PointRecService pointRecService;
+    private PointRecDs pointRecDs;
 
     @Override
     public CalcType getType() {
@@ -56,14 +56,14 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         HyenaAssert.notNull(usage.getRecId(), "invalid parameter, 'recId' can't be null");
         HyenaAssert.isTrue(usage.getRecId().longValue() > 0L, "invalid parameter: recId");
 
-        PointPo curPoint = this.pointService.getCusPoint(usage.getType(), usage.getUid(), true);
+        PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= usage.getPoint(),
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                 "no enough available point");
 
-        PointRecPo rec = this.pointRecService.getById(usage.getType(), usage.getRecId(), true);
+        PointRecPo rec = this.pointRecDs.getById(usage.getType(), usage.getRecId(), true);
         HyenaAssert.notNull(rec, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point record with id = " + usage.getRecId(), Level.WARN);
         if (rec.getCancelled() > 0) {
@@ -77,7 +77,7 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         HyenaAssert.isTrue(rec.getPid() == curPoint.getId(), "invalid parameter.");
         HyenaAssert.isTrue(rec.getAvailable().longValue() == usage.getPoint(), "point mis-match");
         long delta = rec.getAvailable();
-        this.pointRecService.cancelPointRec(usage.getType(), rec, usage.getNote());
+        this.pointRecDs.cancelPointRec(usage.getType(), rec, usage.getNote());
 
 
         curPoint.setAvailable(curPoint.getAvailable() - delta)
@@ -85,7 +85,7 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         var point2Update = new PointPo();
         point2Update.setAvailable(curPoint.getAvailable())
                 .setPoint(curPoint.getPoint()).setId(curPoint.getId());
-        this.pointService.update(usage.getType(), point2Update);
+        this.pointDs.update(usage.getType(), point2Update);
         return curPoint;
     }
 }

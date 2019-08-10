@@ -34,8 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class PointRecLogService {
-    private static final Logger logger = LoggerFactory.getLogger(PointRecLogService.class);
+public class PointRecLogDs {
+    private static final Logger logger = LoggerFactory.getLogger(PointRecLogDs.class);
 
     @Autowired
     private PointRecLogMapper pointRecLogMapper;
@@ -56,7 +56,7 @@ public class PointRecLogService {
         return recLog;
     }
 
-    private void addPointRecLog(String type, PointRecLogPo recLog) {
+    public void addPointRecLog(String type, PointRecLogPo recLog) {
         String tableName = TableNameHelper.getPointRecLogTableName(type);
         this.pointRecLogMapper.addPointRecLog(tableName, recLog);
     }

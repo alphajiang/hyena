@@ -32,8 +32,8 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
 @Service
-public class PointTableService {
-    private static final Logger logger = LoggerFactory.getLogger(PointTableService.class);
+public class PointTableDs {
+    private static final Logger logger = LoggerFactory.getLogger(PointTableDs.class);
 
 
     @Autowired
