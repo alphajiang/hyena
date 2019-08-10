@@ -20,7 +20,6 @@ dependencyManagement {
 dependencies {
     implementation project(':hyena-spring-boot-starter')
 
-    implementation("org.springframework.boot:spring-boot-starter-log4j2:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
