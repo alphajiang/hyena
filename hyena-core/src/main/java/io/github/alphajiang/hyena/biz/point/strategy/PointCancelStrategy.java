@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
@@ -49,7 +48,7 @@ public class PointCancelStrategy extends AbstractPointStrategy {
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public PointPo process(PointUsage usage) {
         logger.info("cancel. usage = {}", usage);
         super.preProcess(usage);

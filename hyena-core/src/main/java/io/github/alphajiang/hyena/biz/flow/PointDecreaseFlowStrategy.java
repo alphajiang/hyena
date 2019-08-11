@@ -29,11 +29,11 @@ import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +43,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class PointDecreaseFrozenFlowStrategy  extends AbstractPointFlowStrategy {
+public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
 
     @Autowired
     private PointLogDs pointLogDs;
@@ -54,30 +54,23 @@ public class PointDecreaseFrozenFlowStrategy  extends AbstractPointFlowStrategy 
     @Autowired
     private PointRecLogDs pointRecLogDs;
 
-    @Autowired
-    private PointUnfreezeFlowStrategy pointUnfreezeFlowStrategy;
+
+
+
 
     @Override
     public CalcType getType() {
-        return CalcType.DECREASE_FROZEN;
+        return CalcType.DECREASE;
     }
 
     @Override
     @Transactional
     public void addFlow(PointUsage usage, PointPo point) {
-        if(usage.getUnfreezePoint()!= null && usage.getUnfreezePoint() > 0L) {
-            // 有要解冻的积分, 先做解冻
-            PointUsage usage4Unfreeze = new PointUsage();
-            BeanUtils.copyProperties(usage, usage4Unfreeze);
-            usage4Unfreeze.setPoint(usage.getUnfreezePoint());
-            pointUnfreezeFlowStrategy.addFlow(usage4Unfreeze, point);
-        }
-
         long gap = usage.getPoint();
         List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
-                var recLogsRet = this.decreasePointUnfreezeLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
+                var recLogsRet = this.decreasePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
                 gap = gap - recLogsRet.stream().mapToLong(PointRecLogPo::getDelta).sum();
                 recLogs.addAll(recLogsRet);
                 log.debug("gap = {}", gap);
@@ -86,17 +79,17 @@ public class PointDecreaseFrozenFlowStrategy  extends AbstractPointFlowStrategy 
 
         }
         HyenaAssert.isTrue(gap == 0L, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
-                "no enough frozen point!");
+                "no enough available point!");
 
-        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(),
-                usage.getTag(), usage.getExtra(), recLogs);
+
+        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);
     }
 
 
-    private List<PointRecLogPo> decreasePointUnfreezeLoop(String type, String uid, long point, String note) {
-        log.info("decrease unfreeze. type = {}, uid = {}, point = {}", type, uid, point);
+    private List<PointRecLogPo> decreasePointLoop(String type, String uid, long point, String note) {
+        log.info("decrease. type = {}, uid = {}, point = {}", type, uid, point);
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(uid).setFrozen(true).setLock(true)
+        param.setUid(uid).setAvailable(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
                 .setSize(5);
         var recList = this.pointRecDs.listPointRec(type, param);
@@ -110,19 +103,25 @@ public class PointDecreaseFrozenFlowStrategy  extends AbstractPointFlowStrategy 
             if (gap < 1L) {
                 log.warn("gap = {} !!!", gap);
                 break;
-            } else if (rec.getFrozen() < gap) {
-                sum += rec.getFrozen();
+            } else if (rec.getAvailable() < gap) {
+                sum += rec.getAvailable();
+                long delta = rec.getAvailable();
+                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, note);
 
-                var recLog = this.pointRecDs.decreasePointUnfreeze(type, rec, gap, note);
+
+                var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.DECREASE,
+                        retRec, delta, note);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                var recLog = this.pointRecDs.decreasePointUnfreeze(type, rec, gap, note);
+                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, note);
+
+                var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.DECREASE,
+                        retRec, gap, note);
                 recLogs.add(recLog);
                 break;
             }
         }
-
         //var ret = point - sum;
         log.debug("sum = {}", sum);
         return recLogs;

@@ -76,7 +76,8 @@ public class PointDs {
     }
 
 
-    public void update(String type, PointPo point) {
-        this.pointMapper.updateCusPoint(TableNameHelper.getPointTableName(type), point);
+    public boolean update(String type, PointPo point) {
+        int ret = this.pointMapper.updateCusPoint(TableNameHelper.getPointTableName(type), point);
+        return ret > 0;
     }
 }

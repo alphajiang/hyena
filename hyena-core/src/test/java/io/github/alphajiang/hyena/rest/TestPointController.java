@@ -153,7 +153,7 @@ public class TestPointController extends HyenaTestBase {
 
     @Test
     public void test_listPointRecord() throws Exception {
-
+        Thread.sleep(100L);
         RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPointRecord")
                 .param("type", super.getPointType())
                 .param("tag", super.getTag());
@@ -363,6 +363,7 @@ public class TestPointController extends HyenaTestBase {
 
         ListPointRecParam listParam = new ListPointRecParam();
         listParam.setFrozen(false).setUid(super.getUid()).setType(super.getPointType());
+        Thread.sleep(100L);
         List<PointRec> recList = this.pointRecDs.listPointRec(super.getPointType(), listParam);
         Assert.assertTrue(CollectionUtils.isNotEmpty(recList));
         PointRec rec = recList.iterator().next();
@@ -388,7 +389,7 @@ public class TestPointController extends HyenaTestBase {
 
     @Test
     public void test_getIncreasedPoint() throws Exception {
-
+        Thread.sleep(100L);
         Calendar start = Calendar.getInstance();
         start.add(Calendar.DATE, -1);
         Calendar end = Calendar.getInstance();

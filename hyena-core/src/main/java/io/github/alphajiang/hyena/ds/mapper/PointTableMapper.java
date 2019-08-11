@@ -26,7 +26,11 @@ import java.util.List;
 public interface PointTableMapper {
     List<String> listCusPointTables(@Param(value = "prefix") String prefix);
 
-    void createPointTable(@Param(value = "pointTableName") String pointTableName);
+    Integer createPointTable(@Param(value = "pointTableName") String pointTableName);
+
+    void createPointTableIndex(@Param(value = "pointTableName") String pointTableName);
+
+    void createPointTableIndexH2(@Param(value = "pointTableName") String pointTableName);
 
     void createPointLogTable(@Param(value = "pointTableName") String pointTableName);
 

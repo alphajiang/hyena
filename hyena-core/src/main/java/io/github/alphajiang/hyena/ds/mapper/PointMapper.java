@@ -46,6 +46,6 @@ public interface PointMapper {
     long countPoint(@Param(value = "pointTableName") String pointTableName,
                     @Param(value = "param") ListPointParam param);
 
-    void updateCusPoint(@Param(value = "tableName") String tableName,
+    int updateCusPoint(@Param(value = "tableName") String tableName,
                         @Param(value = "cusPoint") PointPo cusPoint);
 }

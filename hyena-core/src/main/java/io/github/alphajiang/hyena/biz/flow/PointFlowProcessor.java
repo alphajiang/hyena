@@ -42,7 +42,7 @@ public class PointFlowProcessor implements Runnable {
 
     public void push(CalcType calcType, PointUsage usage, PointPo point) {
         try {
-            this.queue.put(new PointFlowWrapper(calcType, usage, point));
+            this.queue.put(new PointFlowWrapper(calcType, usage, point, 5));
             queueSize.addAndGet(1L);
         } catch (InterruptedException e) {
             log.error("queue.size = {}, error = {}", queue.size(), e.getMessage(), e);
@@ -53,8 +53,9 @@ public class PointFlowProcessor implements Runnable {
     @Override
     public void run() {
         do {
+            PointFlowWrapper o =  null;
             try {
-                PointFlowWrapper o = queue.poll(1L, TimeUnit.SECONDS);
+                o = queue.poll(1L, TimeUnit.SECONDS);
                 if (o != null) {
                     long size = queueSize.addAndGet(-1L);
                     if(size > 100 && size % 100 == 0) {
@@ -64,9 +65,19 @@ public class PointFlowProcessor implements Runnable {
 //                    Optional<PointFlowStrategy> strategy = pointFlowStrategyFactory.getStrategy(o.getCalcType());
 //                    strategy.ifPresent(act -> act.addFlow(o.getUsage(), o.getPoint()));
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 log.error("queue.size = {}, error = {}", queue.size(), e.getMessage(), e);
-
+                if(o != null) {
+                    try {
+                        if(o.getRetry() > 0) {
+                            o.setRetry(o.getRetry() -1);
+                            queue.put(o);
+                            queueSize.addAndGet(1L);
+                        }
+                    } catch (InterruptedException ex) {
+                        log.error("queue.size = {}, error = {}", queue.size(), e.getMessage(), e);
+                    }
+                }
             }
         } while (true);
     }

@@ -42,8 +42,9 @@ public class TestPointDs extends HyenaTestBase {
     @Before
     public void init() {
         super.init();
-
-        this.pointDs.addPoint(super.getPointType(), "gewgewgew", "ut tom", 998876L);
+        PointPo point = new PointPo();
+        point.setUid("gewgewgew").setName("ut tom").setPoint(998876L);
+        this.pointDs.addPoint(super.getPointType(), point);
     }
 
 

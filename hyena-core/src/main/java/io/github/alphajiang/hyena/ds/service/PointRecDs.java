@@ -83,8 +83,7 @@ public class PointRecDs {
      * @param pointId 积分ID
      * @return 返回积分记录
      */
-    @Transactional(propagation = Propagation.MANDATORY)   //??????
-    //@Transactional
+    @Transactional
     public PointRecPo addPointRec(PointUsage param, long pointId) {
         logger.info("param = {}", param);
         PointRecPo rec = new PointRecPo();
@@ -131,7 +130,7 @@ public class PointRecDs {
         return rec;
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public PointRecLogPo decreasePointUnfreeze(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -153,7 +152,7 @@ public class PointRecDs {
         return recLog;
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public PointRecPo freezePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -174,7 +173,7 @@ public class PointRecDs {
         return rec;
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public PointRecPo unfreezePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;

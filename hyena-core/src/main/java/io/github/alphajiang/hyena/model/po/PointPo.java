@@ -34,6 +34,6 @@ public class PointPo extends BasePo {
     private Long used;
     private Long frozen;
     private Long expire;
-
+    private Long seqNum;
 
 }

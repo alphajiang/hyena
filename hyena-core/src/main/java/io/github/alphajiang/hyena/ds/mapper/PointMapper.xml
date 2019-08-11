@@ -23,7 +23,14 @@
         insert into `${tableName}` (
         `uid`, `name`, `point`, `available`
         ) values(
-        #{point.uid}, #{point.name}, #{point.point}, #{point.available} )
+        #{point.uid}, #{point.name}, #{point.point}, #{point.point} )
+        on duplicate key update
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( point.name )">
+            `name` = #{point.name},
+        </if>
+        `point` = `point` + #{point.point},
+        `available` = `available` + #{point.point},
+        `seqNum` = `seqNum` + 1
     </insert>
 
 <!--    <select id="getCusPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">-->
@@ -112,7 +119,7 @@
 
     <update id="updateCusPoint" >
         update `${tableName}`
-        set
+        set seqNum = seqNum + 1,
         <if test="cusPoint.name != null">
             `name` = #{cusPoint.name},
         </if>
@@ -135,6 +142,6 @@
             enable = #{cusPoint.enable},
         </if>
         updateTime = now()
-        where id = #{cusPoint.id}
+        where id = #{cusPoint.id} and seqNum = #{cusPoint.seqNum}
     </update>
 </mapper>

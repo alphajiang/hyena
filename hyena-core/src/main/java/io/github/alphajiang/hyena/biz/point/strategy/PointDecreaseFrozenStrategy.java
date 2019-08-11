@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
@@ -49,11 +47,11 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
+    //@Transactional(propagation = Propagation.MANDATORY)
     public PointPo process(PointUsage usage) {
         logger.info("decrease frozen. usage = {}", usage);
         super.preProcess(usage);
-        PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
+        PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.notNull(curPoint.getFrozen(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
@@ -67,14 +65,21 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
                 .setFrozen(curPoint.getFrozen() - usage.getPoint())
                 .setUsed(curPoint.getUsed() + usage.getPoint());
 
+        if(usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L) {
+            curPoint.setFrozen(curPoint.getFrozen() - usage.getUnfreezePoint())
+                    .setAvailable(curPoint.getAvailable() + usage.getUnfreezePoint() );
+        }
+
         var point2Update = new PointPo();
         point2Update.setPoint(curPoint.getPoint()).setFrozen(curPoint.getFrozen())
-                .setUsed(curPoint.getUsed()).setId(curPoint.getId());
-        this.pointDs.update(usage.getType(), point2Update);
+                .setUsed(curPoint.getUsed()).setAvailable(curPoint.getAvailable())
+                .setSeqNum(curPoint.getSeqNum())
+                .setId(curPoint.getId());
 
+
+        boolean ret = this.pointDs.update(usage.getType(), point2Update);
+        HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
        // var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
-
-
         pointFlowService.addFlow(getType(), usage, curPoint);
 
 

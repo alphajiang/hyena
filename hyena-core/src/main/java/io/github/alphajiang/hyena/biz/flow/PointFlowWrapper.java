@@ -29,4 +29,5 @@ public class PointFlowWrapper {
     private CalcType calcType;
     private PointUsage usage;
     private PointPo point;
+    private int retry;
 }

@@ -79,11 +79,12 @@ public class TestPointRecDs extends HyenaTestBase {
     }
 
     @Test
-    public void test_getIncreasedPoint() {
+    public void test_getIncreasedPoint() throws InterruptedException {
         Calendar start = Calendar.getInstance();
         start.add(Calendar.DATE, -1);
         Calendar end = Calendar.getInstance();
         end.add(Calendar.DATE, 1);
+        Thread.sleep(100L);
         long increased = this.pointRecDs.getIncreasedPoint(super.getPointType(),
                 super.getUid(), start.getTime(), end.getTime());
         logger.info("increased = {}", increased);

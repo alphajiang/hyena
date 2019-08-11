@@ -62,17 +62,33 @@ public class PointTableDs {
 
     private void createTable(String type) {
         String pointTableName = TableNameHelper.getPointTableName(type);
-        this.pointTableMapper.createPointTable(pointTableName);
+        Integer ret = this.pointTableMapper.createPointTable(pointTableName);
+        //if (ret != null && ret.intValue() > 0) {
+        try {
+            this.pointTableMapper.createPointTableIndex(pointTableName);
+        }catch (Exception e ) {
+            // 单元测试忽略报错
+            this.pointTableMapper.createPointTableIndexH2(pointTableName);
+        }
+        //}
         this.pointTableMapper.createPointLogTable(pointTableName);
 
-        Integer ret = this.pointTableMapper.createPointRecTable(pointTableName);
-        if (ret != null && ret.intValue() > 0) {
+        ret = this.pointTableMapper.createPointRecTable(pointTableName);
+        //if (ret != null && ret.intValue() > 0) {
+        try {
             this.pointTableMapper.createPointRecTableIndex(pointTableName);
+        }catch (Exception e ) {
+
         }
+        //}
         ret = this.pointTableMapper.createPointRecordLogTable(pointTableName);
-        if (ret != null && ret.intValue() > 0) {
+        //if (ret != null && ret.intValue() > 0) {
+        try {
             this.pointTableMapper.createPointRecordLogTableIndex(pointTableName);
+        }catch(Exception e) {
+
         }
+        //}
         this.refreshTables();
     }
 

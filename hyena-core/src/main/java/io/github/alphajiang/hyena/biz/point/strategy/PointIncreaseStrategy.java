@@ -22,11 +22,12 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -57,30 +58,36 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public PointPo process(PointUsage usage) {
         logger.info("increase. usage = {}", usage);
         super.preProcess(usage);
-        var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
-        if (cusPoint == null) {
-            cusPoint = new PointPo();
-            cusPoint.setUid(usage.getUid()).setName(usage.getName())
-                    .setPoint(usage.getPoint()).setAvailable(usage.getPoint())
-                    .setUsed(0L).setFrozen(0L).setExpire(0L);
-            if(cusPoint.getName() == null) {
-                cusPoint.setName("");
-            }
-            this.pointDs.addPoint(usage.getType(), cusPoint);
-        } else {
-            var point2Update = new PointPo();
-            point2Update.setPoint(cusPoint.getPoint() + usage.getPoint())
-                    .setAvailable(cusPoint.getAvailable() + usage.getPoint())
-                    .setName(usage.getName())
-                    .setId(cusPoint.getId());
-            this.pointDs.update(usage.getType(), point2Update);
-            cusPoint.setPoint(point2Update.getPoint())
-                    .setAvailable(point2Update.getAvailable());
+        var point2Update = new PointPo();
+        point2Update.setPoint( usage.getPoint())
+                .setAvailable( usage.getPoint())
+                .setUid(usage.getUid());
+        if(StringUtils.isNotBlank(usage.getName())) {
+            point2Update.setName(usage.getName());
         }
+        this.pointDs.addPoint(usage.getType(), point2Update);
+        PointPo cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
+
+//        var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
+//        if (cusPoint == null) {
+//            cusPoint = new PointPo();
+//            cusPoint.setUid(usage.getUid()).setName(usage.getName())
+//                    .setPoint(usage.getPoint()).setAvailable(usage.getPoint())
+//                    .setUsed(0L).setFrozen(0L).setExpire(0L);
+//            if(cusPoint.getName() == null) {
+//                cusPoint.setName("");
+//            }
+//            this.pointDs.addPoint(usage.getType(), cusPoint);
+//        } else {
+//
+//            this.pointDs.update(usage.getType(), point2Update);
+//            cusPoint.setPoint(point2Update.getPoint())
+//                    .setAvailable(point2Update.getAvailable());
+//        }
 //        cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
         pointFlowService.addFlow(getType(), usage, cusPoint);
 //        var pointRec = this.pointRecDs.addPointRec(usage, cusPoint.getId());

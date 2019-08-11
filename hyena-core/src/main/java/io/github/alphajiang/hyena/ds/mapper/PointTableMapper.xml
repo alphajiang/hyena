@@ -26,18 +26,26 @@
     <update id="createPointTable" flushCache="true">
         create table if not exists ${pointTableName} (
             id bigint(20) not null auto_increment primary key,
-        `uid` varchar(128) not null,
-        `name` varchar(256) not null default '',
+            `uid` varchar(128) not null,
+            `name` varchar(256) not null default '',
             `point` bigint(20) not null default 0,
             `available` bigint(20) not null default 0,
             `used` bigint(20) not null default 0,
             `frozen` bigint(20) not null default 0,
             `expire` bigint(20) not null default 0,
+            `seqNum` bigint(20) not null default 0,
             `enable` boolean not null default true,
             `createTime` timestamp default now(),
-            `updateTime` timestamp default now(),
-        unique key ${pointTableName}_uid(`uid`)
+            `updateTime` timestamp default now()
         ) engine=InnoDB default charset=utf8mb4
+    </update>
+
+    <update id="createPointTableIndex" flushCache="true">
+        CREATE UNIQUE INDEX ${pointTableName}_uid USING HASH ON ${pointTableName}(`uid`)
+    </update>
+
+    <update id="createPointTableIndexH2" flushCache="true">
+        CREATE UNIQUE hash INDEX if not exists ${pointTableName}_uid ON ${pointTableName}(`uid`)
     </update>
 
     <update id="createPointLogTable" flushCache="true">
