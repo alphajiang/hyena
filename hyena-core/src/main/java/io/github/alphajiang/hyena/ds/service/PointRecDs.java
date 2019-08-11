@@ -169,8 +169,8 @@ public class PointRecDs {
             this.updatePointRec(type, rec);
 
         }
-        this.pointRecLogDs.addLogByRec(type, PointStatus.FREEZE,
-                rec, delta, note);
+//        this.pointRecLogDs.addLogByRec(type, PointStatus.FREEZE,
+//                rec, delta, note);
         return rec;
     }
 
@@ -190,8 +190,8 @@ public class PointRecDs {
             this.updatePointRec(type, rec);
 
         }
-        this.pointRecLogDs.addLogByRec(type, PointStatus.UNFREEZE,
-                rec, delta, note);
+//        this.pointRecLogDs.addLogByRec(type, PointStatus.UNFREEZE,
+//                rec, delta, note);
         return rec;
     }
 

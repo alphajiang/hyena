@@ -17,22 +17,17 @@
 
 package io.github.alphajiang.hyena.biz.point.strategy;
 
+import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
-import io.github.alphajiang.hyena.ds.service.PointLogDs;
-import io.github.alphajiang.hyena.ds.service.PointRecDs;
-import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
-import io.github.alphajiang.hyena.model.type.PointStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * 增加积分
@@ -45,13 +40,16 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     private PointDs pointDs;
 
     @Autowired
-    private PointLogDs pointLogDs;
+    private PointFlowService pointFlowService;
 
-    @Autowired
-    private PointRecDs pointRecDs;
-
-    @Autowired
-    private PointRecLogDs pointRecLogDs;
+//    @Autowired
+//    private PointLogDs pointLogDs;
+//
+//    @Autowired
+//    private PointRecDs pointRecDs;
+//
+//    @Autowired
+//    private PointRecLogDs pointRecLogDs;
 
     @Override
     public CalcType getType() {
@@ -65,8 +63,14 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         super.preProcess(usage);
         var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
         if (cusPoint == null) {
-            this.pointDs.addPoint(usage.getType(), usage.getUid(),
-                    usage.getName(), usage.getPoint());
+            cusPoint = new PointPo();
+            cusPoint.setUid(usage.getUid()).setName(usage.getName())
+                    .setPoint(usage.getPoint()).setAvailable(usage.getPoint())
+                    .setUsed(0L).setFrozen(0L).setExpire(0L);
+            if(cusPoint.getName() == null) {
+                cusPoint.setName("");
+            }
+            this.pointDs.addPoint(usage.getType(), cusPoint);
         } else {
             var point2Update = new PointPo();
             point2Update.setPoint(cusPoint.getPoint() + usage.getPoint())
@@ -74,14 +78,17 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
                     .setName(usage.getName())
                     .setId(cusPoint.getId());
             this.pointDs.update(usage.getType(), point2Update);
+            cusPoint.setPoint(point2Update.getPoint())
+                    .setAvailable(point2Update.getAvailable());
         }
-        cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
-        var pointRec = this.pointRecDs.addPointRec(usage, cusPoint.getId());
-        var recLog = this.pointRecLogDs.addLogByRec(usage.getType(), PointStatus.INCREASE,
-                pointRec, usage.getPoint(), usage.getNote());
-        var recLogs = List.of(recLog);
-        this.pointLogDs.addPointLog(usage.getType(), cusPoint, usage.getPoint(),
-                usage.getTag(), usage.getExtra(), recLogs);
+//        cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
+        pointFlowService.addFlow(getType(), usage, cusPoint);
+//        var pointRec = this.pointRecDs.addPointRec(usage, cusPoint.getId());
+//        var recLog = this.pointRecLogDs.addLogByRec(usage.getType(), PointStatus.INCREASE,
+//                pointRec, usage.getPoint(), usage.getNote());
+//        var recLogs = List.of(recLog);
+//        this.pointLogDs.addPointLog(usage.getType(), cusPoint, usage.getPoint(),
+//                usage.getTag(), usage.getExtra(), recLogs);
         return cusPoint;
     }
 }

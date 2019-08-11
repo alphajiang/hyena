@@ -43,15 +43,20 @@ public class PointDs {
 //    @Autowired
 //    private PointRecService pointRecService;
 
+
+
     public PointPo getCusPoint(String type, String uid, boolean lock) {
         String tableName = TableNameHelper.getPointTableName(type);
-        return this.pointMapper.getCusPoint(tableName, uid, lock);
+        PointPo point =  this.pointMapper.getCusPointByUid(tableName, uid, lock);
+        if(lock && point != null) {
+            point = this.pointMapper.getCusPoint(tableName, point.getId(), lock);
+        }
+        return point;
     }
 
-    public boolean addPoint(String type, String uid, String name, long point) {
+    public boolean addPoint(String type, PointPo point) {
         String tableName = TableNameHelper.getPointTableName(type);
-        Integer ret = this.pointMapper.addPoint(tableName, uid,
-                name == null ? "" : name, point);
+        Integer ret = this.pointMapper.addPoint(tableName, point);
         return ret != null && ret.intValue() > 0;
     }
 

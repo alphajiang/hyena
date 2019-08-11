@@ -27,11 +27,14 @@ import java.util.List;
 @Mapper
 public interface PointMapper {
     Integer addPoint(@Param(value = "tableName") String tableName,
-                     @Param(value = "uid") String uid,
-                     @Param(value = "name") String name,
-                     @Param(value = "point") long point);
+                     @Param(value = "point") PointPo point);
+
 
     PointPo getCusPoint(@Param(value = "tableName") String tableName,
+                             @Param(value = "id") long id,
+                             @Param(value = "lock") boolean lock);
+
+    PointPo getCusPointByUid(@Param(value = "tableName") String tableName,
                         @Param(value = "uid") String uid,
                         @Param(value = "lock") boolean lock);
 

@@ -19,20 +19,35 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.alphajiang.hyena.ds.mapper.PointMapper">
 
-    <insert id="addPoint">
+    <insert id="addPoint"  useGeneratedKeys="true" keyProperty="point.id">
         insert into `${tableName}` (
         `uid`, `name`, `point`, `available`
         ) values(
-        #{uid}, #{name}, #{point}, #{point} )
+        #{point.uid}, #{point.name}, #{point.point}, #{point.available} )
     </insert>
+
+<!--    <select id="getCusPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">-->
+<!--        select cp.*-->
+<!--        from `${tableName}` as cp-->
+<!--        where cp.id = ( select id from `${tableName}` as tmp where tmp.uid = #{uid} )-->
+<!--        <if test="lock == true">-->
+<!--            for update-->
+<!--        </if>-->
+<!--    </select>-->
 
     <select id="getCusPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">
         select cp.*
         from `${tableName}` as cp
-        where cp.uid = #{uid}
+        where cp.id = #{id}
         <if test="lock == true">
             for update
         </if>
+    </select>
+
+    <select id="getCusPointByUid" resultType="io.github.alphajiang.hyena.model.po.PointPo">
+        select cp.*
+        from `${tableName}` as cp
+        where cp.uid = #{uid}
     </select>
 
     <select id="listPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">
