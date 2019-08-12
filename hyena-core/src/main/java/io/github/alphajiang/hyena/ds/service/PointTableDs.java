@@ -67,6 +67,7 @@ public class PointTableDs {
         try {
             this.pointTableMapper.createPointTableIndex(pointTableName);
         }catch (Exception e ) {
+            logger.warn("create unique key failed! error = {}", e.getMessage());
             // 单元测试忽略报错
             this.pointTableMapper.createPointTableIndexH2(pointTableName);
         }
