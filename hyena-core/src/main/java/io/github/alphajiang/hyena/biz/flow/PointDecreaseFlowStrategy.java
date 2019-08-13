@@ -17,7 +17,6 @@
 
 package io.github.alphajiang.hyena.biz.flow;
 
-import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
@@ -31,7 +30,6 @@ import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.model.type.SortOrder;
-import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,8 +76,8 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
         } catch (HyenaNoPointException e) {
 
         }
-        HyenaAssert.isTrue(gap == 0L, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
-                "no enough available point!");
+//        HyenaAssert.isTrue(gap == 0L, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+//                "no enough available point!");
 
 
         this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);

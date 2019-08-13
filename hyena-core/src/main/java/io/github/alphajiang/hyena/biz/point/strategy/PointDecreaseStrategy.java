@@ -21,7 +21,6 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
-import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
@@ -58,16 +57,21 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.notNull(curPoint.getAvailable(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
-        HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= usage.getPoint(),
-                HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
-                "no enough available point. current available point is " + curPoint.getAvailable(),
-                Level.WARN,
-                HyenaNoPointException.class);
+//        HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= usage.getPoint(),
+//                HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+//                "no enough available point. current available point is " + curPoint.getAvailable(),
+//                Level.WARN,
+//                HyenaNoPointException.class);
 
 
 
         curPoint.setAvailable(curPoint.getAvailable() - usage.getPoint())
                 .setUsed(curPoint.getUsed() + usage.getPoint());
+        if(curPoint.getFrozen() < 0L) {
+            // 使用可用余额来抵扣超扣部分
+            curPoint.setAvailable(curPoint.getAvailable() + curPoint.getFrozen());
+            curPoint.setFrozen(0L);
+        }
         var point2Update = new PointPo();
         point2Update.setAvailable(curPoint.getAvailable())
                 .setUsed(curPoint.getUsed()).setSeqNum(curPoint.getSeqNum())

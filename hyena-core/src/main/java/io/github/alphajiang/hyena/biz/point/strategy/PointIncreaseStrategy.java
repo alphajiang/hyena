@@ -89,7 +89,9 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
 //                    .setAvailable(point2Update.getAvailable());
 //        }
 //        cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
-        pointFlowService.addFlow(getType(), usage, cusPoint);
+        if(usage.getPoint() > 0L) {
+            pointFlowService.addFlow(getType(), usage, cusPoint);
+        }
 //        var pointRec = this.pointRecDs.addPointRec(usage, cusPoint.getId());
 //        var recLog = this.pointRecLogDs.addLogByRec(usage.getType(), PointStatus.INCREASE,
 //                pointRec, usage.getPoint(), usage.getNote());

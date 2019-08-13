@@ -27,6 +27,7 @@ import io.github.alphajiang.hyena.utils.HyenaAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,18 +57,30 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.notNull(curPoint.getFrozen(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
-        HyenaAssert.isTrue(curPoint.getFrozen().longValue() >= usage.getPoint(),
+        HyenaAssert.isTrue(curPoint.getFrozen().longValue() >= usage.getUnfreezePoint(),
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                 "no enough frozen point");
+
+        if(usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L) {
+            // 解冻
+            curPoint.setFrozen(curPoint.getFrozen() - usage.getUnfreezePoint())
+                    .setAvailable(curPoint.getAvailable() + usage.getUnfreezePoint());
+            PointPo postUnfreeze = new PointPo();
+            BeanUtils.copyProperties(curPoint, postUnfreeze);
+            PointUsage usage4Unfreeze = new PointUsage();
+            BeanUtils.copyProperties(usage, usage4Unfreeze);
+            usage4Unfreeze.setPoint(usage.getUnfreezePoint());
+            pointFlowService.addFlow(CalcType.UNFREEZE, usage4Unfreeze, postUnfreeze);
+        }
 
 
         curPoint.setPoint(curPoint.getPoint() - usage.getPoint())
                 .setFrozen(curPoint.getFrozen() - usage.getPoint())
                 .setUsed(curPoint.getUsed() + usage.getPoint());
-
-        if(usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L) {
-            curPoint.setFrozen(curPoint.getFrozen() - usage.getUnfreezePoint())
-                    .setAvailable(curPoint.getAvailable() + usage.getUnfreezePoint() );
+        if(curPoint.getFrozen() < 0L) {
+            // 使用可用余额来抵扣超扣部分
+            curPoint.setAvailable(curPoint.getAvailable() + curPoint.getFrozen());
+            curPoint.setFrozen(0L);
         }
 
         var point2Update = new PointPo();
@@ -80,7 +93,7 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         boolean ret = this.pointDs.update(usage.getType(), point2Update);
         HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
        // var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
-        pointFlowService.addFlow(getType(), usage, curPoint);
+        pointFlowService.addFlow(CalcType.DECREASE, usage, curPoint);
 
 
         return curPoint;
