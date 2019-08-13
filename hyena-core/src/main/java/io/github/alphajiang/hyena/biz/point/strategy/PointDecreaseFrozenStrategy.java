@@ -57,9 +57,11 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.notNull(curPoint.getFrozen(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
-        HyenaAssert.isTrue(curPoint.getFrozen().longValue() >= usage.getUnfreezePoint(),
-                HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
-                "no enough frozen point");
+        if(usage.getUnfreezePoint() != null) {
+            HyenaAssert.isTrue(curPoint.getFrozen().longValue() >= usage.getUnfreezePoint(),
+                    HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+                    "no enough frozen point");
+        }
 
         if(usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L) {
             // 解冻
