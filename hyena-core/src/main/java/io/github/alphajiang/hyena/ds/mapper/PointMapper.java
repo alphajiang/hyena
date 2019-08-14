@@ -46,6 +46,9 @@ public interface PointMapper {
     long countPoint(@Param(value = "pointTableName") String pointTableName,
                     @Param(value = "param") ListPointParam param);
 
+    int disableAccount(@Param(value = "tableName") String tableName,
+                       @Param(value = "uid") String uid);
+
     int updateCusPoint(@Param(value = "tableName") String tableName,
                         @Param(value = "cusPoint") PointPo cusPoint);
 }

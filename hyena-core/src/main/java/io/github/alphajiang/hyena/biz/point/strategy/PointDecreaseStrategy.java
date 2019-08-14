@@ -65,13 +65,14 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
 
 
 
-        curPoint.setAvailable(curPoint.getAvailable() - usage.getPoint())
+        curPoint.setPoint(curPoint.getPoint() - usage.getPoint())
+                .setAvailable(curPoint.getAvailable() - usage.getPoint())
                 .setUsed(curPoint.getUsed() + usage.getPoint());
-        if(curPoint.getFrozen() < 0L) {
-            // 使用可用余额来抵扣超扣部分
-            curPoint.setAvailable(curPoint.getAvailable() + curPoint.getFrozen());
-            curPoint.setFrozen(0L);
-        }
+//        if(curPoint.getFrozen() < 0L) {
+//            // 使用可用余额来抵扣超扣部分
+//            curPoint.setAvailable(curPoint.getAvailable() + curPoint.getFrozen());
+//            curPoint.setFrozen(0L);
+//        }
         var point2Update = new PointPo();
         point2Update.setAvailable(curPoint.getAvailable())
                 .setUsed(curPoint.getUsed()).setSeqNum(curPoint.getSeqNum())

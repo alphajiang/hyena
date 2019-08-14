@@ -30,6 +30,7 @@
         </if>
         `point` = `point` + #{point.point},
         `available` = `available` + #{point.point},
+        `enable` = true,
         `seqNum` = `seqNum` + 1
     </insert>
 
@@ -116,6 +117,13 @@
             )
         </if>
     </select>
+
+    <update id="disableAccount">
+        update `${tableName}`
+        set seqNum = seqNum + 1,
+        `enable` = false
+        where uid = #{uid} and `enable` = false
+    </update>
 
     <update id="updateCusPoint" >
         update `${tableName}`

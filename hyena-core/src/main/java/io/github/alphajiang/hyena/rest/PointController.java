@@ -25,6 +25,7 @@ import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.dto.PointLog;
@@ -278,6 +279,18 @@ public class PointController {
             logger.warn(e.getMessage(), e);
             throw new HyenaParameterException("参数错误, 时间格式无法解析");
         }
+    }
+
+    @ApiOperation(value = "禁用帐号")
+    @PostMapping(value = "/disableAccount", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public BaseResponse disableAccount(
+            HttpServletRequest request,
+            @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+            @ApiParam(value = "用户ID") @RequestParam String uid) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+        this.pointDs.disableAccount(type, uid);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return BaseResponse.success();
     }
 
     private void debugPerformance(long startTime) {

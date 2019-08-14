@@ -75,6 +75,9 @@ public class PointDs {
         return res;
     }
 
+    public void disableAccount(String type, String uid) {
+        this.pointMapper.disableAccount(TableNameHelper.getPointTableName(type), uid);
+    }
 
     public boolean update(String type, PointPo point) {
         int ret = this.pointMapper.updateCusPoint(TableNameHelper.getPointTableName(type), point);
