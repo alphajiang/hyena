@@ -130,7 +130,7 @@ public class TestPointController extends HyenaTestBase {
 
     @Test
     public void test_listPointLog() throws Exception {
-
+        Thread.sleep(100L);
         ListPointLogParam param = new ListPointLogParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
