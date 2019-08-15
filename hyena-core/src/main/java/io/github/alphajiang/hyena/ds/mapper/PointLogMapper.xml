@@ -4,13 +4,21 @@
 
     <insert id="addPointLog">
         insert into `${pointTableName}_log` (
-        `uid`, `recLogIds`, `delta`, `point`, `available`,
+        `uid`, `seqNum`, `delta`, `point`, `available`,
         `used`, `frozen`, `expire`, `type`,
-        `tag`, `extra`, `note`
+        `tag`,
+        <if test="pointLog.orderNo != null">
+        `orderNo`,
+        </if>
+        `extra`, `note`
         ) values(
-        #{pointLog.uid}, #{pointLog.recLogIds}, #{pointLog.delta}, #{pointLog.point}, #{pointLog.available},
+        #{pointLog.uid}, #{pointLog.seqNum}, #{pointLog.delta}, #{pointLog.point}, #{pointLog.available},
         #{pointLog.used}, #{pointLog.frozen}, #{pointLog.expire}, #{pointLog.type},
-        #{pointLog.tag}, #{pointLog.extra}, #{pointLog.note} )
+        #{pointLog.tag},
+        <if test="pointLog.orderNo != null">
+        #{pointLog.orderNo},
+        </if>
+        #{pointLog.extra}, #{pointLog.note} )
     </insert>
 
     <select id="listPointLog" resultType="io.github.alphajiang.hyena.model.dto.PointLog">

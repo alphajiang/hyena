@@ -31,10 +31,14 @@
     <insert id="addPointRec" useGeneratedKeys="true" keyProperty="rec.id" keyColumn="id">
         insert into `${tableName}` set
         `pid` = #{rec.pid},
+        `seqNum` = #{rec.seqNum},
         `total` = #{rec.total},
         `available` = #{rec.available},
         <if test="rec.tag != null">
             `tag` = #{rec.tag},
+        </if>
+        <if test="rec.orderNo != null">
+            `orderNo` = #{rec.orderNo},
         </if>
         <if test="rec.extra != null">
             `extra` = #{rec.extra},

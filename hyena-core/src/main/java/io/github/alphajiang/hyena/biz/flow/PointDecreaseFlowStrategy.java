@@ -53,9 +53,6 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
     private PointRecLogDs pointRecLogDs;
 
 
-
-
-
     @Override
     public CalcType getType() {
         return CalcType.DECREASE;
@@ -68,7 +65,7 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
         List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
-                var recLogsRet = this.decreasePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
+                var recLogsRet = this.decreasePointLoop(usage.getType(), usage.getUid(), point, gap, usage.getNote());
                 gap = gap - recLogsRet.stream().mapToLong(PointRecLogPo::getDelta).sum();
                 recLogs.addAll(recLogsRet);
                 log.debug("gap = {}", gap);
@@ -80,12 +77,13 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
 //                "no enough available point!");
 
 
-        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);
+        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(),
+                usage.getTag(), usage.getOrderNo(), usage.getExtra(), recLogs);
     }
 
 
-    private List<PointRecLogPo> decreasePointLoop(String type, String uid, long point, String note) {
-        log.info("decrease. type = {}, uid = {}, point = {}", type, uid, point);
+    private List<PointRecLogPo> decreasePointLoop(String type, String uid, PointPo point, long expected, String note) {
+        log.info("decrease. type = {}, uid = {}, expected = {}", type, uid, expected);
         ListPointRecParam param = new ListPointRecParam();
         param.setUid(uid).setAvailable(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
@@ -97,7 +95,7 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
         long sum = 0L;
         List<PointRecLogPo> recLogs = new ArrayList<>();
         for (PointRecPo rec : recList) {
-            long gap = point - sum;
+            long gap = expected - sum;
             if (gap < 1L) {
                 log.warn("gap = {} !!!", gap);
                 break;
@@ -108,14 +106,14 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
 
 
                 var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.DECREASE,
-                        retRec, delta, note);
+                        retRec, point.getSeqNum(), delta, note);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
                 var retRec = this.pointRecDs.decreasePoint(type, rec, gap, note);
 
                 var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.DECREASE,
-                        retRec, gap, note);
+                        retRec, point.getSeqNum(), gap, note);
                 recLogs.add(recLog);
                 break;
             }

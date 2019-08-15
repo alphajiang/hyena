@@ -32,7 +32,7 @@ import lombok.experimental.Accessors;
 public class PointLogPo extends BasePo {
 
     private String uid;
-    private String recLogIds;
+    private long seqNum;
     private Long delta;
     private Long point;
     private Long available;
@@ -44,6 +44,7 @@ public class PointLogPo extends BasePo {
      */
     private Integer type;
     private String tag;
+    private String orderNo;
     @JsonSerialize(using = JacksonStringSerialize.class)
     @JsonDeserialize(using = JacksonStringDeserialize.class)
     private String extra;

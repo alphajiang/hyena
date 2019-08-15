@@ -50,13 +50,13 @@ public class TestPointRecDs extends HyenaTestBase {
                 .setExtra("{\"abc\" : 123, \"def\" : \"jkl\"}")
                 .setNote(null)
                 .setExpireTime(null);
-        var pointRec = pointRecDs.addPointRec(param, pointId);
+        var pointRec = pointRecDs.addPointRec(param, pointId, super.getUserPoint().getSeqNum());
         var recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
         logger.info("recA = {}", recA);
         pointRecDs.freezePoint(super.getPointType(), recA, 20, null);
 
         recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
-        pointRecDs.decreasePointUnfreeze(super.getPointType(), recA, 20, null);
+        pointRecDs.decreasePointUnfreeze(super.getPointType(), recA,  super.getUserPoint().getSeqNum(), 20, null);
     }
 
 
@@ -69,7 +69,7 @@ public class TestPointRecDs extends HyenaTestBase {
                 .setNote(null)
                 .setExpireTime(null);
         // 增加并冻结第一笔积分
-        var pointRec = pointRecDs.addPointRec(param, pointId);
+        var pointRec = pointRecDs.addPointRec(param, pointId, super.getUserPoint().getSeqNum());
         var recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
         pointRecDs.freezePoint(super.getPointType(), recA, 20, null);
 

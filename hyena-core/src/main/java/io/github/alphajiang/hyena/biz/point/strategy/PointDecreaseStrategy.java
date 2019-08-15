@@ -79,6 +79,7 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
                 .setUsed(curPoint.getUsed()).setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
         this.pointDs.update(usage.getType(), point2Update);
+        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
         pointFlowService.addFlow(getType(), usage, curPoint);
         return curPoint;
     }

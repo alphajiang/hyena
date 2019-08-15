@@ -78,6 +78,7 @@ public class PointTableDs {
         //if (ret != null && ret.intValue() > 0) {
         try {
             this.pointTableMapper.createPointRecTableIndex(pointTableName);
+            this.pointTableMapper.createPointRecTableIndexOrderNo(pointTableName);
         }catch (Exception e ) {
 
         }

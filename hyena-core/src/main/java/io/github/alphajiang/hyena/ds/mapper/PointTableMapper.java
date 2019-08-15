@@ -37,6 +37,8 @@ public interface PointTableMapper {
     Integer createPointRecTable(@Param(value = "pointTableName") String pointTableName);
 
     void createPointRecTableIndex(@Param(value = "pointTableName") String pointTableName);
+    void createPointRecTableIndexOrderNo(@Param(value = "pointTableName") String pointTableName);
+
 
     Integer createPointRecordLogTable(@Param(value = "pointTableName") String pointTableName);
 

@@ -42,7 +42,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class PointFreezeFlowStrategy  extends AbstractPointFlowStrategy {
+public class PointFreezeFlowStrategy extends AbstractPointFlowStrategy {
 
     @Autowired
     private PointLogDs pointLogDs;
@@ -52,8 +52,6 @@ public class PointFreezeFlowStrategy  extends AbstractPointFlowStrategy {
 
     @Autowired
     private PointRecLogDs pointRecLogDs;
-
-
 
 
     @Override
@@ -68,7 +66,7 @@ public class PointFreezeFlowStrategy  extends AbstractPointFlowStrategy {
         List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
-                var recLogsRet = this.freezePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
+                var recLogsRet = this.freezePointLoop(usage.getType(), usage.getUid(), point, gap, usage.getNote());
                 gap = gap - recLogsRet.stream().mapToLong(PointRecLogPo::getDelta).sum();
                 recLogs.addAll(recLogsRet);
                 log.debug("gap = {}", gap);
@@ -82,12 +80,13 @@ public class PointFreezeFlowStrategy  extends AbstractPointFlowStrategy {
         }
 
 
-        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);
+        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(),
+                usage.getTag(), usage.getOrderNo(), usage.getExtra(), recLogs);
     }
 
 
-    private List<PointRecLogPo> freezePointLoop(String type, String uid, long point, String note) {
-        log.info("freeze. type = {}, uid = {}, point = {}", type, uid, point);
+    private List<PointRecLogPo> freezePointLoop(String type, String uid, PointPo point, long expected, String note) {
+        log.info("freeze. type = {}, uid = {}, expected = {}", type, uid, expected);
         ListPointRecParam param = new ListPointRecParam();
         param.setUid(uid).setAvailable(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
@@ -99,7 +98,7 @@ public class PointFreezeFlowStrategy  extends AbstractPointFlowStrategy {
         long sum = 0L;
         List<PointRecLogPo> recLogs = new ArrayList<>();
         for (PointRecPo rec : recList) {
-            long gap = point - sum;
+            long gap = expected - sum;
             if (gap < 1L) {
                 log.warn("gap = {} !!!", gap);
                 break;
@@ -108,13 +107,13 @@ public class PointFreezeFlowStrategy  extends AbstractPointFlowStrategy {
                 long delta = rec.getAvailable();
                 var retRec = this.pointRecDs.freezePoint(type, rec, gap, note);
                 var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.FREEZE,
-                        retRec, delta, note);
+                        retRec, point.getSeqNum(), delta, note);
                 recLogs.add(recLog);
             } else {
                 //sum += gap;
                 var retRec = this.pointRecDs.freezePoint(type, rec, gap, note);
                 var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.FREEZE,
-                        retRec, gap, note);
+                        retRec, point.getSeqNum(), gap, note);
                 recLogs.add(recLog);
                 break;
             }

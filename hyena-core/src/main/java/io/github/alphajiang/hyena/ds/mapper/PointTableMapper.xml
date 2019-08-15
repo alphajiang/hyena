@@ -52,7 +52,7 @@
         create table if not exists ${pointTableName}_log (
         id bigint(20) not null auto_increment primary key,
         `uid` varchar(128) not null,
-        `recLogIds` varchar(256) not null default '',
+        `seqNum` bigint(20) not null default 0,
         `type` tinyint not null default 0 comment '1: increase; 2: decrease; 3: freeze; 4: unfreeze; 5: expire; 6:
         cancel',
         `delta` bigint(20) not null default 0,
@@ -61,6 +61,7 @@
         `used` bigint(20) not null default 0,
         `frozen` bigint(20) not null default 0,
         `expire` bigint(20) not null default 0,
+        `orderNo` varchar(128) not null default '',
         `tag` varchar(128) not null default '',
         `extra` text,
         `note` text,
@@ -74,12 +75,14 @@
         create table if not exists ${pointTableName}_rec (
         id bigint(20) not null auto_increment primary key,
         `pid` bigint(20) not null references ${pointTableName}(`id`),
+        `seqNum` bigint(20) not null default 0,
         `total` bigint(20) not null default 0,
         `available` bigint(20) not null default 0,
         `used` bigint(20) not null default 0,
         `frozen` bigint(20) not null default 0,
         `cancelled` bigint(20) not null default 0,
         `expire` bigint(20) not null default 0,
+        `orderNo` varchar(128) not null default '',
         `tag` varchar(128) not null default '',
         `issueTime` timestamp default now(),
         `extra` text,
@@ -94,10 +97,15 @@
         create index ${pointTableName}_rec_tag ON ${pointTableName}_rec(tag)
     </update>
 
+    <update id="createPointRecTableIndexOrderNo" flushCache="true">
+        craete index ${pointTableName}_rec_orderNo ON ${pointTableName}_orderNo(orderNo);
+    </update>
+
     <update id="createPointRecordLogTable" flushCache="true">
         create table if not exists ${pointTableName}_rec_log (
         id bigint(20) not null auto_increment primary key,
         `pid` bigint(20) not null references ${pointTableName}(`id`),
+        `seqNum` bigint(20) not null default 0,
         `recId` bigint(20) not null references ${pointTableName}_rec(`id`),
         `type` tinyint not null default 0 comment '1: increase; 2: decrease; 3: freeze; 4: unfreeze; 5: expire; 6: cancel',
         `delta` bigint(20) not null default 0,

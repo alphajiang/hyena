@@ -24,7 +24,6 @@ import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
-import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PointLogDs {
@@ -43,18 +41,20 @@ public class PointLogDs {
     @Autowired
     private PointLogMapper pointLogMapper;
 
-    public void addPointLog(String type, PointPo point, long delta, String tag, String extra, List<PointRecLogPo> recLogs) {
+    public void addPointLog(String type, PointPo point, long delta, String tag, String orderNo,
+                            String extra, List<PointRecLogPo> recLogs) {
         String tableName = TableNameHelper.getPointTableName(type);
         PointLogPo pointLog = new PointLogPo();
         PointRecLogPo pointRecLog = recLogs.get(0);
         pointLog.setUid(point.getUid())
-                .setRecLogIds(CollectionUtils.join(recLogs.stream().map(PointRecLogPo::getId).collect(Collectors.toList()), ","))
+                .setSeqNum(point.getSeqNum())
                 .setDelta(delta).setPoint(point.getPoint())
                 .setAvailable(point.getAvailable())
                 .setUsed(point.getUsed())
                 .setFrozen(point.getFrozen())
                 .setExpire(point.getExpire())
                 .setType(pointRecLog.getType())
+                .setOrderNo(orderNo)
                 .setExtra(extra);
         if (StringUtils.isNotBlank(tag)) {
             pointLog.setTag(tag);

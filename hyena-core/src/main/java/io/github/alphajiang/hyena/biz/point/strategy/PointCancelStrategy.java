@@ -76,7 +76,7 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         HyenaAssert.isTrue(rec.getPid() == curPoint.getId(), "invalid parameter.");
         HyenaAssert.isTrue(rec.getAvailable().longValue() == usage.getPoint(), "point mis-match");
         long delta = rec.getAvailable();
-        this.pointRecDs.cancelPointRec(usage.getType(), rec, usage.getNote());
+        this.pointRecDs.cancelPointRec(usage.getType(), rec, curPoint.getSeqNum() + 1, usage.getNote());
 
 
         curPoint.setPoint(curPoint.getPoint() - delta)

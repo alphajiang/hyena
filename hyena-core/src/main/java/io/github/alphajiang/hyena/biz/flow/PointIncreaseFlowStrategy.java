@@ -53,11 +53,11 @@ public class PointIncreaseFlowStrategy  extends AbstractPointFlowStrategy{
     @Override
     @Transactional
     public void addFlow(PointUsage usage, PointPo point) {
-        var pointRec = this.pointRecDs.addPointRec(usage, point.getId());
+        var pointRec = this.pointRecDs.addPointRec(usage, point.getId(), point.getSeqNum());
         var recLog = this.pointRecLogDs.addLogByRec(usage.getType(), PointStatus.INCREASE,
-                pointRec, usage.getPoint(), usage.getNote());
+                pointRec, point.getSeqNum(), usage.getPoint(), usage.getNote());
         var recLogs = List.of(recLog);
         this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(),
-                usage.getTag(), usage.getExtra(), recLogs);
+                usage.getTag(), usage.getOrderNo(), usage.getExtra(), recLogs);
     }
 }

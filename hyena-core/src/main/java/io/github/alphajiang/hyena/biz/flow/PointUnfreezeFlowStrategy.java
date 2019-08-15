@@ -55,9 +55,6 @@ public class PointUnfreezeFlowStrategy extends AbstractPointFlowStrategy {
     private PointRecLogDs pointRecLogDs;
 
 
-
-
-
     @Override
     public CalcType getType() {
         return CalcType.UNFREEZE;
@@ -70,7 +67,7 @@ public class PointUnfreezeFlowStrategy extends AbstractPointFlowStrategy {
         List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
-                var recLogsRet = this.unfreezePointLoop(usage.getType(), usage.getUid(), gap, usage.getNote());
+                var recLogsRet = this.unfreezePointLoop(usage.getType(), usage.getUid(), point, gap, usage.getNote());
                 gap = gap - recLogsRet.stream().mapToLong(PointRecLogPo::getDelta).sum();
                 recLogs.addAll(recLogsRet);
                 log.debug("gap = {}", gap);
@@ -82,12 +79,13 @@ public class PointUnfreezeFlowStrategy extends AbstractPointFlowStrategy {
                 "no enough frozen point!");
 
 
-        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(), usage.getTag(), usage.getExtra(), recLogs);
+        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(),
+                usage.getTag(), usage.getOrderNo(), usage.getExtra(), recLogs);
     }
 
 
-    private List<PointRecLogPo> unfreezePointLoop(String type, String uid, long point, String note) {
-        log.info("unfreeze. type = {}, uid = {}, point = {}", type, uid, point);
+    private List<PointRecLogPo> unfreezePointLoop(String type, String uid, PointPo point, long expected, String note) {
+        log.info("unfreeze. type = {}, uid = {}, expected = {}", type, uid, expected);
         ListPointRecParam param = new ListPointRecParam();
         param.setUid(uid).setFrozen(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
@@ -99,7 +97,7 @@ public class PointUnfreezeFlowStrategy extends AbstractPointFlowStrategy {
         long sum = 0L;
         List<PointRecLogPo> recLogs = new ArrayList<>();
         for (PointRecPo rec : recList) {
-            long gap = point - sum;
+            long gap = expected - sum;
             if (gap < 1L) {
                 log.warn("gap = {} !!!", gap);
                 break;
@@ -108,18 +106,18 @@ public class PointUnfreezeFlowStrategy extends AbstractPointFlowStrategy {
                 long delta = rec.getFrozen();
                 var retRec = this.pointRecDs.unfreezePoint(type, rec, gap, note);
                 var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.UNFREEZE,
-                        retRec, delta, note);
+                        retRec, point.getSeqNum(), delta, note);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
                 var retRec = this.pointRecDs.unfreezePoint(type, rec, gap, note);
                 var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.UNFREEZE,
-                        retRec, gap, note);
+                        retRec, point.getSeqNum(), gap, note);
                 recLogs.add(recLog);
                 break;
             }
         }
-        var ret = point - sum;
+        var ret = expected - sum;
         log.debug("ret = {}", ret);
         return recLogs;
     }

@@ -66,7 +66,7 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
                 .setId(curPoint.getId());
         boolean ret = this.pointDs.update(usage.getType(), point2Update);
         HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
-
+        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
         pointFlowService.addFlow(getType(), usage, curPoint);
         return curPoint;
     }

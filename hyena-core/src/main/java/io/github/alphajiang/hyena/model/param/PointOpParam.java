@@ -40,6 +40,8 @@ public class PointOpParam extends BaseObject {
     @ApiModelProperty(value = "标签", example = "")
     private String tag;
 
+    @ApiModelProperty(value = "变动相关的订单", example = "")
+    private String orderNo;
 
     private Object extra;
 
@@ -93,6 +95,14 @@ public class PointOpParam extends BaseObject {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
     }
 
     public Object getExtra() {

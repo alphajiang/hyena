@@ -35,6 +35,7 @@ public class PointUsage extends BaseObject {
     private Long unfreezePoint; // 消费积分时同时解冻的积分数量
     private Long recId; // 积分记录的ID
     private String tag;
+    private String orderNo;
     private String extra;
     private String note;
     private Date issueTime;

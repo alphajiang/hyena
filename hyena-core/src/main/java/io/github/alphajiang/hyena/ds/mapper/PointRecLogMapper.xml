@@ -22,6 +22,7 @@
     <insert id="addPointRecLog" useGeneratedKeys="true" keyProperty="recLog.id" keyColumn="id">
         insert into `${tableName}` set
         `pid` = #{recLog.pid},
+        `seqNum` = #{recLog.seqNum},
         `recId` = #{recLog.recId},
         `type` = #{recLog.type},
         `delta` = #{recLog.delta},

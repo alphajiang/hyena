@@ -29,7 +29,9 @@ public class PointUsageBuilder {
         usage.setType(param.getType()).setUid(param.getUid())
                 .setName(param.getName())
                 .setPoint(param.getPoint())
-                .setTag(param.getTag()).setExtra(JsonUtils.toJsonString(param.getExtra()))
+                .setTag(param.getTag())
+                .setOrderNo(param.getOrderNo())
+                .setExtra(JsonUtils.toJsonString(param.getExtra()))
                 .setNote(param.getNote());
         return usage;
     }
@@ -39,7 +41,9 @@ public class PointUsageBuilder {
         usage.setType(param.getType()).setUid(param.getUid())
                 .setName(param.getName())
                 .setPoint(param.getPoint())
-                .setTag(param.getTag()).setIssueTime(param.getIssueTime())
+                .setTag(param.getTag())
+                .setOrderNo(param.getOrderNo())
+                .setIssueTime(param.getIssueTime())
                 .setExtra(JsonUtils.toJsonString(param.getExtra()))
                 .setNote(param.getNote()).setExpireTime(param.getExpireTime());
         return usage;

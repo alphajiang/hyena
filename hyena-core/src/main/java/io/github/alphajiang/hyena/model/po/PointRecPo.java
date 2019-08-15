@@ -33,6 +33,7 @@ import java.util.Date;
 public class PointRecPo extends BasePo {
 
     private long pid;
+    private long seqNum;
     private Long total;
     private Long available;
     private Long used;
@@ -40,7 +41,7 @@ public class PointRecPo extends BasePo {
     private Long cancelled;
     private Long expire;
     private String tag;
-
+    private String orderNo;
     private String extra;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")

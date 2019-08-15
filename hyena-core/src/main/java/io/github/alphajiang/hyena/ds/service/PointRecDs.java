@@ -84,11 +84,12 @@ public class PointRecDs {
      * @return 返回积分记录
      */
     @Transactional
-    public PointRecPo addPointRec(PointUsage param, long pointId) {
+    public PointRecPo addPointRec(PointUsage param, long pointId, long seqNum) {
         logger.info("param = {}", param);
         PointRecPo rec = new PointRecPo();
         PointRecLogPo recLog = new PointRecLogPo();
-        rec.setPid(pointId).setTotal(param.getPoint()).setAvailable(param.getPoint());
+        rec.setPid(pointId).setSeqNum(seqNum).setTotal(param.getPoint()).setAvailable(param.getPoint())
+                .setOrderNo(param.getOrderNo());
         if (param.getTag() == null) {
             rec.setTag("");
         } else {
@@ -131,7 +132,7 @@ public class PointRecDs {
     }
 
     @Transactional
-    public PointRecLogPo decreasePointUnfreeze(String type, PointRecPo rec, long point, String note) {
+    public PointRecLogPo decreasePointUnfreeze(String type, PointRecPo rec, long seqNum, long point, String note) {
 
         long delta = point;
         if (rec.getFrozen() < delta) {
@@ -148,7 +149,7 @@ public class PointRecDs {
         }
 
         var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.DECREASE,
-                rec, delta, note);
+                rec, seqNum, delta, note);
         return recLog;
     }
 
@@ -195,23 +196,23 @@ public class PointRecDs {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void cancelPointRec(String type, PointRecPo rec, String note) {
+    public void cancelPointRec(String type, PointRecPo rec, long seqNum, String note) {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setCancelled(available);
         this.updatePointRec(type, rec);
 
         this.pointRecLogDs.addLogByRec(type, PointStatus.CANCEL,
-                rec, available, note);
+                rec, seqNum, available, note);
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void expirePointRec(String type, PointRecPo rec, String note) {
+    public void expirePointRec(String type, PointRecPo rec, long seqNum, String note) {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setExpire(available).setEnable(false);
         this.updatePointRec(type, rec);
 
         this.pointRecLogDs.addLogByRec(type, PointStatus.EXPIRE,
-                rec, available, note);
+                rec, seqNum, available, note);
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -228,10 +229,10 @@ public class PointRecDs {
     /**
      * 查询 从start到end间总共增加的积分数量
      *
-     * @param type 积分类型
-     * @param uid 账户ID
+     * @param type  积分类型
+     * @param uid   账户ID
      * @param start 开始时间
-     * @param end 结束时间
+     * @param end   结束时间
      * @return 返回增长的积分数量
      */
     public long getIncreasedPoint(String type, String uid, Date start, Date end) {

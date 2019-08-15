@@ -69,6 +69,7 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
                     .setAvailable(curPoint.getAvailable() + usage.getUnfreezePoint());
             PointPo postUnfreeze = new PointPo();
             BeanUtils.copyProperties(curPoint, postUnfreeze);
+            postUnfreeze.setSeqNum(postUnfreeze.getSeqNum() + 1);
             PointUsage usage4Unfreeze = new PointUsage();
             BeanUtils.copyProperties(usage, usage4Unfreeze);
             usage4Unfreeze.setPoint(usage.getUnfreezePoint());
@@ -95,6 +96,7 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         boolean ret = this.pointDs.update(usage.getType(), point2Update);
         HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
        // var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
+        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
         pointFlowService.addFlow(CalcType.DECREASE, usage, curPoint);
 
 

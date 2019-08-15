@@ -41,10 +41,11 @@ public class PointRecLogDs {
     private PointRecLogMapper pointRecLogMapper;
 
     @Transactional
-    public PointRecLogPo addLogByRec(String type, PointStatus eventType, PointRecPo rec, long delta, String note) {
+    public PointRecLogPo addLogByRec(String type, PointStatus eventType, PointRecPo rec, long seqNum,
+                                     long delta, String note) {
 
         PointRecLogPo recLog = new PointRecLogPo();
-        recLog.setPid(rec.getPid()).setRecId(rec.getId()).setType(eventType.code())
+        recLog.setPid(rec.getPid()).setSeqNum(seqNum).setRecId(rec.getId()).setType(eventType.code())
                 .setDelta(delta).setNote(note);
         recLog.setAvailable(rec.getAvailable() == null ? 0L : rec.getAvailable());
         recLog.setUsed(rec.getUsed() == null ? 0L : rec.getUsed());
