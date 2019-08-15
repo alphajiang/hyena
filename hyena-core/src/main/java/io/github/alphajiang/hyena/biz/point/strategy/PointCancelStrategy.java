@@ -79,10 +79,12 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         this.pointRecDs.cancelPointRec(usage.getType(), rec, usage.getNote());
 
 
-        curPoint.setAvailable(curPoint.getAvailable() - delta)
+        curPoint.setPoint(curPoint.getPoint() - delta)
+                .setAvailable(curPoint.getAvailable() - delta)
                 .setPoint(curPoint.getPoint() - delta);
         var point2Update = new PointPo();
-        point2Update.setAvailable(curPoint.getAvailable())
+        point2Update.setPoint(curPoint.getPoint())
+                .setAvailable(curPoint.getAvailable())
                 .setPoint(curPoint.getPoint()).setId(curPoint.getId());
         this.pointDs.update(usage.getType(), point2Update);
         return curPoint;

@@ -74,7 +74,8 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
 //            curPoint.setFrozen(0L);
 //        }
         var point2Update = new PointPo();
-        point2Update.setAvailable(curPoint.getAvailable())
+        point2Update.setPoint(curPoint.getPoint())
+                .setAvailable(curPoint.getAvailable())
                 .setUsed(curPoint.getUsed()).setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
         this.pointDs.update(usage.getType(), point2Update);
