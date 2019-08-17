@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.ds.service;
 
+import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.ds.mapper.PointLogMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointLog;
@@ -24,6 +25,7 @@ import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
+import io.github.alphajiang.hyena.utils.HyenaAssert;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
@@ -41,12 +43,16 @@ public class PointLogDs {
     @Autowired
     private PointLogMapper pointLogMapper;
 
+    @Autowired
+    private PointTableDs pointTableDs;
+
+
     public void addPointLog(String type, PointPo point, long delta, String tag, String orderNo,
                             String extra, List<PointRecLogPo> recLogs) {
         String tableName = TableNameHelper.getPointTableName(type);
         PointLogPo pointLog = new PointLogPo();
         PointRecLogPo pointRecLog = recLogs.get(0);
-        pointLog.setUid(point.getUid())
+        pointLog.setPid(point.getId()).setUid(point.getUid())
                 .setSeqNum(point.getSeqNum())
                 .setDelta(delta).setPoint(point.getPoint())
                 .setAvailable(point.getAvailable())
@@ -80,6 +86,8 @@ public class PointLogDs {
 
     public List<PointLog> listPointLog(ListPointLogParam param) {
         String pointTableName = TableNameHelper.getPointTableName(param.getType());
+        HyenaAssert.isTrue(pointTableDs.isTableExists(pointTableName), HyenaConstants.RES_CODE_PARAMETER_ERROR,
+                "type not exist");
         return this.pointLogMapper.listPointLog(pointTableName, param);
     }
 

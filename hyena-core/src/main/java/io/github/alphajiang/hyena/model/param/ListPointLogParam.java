@@ -18,15 +18,23 @@
 package io.github.alphajiang.hyena.model.param;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import java.util.List;
-
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
 public class ListPointLogParam extends BaseListParam {
     @ApiModelProperty(value = "用户ID")
     private String uid;
 
     @ApiModelProperty(value = "积分记录ID")
     private long pid;
+
+    @ApiModelProperty(value = "积分记录序号")
+    private long seqNum = 0L;
 
 
     @ApiModelProperty(value = "标签")
@@ -36,39 +44,5 @@ public class ListPointLogParam extends BaseListParam {
 
     private List<Integer> logTypes;
 
-    public String getUid() {
-        return uid;
-    }
 
-    public ListPointLogParam setUid(String uid) {
-        this.uid = uid;
-        return this;
-    }
-
-    public long getPid() {
-        return pid;
-    }
-
-    public ListPointLogParam setPid(long pid) {
-        this.pid = pid;
-        return this;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public ListPointLogParam setTag(String tag) {
-        this.tag = tag;
-        return this;
-    }
-
-    public List<Integer> getLogTypes() {
-        return logTypes;
-    }
-
-    public ListPointLogParam setLogTypes(List<Integer> logTypes) {
-        this.logTypes = logTypes;
-        return this;
-    }
 }

@@ -34,6 +34,8 @@ public interface PointTableMapper {
 
     void createPointLogTable(@Param(value = "pointTableName") String pointTableName);
 
+
+    void createPointLogTableIndexPid(@Param(value = "pointTableName") String pointTableName);
     void createPointLogTableIndexUid(@Param(value = "pointTableName") String pointTableName);
     void createPointLogTableIndexOrderNo(@Param(value = "pointTableName") String pointTableName);
 

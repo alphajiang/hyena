@@ -53,5 +53,11 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
         Assert.assertEquals(0L, point.getFrozen().longValue());
         Assert.assertEquals(0L, point.getExpire().longValue());
         Assert.assertEquals(true, point.getEnable().booleanValue());
+
+        try {
+            Thread.sleep(100L);
+        }catch (Exception e) {
+            logger.error("error = {}", e.getMessage(), e);
+        }
     }
 }

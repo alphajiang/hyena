@@ -84,6 +84,7 @@ public class PointTableDs {
         }
         else {
             this.pointTableMapper.createPointTableIndex(pointTableName);
+            this.pointTableMapper.createPointLogTableIndexPid(pointTableName);
             this.pointTableMapper.createPointLogTableIndexUid(pointTableName);
             this.pointTableMapper.createPointLogTableIndexOrderNo(pointTableName);
             this.pointTableMapper.createPointRecTableIndexPid(pointTableName);

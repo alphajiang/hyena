@@ -4,7 +4,7 @@
 
     <insert id="addPointLog">
         insert into `${pointTableName}_log` (
-        `uid`, `seqNum`, `delta`, `point`, `available`,
+        `pid`, `uid`, `seqNum`, `delta`, `point`, `available`,
         `used`, `frozen`, `expire`, `type`,
         `tag`,
         <if test="pointLog.orderNo != null">
@@ -12,7 +12,7 @@
         </if>
         `extra`, `note`
         ) values(
-        #{pointLog.uid}, #{pointLog.seqNum}, #{pointLog.delta}, #{pointLog.point}, #{pointLog.available},
+        #{pointLog.pid}, #{pointLog.uid}, #{pointLog.seqNum}, #{pointLog.delta}, #{pointLog.point}, #{pointLog.available},
         #{pointLog.used}, #{pointLog.frozen}, #{pointLog.expire}, #{pointLog.type},
         #{pointLog.tag},
         <if test="pointLog.orderNo != null">
@@ -28,6 +28,9 @@
         where 1=1
         <if test="param.pid &gt; 0">
             and log.pid = #{param.pid}
+        </if>
+        <if test="param.seqNum &gt; 0">
+            and log.seqNum = #{param.seqNum}
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and log.uid = #{param.uid}

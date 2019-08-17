@@ -51,6 +51,7 @@
     <update id="createPointLogTable" flushCache="true">
         create table if not exists ${pointTableName}_log (
         id bigint(20) not null auto_increment primary key,
+        `pid` bigint(20) not null,
         `uid` varchar(128) not null,
         `seqNum` bigint(20) not null default 0,
         `type` tinyint not null default 0 comment '1: increase; 2: decrease; 3: freeze; 4: unfreeze; 5: expire; 6: cancel',
@@ -69,7 +70,9 @@
         `updateTime` timestamp default now()
         ) engine=InnoDB default charset=utf8mb4
     </update>
-
+    <update id="createPointLogTableIndexPid" flushCache="true">
+        create index ${pointTableName}_log_pid using hash ON ${pointTableName}_log(pid)
+    </update>
     <update id="createPointLogTableIndexUid" flushCache="true">
         create index ${pointTableName}_log_uid using hash ON ${pointTableName}_log(uid)
     </update>

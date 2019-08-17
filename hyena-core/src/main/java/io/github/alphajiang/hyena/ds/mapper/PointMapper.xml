@@ -21,9 +21,9 @@
 
     <insert id="addPoint"  useGeneratedKeys="true" keyProperty="point.id">
         insert into `${tableName}` (
-        `uid`, `name`, `point`, `available`
+        `uid`, `name`, `point`, `available`, seqNum
         ) values(
-        #{point.uid}, #{point.name}, #{point.point}, #{point.point} )
+        #{point.uid}, #{point.name}, #{point.point}, #{point.point}, 1 )
         on duplicate key update
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( point.name )">
             `name` = #{point.name},

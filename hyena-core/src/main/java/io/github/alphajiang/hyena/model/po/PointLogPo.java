@@ -31,6 +31,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 public class PointLogPo extends BasePo {
 
+    private long pid;
     private String uid;
     private long seqNum;
     private Long delta;

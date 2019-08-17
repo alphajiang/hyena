@@ -78,7 +78,8 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
                 .setAvailable(curPoint.getAvailable())
                 .setUsed(curPoint.getUsed()).setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
-        this.pointDs.update(usage.getType(), point2Update);
+        boolean ret = this.pointDs.update(usage.getType(), point2Update);
+        HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
         curPoint.setSeqNum(curPoint.getSeqNum() + 1);
         pointFlowService.addFlow(getType(), usage, curPoint);
         return curPoint;

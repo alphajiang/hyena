@@ -36,10 +36,11 @@ public class PointDs {
     private static final Logger logger = LoggerFactory.getLogger(PointDs.class);
 
     @Autowired
-    private PointTableDs pointTableDs;
+    private PointMapper pointMapper;
 
     @Autowired
-    private PointMapper pointMapper;
+    private PointTableDs pointTableDs;
+
 
 
 //    @Autowired
@@ -68,7 +69,8 @@ public class PointDs {
     public List<PointPo> listPoint(ListPointParam param) {
         logger.debug("param = {}", param);
         String pointTableName = TableNameHelper.getPointTableName(param.getType());
-
+        HyenaAssert.isTrue(pointTableDs.isTableExists(pointTableName), HyenaConstants.RES_CODE_PARAMETER_ERROR,
+                "type not exist");
         return this.pointMapper.listPoint(pointTableName, param);
     }
 

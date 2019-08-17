@@ -195,6 +195,27 @@ public class PointRecDs {
         return rec;
     }
 
+    @Transactional
+    public PointRecPo cancelPoint(String type, PointRecPo rec, long point, String note) {
+
+        long delta = point;
+        if (rec.getAvailable() < delta) {
+            delta = rec.getAvailable();
+            long canceled = rec.getCancelled() + rec.getAvailable();
+            rec.setAvailable(0L).setCancelled(canceled);
+            this.updatePointRec(type, rec);
+        } else {
+            long available = rec.getAvailable() - point;
+            long canceled = rec.getCancelled() + point;
+            rec.setAvailable(available).setCancelled(canceled);
+            this.updatePointRec(type, rec);
+
+        }
+//        this.pointRecLogDs.addLogByRec(type, PointStatus.UNFREEZE,
+//                rec, delta, note);
+        return rec;
+    }
+
     @Transactional(propagation = Propagation.MANDATORY)
     public void cancelPointRec(String type, PointRecPo rec, long seqNum, String note) {
         long available = rec.getAvailable();

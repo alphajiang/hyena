@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
@@ -42,6 +43,9 @@ public class PointCancelStrategy extends AbstractPointStrategy {
     @Autowired
     private PointRecDs pointRecDs;
 
+    @Autowired
+    private PointFlowService pointFlowService;
+
     @Override
     public CalcType getType() {
         return CalcType.CANCEL;
@@ -52,9 +56,20 @@ public class PointCancelStrategy extends AbstractPointStrategy {
     public PointPo process(PointUsage usage) {
         logger.info("cancel. usage = {}", usage);
         super.preProcess(usage);
+        PointPo curPoint;
+        if(usage.getRecId() != null && usage.getRecId().longValue() > 0L) {
+            curPoint = cancelByRecId(usage);
+        }else {
+            curPoint = cancelPoint(usage);
+        }
+
+        return curPoint;
+    }
+
+
+    private PointPo cancelByRecId(PointUsage usage) {
         HyenaAssert.notNull(usage.getRecId(), "invalid parameter, 'recId' can't be null");
         HyenaAssert.isTrue(usage.getRecId().longValue() > 0L, "invalid parameter: recId");
-
         PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
@@ -85,8 +100,44 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         var point2Update = new PointPo();
         point2Update.setPoint(curPoint.getPoint())
                 .setAvailable(curPoint.getAvailable())
-                .setPoint(curPoint.getPoint()).setId(curPoint.getId());
+                .setPoint(curPoint.getPoint()).setSeqNum(curPoint.getSeqNum())
+                .setId(curPoint.getId());
         this.pointDs.update(usage.getType(), point2Update);
+        return curPoint;
+    }
+
+    private PointPo cancelPoint(PointUsage usage) {
+
+        PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
+        HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
+                "can't find point to the uid: " + usage.getUid(), Level.WARN);
+        HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= usage.getPoint(),
+                HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+                "no enough available point");
+
+
+//        HyenaAssert.isTrue(rec.getFrozen().longValue() < 1L,
+//                HyenaConstants.RES_CODE_STATUS_ERROR,
+//                "can't cancel frozen point record");
+//        HyenaAssert.isTrue(rec.getPid() == curPoint.getId(), "invalid parameter.");
+//        HyenaAssert.isTrue(rec.getAvailable().longValue() == usage.getPoint(), "point mis-match");
+//        long delta = rec.getAvailable();
+//        this.pointRecDs.cancelPointRec(usage.getType(), rec, curPoint.getSeqNum() + 1, usage.getNote());
+
+
+        curPoint.setPoint(curPoint.getPoint() - usage.getPoint())
+                .setAvailable(curPoint.getAvailable() - usage.getPoint());
+
+        var point2Update = new PointPo();
+        point2Update.setPoint(curPoint.getPoint())
+                .setAvailable(curPoint.getAvailable()).setSeqNum(curPoint.getSeqNum())
+                .setId(curPoint.getId());
+        boolean ret = this.pointDs.update(usage.getType(), point2Update);
+        HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
+
+        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
+        pointFlowService.addFlow(CalcType.CANCEL, usage, curPoint);
+
         return curPoint;
     }
 }
