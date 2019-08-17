@@ -18,7 +18,13 @@
 package io.github.alphajiang.hyena.model.param;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
 public class ListPointRecLogParam extends BaseListParam {
 
 
@@ -27,6 +33,9 @@ public class ListPointRecLogParam extends BaseListParam {
 
     @ApiModelProperty(value = "用户记录ID")
     private long pid;
+
+    @ApiModelProperty(value = "变更流水号")
+    private long seqNum = 0L;
 
     @ApiModelProperty(value = "积分记录ID")
     private long recId;
@@ -37,41 +46,6 @@ public class ListPointRecLogParam extends BaseListParam {
 
 
 
-    public String getUid() {
-        return uid;
-    }
-
-    public ListPointRecLogParam setUid(String uid) {
-        this.uid = uid;
-        return this;
-    }
-
-    public long getPid() {
-        return pid;
-    }
-
-    public ListPointRecLogParam setPid(long pid) {
-        this.pid = pid;
-        return this;
-    }
-
-    public long getRecId() {
-        return recId;
-    }
-
-    public ListPointRecLogParam setRecId(long recId) {
-        this.recId = recId;
-        return this;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public ListPointRecLogParam setTag(String tag) {
-        this.tag = tag;
-        return this;
-    }
 
 
 }

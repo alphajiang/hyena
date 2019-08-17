@@ -20,14 +20,14 @@ package io.github.alphajiang.hyena.biz.strategy;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@Slf4j
 public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
-    private final Logger logger = LoggerFactory.getLogger(TestPointDecreaseStrategy.class);
 
 
     @Autowired
@@ -39,30 +39,45 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
     @Autowired
     private PointStrategy pointIncreaseStrategy;
 
+    @Before
+    public void init() {
+        super.init();
+
+    }
+
     @Test
     public void test_decreasePointUnfreeze() {
-        long freezeNumber = 80L;
+        log.info(">> test start");
+
+        log.info("point = {}", this.point);
+        long unfreezeNumber = 80L;
         long useNumber = 60L;
-        long resultNumber = this.point.getPoint() - useNumber;
-        long resultAvailable = this.point.getPoint() - freezeNumber;
-        long resultFrozen = freezeNumber - useNumber;
 
 
+        // 先冻结
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(freezeNumber)
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(unfreezeNumber)
                 .setNote("test_decreasePointUnfreeze");
+        PointPo retPoint = this.pointFreezeStrategy.process(usage);
+        log.info("point = {}", retPoint);
 
-        this.pointFreezeStrategy.process(usage);
+
+        long resultNumber = retPoint.getPoint() - useNumber;
+        long resultAvailable = retPoint.getAvailable() + unfreezeNumber - useNumber;
+        long resultFrozen = retPoint.getFrozen() - unfreezeNumber;
+
 
         usage = new PointUsage();
         usage.setType(super.getPointType()).setUid(this.uid).setPoint(useNumber)
+                .setUnfreezePoint(unfreezeNumber)
                 .setNote("test_decreasePointUnfreeze");
         PointPo result = this.pointDecreaseFrozenStrategy.process(usage);
-        logger.info("result = {}", result);
+        log.info("result = {}", result);
         Assert.assertEquals(resultNumber, result.getPoint().longValue());
         Assert.assertEquals(resultAvailable, result.getAvailable().longValue());
         Assert.assertEquals(useNumber, result.getUsed().longValue());
         Assert.assertEquals(resultFrozen, result.getFrozen().longValue());
         Assert.assertEquals(0L, result.getExpire().longValue());
+        log.info("<< test end");
     }
 }

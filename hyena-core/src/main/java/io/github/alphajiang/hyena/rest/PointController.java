@@ -143,6 +143,7 @@ public class PointController {
             HttpServletRequest request,
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
             @ApiParam(value = "用户ID") @RequestParam(required = false) String uid,
+            @ApiParam(value = "变更流水号") @RequestParam(required = false) Long seqNum,
             @ApiParam(value = "recId") @RequestParam(defaultValue = "0") long recId,
             @ApiParam(value = "标签") @RequestParam(required = false) String tag,
             @RequestParam(required = false) Boolean enable,
@@ -152,6 +153,9 @@ public class PointController {
 
         ListPointRecLogParam param = new ListPointRecLogParam();
         param.setUid(uid).setRecId(recId).setTag(tag);
+        if(seqNum != null) {
+            param.setSeqNum(seqNum);
+        }
         param.setEnable(enable).setSorts(List.of(SortParam.as("log.id", SortOrder.desc)))
                 .setStart(start).setSize(size);
         var res = this.pointRecLogDs.listPointRecLog4Page(type, param);

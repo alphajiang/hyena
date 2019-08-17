@@ -78,7 +78,7 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
 
 
         curPoint.setPoint(curPoint.getPoint() - usage.getPoint())
-                .setFrozen(curPoint.getFrozen() - usage.getPoint())
+                .setAvailable(curPoint.getAvailable() - usage.getPoint())
                 .setUsed(curPoint.getUsed() + usage.getPoint());
         if(curPoint.getFrozen() < 0L) {
             // 使用可用余额来抵扣超扣部分
