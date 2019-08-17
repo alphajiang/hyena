@@ -19,10 +19,12 @@ package io.github.alphajiang.hyena.ds.service;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.ds.mapper.PointTableMapper;
+import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -35,6 +37,8 @@ import java.util.stream.Collectors;
 public class PointTableDs {
     private static final Logger logger = LoggerFactory.getLogger(PointTableDs.class);
 
+    @Value("${spring.datasource.driver-class-name}")
+    private String datasourceDriver;
 
     @Autowired
     private PointTableMapper pointTableMapper;
@@ -52,6 +56,10 @@ public class PointTableDs {
         return List.copyOf(this.tables);
     }
 
+    public boolean isTableExists(String tableName) {
+        return this.tables.contains(tableName);
+    }
+
     public String getOrCreateTable(String type) {
         String tableName = TableNameHelper.getPointTableName(type);
         if (!this.tables.contains(tableName)) {
@@ -62,33 +70,27 @@ public class PointTableDs {
 
     private void createTable(String type) {
         String pointTableName = TableNameHelper.getPointTableName(type);
-        Integer ret = this.pointTableMapper.createPointTable(pointTableName);
-        //if (ret != null && ret.intValue() > 0) {
-        try {
-            this.pointTableMapper.createPointTableIndex(pointTableName);
-        }catch (Exception e ) {
-            logger.warn("create unique key failed! error = {}", e.getMessage());
-            // 单元测试忽略报错
-            this.pointTableMapper.createPointTableIndexH2(pointTableName);
-        }
-        //}
+        this.pointTableMapper.createPointTable(pointTableName);
         this.pointTableMapper.createPointLogTable(pointTableName);
 
-        ret = this.pointTableMapper.createPointRecTable(pointTableName);
-        //if (ret != null && ret.intValue() > 0) {
-        try {
-            this.pointTableMapper.createPointRecTableIndex(pointTableName);
-            this.pointTableMapper.createPointRecTableIndexOrderNo(pointTableName);
-        }catch (Exception e ) {
+        this.pointTableMapper.createPointRecTable(pointTableName);
 
+
+        this.pointTableMapper.createPointRecordLogTable(pointTableName);
+
+        if(StringUtils.equals(datasourceDriver, HyenaConstants.CONST_TEST_DB_DRIVER)) {
+            // 单元测试使用h2
+            this.pointTableMapper.createPointTableIndexH2(pointTableName);
         }
-        //}
-        ret = this.pointTableMapper.createPointRecordLogTable(pointTableName);
-        //if (ret != null && ret.intValue() > 0) {
-        try {
-            this.pointTableMapper.createPointRecordLogTableIndex(pointTableName);
-        }catch(Exception e) {
-
+        else {
+            this.pointTableMapper.createPointTableIndex(pointTableName);
+            this.pointTableMapper.createPointLogTableIndexUid(pointTableName);
+            this.pointTableMapper.createPointLogTableIndexOrderNo(pointTableName);
+            this.pointTableMapper.createPointRecTableIndexPid(pointTableName);
+            this.pointTableMapper.createPointRecTableIndexTag(pointTableName);
+            this.pointTableMapper.createPointRecTableIndexOrderNo(pointTableName);
+            this.pointTableMapper.createPointRecordLogTableIndexPid(pointTableName);
+            this.pointTableMapper.createPointRecordLogTableIndexRecId(pointTableName);
         }
         //}
         this.refreshTables();

@@ -117,7 +117,7 @@ public class TestPointController extends HyenaTestBase {
         param.setType("invalid_type_test");
         param.setStart(0L).setSize(10);
 
-        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPoint")
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPoint")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(JsonUtils.toJsonString(param));
 

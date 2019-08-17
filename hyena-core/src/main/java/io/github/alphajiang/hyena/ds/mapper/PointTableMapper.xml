@@ -53,8 +53,7 @@
         id bigint(20) not null auto_increment primary key,
         `uid` varchar(128) not null,
         `seqNum` bigint(20) not null default 0,
-        `type` tinyint not null default 0 comment '1: increase; 2: decrease; 3: freeze; 4: unfreeze; 5: expire; 6:
-        cancel',
+        `type` tinyint not null default 0 comment '1: increase; 2: decrease; 3: freeze; 4: unfreeze; 5: expire; 6: cancel',
         `delta` bigint(20) not null default 0,
         `point` bigint(20) not null default 0,
         `available` bigint(20) not null default 0,
@@ -71,10 +70,18 @@
         ) engine=InnoDB default charset=utf8mb4
     </update>
 
+    <update id="createPointLogTableIndexUid" flushCache="true">
+        create index ${pointTableName}_log_uid using hash ON ${pointTableName}_log(uid)
+    </update>
+    <update id="createPointLogTableIndexOrderNo" flushCache="true">
+        create index ${pointTableName}_log_orderNo using hash ON ${pointTableName}_log(orderNo)
+    </update>
+
+
     <update id="createPointRecTable" flushCache="true">
         create table if not exists ${pointTableName}_rec (
         id bigint(20) not null auto_increment primary key,
-        `pid` bigint(20) not null references ${pointTableName}(`id`),
+        `pid` bigint(20) not null,
         `seqNum` bigint(20) not null default 0,
         `total` bigint(20) not null default 0,
         `available` bigint(20) not null default 0,
@@ -93,20 +100,24 @@
         ) engine=InnoDB default charset=utf8mb4
     </update>
 
-    <update id="createPointRecTableIndex" flushCache="true">
-        create index ${pointTableName}_rec_tag ON ${pointTableName}_rec(tag)
+    <update id="createPointRecTableIndexPid" flushCache="true">
+        create index ${pointTableName}_rec_pid using hash ON ${pointTableName}_rec(pid)
+    </update>
+
+    <update id="createPointRecTableIndexTag" flushCache="true">
+        create index ${pointTableName}_rec_tag using hash ON ${pointTableName}_rec(tag)
     </update>
 
     <update id="createPointRecTableIndexOrderNo" flushCache="true">
-        craete index ${pointTableName}_rec_orderNo ON ${pointTableName}_orderNo(orderNo);
+        create index ${pointTableName}_rec_orderNo using hash ON ${pointTableName}_rec(orderNo);
     </update>
 
     <update id="createPointRecordLogTable" flushCache="true">
         create table if not exists ${pointTableName}_rec_log (
         id bigint(20) not null auto_increment primary key,
-        `pid` bigint(20) not null references ${pointTableName}(`id`),
+        `pid` bigint(20) not null,
         `seqNum` bigint(20) not null default 0,
-        `recId` bigint(20) not null references ${pointTableName}_rec(`id`),
+        `recId` bigint(20) not null,
         `type` tinyint not null default 0 comment '1: increase; 2: decrease; 3: freeze; 4: unfreeze; 5: expire; 6: cancel',
         `delta` bigint(20) not null default 0,
         `available` bigint(20) not null default 0,
@@ -120,7 +131,10 @@
         ) engine=InnoDB default charset=utf8mb4
     </update>
 
-    <update id="createPointRecordLogTableIndex" flushCache="true">
-        create index ${pointTableName}_rec_log_recId ON ${pointTableName}_rec_log(recId)
+    <update id="createPointRecordLogTableIndexPid" flushCache="true">
+        create index ${pointTableName}_rec_log_pid using hash ON ${pointTableName}_rec_log(pid)
+    </update>
+    <update id="createPointRecordLogTableIndexRecId" flushCache="true">
+        create index ${pointTableName}_rec_log_recId using hash ON ${pointTableName}_rec_log(recId)
     </update>
 </mapper>

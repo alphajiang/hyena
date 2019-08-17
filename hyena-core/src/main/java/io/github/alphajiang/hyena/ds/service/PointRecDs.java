@@ -113,7 +113,7 @@ public class PointRecDs {
         return rec;
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public PointRecPo decreasePoint(String type, PointRecPo rec, long point, String note) {
 
         long delta = point;
@@ -205,7 +205,7 @@ public class PointRecDs {
                 rec, seqNum, available, note);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public void expirePointRec(String type, PointRecPo rec, long seqNum, String note) {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setExpire(available).setEnable(false);
@@ -215,7 +215,7 @@ public class PointRecDs {
                 rec, seqNum, available, note);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public void updatePointRec(String type, PointRecPo rec) {
         if (rec.getAvailable() == 0L && rec.getFrozen() == 0L) {
             // totally used

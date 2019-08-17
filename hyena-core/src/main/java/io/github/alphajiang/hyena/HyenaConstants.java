@@ -33,4 +33,7 @@ public interface HyenaConstants {
     String PREFIX_POINT_TABLE_NAME = "t_point_";
 
     String REQ_IDEMPOTENT_SEQ_KEY = "seq";
+
+
+    String CONST_TEST_DB_DRIVER = "org.h2.Driver";
 }

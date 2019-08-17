@@ -34,14 +34,22 @@ public interface PointTableMapper {
 
     void createPointLogTable(@Param(value = "pointTableName") String pointTableName);
 
+    void createPointLogTableIndexUid(@Param(value = "pointTableName") String pointTableName);
+    void createPointLogTableIndexOrderNo(@Param(value = "pointTableName") String pointTableName);
+
+
     Integer createPointRecTable(@Param(value = "pointTableName") String pointTableName);
 
-    void createPointRecTableIndex(@Param(value = "pointTableName") String pointTableName);
+
+    void createPointRecTableIndexPid(@Param(value = "pointTableName") String pointTableName);
+    void createPointRecTableIndexTag(@Param(value = "pointTableName") String pointTableName);
     void createPointRecTableIndexOrderNo(@Param(value = "pointTableName") String pointTableName);
 
 
     Integer createPointRecordLogTable(@Param(value = "pointTableName") String pointTableName);
 
-    void createPointRecordLogTableIndex(@Param(value = "pointTableName") String pointTableName);
+
+    void createPointRecordLogTableIndexPid(@Param(value = "pointTableName") String pointTableName);
+    void createPointRecordLogTableIndexRecId(@Param(value = "pointTableName") String pointTableName);
 
 }

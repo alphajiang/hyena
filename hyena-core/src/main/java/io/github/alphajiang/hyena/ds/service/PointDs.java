@@ -17,10 +17,12 @@
 
 package io.github.alphajiang.hyena.ds.service;
 
+import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.ds.mapper.PointMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.param.ListPointParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.utils.HyenaAssert;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,9 @@ import java.util.List;
 @Service
 public class PointDs {
     private static final Logger logger = LoggerFactory.getLogger(PointDs.class);
+
+    @Autowired
+    private PointTableDs pointTableDs;
 
     @Autowired
     private PointMapper pointMapper;
@@ -63,12 +68,15 @@ public class PointDs {
     public List<PointPo> listPoint(ListPointParam param) {
         logger.debug("param = {}", param);
         String pointTableName = TableNameHelper.getPointTableName(param.getType());
+
         return this.pointMapper.listPoint(pointTableName, param);
     }
 
     public ListResponse<PointPo> listPoint4Page(ListPointParam param) {
         logger.debug("param = {}", param);
         String pointTableName = TableNameHelper.getPointTableName(param.getType());
+        HyenaAssert.isTrue(pointTableDs.isTableExists(pointTableName), HyenaConstants.RES_CODE_PARAMETER_ERROR,
+                "type not exist");
         var list = this.pointMapper.listPoint(pointTableName, param);
         var total = this.pointMapper.countPoint(pointTableName, param);
         ListResponse<PointPo> res = new ListResponse<>(list, total);

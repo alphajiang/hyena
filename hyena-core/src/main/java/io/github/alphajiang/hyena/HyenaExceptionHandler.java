@@ -80,7 +80,8 @@ public class HyenaExceptionHandler {
             this.logException(exp);
 
 
-        } else {
+        }
+        else {
             logger.error("未定义异常: " + exception.getMessage(), exception);
             errorMsg = "系统异常, 请联系系统管理员";
             status = HyenaConstants.RES_CODE_SERVER_ERROR;
