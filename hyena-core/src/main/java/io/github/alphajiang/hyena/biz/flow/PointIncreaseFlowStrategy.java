@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointStatus;
@@ -28,10 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
-public class PointIncreaseFlowStrategy  extends AbstractPointFlowStrategy{
+public class PointIncreaseFlowStrategy extends AbstractPointFlowStrategy {
 
     @Autowired
     private PointLogDs pointLogDs;
@@ -43,8 +42,6 @@ public class PointIncreaseFlowStrategy  extends AbstractPointFlowStrategy{
     private PointRecLogDs pointRecLogDs;
 
 
-
-
     @Override
     public CalcType getType() {
         return CalcType.INCREASE;
@@ -53,11 +50,11 @@ public class PointIncreaseFlowStrategy  extends AbstractPointFlowStrategy{
     @Override
     @Transactional
     public void addFlow(PointUsage usage, PointPo point) {
+        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointStatus.INCREASE, usage, point);
         var pointRec = this.pointRecDs.addPointRec(usage, point.getId(), point.getSeqNum());
-        var recLog = this.pointRecLogDs.addLogByRec(usage.getType(), PointStatus.INCREASE,
-                pointRec, point.getSeqNum(), usage.getPoint(), usage.getNote());
-        var recLogs = List.of(recLog);
-        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(),
-                usage.getTag(), usage.getOrderNo(), usage.getExtra(), recLogs);
+        this.pointRecLogDs.addLogByRec(usage.getType(),
+                pointRec, pointLog, usage.getPoint());
+
+
     }
 }

@@ -18,19 +18,21 @@
 package io.github.alphajiang.hyena.ds.service;
 
 import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.mapper.PointLogMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointLog;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
+import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,32 +49,35 @@ public class PointLogDs {
     private PointTableDs pointTableDs;
 
 
-    public void addPointLog(String type, PointPo point, long delta, String tag, String orderNo,
-                            String extra, List<PointRecLogPo> recLogs) {
+    public PointLogPo addPointLog(@NonNull String type, @NonNull PointStatus actionType,
+                            @NonNull PointUsage usage, @NonNull PointPo point) {
         String tableName = TableNameHelper.getPointTableName(type);
         PointLogPo pointLog = new PointLogPo();
-        PointRecLogPo pointRecLog = recLogs.get(0);
         pointLog.setPid(point.getId()).setUid(point.getUid())
                 .setSeqNum(point.getSeqNum())
-                .setDelta(delta).setPoint(point.getPoint())
+                .setDelta(usage.getPoint()).setPoint(point.getPoint())
                 .setAvailable(point.getAvailable())
                 .setUsed(point.getUsed())
                 .setFrozen(point.getFrozen())
                 .setExpire(point.getExpire())
-                .setType(pointRecLog.getType())
-                .setOrderNo(orderNo)
-                .setExtra(extra);
-        if (StringUtils.isNotBlank(tag)) {
-            pointLog.setTag(tag);
+                .setType(actionType.code())
+                .setOrderNo(usage.getOrderNo())
+                .setSourceType(usage.getSourceType())
+                .setOrderType(usage.getOrderType())
+                .setPayType(usage.getPayType())
+                .setExtra(usage.getExtra());
+        if (StringUtils.isNotBlank(usage.getTag())) {
+            pointLog.setTag(usage.getTag());
         } else {
             pointLog.setTag("");
         }
-        if (StringUtils.isNotBlank(pointRecLog.getNote())) {
-            pointLog.setNote(pointRecLog.getNote());
+        if (StringUtils.isNotBlank(usage.getNote())) {
+            pointLog.setNote(usage.getNote());
         } else {
             pointLog.setNote("");
         }
         this.pointLogMapper.addPointLog(tableName, pointLog);
+        return pointLog;
     }
 
     @Transactional

@@ -20,10 +20,13 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +41,9 @@ public class PointExpireStrategy extends AbstractPointStrategy {
 
     @Autowired
     private PointDs pointDs;
+
+    @Autowired
+    private PointLogDs pointLogDs;
 
     @Autowired
     private PointRecDs pointRecDs;
@@ -76,8 +82,6 @@ public class PointExpireStrategy extends AbstractPointStrategy {
         HyenaAssert.isTrue(rec.getPid() == curPoint.getId(), "invalid parameter.");
         HyenaAssert.isTrue(rec.getAvailable().longValue() == usage.getPoint(), "point mis-match");
         long delta = rec.getAvailable();
-        this.pointRecDs.expirePointRec(usage.getType(), rec, curPoint.getSeqNum() + 1, usage.getNote());
-
 
         curPoint.setAvailable(curPoint.getAvailable() - delta)
                 .setPoint(curPoint.getPoint() - delta)
@@ -86,8 +90,19 @@ public class PointExpireStrategy extends AbstractPointStrategy {
         var point2Update = new PointPo();
         point2Update.setAvailable(curPoint.getAvailable())
                 .setPoint(curPoint.getPoint())
-                .setExpire(curPoint.getExpire()).setId(curPoint.getId());
+                .setExpire(curPoint.getExpire()).setSeqNum(curPoint.getSeqNum())
+                .setId(curPoint.getId());
         this.pointDs.update(usage.getType(), point2Update);
+
+        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
+        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointStatus.EXPIRE, usage,  curPoint);
+
+
+
+        this.pointRecDs.expirePointRec(usage.getType(), rec, pointLog);
+
+
+
         return curPoint;
     }
 }

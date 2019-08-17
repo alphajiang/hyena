@@ -135,6 +135,9 @@ public class TestPointController extends HyenaTestBase {
         param.setType(super.getPointType());
         param.setUid(super.getUid());
         param.setLogTypes(List.of(PointStatus.INCREASE.code()));
+        param.setSourceTypes(List.of(super.getSourceType(), 2, 3));
+        param.setOrderTypes(List.of(super.getOrderType(), 4, 5, 6));
+        param.setPayTypes(List.of(super.getPayType(), 7, 8, 9));
         param.setStart(0L).setSize(10);
 
         RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointLog")
@@ -143,7 +146,7 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ListResponse<PointLog> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointLog>>() {
+        ListResponse<PointLog> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
 
         });
         List<PointLog> list = res.getData();
@@ -160,7 +163,7 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ListResponse<PointRec> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointRec>>() {
+        ListResponse<PointRec> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
 
         });
         List<PointRec> list = res.getData();
@@ -193,6 +196,7 @@ public class TestPointController extends HyenaTestBase {
         param.setUid(super.getUid());
         param.setPoint(9876L);
         param.setSeq("gewgewglekjwklehjoipvnbldsalkdjglajd");
+        param.setSourceType(1).setOrderType(2).setPayType(3);
         Map<String, Object> extra = new HashMap<>();
         extra.put("aaa", "bbbb");
         extra.put("ccc", 123);
@@ -306,7 +310,6 @@ public class TestPointController extends HyenaTestBase {
     }
 
     /**
-     *
      * 消费积分, 同时解冻积分
      */
     @Test

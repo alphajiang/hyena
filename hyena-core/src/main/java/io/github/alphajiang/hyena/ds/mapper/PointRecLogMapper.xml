@@ -31,6 +31,15 @@
         `frozen` = #{recLog.frozen},
         `cancelled` = #{recLog.cancelled},
         `expire` = #{recLog.expire},
+        <if test="recLog.sourceType != null">
+            `sourceType` = #{recLog.sourceType},
+        </if>
+        <if test="recLog.orderType != null">
+            `orderType` = #{recLog.orderType},
+        </if>
+        <if test="recLog.payType != null">
+            `payType` = #{recLog.payType},
+        </if>
         `note` = #{recLog.note}
     </insert>
 

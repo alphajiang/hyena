@@ -31,6 +31,9 @@ public class PointUsageBuilder {
                 .setPoint(param.getPoint())
                 .setTag(param.getTag())
                 .setOrderNo(param.getOrderNo())
+                .setSourceType(param.getSourceType())
+                .setOrderType(param.getOrderType())
+                .setPayType(param.getPayType())
                 .setExtra(JsonUtils.toJsonString(param.getExtra()))
                 .setNote(param.getNote());
         return usage;
@@ -44,6 +47,9 @@ public class PointUsageBuilder {
                 .setTag(param.getTag())
                 .setOrderNo(param.getOrderNo())
                 .setIssueTime(param.getIssueTime())
+                .setSourceType(param.getSourceType())
+                .setOrderType(param.getOrderType())
+                .setPayType(param.getPayType())
                 .setExtra(JsonUtils.toJsonString(param.getExtra()))
                 .setNote(param.getNote()).setExpireTime(param.getExpireTime());
         return usage;

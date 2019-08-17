@@ -42,6 +42,10 @@ public class PointRecPo extends BasePo {
     private Long expire;
     private String tag;
     private String orderNo;
+
+    private Integer sourceType;
+    private Integer orderType;
+    private Integer payType;
     private String extra;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")

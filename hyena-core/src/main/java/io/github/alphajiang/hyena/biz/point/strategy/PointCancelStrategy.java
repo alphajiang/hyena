@@ -21,10 +21,13 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,9 @@ public class PointCancelStrategy extends AbstractPointStrategy {
 
     @Autowired
     private PointDs pointDs;
+
+    @Autowired
+    private PointLogDs pointLogDs;
 
     @Autowired
     private PointRecDs pointRecDs;
@@ -91,18 +97,20 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         HyenaAssert.isTrue(rec.getPid() == curPoint.getId(), "invalid parameter.");
         HyenaAssert.isTrue(rec.getAvailable().longValue() == usage.getPoint(), "point mis-match");
         long delta = rec.getAvailable();
-        this.pointRecDs.cancelPointRec(usage.getType(), rec, curPoint.getSeqNum() + 1, usage.getNote());
-
 
         curPoint.setPoint(curPoint.getPoint() - delta)
-                .setAvailable(curPoint.getAvailable() - delta)
-                .setPoint(curPoint.getPoint() - delta);
+                .setAvailable(curPoint.getAvailable() - delta);
         var point2Update = new PointPo();
         point2Update.setPoint(curPoint.getPoint())
                 .setAvailable(curPoint.getAvailable())
-                .setPoint(curPoint.getPoint()).setSeqNum(curPoint.getSeqNum())
+                .setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
         this.pointDs.update(usage.getType(), point2Update);
+
+        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
+                PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointStatus.CANCEL, usage,  curPoint);
+
+        this.pointRecDs.cancelPointRec(usage.getType(), rec, pointLog);
         return curPoint;
     }
 
@@ -114,16 +122,6 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= usage.getPoint(),
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                 "no enough available point");
-
-
-//        HyenaAssert.isTrue(rec.getFrozen().longValue() < 1L,
-//                HyenaConstants.RES_CODE_STATUS_ERROR,
-//                "can't cancel frozen point record");
-//        HyenaAssert.isTrue(rec.getPid() == curPoint.getId(), "invalid parameter.");
-//        HyenaAssert.isTrue(rec.getAvailable().longValue() == usage.getPoint(), "point mis-match");
-//        long delta = rec.getAvailable();
-//        this.pointRecDs.cancelPointRec(usage.getType(), rec, curPoint.getSeqNum() + 1, usage.getNote());
-
 
         curPoint.setPoint(curPoint.getPoint() - usage.getPoint())
                 .setAvailable(curPoint.getAvailable() - usage.getPoint());

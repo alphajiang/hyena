@@ -19,7 +19,13 @@ package io.github.alphajiang.hyena.model.param;
 
 import io.github.alphajiang.hyena.model.base.BaseObject;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
 public class PointOpParam extends BaseObject {
     @ApiModelProperty(value = "请求消息序列号", example = "")
     private String seq;
@@ -43,81 +49,18 @@ public class PointOpParam extends BaseObject {
     @ApiModelProperty(value = "变动相关的订单", example = "")
     private String orderNo;
 
+
+    @ApiModelProperty(value = "自定义来源")
+    private Integer sourceType;
+    @ApiModelProperty(value = "自定义订单类型")
+    private Integer orderType;
+    @ApiModelProperty(value = "自定义支付方式")
+    private Integer payType;
+
     private Object extra;
 
     @ApiModelProperty(value = "备注", example = "this is a note")
     private String note = "";
 
-    public String getSeq() {
-        return seq;
-    }
 
-    public void setSeq(String seq) {
-        this.seq = seq;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public long getPoint() {
-        return point;
-    }
-
-    public void setPoint(long point) {
-        this.point = point;
-    }
-
-
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    public String getOrderNo() {
-        return orderNo;
-    }
-
-    public void setOrderNo(String orderNo) {
-        this.orderNo = orderNo;
-    }
-
-    public Object getExtra() {
-        return extra;
-    }
-
-    public void setExtra(Object extra) {
-        this.extra = extra;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
 }

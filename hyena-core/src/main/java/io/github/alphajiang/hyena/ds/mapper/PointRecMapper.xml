@@ -40,6 +40,15 @@
         <if test="rec.orderNo != null">
             `orderNo` = #{rec.orderNo},
         </if>
+        <if test="rec.sourceType != null">
+            `sourceType` = #{rec.sourceType},
+        </if>
+        <if test="rec.orderType != null">
+            `orderType` = #{rec.orderType},
+        </if>
+        <if test="rec.payType != null">
+            `payType` = #{rec.payType},
+        </if>
         <if test="rec.extra != null">
             `extra` = #{rec.extra},
         </if>

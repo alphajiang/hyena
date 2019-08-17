@@ -10,6 +10,15 @@
         <if test="pointLog.orderNo != null">
         `orderNo`,
         </if>
+        <if test="pointLog.sourceType != null">
+            `sourceType`,
+        </if>
+        <if test="pointLog.orderType != null">
+            `orderType`,
+        </if>
+        <if test="pointLog.payType != null">
+            `payType`,
+        </if>
         `extra`, `note`
         ) values(
         #{pointLog.pid}, #{pointLog.uid}, #{pointLog.seqNum}, #{pointLog.delta}, #{pointLog.point}, #{pointLog.available},
@@ -17,6 +26,15 @@
         #{pointLog.tag},
         <if test="pointLog.orderNo != null">
         #{pointLog.orderNo},
+        </if>
+        <if test="pointLog.sourceType != null">
+            #{pointLog.sourceType},
+        </if>
+        <if test="pointLog.orderType != null">
+            #{pointLog.orderType},
+        </if>
+        <if test="pointLog.payType != null">
+            #{pointLog.payType},
         </if>
         #{pointLog.extra}, #{pointLog.note} )
     </insert>
@@ -43,6 +61,27 @@
             <foreach item="logType" collection="param.logTypes"
                      open="(" separator="," close=")">
                 #{logType}
+            </foreach>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.sourceTypes )">
+            and log.`sourceType` in
+            <foreach item="sourceType" collection="param.sourceTypes"
+                     open="(" separator="," close=")">
+                #{sourceType}
+            </foreach>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.orderTypes )">
+            and log.`orderType` in
+            <foreach item="orderType" collection="param.orderTypes"
+                     open="(" separator="," close=")">
+                #{orderType}
+            </foreach>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.payTypes )">
+            and log.`payType` in
+            <foreach item="payType" collection="param.payTypes"
+                     open="(" separator="," close=")">
+                #{payType}
             </foreach>
         </if>
         <if test="param.enable != null">
@@ -91,6 +130,27 @@
             <foreach item="logType" collection="param.logTypes"
                      open="(" separator="," close=")">
                 #{logType}
+            </foreach>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.sourceTypes )">
+            and log.`sourceType` in
+            <foreach item="sourceType" collection="param.sourceTypes"
+                     open="(" separator="," close=")">
+                #{sourceType}
+            </foreach>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.orderTypes )">
+            and log.`orderType` in
+            <foreach item="orderType" collection="param.orderTypes"
+                     open="(" separator="," close=")">
+                #{orderType}
+            </foreach>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.payTypes )">
+            and log.`payType` in
+            <foreach item="payType" collection="param.payTypes"
+                     open="(" separator="," close=")">
+                #{payType}
             </foreach>
         </if>
         <if test="param.enable != null">

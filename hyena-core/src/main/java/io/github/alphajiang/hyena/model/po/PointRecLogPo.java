@@ -42,6 +42,10 @@ public class PointRecLogPo extends BasePo {
     private Long frozen;
     private Long cancelled;
     private Long expire;
+
+    private Integer sourceType;
+    private Integer orderType;
+    private Integer payType;
     private String note;
 
 

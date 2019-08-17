@@ -24,6 +24,7 @@ import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
@@ -61,11 +62,13 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
     @Override
     @Transactional
     public void addFlow(PointUsage usage, PointPo point) {
+        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointStatus.DECREASE, usage, point);
+
         long gap = usage.getPoint();
         List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
-                var recLogsRet = this.decreasePointLoop(usage.getType(), usage.getUid(), point, gap, usage.getNote());
+                var recLogsRet = this.decreasePointLoop(usage.getType(), point, pointLog, gap);
                 gap = gap - recLogsRet.stream().mapToLong(PointRecLogPo::getDelta).sum();
                 recLogs.addAll(recLogsRet);
                 log.debug("gap = {}", gap);
@@ -77,15 +80,13 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
 //                "no enough available point!");
 
 
-        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(),
-                usage.getTag(), usage.getOrderNo(), usage.getExtra(), recLogs);
     }
 
 
-    private List<PointRecLogPo> decreasePointLoop(String type, String uid, PointPo point, long expected, String note) {
-        log.info("decrease. type = {}, uid = {}, expected = {}", type, uid, expected);
+    private List<PointRecLogPo> decreasePointLoop(String type, PointPo point, PointLogPo pointLog, long expected) {
+        log.info("decrease. type = {}, uid = {}, expected = {}", type, point.getUid(), expected);
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(uid).setAvailable(true).setLock(true)
+        param.setUid(point.getUid()).setAvailable(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
                 .setSize(5);
         var recList = this.pointRecDs.listPointRec(type, param);
@@ -102,18 +103,16 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
                 long delta = rec.getAvailable();
-                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, note);
+                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, pointLog.getNote());
 
 
-                var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.DECREASE,
-                        retRec, point.getSeqNum(), delta, note);
+                var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, delta);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, note);
+                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, pointLog.getNote());
 
-                var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.DECREASE,
-                        retRec, point.getSeqNum(), gap, note);
+                var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, gap);
                 recLogs.add(recLog);
                 break;
             }

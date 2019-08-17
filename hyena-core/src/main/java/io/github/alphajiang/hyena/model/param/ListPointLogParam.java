@@ -44,5 +44,7 @@ public class ListPointLogParam extends BaseListParam {
 
     private List<Integer> logTypes;
 
-
+    private List<Integer> sourceTypes;
+    private List<Integer> orderTypes;
+    private List<Integer> payTypes;
 }

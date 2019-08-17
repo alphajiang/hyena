@@ -25,6 +25,7 @@ import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
@@ -62,11 +63,13 @@ public class PointFreezeFlowStrategy extends AbstractPointFlowStrategy {
     @Override
     @Transactional
     public void addFlow(PointUsage usage, PointPo point) {
+        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointStatus.FREEZE, usage, point);
+
         long gap = usage.getPoint();
         List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
-                var recLogsRet = this.freezePointLoop(usage.getType(), usage.getUid(), point, gap, usage.getNote());
+                var recLogsRet = this.freezePointLoop(usage.getType(), point, pointLog, gap);
                 gap = gap - recLogsRet.stream().mapToLong(PointRecLogPo::getDelta).sum();
                 recLogs.addAll(recLogsRet);
                 log.debug("gap = {}", gap);
@@ -80,15 +83,13 @@ public class PointFreezeFlowStrategy extends AbstractPointFlowStrategy {
         }
 
 
-        this.pointLogDs.addPointLog(usage.getType(), point, usage.getPoint(),
-                usage.getTag(), usage.getOrderNo(), usage.getExtra(), recLogs);
     }
 
 
-    private List<PointRecLogPo> freezePointLoop(String type, String uid, PointPo point, long expected, String note) {
-        log.info("freeze. type = {}, uid = {}, expected = {}", type, uid, expected);
+    private List<PointRecLogPo> freezePointLoop(String type, PointPo point, PointLogPo pointLog, long expected) {
+        log.info("freeze. type = {}, uid = {}, expected = {}", type, point.getUid(), expected);
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(uid).setAvailable(true).setLock(true)
+        param.setUid(point.getUid()).setAvailable(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
                 .setSize(5);
         var recList = this.pointRecDs.listPointRec(type, param);
@@ -105,15 +106,13 @@ public class PointFreezeFlowStrategy extends AbstractPointFlowStrategy {
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
                 long delta = rec.getAvailable();
-                var retRec = this.pointRecDs.freezePoint(type, rec, gap, note);
-                var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.FREEZE,
-                        retRec, point.getSeqNum(), delta, note);
+                var retRec = this.pointRecDs.freezePoint(type, rec, gap, pointLog.getNote());
+                var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, delta);
                 recLogs.add(recLog);
             } else {
                 //sum += gap;
-                var retRec = this.pointRecDs.freezePoint(type, rec, gap, note);
-                var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.FREEZE,
-                        retRec, point.getSeqNum(), gap, note);
+                var retRec = this.pointRecDs.freezePoint(type, rec, gap, pointLog.getNote());
+                var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, gap);
                 recLogs.add(recLog);
                 break;
             }

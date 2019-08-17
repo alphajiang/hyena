@@ -41,23 +41,23 @@ public class TestPointRecDs extends HyenaTestBase {
         super.init();
     }
 
-    @Test
-    public void test_decreasePointUnfreeze() {
-        long pointId = super.getUserPoint().getId();
-        // 增加并冻结第一笔积分
-        PointUsage param = new PointUsage();
-        param.setType(super.getPointType()).setPoint(10).setTag("test")
-                .setExtra("{\"abc\" : 123, \"def\" : \"jkl\"}")
-                .setNote(null)
-                .setExpireTime(null);
-        var pointRec = pointRecDs.addPointRec(param, pointId, super.getUserPoint().getSeqNum());
-        var recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
-        logger.info("recA = {}", recA);
-        pointRecDs.freezePoint(super.getPointType(), recA, 20, null);
-
-        recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
-        pointRecDs.decreasePointUnfreeze(super.getPointType(), recA,  super.getUserPoint().getSeqNum(), 20, null);
-    }
+//    @Test
+//    public void test_decreasePointUnfreeze() {
+//        long pointId = super.getUserPoint().getId();
+//        // 增加并冻结第一笔积分
+//        PointUsage param = new PointUsage();
+//        param.setType(super.getPointType()).setPoint(10).setTag("test")
+//                .setExtra("{\"abc\" : 123, \"def\" : \"jkl\"}")
+//                .setNote(null)
+//                .setExpireTime(null);
+//        var pointRec = pointRecDs.addPointRec(param, pointId, super.getUserPoint().getSeqNum());
+//        var recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
+//        logger.info("recA = {}", recA);
+//        pointRecDs.freezePoint(super.getPointType(), recA, 20, null);
+//
+//        recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
+//        pointRecDs.decreasePointUnfreeze(super.getPointType(), recA,  super.getUserPoint().getSeqNum(), 20, null);
+//    }
 
 
     @Test

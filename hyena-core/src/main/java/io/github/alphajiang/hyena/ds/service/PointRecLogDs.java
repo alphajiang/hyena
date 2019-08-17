@@ -21,9 +21,9 @@ import io.github.alphajiang.hyena.ds.mapper.PointRecLogMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointRecLog;
 import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
-import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +41,20 @@ public class PointRecLogDs {
     private PointRecLogMapper pointRecLogMapper;
 
     @Transactional
-    public PointRecLogPo addLogByRec(String type, PointStatus eventType, PointRecPo rec, long seqNum,
-                                     long delta, String note) {
+    public PointRecLogPo addLogByRec(String type, PointRecPo rec, PointLogPo pointLog,
+                                     long delta) {
 
         PointRecLogPo recLog = new PointRecLogPo();
-        recLog.setPid(rec.getPid()).setSeqNum(seqNum).setRecId(rec.getId()).setType(eventType.code())
-                .setDelta(delta).setNote(note);
+        recLog.setPid(rec.getPid()).setSeqNum(pointLog.getSeqNum()).setRecId(rec.getId()).setType(pointLog.getType())
+                .setDelta(delta);
         recLog.setAvailable(rec.getAvailable() == null ? 0L : rec.getAvailable());
         recLog.setUsed(rec.getUsed() == null ? 0L : rec.getUsed());
         recLog.setFrozen(rec.getFrozen() == null ? 0L : rec.getFrozen());
         recLog.setCancelled(rec.getCancelled() == null ? 0L : rec.getCancelled());
         recLog.setExpire(rec.getExpire() == null ? 0L : rec.getExpire());
-        recLog.setNote(note == null ? "" : note);
+        recLog.setSourceType(pointLog.getSourceType()).setOrderType(pointLog.getOrderType())
+                .setPayType(pointLog.getPayType());
+        recLog.setNote(pointLog.getNote() == null ? "" : pointLog.getNote());
         this.addPointRecLog(type, recLog);
         return recLog;
     }

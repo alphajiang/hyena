@@ -36,6 +36,10 @@ public class PointUsage extends BaseObject {
     private Long recId; // 积分记录的ID
     private String tag;
     private String orderNo;
+
+    private Integer sourceType;
+    private Integer orderType;
+    private Integer payType;
     private String extra;
     private String note;
     private Date issueTime;
