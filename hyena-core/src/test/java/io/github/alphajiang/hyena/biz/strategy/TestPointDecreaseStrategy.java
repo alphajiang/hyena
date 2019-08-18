@@ -148,15 +148,15 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
     public void test_decreasePoint2() {
         log.info(">> test start");
 
-        PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(555L).setNote("test_decreasePoint2");
-        super.point = this.pointIncreaseStrategy.process(usage);
+        PointUsage increaseUsage = new PointUsage();
+        increaseUsage.setType(super.getPointType()).setUid(this.uid).setPoint(555L).setNote("test_decreasePoint2");
+        super.point = this.pointIncreaseStrategy.process(increaseUsage);
 
 
         long number = 123L;
         long resultNumber = this.point.getPoint() - number;
 
-        usage = new PointUsage();
+        PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setUid(this.uid).setPoint(number).setNote("test_decreasePoint2");
 
         PointPo result = this.pointDecreaseStrategy.process(usage);
