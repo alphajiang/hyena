@@ -20,44 +20,109 @@ package io.github.alphajiang.hyena.biz.strategy;
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
+import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
 
+@Slf4j
 public abstract class TestPointStrategyBase extends HyenaTestBase {
-    private final Logger logger = LoggerFactory.getLogger(TestPointStrategyBase.class);
+    protected final int INCREASE_SOURCE_TYPE = 12;
+    protected final int INCREASE_ORDER_TYPE = 13;
+    protected final int INCREASE_PAY_TYPE = 14;
+
+    protected final int FREEZE_SOURCE_TYPE = 33;
+    protected final int FREEZE_ORDER_TYPE = 34;
+    protected final int FREEZE_PAY_TYPE = 35;
+
+    protected final int DECREASE_SOURCE_TYPE = 63;
+    protected final int DECREASE_ORDER_TYPE = 64;
+    protected final int DECREASE_PAY_TYPE = 65;
+
+    protected final long INCREASE_POINT_1 = 100L;
+    protected final String INCREASE_TAG_1 = "TAG_" + UUID.randomUUID().toString();
+    protected final String INCREASE_ORDER_NO_1 = "ORDER_NO_" + UUID.randomUUID().toString();
+
+
+    protected final long INCREASE_POINT_2 = 200L;
+    protected final String INCREASE_TAG_2 = "TAG_" + UUID.randomUUID().toString();
+    protected final String INCREASE_ORDER_NO_2 = "ORDER_NO_" + UUID.randomUUID().toString();
 
     @Autowired
     protected PointStrategy pointIncreaseStrategy;
 
+    @Autowired
+    protected PointDs pointDs;
+
+    @Autowired
+    protected PointLogDs pointLogDs;
+
+    @Autowired
+    protected PointRecDs pointRecDs;
+
+    @Autowired
+    protected PointRecLogDs pointRecLogDs;
     protected String uid = "";
     protected PointPo point;
+    protected long seqNumIncrease1;
+
 
     @Before
     public void init() {
         super.init();
         uid = UUID.randomUUID().toString().substring(0, 4);
-        long number = 100;
+
+        increase1();
+    }
+
+
+    public void increase1() {
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(100);
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(INCREASE_POINT_1)
+                .setTag(INCREASE_TAG_1)
+                .setOrderNo(INCREASE_ORDER_NO_1)
+                .setSourceType(INCREASE_SOURCE_TYPE).setOrderType(INCREASE_ORDER_TYPE).setPayType(INCREASE_PAY_TYPE);
         this.point = this.pointIncreaseStrategy.process(usage);
-        logger.info("point = {}", point);
-        Assert.assertEquals(number, point.getPoint().longValue());
-        Assert.assertEquals(number, point.getAvailable().longValue());
+        log.info("point = {}", point);
+        Assert.assertEquals(INCREASE_POINT_1, point.getPoint().longValue());
+        Assert.assertEquals(INCREASE_POINT_1, point.getAvailable().longValue());
         Assert.assertEquals(0L, point.getUsed().longValue());
         Assert.assertEquals(0L, point.getFrozen().longValue());
         Assert.assertEquals(0L, point.getExpire().longValue());
         Assert.assertEquals(true, point.getEnable().booleanValue());
-
+        seqNumIncrease1 = this.point.getSeqNum();
         try {
             Thread.sleep(100L);
-        }catch (Exception e) {
-            logger.error("error = {}", e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("error = {}", e.getMessage(), e);
         }
+    }
+
+    public PointPo increase2(PointPo beforeIncrease) {
+        PointUsage usage = new PointUsage();
+        usage.setType(super.getPointType()).setUid(this.uid).setPoint(INCREASE_POINT_2)
+                .setTag(INCREASE_TAG_2)
+                .setOrderNo(INCREASE_ORDER_NO_2);
+        var result = this.pointIncreaseStrategy.process(usage);
+        log.info("result = {}", result);
+        Assert.assertEquals(INCREASE_POINT_2 + beforeIncrease.getPoint(), result.getPoint().longValue());
+        Assert.assertEquals(INCREASE_POINT_2 + beforeIncrease.getPoint(), result.getAvailable().longValue());
+        Assert.assertEquals(beforeIncrease.getUsed().longValue(), result.getUsed().longValue());
+        Assert.assertEquals(beforeIncrease.getFrozen().longValue(), result.getFrozen().longValue());
+        Assert.assertEquals(beforeIncrease.getExpire().longValue(), result.getExpire().longValue());
+        Assert.assertEquals(true, result.getEnable().booleanValue());
+        try {
+            Thread.sleep(100L);
+        } catch (Exception e) {
+            log.error("error = {}", e.getMessage(), e);
+        }
+        return result;
     }
 }
