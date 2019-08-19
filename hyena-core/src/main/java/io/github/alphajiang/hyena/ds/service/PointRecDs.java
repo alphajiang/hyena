@@ -23,6 +23,7 @@ import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
+import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.utils.StringUtils;
@@ -80,16 +81,17 @@ public class PointRecDs {
      * 增加积分
      *
      * @param param   参数
-     * @param pointId 积分ID
+     * @param point 当前积分对象
      * @return 返回积分记录
      */
     @Transactional
-    public PointRecPo addPointRec(PointUsage param, long pointId, long seqNum) {
+    public PointRecPo addPointRec(PointUsage param, PointPo point, long seqNum) {
         logger.info("param = {}", param);
         PointRecPo rec = new PointRecPo();
         PointRecLogPo recLog = new PointRecLogPo();
-        rec.setPid(pointId).setSeqNum(seqNum).setTotal(param.getPoint()).setAvailable(param.getPoint())
+        rec.setPid(point.getId()).setSeqNum(seqNum).setTotal(param.getPoint()).setAvailable(param.getPoint())
                 .setOrderNo(param.getOrderNo());
+
         if (param.getTag() == null) {
             rec.setTag("");
         } else {

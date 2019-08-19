@@ -51,10 +51,20 @@ public class PointIncreaseFlowStrategy extends AbstractPointFlowStrategy {
     @Transactional
     public void addFlow(PointUsage usage, PointPo point) {
         PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointStatus.INCREASE, usage, point);
-        var pointRec = this.pointRecDs.addPointRec(usage, point.getId(), point.getSeqNum());
+        var pointRec = this.pointRecDs.addPointRec(usage, point, point.getSeqNum());
+
+
+        if(usage.getPoint() > point.getPoint()) {
+            // 之前有欠款
+            long number = usage.getPoint() - point.getPoint();
+            pointRec.setAvailable(pointRec.getAvailable() - number);
+            pointRec.setUsed(number);
+            this.pointRecDs.updatePointRec(usage.getType(), pointRec);
+//            this.pointRecLogDs.addLogByRec(usage.getType(),
+//                    pointRec, pointLog, usage.getPoint());
+        }
+
         this.pointRecLogDs.addLogByRec(usage.getType(),
                 pointRec, pointLog, usage.getPoint());
-
-
     }
 }

@@ -62,14 +62,13 @@ public class TestPointRecDs extends HyenaTestBase {
 
     @Test
     public void test_unfreezePoint() {
-        long pointId = super.getUserPoint().getId();
         PointUsage param = new PointUsage();
         param.setType(super.getPointType()).setPoint(10).setTag("test")
                 .setExtra("{\"abc\" : 123}")
                 .setNote(null)
                 .setExpireTime(null);
         // 增加并冻结第一笔积分
-        var pointRec = pointRecDs.addPointRec(param, pointId, super.getUserPoint().getSeqNum());
+        var pointRec = pointRecDs.addPointRec(param, super.getUserPoint(), super.getUserPoint().getSeqNum());
         var recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
         pointRecDs.freezePoint(super.getPointType(), recA, 20, null);
 
