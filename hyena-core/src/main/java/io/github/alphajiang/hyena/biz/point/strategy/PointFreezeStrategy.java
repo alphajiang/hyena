@@ -21,18 +21,18 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class PointFreezeStrategy extends AbstractPointStrategy {
-    private static final Logger logger = LoggerFactory.getLogger(PointFreezeStrategy.class);
 
     @Autowired
     private PointDs pointDs;
@@ -50,8 +50,29 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
     @Override
     //@Transactional//(propagation = Propagation.MANDATORY)
     public PointPo process(PointUsage usage) {
-        logger.info("freeze. usage = {}", usage);
+        log.info("freeze. usage = {}", usage);
         super.preProcess(usage);
+
+        int retry = 3;
+        PointPo curPoint = null;
+        for(int i = 0; i < retry; i ++){
+            try {
+                curPoint = this.freeze(usage);
+                if(curPoint != null) {
+                    break;
+                }
+            } catch (Exception e) {
+                log.warn("freeze failed. retry = {}, error = {}", retry, e.getMessage(), e);
+            }
+        }
+        if(curPoint == null) {
+            throw new HyenaServiceException(HyenaConstants.RES_CODE_SERVICE_BUSY, "service busy, please retry later");
+        }
+        pointFlowService.addFlow(getType(), usage, curPoint);
+        return curPoint;
+    }
+
+    private PointPo freeze(PointUsage usage) {
         PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
@@ -70,9 +91,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
         boolean ret = this.pointDs.update(usage.getType(), point2Update);
         HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
         curPoint.setSeqNum(curPoint.getSeqNum() + 1);
-        pointFlowService.addFlow(getType(), usage, curPoint);
         return curPoint;
     }
-
 
 }
