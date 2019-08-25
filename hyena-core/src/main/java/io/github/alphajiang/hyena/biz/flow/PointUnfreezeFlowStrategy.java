@@ -17,7 +17,6 @@
 
 package io.github.alphajiang.hyena.biz.flow;
 
-import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
@@ -32,7 +31,7 @@ import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.model.type.SortOrder;
-import io.github.alphajiang.hyena.utils.HyenaAssert;
+import io.github.alphajiang.hyena.utils.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,9 +78,12 @@ public class PointUnfreezeFlowStrategy extends AbstractPointFlowStrategy {
         } catch (HyenaNoPointException e) {
 
         }
-        HyenaAssert.isTrue(gap == 0L, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
-                "no enough frozen point!");
-
+        if(gap != 0L) {
+            log.warn("no enough frozen point. usage = {}, point = {}", usage, point);
+        }
+        if (CollectionUtils.isNotEmpty(recLogs)) {
+            this.pointRecLogDs.addPointRecLogs(usage.getType(), recLogs);
+        }
 
     }
 
@@ -107,12 +109,12 @@ public class PointUnfreezeFlowStrategy extends AbstractPointFlowStrategy {
                 sum += rec.getFrozen();
                 long delta = rec.getFrozen();
                 var retRec = this.pointRecDs.unfreezePoint(type, rec, gap);
-                var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, delta);
+                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, delta);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
                 var retRec = this.pointRecDs.unfreezePoint(type, rec, gap);
-                var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, gap);
+                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, gap);
                 recLogs.add(recLog);
                 break;
             }

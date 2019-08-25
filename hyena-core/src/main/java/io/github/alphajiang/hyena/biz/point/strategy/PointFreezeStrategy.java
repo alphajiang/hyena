@@ -89,7 +89,11 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
                 .setFrozen(curPoint.getFrozen()).setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId())            ;
         boolean ret = this.pointDs.update(usage.getType(), point2Update);
-        HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
+        if(!ret) {
+            log.warn("freeze failed!!! please retry later. usage = {}", usage);
+            return null;
+        }
+        //HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
         curPoint.setSeqNum(curPoint.getSeqNum() + 1);
         return curPoint;
     }

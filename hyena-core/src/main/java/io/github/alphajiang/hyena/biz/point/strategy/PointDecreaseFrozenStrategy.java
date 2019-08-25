@@ -21,19 +21,19 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
-    private static final Logger logger = LoggerFactory.getLogger(PointDecreaseFrozenStrategy.class);
 
     @Autowired
     private PointDs pointDs;
@@ -50,8 +50,36 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     @Override
     //@Transactional(propagation = Propagation.MANDATORY)
     public PointPo process(PointUsage usage) {
-        logger.info("decrease frozen. usage = {}", usage);
+        log.info("decrease frozen. usage = {}", usage);
         super.preProcess(usage);
+        int retry = 3;
+        PointPo curPoint = null;
+        for(int i = 0; i < retry; i ++){
+            try {
+                curPoint = this.decrease(usage);
+                if(curPoint != null) {
+                    break;
+                }
+            } catch (Exception e) {
+                log.warn("decrease frozen failed. retry = {}, error = {}", retry, e.getMessage(), e);
+            }
+        }
+        if(curPoint == null) {
+            throw new HyenaServiceException(HyenaConstants.RES_CODE_SERVICE_BUSY, "service busy, please retry later");
+        }
+        pointFlowService.addFlow(getType(), usage, curPoint);
+        return curPoint;
+//        HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
+//       // var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
+//        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
+//        pointFlowService.addFlow(CalcType.DECREASE, usage, curPoint);
+//
+//
+//        return curPoint;
+    }
+
+
+    private PointPo decrease(PointUsage usage) {
         PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
@@ -75,8 +103,6 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
             usage4Unfreeze.setPoint(usage.getUnfreezePoint());
             pointFlowService.addFlow(CalcType.UNFREEZE, usage4Unfreeze, postUnfreeze);
         }
-
-
         curPoint.setPoint(curPoint.getPoint() - usage.getPoint())
                 .setAvailable(curPoint.getAvailable() - usage.getPoint())
                 .setUsed(curPoint.getUsed() + usage.getPoint());
@@ -94,14 +120,15 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
 
 
         boolean ret = this.pointDs.update(usage.getType(), point2Update);
+        if(!ret) {
+            log.warn("decrease frozen failed!!! please retry later. usage = {}", usage);
+            return null;
+        }
         HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
-       // var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
+        // var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
         curPoint.setSeqNum(curPoint.getSeqNum() + 1);
-        pointFlowService.addFlow(CalcType.DECREASE, usage, curPoint);
-
-
+        //pointFlowService.addFlow(CalcType.DECREASE, usage, curPoint);
         return curPoint;
     }
-
 
 }
