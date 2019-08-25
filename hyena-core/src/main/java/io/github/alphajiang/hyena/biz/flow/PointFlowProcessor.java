@@ -21,6 +21,7 @@ package io.github.alphajiang.hyena.biz.flow;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.vo.QueueInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.LinkedBlockingDeque;
@@ -32,18 +33,31 @@ public class PointFlowProcessor implements Runnable {
 
 
     private LinkedBlockingDeque<PointFlowWrapper> queue = new LinkedBlockingDeque<>();
+    private final String name;
+    private long maxSize = 0L;
     private AtomicLong queueSize = new AtomicLong(0L);
     private PointFlowStrategyFactory pointFlowStrategyFactory;
 
 
-    public PointFlowProcessor(PointFlowStrategyFactory pointFlowStrategyFactory){
+
+    public PointFlowProcessor(PointFlowStrategyFactory pointFlowStrategyFactory, String name){
         this.pointFlowStrategyFactory = pointFlowStrategyFactory;
+        this.name = name;
+    }
+
+    public QueueInfo getQueueInfo() {
+        QueueInfo ret = new QueueInfo();
+        ret.setCurSize(queueSize.get()).setMaxSize(this.maxSize).setName(this.name);
+        return ret;
     }
 
     public void push(CalcType calcType, PointUsage usage, PointPo point) {
         try {
             this.queue.put(new PointFlowWrapper(calcType, usage, point, 5));
-            queueSize.addAndGet(1L);
+            long curSize = queueSize.addAndGet(1L);
+            if(curSize > maxSize) {
+                maxSize = curSize;
+            }
         } catch (InterruptedException e) {
             log.error("queue.size = {}, error = {}", queue.size(), e.getMessage(), e);
         }

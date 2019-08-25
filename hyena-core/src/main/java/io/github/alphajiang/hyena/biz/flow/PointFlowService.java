@@ -20,6 +20,7 @@ package io.github.alphajiang.hyena.biz.flow;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.vo.QueueInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,9 +41,11 @@ public class PointFlowService {
 
     @PostConstruct
     public void init() {
+
         for (int i = 0; i < THREAD_SIZE; i++) {
-            PointFlowProcessor processor = new PointFlowProcessor(pointFlowStrategyFactory);
-            new Thread(processor).start();
+            String thName = "flow-task-" + i;
+            PointFlowProcessor processor = new PointFlowProcessor(pointFlowStrategyFactory, thName);
+            new Thread(processor, thName).start();
             processorList.add(processor);
         }
     }
@@ -51,6 +54,13 @@ public class PointFlowService {
     public void addFlow(CalcType calcType, PointUsage usage, PointPo point) {
         PointFlowProcessor processor = processorList.get((int) (point.getId() % THREAD_SIZE));
         processor.push(calcType, usage, point);
+    }
+
+
+    public List<QueueInfo> listQueueInfo() {
+        List<QueueInfo> list = new ArrayList<>();
+        processorList.stream().forEach(p -> list.add(p.getQueueInfo()));
+        return list;
     }
 
 

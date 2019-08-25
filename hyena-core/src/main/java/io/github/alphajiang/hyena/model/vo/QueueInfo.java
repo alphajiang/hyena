@@ -15,41 +15,15 @@
  *
  */
 
-package io.github.alphajiang.hyena.model.po;
+package io.github.alphajiang.hyena.model.vo;
 
-import io.github.alphajiang.hyena.model.base.BasePo;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class PointRecLogPo extends BasePo {
-
-    private String uid;
-    private long pid;
-    private long seqNum;
-    private long recId;
-
-    /**
-     * PointStatus
-     */
-    private Integer type;
-    private Long delta;
-    private Long available;
-    private Long used;
-    private Long frozen;
-    private Long cancelled;
-    private Long expire;
-    private Long cost;
-
-    private Integer sourceType;
-    private Integer orderType;
-    private Integer payType;
-    private String note;
-
-
+public class QueueInfo {
+    private String name;
+    private long curSize;
+    private long maxSize;
 }

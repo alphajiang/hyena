@@ -72,7 +72,8 @@
         from `${pointTableName}_rec_log` as log
         left join `${pointTableName}_rec` as rec on rec.id = log.recId
         left join `${pointTableName}` as p on rec.pid = p.id
-        left join `${pointTableName}_log` as pLog on log.pid = pLog.pid and log.seqNum = pLog.seqNum
+        left join `${pointTableName}_log` as pLog on log.pid = pLog.pid
+            and log.seqNum = pLog.seqNum and pLog.`type` = `log`.`type`
         where 1=1
         <if test="param.pid &gt; 0">
             and p.id = #{param.pid}
@@ -89,8 +90,6 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}
         </if>
-
-
         <if test="param.enable != null">
             and rec.enable = #{param.enable}
         </if>

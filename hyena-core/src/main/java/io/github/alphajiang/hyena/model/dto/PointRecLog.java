@@ -20,11 +20,13 @@ package io.github.alphajiang.hyena.model.dto;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class PointRecLog extends PointRecLogPo {
     private String uid;
     private Long total;
