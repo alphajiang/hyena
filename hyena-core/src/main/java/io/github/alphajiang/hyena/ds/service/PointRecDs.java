@@ -24,7 +24,6 @@ import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
@@ -80,7 +79,7 @@ public class PointRecDs {
     /**
      * 增加积分
      *
-     * @param param   参数
+     * @param param 参数
      * @param point 当前积分对象
      * @return 返回积分记录
      */
@@ -88,10 +87,15 @@ public class PointRecDs {
     public PointRecPo addPointRec(PointUsage param, PointPo point, long seqNum) {
         logger.info("param = {}", param);
         PointRecPo rec = new PointRecPo();
-        PointRecLogPo recLog = new PointRecLogPo();
-        rec.setPid(point.getId()).setSeqNum(seqNum).setTotal(param.getPoint()).setAvailable(param.getPoint())
+        rec.setPid(point.getId()).setSeqNum(seqNum).setTotal(param.getPoint())
+                .setAvailable(param.getPoint())
+                .setUsedCost(0L)
                 .setOrderNo(param.getOrderNo());
-
+        if (param.getCost() != null && param.getCost() > 0L) {
+            rec.setTotalCost(param.getCost());
+        } else {
+            rec.setTotalCost(0L);
+        }
         if (param.getTag() == null) {
             rec.setTag("");
         } else {
@@ -119,51 +123,30 @@ public class PointRecDs {
     }
 
     @Transactional
-    public PointRecPo decreasePoint(String type, PointRecPo rec, long point, String note) {
+    public PointRecPo decreasePoint(String type, PointRecPo rec, long point, long cost) {
 
         long delta = point;
         if (rec.getAvailable() < delta) {
             long used = rec.getUsed() + rec.getAvailable();
-            rec.setAvailable(0L).setUsed(used);
+            rec.setAvailable(0L).setUsed(used).setUsedCost(rec.getUsedCost() + cost);
+
             this.updatePointRec(type, rec);
         } else {
             long available = rec.getAvailable() - point;
             long used = rec.getUsed() + point;
-            rec.setAvailable(available).setUsed(used);
+            rec.setAvailable(available).setUsed(used).setUsedCost(rec.getUsedCost() + cost);
             this.updatePointRec(type, rec);
 
         }
         return rec;
     }
 
-//    @Transactional
-//    public PointRecLogPo decreasePointUnfreeze(String type, PointRecPo rec, long seqNum, long point, String note) {
-//
-//        long delta = point;
-//        if (rec.getFrozen() < delta) {
-//            delta = rec.getFrozen();
-//            long used = rec.getUsed() + rec.getFrozen();
-//            rec.setFrozen(0L).setUsed(used);
-//            this.updatePointRec(type, rec);
-//        } else {
-//            long frozen = rec.getFrozen() - point;
-//            long used = rec.getUsed() + point;
-//            rec.setFrozen(frozen).setUsed(used);
-//            this.updatePointRec(type, rec);
-//
-//        }
-//
-//        var recLog = this.pointRecLogDs.addLogByRec(type, PointStatus.DECREASE,
-//                rec, seqNum, delta, note);
-//        return recLog;
-//    }
 
     @Transactional
-    public PointRecPo freezePoint(String type, PointRecPo rec, long point, String note) {
+    public PointRecPo freezePoint(String type, PointRecPo rec, long point) {
 
         long delta = point;
         if (rec.getAvailable() < delta) {
-            delta = rec.getAvailable();
             long frozen = rec.getFrozen() + rec.getAvailable();
             rec.setAvailable(0L).setFrozen(frozen);
             this.updatePointRec(type, rec);
@@ -174,17 +157,14 @@ public class PointRecDs {
             this.updatePointRec(type, rec);
 
         }
-//        this.pointRecLogDs.addLogByRec(type, PointStatus.FREEZE,
-//                rec, delta, note);
         return rec;
     }
 
     @Transactional
-    public PointRecPo unfreezePoint(String type, PointRecPo rec, long point, String note) {
+    public PointRecPo unfreezePoint(String type, PointRecPo rec, long point) {
 
         long delta = point;
         if (rec.getFrozen() < delta) {
-            delta = rec.getFrozen();
             long available = rec.getAvailable() + rec.getFrozen();
             rec.setFrozen(0L).setAvailable(available);
             this.updatePointRec(type, rec);
@@ -195,17 +175,14 @@ public class PointRecDs {
             this.updatePointRec(type, rec);
 
         }
-//        this.pointRecLogDs.addLogByRec(type, PointStatus.UNFREEZE,
-//                rec, delta, note);
         return rec;
     }
 
     @Transactional
-    public PointRecPo cancelPoint(String type, PointRecPo rec, long point, String note) {
+    public PointRecPo cancelPoint(String type, PointRecPo rec, long point) {
 
         long delta = point;
         if (rec.getAvailable() < delta) {
-            delta = rec.getAvailable();
             long canceled = rec.getCancelled() + rec.getAvailable();
             rec.setAvailable(0L).setCancelled(canceled);
             this.updatePointRec(type, rec);
@@ -216,8 +193,6 @@ public class PointRecDs {
             this.updatePointRec(type, rec);
 
         }
-//        this.pointRecLogDs.addLogByRec(type, PointStatus.UNFREEZE,
-//                rec, delta, note);
         return rec;
     }
 

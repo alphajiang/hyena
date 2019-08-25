@@ -40,6 +40,8 @@ public class PointRecPo extends BasePo {
     private Long frozen;
     private Long cancelled;
     private Long expire;
+    private Long totalCost;
+    private Long usedCost;
     private String tag;
     private String orderNo;
 

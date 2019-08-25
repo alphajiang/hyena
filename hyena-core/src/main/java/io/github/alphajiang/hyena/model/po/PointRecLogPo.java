@@ -24,7 +24,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class PointRecLogPo extends BasePo {
 
     private String uid;
@@ -42,6 +42,7 @@ public class PointRecLogPo extends BasePo {
     private Long frozen;
     private Long cancelled;
     private Long expire;
+    private Long cost;
 
     private Integer sourceType;
     private Integer orderType;

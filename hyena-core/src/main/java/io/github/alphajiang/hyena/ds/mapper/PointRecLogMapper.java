@@ -30,6 +30,9 @@ public interface PointRecLogMapper {
     void addPointRecLog(@Param(value = "tableName") String tableName,
                         @Param(value = "recLog") PointRecLogPo recLog);
 
+    void addPointRecLogs(@Param(value = "tableName") String tableName,
+                         @Param(value = "recLogs") List<PointRecLogPo> recLogs);
+
     List<PointRecLog> listPointRecLog(@Param(value = "pointTableName") String pointTableName,
                                       @Param(value = "param") ListPointRecLogParam param);
 

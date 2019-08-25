@@ -2,10 +2,10 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.alphajiang.hyena.ds.mapper.PointLogMapper">
 
-    <insert id="addPointLog">
+    <insert id="addPointLog" useGeneratedKeys="true" keyProperty="pointLog.id" keyColumn="id">
         insert into `${pointTableName}_log` (
         `pid`, `uid`, `seqNum`, `delta`, `point`, `available`,
-        `used`, `frozen`, `expire`, `type`,
+        `used`, `frozen`, `expire`, `cost`, `type`,
         `tag`,
         <if test="pointLog.orderNo != null">
         `orderNo`,
@@ -22,7 +22,7 @@
         `extra`, `note`
         ) values(
         #{pointLog.pid}, #{pointLog.uid}, #{pointLog.seqNum}, #{pointLog.delta}, #{pointLog.point}, #{pointLog.available},
-        #{pointLog.used}, #{pointLog.frozen}, #{pointLog.expire}, #{pointLog.type},
+        #{pointLog.used}, #{pointLog.frozen}, #{pointLog.expire}, #{pointLog.cost}, #{pointLog.type},
         #{pointLog.tag},
         <if test="pointLog.orderNo != null">
         #{pointLog.orderNo},
@@ -38,6 +38,10 @@
         </if>
         #{pointLog.extra}, #{pointLog.note} )
     </insert>
+
+    <update id="updateCost" >
+        update `${pointTableName}_log` set `cost` = #{cost} where id=#{id}
+    </update>
 
     <select id="listPointLog" resultType="io.github.alphajiang.hyena.model.dto.PointLog">
         select log.*

@@ -44,6 +44,7 @@ public class PointUsageBuilder {
         usage.setType(param.getType()).setUid(param.getUid())
                 .setName(param.getName())
                 .setPoint(param.getPoint())
+                .setCost(param.getCost())
                 .setTag(param.getTag())
                 .setOrderNo(param.getOrderNo())
                 .setIssueTime(param.getIssueTime())

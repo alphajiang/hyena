@@ -34,6 +34,8 @@
         `seqNum` = #{rec.seqNum},
         `total` = #{rec.total},
         `available` = #{rec.available},
+        `totalCost` = #{rec.totalCost},
+        `usedCost` = #{rec.usedCost},
         <if test="rec.tag != null">
             `tag` = #{rec.tag},
         </if>
@@ -167,6 +169,9 @@
         </if>
         <if test="rec.cancelled != null">
             cancelled = #{rec.cancelled},
+        </if>
+        <if test="rec.usedCost != null">
+            usedCost = #{rec.usedCost},
         </if>
         <if test="rec.extra != null">
             extra = #{rec.extra},

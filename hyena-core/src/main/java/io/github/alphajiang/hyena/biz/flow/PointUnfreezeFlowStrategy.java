@@ -106,12 +106,12 @@ public class PointUnfreezeFlowStrategy extends AbstractPointFlowStrategy {
             } else if (rec.getFrozen() < gap) {
                 sum += rec.getFrozen();
                 long delta = rec.getFrozen();
-                var retRec = this.pointRecDs.unfreezePoint(type, rec, gap, pointLog.getNote());
+                var retRec = this.pointRecDs.unfreezePoint(type, rec, gap);
                 var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, delta);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                var retRec = this.pointRecDs.unfreezePoint(type, rec, gap, pointLog.getNote());
+                var retRec = this.pointRecDs.unfreezePoint(type, rec, gap);
                 var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, gap);
                 recLogs.add(recLog);
                 break;

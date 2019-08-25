@@ -103,14 +103,14 @@ public class PointCancelFlowStrategy extends AbstractPointFlowStrategy {
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
                 long delta = rec.getAvailable();
-                var retRec = this.pointRecDs.cancelPoint(type, rec, gap, pointLog.getNote());
+                var retRec = this.pointRecDs.cancelPoint(type, rec, gap);
 
 
                 var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, delta);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                var retRec = this.pointRecDs.cancelPoint(type, rec, gap, pointLog.getNote());
+                var retRec = this.pointRecDs.cancelPoint(type, rec, gap);
 
                 var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, gap);
                 recLogs.add(recLog);

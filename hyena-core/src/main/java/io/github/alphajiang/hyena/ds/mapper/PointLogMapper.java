@@ -30,6 +30,9 @@ public interface PointLogMapper {
     long addPointLog(@Param(value = "pointTableName") String pointTableName,
                      @Param(value = "pointLog") PointLogPo pointLog);
 
+    void updateCost(@Param(value = "pointTableName") String pointTableName,
+                    @Param(value = "id") long id, @Param(value = "cost") long cost);
+
     List<PointLog> listPointLog(@Param(value = "pointTableName") String pointTableName,
                                 @Param(value = "param") ListPointLogParam param);
 

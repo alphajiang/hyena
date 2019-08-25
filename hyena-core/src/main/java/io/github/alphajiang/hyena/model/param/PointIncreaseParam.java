@@ -27,6 +27,10 @@ public class PointIncreaseParam extends PointOpParam {
 
 
     @Nullable
+    @ApiModelProperty(value = "实际成本", example = "0")
+    private Long cost;
+
+    @Nullable
     @ApiModelProperty(value = "获取积分时间", example = "2005-12-25 15:34:46")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date issueTime;
@@ -36,6 +40,15 @@ public class PointIncreaseParam extends PointOpParam {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date expireTime;
 
+
+    @Nullable
+    public Long getCost() {
+        return cost;
+    }
+
+    public void setCost(@Nullable Long cost) {
+        this.cost = cost;
+    }
 
     @Nullable
     public Date getIssueTime() {

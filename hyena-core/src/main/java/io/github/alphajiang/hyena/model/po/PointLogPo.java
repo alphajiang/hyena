@@ -40,6 +40,7 @@ public class PointLogPo extends BasePo {
     private Long used;
     private Long frozen;
     private Long expire;
+    private Long cost;
     /**
      * PointStatus
      */

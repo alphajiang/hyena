@@ -50,7 +50,7 @@ public class PointLogDs {
 
 
     public PointLogPo addPointLog(@NonNull String type, @NonNull PointStatus actionType,
-                            @NonNull PointUsage usage, @NonNull PointPo point) {
+                                  @NonNull PointUsage usage, @NonNull PointPo point) {
         String tableName = TableNameHelper.getPointTableName(type);
         PointLogPo pointLog = new PointLogPo();
         pointLog.setPid(point.getId()).setUid(point.getUid())
@@ -66,6 +66,11 @@ public class PointLogDs {
                 .setOrderType(usage.getOrderType())
                 .setPayType(usage.getPayType())
                 .setExtra(usage.getExtra());
+        if (usage.getCost() != null && usage.getCost() > 0L) {
+            pointLog.setCost(usage.getCost());
+        } else {
+            pointLog.setCost(0L);
+        }
         if (StringUtils.isNotBlank(usage.getTag())) {
             pointLog.setTag(usage.getTag());
         } else {
@@ -78,6 +83,11 @@ public class PointLogDs {
         }
         this.pointLogMapper.addPointLog(tableName, pointLog);
         return pointLog;
+    }
+
+    public void updateCost(@NonNull String type, long logId, long cost) {
+        String tableName = TableNameHelper.getPointTableName(type);
+        this.pointLogMapper.updateCost(tableName, logId, cost);
     }
 
     @Transactional

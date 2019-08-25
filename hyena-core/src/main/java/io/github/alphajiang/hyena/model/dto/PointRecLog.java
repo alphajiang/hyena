@@ -18,17 +18,16 @@
 package io.github.alphajiang.hyena.model.dto;
 
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 public class PointRecLog extends PointRecLogPo {
     private String uid;
+    private Long total;
+    private String orderNo;
 
-
-    public String getUid() {
-        return uid;
-    }
-
-    public PointRecLog setUid(String uid) {
-        this.uid = uid;
-        return this;
-    }
 }

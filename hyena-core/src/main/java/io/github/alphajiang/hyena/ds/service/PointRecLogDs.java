@@ -52,6 +52,7 @@ public class PointRecLogDs {
         recLog.setFrozen(rec.getFrozen() == null ? 0L : rec.getFrozen());
         recLog.setCancelled(rec.getCancelled() == null ? 0L : rec.getCancelled());
         recLog.setExpire(rec.getExpire() == null ? 0L : rec.getExpire());
+        recLog.setCost(0L);
         recLog.setSourceType(pointLog.getSourceType()).setOrderType(pointLog.getOrderType())
                 .setPayType(pointLog.getPayType());
         recLog.setNote(pointLog.getNote() == null ? "" : pointLog.getNote());
@@ -59,9 +60,56 @@ public class PointRecLogDs {
         return recLog;
     }
 
+    @Transactional
+    public PointRecLogPo addUsedLogByRec(String type, PointRecPo rec, PointLogPo pointLog,
+                                     long delta, long cost) {
+
+        PointRecLogPo recLog = new PointRecLogPo();
+        recLog.setPid(rec.getPid()).setSeqNum(pointLog.getSeqNum()).setRecId(rec.getId()).setType(pointLog.getType())
+                .setDelta(delta);
+        recLog.setAvailable(rec.getAvailable() == null ? 0L : rec.getAvailable());
+        recLog.setUsed(rec.getUsed() == null ? 0L : rec.getUsed());
+        recLog.setFrozen(rec.getFrozen() == null ? 0L : rec.getFrozen());
+        recLog.setCancelled(rec.getCancelled() == null ? 0L : rec.getCancelled());
+        recLog.setExpire(rec.getExpire() == null ? 0L : rec.getExpire());
+        recLog.setCost(cost);
+        recLog.setSourceType(pointLog.getSourceType()).setOrderType(pointLog.getOrderType())
+                .setPayType(pointLog.getPayType());
+        recLog.setNote(pointLog.getNote() == null ? "" : pointLog.getNote());
+        this.addPointRecLog(type, recLog);
+        return recLog;
+    }
+
+    public PointRecLogPo buildRecLog(PointRecPo rec, PointLogPo pointLog,
+                                     long delta) {
+        return this.buildRecLog(rec, pointLog, delta, 0L);
+    }
+
+    public PointRecLogPo buildRecLog(PointRecPo rec, PointLogPo pointLog,
+                            long delta, long cost) {
+        PointRecLogPo recLog = new PointRecLogPo();
+        recLog.setPid(rec.getPid()).setSeqNum(pointLog.getSeqNum()).setRecId(rec.getId()).setType(pointLog.getType())
+                .setDelta(delta);
+        recLog.setAvailable(rec.getAvailable() == null ? 0L : rec.getAvailable());
+        recLog.setUsed(rec.getUsed() == null ? 0L : rec.getUsed());
+        recLog.setFrozen(rec.getFrozen() == null ? 0L : rec.getFrozen());
+        recLog.setCancelled(rec.getCancelled() == null ? 0L : rec.getCancelled());
+        recLog.setExpire(rec.getExpire() == null ? 0L : rec.getExpire());
+        recLog.setCost(cost);
+        recLog.setSourceType(pointLog.getSourceType()).setOrderType(pointLog.getOrderType())
+                .setPayType(pointLog.getPayType());
+        recLog.setNote(pointLog.getNote() == null ? "" : pointLog.getNote());
+        return recLog;
+    }
+
     public void addPointRecLog(String type, PointRecLogPo recLog) {
         String tableName = TableNameHelper.getPointRecLogTableName(type);
         this.pointRecLogMapper.addPointRecLog(tableName, recLog);
+    }
+
+    public void addPointRecLogs(String type, List<PointRecLogPo> recLogs) {
+        String tableName = TableNameHelper.getPointRecLogTableName(type);
+        this.pointRecLogMapper.addPointRecLogs(tableName, recLogs);
     }
 
     @Transactional

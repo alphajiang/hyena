@@ -31,6 +31,7 @@ import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointStatus;
 import io.github.alphajiang.hyena.model.type.SortOrder;
+import io.github.alphajiang.hyena.utils.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,16 +66,25 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
         PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointStatus.DECREASE, usage, point);
 
         long gap = usage.getPoint();
+        long cost = 0L;
         List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
                 var recLogsRet = this.decreasePointLoop(usage.getType(), point, pointLog, gap);
                 gap = gap - recLogsRet.stream().mapToLong(PointRecLogPo::getDelta).sum();
+                cost = cost + recLogsRet.stream().mapToLong(PointRecLogPo::getCost).sum();
                 recLogs.addAll(recLogsRet);
                 log.debug("gap = {}", gap);
             } while (gap > 0L);
         } catch (HyenaNoPointException e) {
 
+        }
+        if (cost > 0L) {
+            pointLog.setCost(cost);
+            this.pointLogDs.updateCost(usage.getType(), pointLog.getId(), cost);
+        }
+        if(CollectionUtils.isNotEmpty(recLogs)) {
+            this.pointRecLogDs.addPointRecLogs(usage.getType(), recLogs);
         }
 //        HyenaAssert.isTrue(gap == 0L, HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
 //                "no enough available point!");
@@ -103,16 +113,25 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
                 long delta = rec.getAvailable();
-                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, pointLog.getNote());
+                long cost = 0L;
+                if (rec.getTotalCost() != null && rec.getTotalCost() > 0L) {
+                    cost = rec.getTotalCost() - rec.getUsedCost();
+                }
+
+                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, cost);
 
 
-                var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, delta);
+                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, delta, cost);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, pointLog.getNote());
+                long cost = 0L;
+                if (rec.getTotalCost() != null && rec.getTotalCost() > 0L) {
+                    cost = gap * rec.getTotalCost() / rec.getTotal();
+                }
+                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, cost);
 
-                var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, gap);
+                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, gap, cost);
                 recLogs.add(recLog);
                 break;
             }
@@ -121,4 +140,5 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
         log.debug("sum = {}", sum);
         return recLogs;
     }
+
 }
