@@ -25,6 +25,8 @@ import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.BeanUtils;
@@ -53,22 +55,25 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         log.info("decrease frozen. usage = {}", usage);
         super.preProcess(usage);
         int retry = 3;
-        PointPo curPoint = null;
+        DecreaseResult ret = null;
         for(int i = 0; i < retry; i ++){
             try {
-                curPoint = this.decrease(usage);
-                if(curPoint != null) {
+                ret = this.decrease(usage);
+                if(ret != null) {
                     break;
                 }
             } catch (Exception e) {
                 log.warn("decrease frozen failed. retry = {}, error = {}", retry, e.getMessage(), e);
             }
         }
-        if(curPoint == null) {
+        if(ret == null) {
             throw new HyenaServiceException(HyenaConstants.RES_CODE_SERVICE_BUSY, "service busy, please retry later");
         }
-        pointFlowService.addFlow(getType(), usage, curPoint);
-        return curPoint;
+        if(ret.getPostUnfreeze() != null) {
+            pointFlowService.addFlow(CalcType.UNFREEZE, ret.getUsage4Unfreeze(), ret.getPostUnfreeze());
+        }
+        pointFlowService.addFlow(CalcType.DECREASE, usage, ret.getPostDecrease());
+        return ret.getPostDecrease();
 //        HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
 //       // var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
 //        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
@@ -79,7 +84,8 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     }
 
 
-    private PointPo decrease(PointUsage usage) {
+
+    private DecreaseResult decrease(PointUsage usage) {
         PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
@@ -90,18 +96,19 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
                     HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                     "no enough frozen point");
         }
-
+        PointPo postUnfreeze = null;
+        PointUsage usage4Unfreeze = null;
         if(usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L) {
             // 解冻
             curPoint.setFrozen(curPoint.getFrozen() - usage.getUnfreezePoint())
                     .setAvailable(curPoint.getAvailable() + usage.getUnfreezePoint());
-            PointPo postUnfreeze = new PointPo();
+            postUnfreeze = new PointPo();
             BeanUtils.copyProperties(curPoint, postUnfreeze);
             postUnfreeze.setSeqNum(postUnfreeze.getSeqNum() + 1);
-            PointUsage usage4Unfreeze = new PointUsage();
+            usage4Unfreeze = new PointUsage();
             BeanUtils.copyProperties(usage, usage4Unfreeze);
             usage4Unfreeze.setPoint(usage.getUnfreezePoint());
-            pointFlowService.addFlow(CalcType.UNFREEZE, usage4Unfreeze, postUnfreeze);
+
         }
         curPoint.setPoint(curPoint.getPoint() - usage.getPoint())
                 .setAvailable(curPoint.getAvailable() - usage.getPoint())
@@ -127,8 +134,18 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
         // var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
         curPoint.setSeqNum(curPoint.getSeqNum() + 1);
+
+        DecreaseResult result = new DecreaseResult(postUnfreeze, usage4Unfreeze, curPoint);
         //pointFlowService.addFlow(CalcType.DECREASE, usage, curPoint);
-        return curPoint;
+        return result;
+    }
+
+    @Data
+    @AllArgsConstructor
+    class DecreaseResult {
+        PointPo postUnfreeze;
+        PointUsage usage4Unfreeze;
+        PointPo postDecrease;
     }
 
 }
