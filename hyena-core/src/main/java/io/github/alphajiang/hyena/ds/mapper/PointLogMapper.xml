@@ -60,6 +60,9 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and log.tag = #{param.tag}
         </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.orderNo )">
+            and log.orderNo = #{param.orderNo}
+        </if>
         <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.logTypes )">
             and log.`type` in
             <foreach item="logType" collection="param.logTypes"
@@ -95,6 +98,7 @@
             <bind name="pattern" value="'%' + param.sk + '%'"/>
             and (
             log.tag like #{pattern}
+            or log.orderNo like #{pattern}
             )
         </if>
         <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.sorts )">
@@ -129,6 +133,9 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and log.tag = #{param.tag}
         </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.orderNo )">
+            and log.orderNo = #{param.orderNo}
+        </if>
         <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.logTypes )">
             and log.`type` in
             <foreach item="logType" collection="param.logTypes"
@@ -164,6 +171,7 @@
             <bind name="pattern" value="'%' + param.sk + '%'"/>
             and (
             log.tag like #{pattern}
+            or log.orderNo like #{pattern}
             )
         </if>
 

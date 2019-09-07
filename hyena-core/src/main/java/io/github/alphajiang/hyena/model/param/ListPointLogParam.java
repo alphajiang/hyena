@@ -40,6 +40,9 @@ public class ListPointLogParam extends BaseListParam {
     @ApiModelProperty(value = "标签")
     private String tag;
 
+    @ApiModelProperty(value = "订单号")
+    private String orderNo;
+
     // PointStatus
 
     private List<Integer> logTypes;
