@@ -15,9 +15,9 @@
  *
  */
 
-package io.github.alphajiang.hyena.model.param;
+package io.github.alphajiang.hyena.model.po;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.github.alphajiang.hyena.model.base.BasePo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -25,27 +25,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
-public class ListPointRecLogParam extends BaseListParam {
-
-
-    @ApiModelProperty(value = "用户ID")
-    private String uid;
-
-    @ApiModelProperty(value = "用户记录ID")
-    private long pid;
-
-    @ApiModelProperty(value = "变更流水号")
-    private long seqNum = 0L;
-
-    @ApiModelProperty(value = "积分记录ID")
-    private long recId;
-
-
-    @ApiModelProperty(value = "标签")
-    private String tag;
-
-
-
-
-
+public class SysPropertyPo extends BasePo {
+    private String key;
+    private String value;
 }

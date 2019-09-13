@@ -15,28 +15,18 @@
  *
  */
 
+package io.github.alphajiang.hyena.ds.mapper;
 
-package io.github.alphajiang.hyena;
+import io.github.alphajiang.hyena.model.po.SysPropertyPo;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
-public interface HyenaConstants {
+@Mapper
+public interface SysPropertyMapper {
 
-    int SQL_VERSION = 1;
+    void createSysPropertyTable();
 
-    int RES_CODE_SUCCESS = 0;
-    int RES_CODE_SERVICE_ERROR = 1000;
-    int RES_CODE_NO_ENOUGH_POINT = 1010;
-    int RES_CODE_PARAMETER_ERROR = 1100;
-    int RES_CODE_STATUS_ERROR = 1200;
-    int RES_CODE_SERVICE_BUSY = 1300;
-    int RES_CODE_DUPLICATE = 2000;
-    int RES_CODE_DUPLICATE_IDEMPOTENT = 2001;
-    int RES_CODE_SERVER_ERROR = 9000;
-    int RES_CODE_UNKNOW_ERROR = 9999;
+    void insertOrUpdate(SysPropertyPo sysProperty);
 
-    String PREFIX_POINT_TABLE_NAME = "t_point_";
-
-    String REQ_IDEMPOTENT_SEQ_KEY = "seq";
-
-
-    String CONST_TEST_DB_DRIVER = "org.h2.Driver";
+    SysPropertyPo getSysProperty(@Param("key") String key);
 }

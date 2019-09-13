@@ -26,7 +26,7 @@ import java.util.Date;
 
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class PointUsage extends BaseObject {
     private String type;
     private String uid;

@@ -25,7 +25,7 @@ import lombok.experimental.Accessors;
 import java.util.List;
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class ListPointLogParam extends BaseListParam {
     @ApiModelProperty(value = "用户ID")
     private String uid;

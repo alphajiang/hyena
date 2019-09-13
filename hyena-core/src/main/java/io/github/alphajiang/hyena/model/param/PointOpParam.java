@@ -25,7 +25,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class PointOpParam extends BaseObject {
     @ApiModelProperty(value = "请求消息序列号", example = "")
     private String seq;

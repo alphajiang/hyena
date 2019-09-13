@@ -20,6 +20,7 @@ package io.github.alphajiang.hyena;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
+import io.github.alphajiang.hyena.ds.service.SysPropertyDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.utils.JsonUtils;
 import org.junit.Assert;
@@ -39,6 +40,9 @@ import java.util.UUID;
 //@Transactional
 public abstract class HyenaTestBase {
     private final Logger logger = LoggerFactory.getLogger(HyenaTestBase.class);
+
+    @Autowired
+    private SysPropertyDs sysPropertyDs;
 
     @Autowired
     private PointTableDs pointTableDs;
@@ -76,6 +80,7 @@ public abstract class HyenaTestBase {
 
 
     public void init() {
+        sysPropertyDs.createSysPropertyTable();
         pointTableDs.getOrCreateTable(this.pointType);
 
         userPoint = this.pointUsageFacade.increase(this.initialPointUsage);

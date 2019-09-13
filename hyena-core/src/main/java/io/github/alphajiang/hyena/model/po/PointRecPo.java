@@ -29,7 +29,7 @@ import java.util.Date;
 
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class PointRecPo extends BasePo {
 
     private long pid;
