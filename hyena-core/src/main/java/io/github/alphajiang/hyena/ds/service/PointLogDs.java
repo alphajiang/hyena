@@ -59,6 +59,7 @@ public class PointLogDs {
                 .setAvailable(point.getAvailable())
                 .setUsed(point.getUsed())
                 .setFrozen(point.getFrozen())
+                .setRefund(point.getRefund())
                 .setExpire(point.getExpire())
                 .setType(actionType.code())
                 .setOrderNo(usage.getOrderNo())

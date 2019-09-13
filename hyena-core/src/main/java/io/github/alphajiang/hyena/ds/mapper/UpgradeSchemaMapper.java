@@ -17,18 +17,18 @@
 
 package io.github.alphajiang.hyena.ds.mapper;
 
-import io.github.alphajiang.hyena.model.po.SysPropertyPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
-public interface SysPropertyMapper {
+public interface UpgradeSchemaMapper {
 
-    void createSysPropertyTable();
 
-    void insertOrUpdate(SysPropertyPo sysProperty);
+    void addPointRefund(@Param(value = "pointTableName") String pointTableName );
 
-    int updateSysProperty(@Param("key") String key, @Param("value") String value);
+    void addPointLogRefund(@Param(value = "pointTableName") String pointTableName );
 
-    SysPropertyPo getSysProperty(@Param("key") String key);
+    void addPointRecRefund(@Param(value = "pointTableName") String pointTableName );
+
+    void addPointRecLogRefund(@Param(value = "pointTableName") String pointTableName );
 }

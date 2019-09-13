@@ -33,7 +33,7 @@
     </update>
 
     <insert id="insertOrUpdate" parameterType="io.github.alphajiang.hyena.model.po.SysPropertyPo">
-        insert into t_sys_property(key, value, enable, createTime, updateTime)
+        insert into t_sys_property(`key`, `value`, `enable`, createTime, updateTime)
         values(#{key}, #{value}, #{enable}, now(), now())
         on duplicate key update
         value = #{value},
@@ -42,6 +42,12 @@
     </insert>
     
     <select id="getSysProperty" resultType="io.github.alphajiang.hyena.model.po.SysPropertyPo">
-        select * from t_sys_property where key=#{key}
+        select * from t_sys_property where `key`=#{key}
     </select>
+
+    <update id="updateSysProperty" >
+        update t_sys_property set `value`=#{value},
+        updateTime = now()
+        where `key`=#{key}
+    </update>
 </mapper>

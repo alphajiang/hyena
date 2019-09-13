@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
@@ -61,6 +62,9 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
                 if(curPoint != null) {
                     break;
                 }
+            }
+            catch (HyenaParameterException e) {
+                throw e;
             } catch (Exception e) {
                 log.warn("freeze failed. retry = {}, error = {}", retry, e.getMessage(), e);
             }

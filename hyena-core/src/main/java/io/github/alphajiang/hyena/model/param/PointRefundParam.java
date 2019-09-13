@@ -22,4 +22,7 @@ public class PointRefundParam extends PointOpParam {
 
     @ApiModelProperty(value = "要退款的积分记录ID")
     private Long recId; // 积分记录的ID
+
+    @ApiModelProperty(value = "解冻积分数量", example = "1000")
+    private Long unfreezePoint;
 }

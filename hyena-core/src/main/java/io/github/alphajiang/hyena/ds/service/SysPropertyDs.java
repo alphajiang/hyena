@@ -19,9 +19,12 @@ package io.github.alphajiang.hyena.ds.service;
 
 import io.github.alphajiang.hyena.ds.mapper.SysPropertyMapper;
 import io.github.alphajiang.hyena.model.po.SysPropertyPo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Repository
 public class SysPropertyDs {
     private static final String KEY_SYS_VERSION = "sql_version";
@@ -34,10 +37,18 @@ public class SysPropertyDs {
         return sysProp == null ? 0 : Integer.parseInt(sysProp.getValue());
     }
 
+    @Transactional
     public void setSqlVersion(int sqlVersion) {
-        SysPropertyPo sysProp = new SysPropertyPo();
-        sysProp.setKey(KEY_SYS_VERSION).setValue(String.valueOf(sqlVersion)).setEnable(true);
-        this.sysPropertyMapper.insertOrUpdate(sysProp);
+        SysPropertyPo sysProp = this.getSysProperty(KEY_SYS_VERSION);
+        if (sysProp == null) {
+            sysProp = new SysPropertyPo();
+            sysProp.setKey(KEY_SYS_VERSION).setValue(String.valueOf(sqlVersion)).setEnable(true);
+            this.sysPropertyMapper.insertOrUpdate(sysProp);
+        } else if (sysProp.getValue().equals(String.valueOf(sqlVersion))) {
+            log.info("current sql version is {}, ignore set operation", sysProp.getValue());
+        }else {
+            this.sysPropertyMapper.updateSysProperty(sysProp.getKey(), String.valueOf(sqlVersion));
+        }
     }
 
 

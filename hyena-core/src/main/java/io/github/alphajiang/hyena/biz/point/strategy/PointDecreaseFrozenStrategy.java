@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
@@ -62,7 +63,11 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
                 if(ret != null) {
                     break;
                 }
-            } catch (Exception e) {
+            }
+            catch (HyenaParameterException e) {
+                throw e;
+            }
+            catch (Exception e) {
                 log.warn("decrease frozen failed. retry = {}, error = {}", retry, e.getMessage(), e);
             }
         }
@@ -74,13 +79,6 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         }
         pointFlowService.addFlow(CalcType.DECREASE, usage, ret.getPostDecrease());
         return ret.getPostDecrease();
-//        HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
-//       // var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
-//        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
-//        pointFlowService.addFlow(CalcType.DECREASE, usage, curPoint);
-//
-//
-//        return curPoint;
     }
 
 

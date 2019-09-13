@@ -17,7 +17,10 @@
 
 package io.github.alphajiang.hyena.spring.boot.autoconfigure;
 
+import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.ds.service.SysPropertyDs;
+import io.github.alphajiang.hyena.ds.service.UpgradeSchemaDs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -31,9 +34,28 @@ public class HyenaInitialization {
     @Autowired
     private SysPropertyDs sysPropertyDs;
 
+    @Autowired
+    private PointTableDs pointTableDs;
+
+    @Autowired
+    private UpgradeSchemaDs upgradeSchemaDs;
+
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
         log.info("application ready");
         sysPropertyDs.createSysPropertyTable();
+
+        int dbSqlVer = this.upgradeSql();
+        if (dbSqlVer != HyenaConstants.SQL_VERSION) {
+            sysPropertyDs.setSqlVersion(HyenaConstants.SQL_VERSION);
+        }
+    }
+
+    public int upgradeSql() {
+        int sqlVer = sysPropertyDs.getSqlVersion();
+        if (sqlVer == 0) {
+            upgradeSchemaDs.addRefundColumn(pointTableDs.listTable());
+        }
+        return sqlVer;
     }
 }

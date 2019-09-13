@@ -268,7 +268,9 @@ public class PointController {
     public ObjectResponse<PointPo> refund(HttpServletRequest request,
                                           @RequestBody PointRefundParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
-
+        if(param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
+            throw new HyenaParameterException("invalid parameter: unfreezePoint");
+        }
         PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
         PointPo cusPoint = this.pointUsageFacade.refund(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);

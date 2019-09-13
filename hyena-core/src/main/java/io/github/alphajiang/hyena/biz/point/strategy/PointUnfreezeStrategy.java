@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
@@ -52,17 +53,19 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
         super.preProcess(usage);
         int retry = 3;
         PointPo curPoint = null;
-        for(int i = 0; i < retry; i ++){
+        for (int i = 0; i < retry; i++) {
             try {
                 curPoint = this.unfreeze(usage);
-                if(curPoint != null) {
+                if (curPoint != null) {
                     break;
                 }
+            } catch (HyenaParameterException e) {
+                throw e;
             } catch (Exception e) {
                 log.warn("unfreeze failed. retry = {}, error = {}", retry, e.getMessage(), e);
             }
         }
-        if(curPoint == null) {
+        if (curPoint == null) {
             throw new HyenaServiceException(HyenaConstants.RES_CODE_SERVICE_BUSY, "service busy, please retry later");
         }
         pointFlowService.addFlow(getType(), usage, curPoint);
@@ -87,7 +90,7 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
                 .setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
         boolean ret = this.pointDs.update(usage.getType(), point2Update);
-        if(!ret) {
+        if (!ret) {
             log.warn("unfreeze failed!!! please retry later. usage = {}", usage);
             return null;
         }

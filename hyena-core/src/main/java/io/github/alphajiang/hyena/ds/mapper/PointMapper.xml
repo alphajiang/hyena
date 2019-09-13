@@ -144,6 +144,9 @@
         <if test="cusPoint.frozen != null">
             frozen = #{cusPoint.frozen},
         </if>
+        <if test="cusPoint.refund != null">
+            refund = #{cusPoint.refund},
+        </if>
         <if test="cusPoint.expire != null">
             expire = #{cusPoint.expire},
         </if>

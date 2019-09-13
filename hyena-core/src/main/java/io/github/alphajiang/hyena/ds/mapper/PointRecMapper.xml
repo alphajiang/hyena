@@ -167,6 +167,9 @@
         <if test="rec.expire != null">
             expire = #{rec.expire},
         </if>
+        <if test="rec.refund != null">
+            refund = #{rec.refund},
+        </if>
         <if test="rec.cancelled != null">
             cancelled = #{rec.cancelled},
         </if>
