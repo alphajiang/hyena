@@ -105,6 +105,13 @@ public class PointUsageFacade {
     }
 
     @Transactional
+    public PointPo refund(PointUsage usage) {
+        Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.REFUND);
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+    }
+
+
+    @Transactional
     public PointPo expire(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.EXPIRE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();

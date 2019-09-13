@@ -20,6 +20,7 @@ package io.github.alphajiang.hyena.biz.point;
 import io.github.alphajiang.hyena.model.param.PointCancelParam;
 import io.github.alphajiang.hyena.model.param.PointIncreaseParam;
 import io.github.alphajiang.hyena.model.param.PointOpParam;
+import io.github.alphajiang.hyena.model.param.PointRefundParam;
 import io.github.alphajiang.hyena.utils.JsonUtils;
 
 public class PointUsageBuilder {
@@ -62,4 +63,9 @@ public class PointUsageBuilder {
         return usage;
     }
 
+    public static PointUsage fromPointRefundParam(PointRefundParam param) {
+        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        usage.setCost(param.getCost());
+        return usage;
+    }
 }

@@ -262,6 +262,21 @@ public class PointController {
     }
 
 
+    @Idempotent(name = "refund-point")
+    @ApiOperation(value = "退款")
+    @PostMapping(value = "/refund", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ObjectResponse<PointPo> refund(HttpServletRequest request,
+                                          @RequestBody PointRefundParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+
+        PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
+        PointPo cusPoint = this.pointUsageFacade.refund(usage);
+        ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
+
+
     @ApiOperation(value = "获取时间段内总共增加的积分数量")
     @GetMapping(value = "/getIncreasedPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<Long> getIncreasedPoint(

@@ -31,6 +31,8 @@ public enum PointStatus {
 
     CANCEL(6),      // 作废
 
+    REFUND(7),      // 退款
+
     UNKNOWN(0)
     ;
 

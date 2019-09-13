@@ -38,6 +38,7 @@ public class PointRecPo extends BasePo {
     private Long available;
     private Long used;
     private Long frozen;
+    private Long refund;
     private Long cancelled;
     private Long expire;
     private Long totalCost;

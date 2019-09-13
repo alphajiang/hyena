@@ -28,6 +28,8 @@ public enum CalcType {
 
     UNFREEZE,
 
+    REFUND,
+
     EXPIRE,
 
     CANCEL

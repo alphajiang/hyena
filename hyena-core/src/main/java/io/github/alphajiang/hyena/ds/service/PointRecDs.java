@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.mapper.PointRecMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointRec;
+import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -212,6 +213,18 @@ public class PointRecDs {
         this.updatePointRec(type, rec);
 
         this.pointRecLogDs.addLogByRec(type, rec, pointLog, available);
+    }
+
+    @Transactional
+    public void refundPointRec(PointUsage usage) {
+        PointRecPo rec = this.getById(usage.getType(), usage.getRecId(), true);
+        if(rec == null){
+            throw new HyenaParameterException("invalid parameter");
+        }
+        PointRecPo rec4Update = new PointRecPo();
+        rec4Update.setAvailable(0L)
+                .setRefund(rec.getAvailable())
+                .setId(rec.getId());
     }
 
     @Transactional

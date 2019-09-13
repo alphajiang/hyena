@@ -33,6 +33,7 @@ public class PointPo extends BasePo {
     private Long available;
     private Long used;
     private Long frozen;
+    private Long refund;
     private Long expire;
     private Long seqNum;
 
