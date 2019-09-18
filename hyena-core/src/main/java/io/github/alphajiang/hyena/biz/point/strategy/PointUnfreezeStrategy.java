@@ -70,7 +70,6 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
         }
         pointFlowService.addFlow(getType(), usage, curPoint);
         return curPoint;
-
     }
 
 
