@@ -20,7 +20,7 @@ package io.github.alphajiang.hyena.biz.flow;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
-import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,7 +48,7 @@ public class PointRecLogService {
         }).start();
     }
 
-    public PointRecLogPo addLogByRec(String type, PointStatus eventType, PointRecPo rec, long delta, String note) {
+    public PointRecLogPo addLogByRec(String type, PointOpType eventType, PointRecPo rec, long delta, String note) {
 
         PointRecLogPo recLog = new PointRecLogPo();
         recLog.setPid(rec.getPid()).setRecId(rec.getId()).setType(eventType.code())

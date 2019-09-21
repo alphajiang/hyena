@@ -31,7 +31,7 @@ import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.dto.PointRecLog;
 import io.github.alphajiang.hyena.model.param.*;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DateUtils;
 import io.github.alphajiang.hyena.utils.JsonUtils;
@@ -134,7 +134,7 @@ public class TestPointController extends HyenaTestBase {
         ListPointLogParam param = new ListPointLogParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
-        param.setLogTypes(List.of(PointStatus.INCREASE.code()));
+        param.setLogTypes(List.of(PointOpType.INCREASE.code()));
         param.setSourceTypes(List.of(super.getSourceType(), 2, 3));
         param.setOrderTypes(List.of(super.getOrderType(), 4, 5, 6));
         param.setPayTypes(List.of(super.getPayType(), 7, 8, 9));

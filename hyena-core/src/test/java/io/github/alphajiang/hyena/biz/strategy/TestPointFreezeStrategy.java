@@ -27,7 +27,7 @@ import io.github.alphajiang.hyena.model.param.SortParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
-import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
@@ -87,7 +87,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         Assert.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPoingLog = new PointLog();
-        expectPoingLog.setUid(this.uid).setType(PointStatus.FREEZE.code())
+        expectPoingLog.setUid(this.uid).setType(PointOpType.FREEZE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(number)
                 .setPoint(super.point.getPoint()).setAvailable(INCREASE_POINT_1 - number)
                 .setUsed(0L).setFrozen(number)
@@ -131,7 +131,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         var expectPointRecLog = new PointRecLogPo();
         expectPointRecLog.setUid(super.uid).setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
-                .setType(PointStatus.FREEZE.code()).setDelta(number)
+                .setType(PointOpType.FREEZE.code()).setDelta(number)
                 .setAvailable(INCREASE_POINT_1 - number)
                 .setUsed(0L)
                 .setFrozen(number).setCancelled(0L).setExpire(0L)
@@ -185,7 +185,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         Assert.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPoingLog = new PointLog();
-        expectPoingLog.setUid(this.uid).setType(PointStatus.FREEZE.code())
+        expectPoingLog.setUid(this.uid).setType(PointOpType.FREEZE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(number)
                 .setPoint(INCREASE_POINT_1 + INCREASE_POINT_2)
                 .setAvailable(INCREASE_POINT_1 + INCREASE_POINT_2 - number)
@@ -238,7 +238,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         var expectPointRecLog11 = new PointRecLogPo();
         expectPointRecLog11.setUid(super.uid).setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec1.getId())
-                .setType(PointStatus.FREEZE.code()).setDelta(INCREASE_POINT_1)
+                .setType(PointOpType.FREEZE.code()).setDelta(INCREASE_POINT_1)
                 .setAvailable(0L)
                 .setUsed(0L)
                 .setFrozen(INCREASE_POINT_1).setCancelled(0L).setExpire(0L)
@@ -259,7 +259,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         var expectPointRecLog21 = new PointRecLogPo();
         expectPointRecLog21.setUid(super.uid).setPid(point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec2.getId())
-                .setType(PointStatus.FREEZE.code()).setDelta(number - INCREASE_POINT_1)
+                .setType(PointOpType.FREEZE.code()).setDelta(number - INCREASE_POINT_1)
                 .setAvailable(INCREASE_POINT_1 + INCREASE_POINT_2 - number)
                 .setUsed(0L)
                 .setFrozen(number -  INCREASE_POINT_1).setCancelled(0L).setExpire(0L)

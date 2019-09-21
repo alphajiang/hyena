@@ -27,7 +27,7 @@ import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
-import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -112,7 +112,7 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
         PointLog pointLog = pointLogs.get(0);
         log.info("pointLog = {}", pointLog);
         Assert.assertEquals(number, pointLog.getDelta().longValue());
-        Assert.assertEquals(PointStatus.CANCEL.code(), pointLog.getType().intValue());
+        Assert.assertEquals(PointOpType.CANCEL.code(), pointLog.getType().intValue());
         Assert.assertEquals(0L, pointLog.getPoint().longValue());
         Assert.assertEquals(0L, pointLog.getAvailable().longValue());
         Assert.assertEquals(0L, pointLog.getUsed().longValue());

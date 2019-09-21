@@ -19,7 +19,7 @@ package io.github.alphajiang.hyena.biz.flow;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
-import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class TestPointRecLogService extends HyenaTestBase {
                 .setAvailable(1000L).setCancelled(0L)
                 .setExpire(1L).setFrozen(20L).setTotal(1000L).setUsed(100L)
         .setId(100L);
-        this.pointRecLogService.addLogByRec(super.getPointType(), PointStatus.INCREASE,
+        this.pointRecLogService.addLogByRec(super.getPointType(), PointOpType.INCREASE,
                 rec, 100L, "UT-test_addRecLog");
 
         Thread.sleep(1000L);

@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.model.po;
 
 import io.github.alphajiang.hyena.model.base.BasePo;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -35,6 +36,10 @@ public class PointPo extends BasePo {
     private Long frozen;
     private Long refund;
     private Long expire;
+    @ApiModelProperty("实际成本(不含冻结部分)")
+    private Long cost;
+    @ApiModelProperty("冻结的成本")
+    private Long frozenCost;
     private Long seqNum;
 
 }

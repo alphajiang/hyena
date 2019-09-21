@@ -112,8 +112,6 @@ public class PointController {
             param.setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
         }
         var res = this.pointLogDs.listPointLog4Page(param);
-
-
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
@@ -263,6 +261,37 @@ public class PointController {
         return res;
     }
 
+    @Idempotent(name = "refund-freeze")
+    @ApiOperation(value = "退款冻结")
+    @PostMapping(value = "/refundFreeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ObjectResponse<PointPo> refundFreeze(HttpServletRequest request,
+                                          @RequestBody PointRefundParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
+            throw new HyenaParameterException("invalid parameter: unfreezePoint");
+        }
+        PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
+        PointPo cusPoint = this.pointUsageFacade.refund(usage);
+        ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
+
+    @Idempotent(name = "refund-unfreeze")
+    @ApiOperation(value = "退款解冻")
+    @PostMapping(value = "/refundUnfreeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ObjectResponse<PointPo> refundUnfreeze(HttpServletRequest request,
+                                                @RequestBody PointRefundParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
+            throw new HyenaParameterException("invalid parameter: unfreezePoint");
+        }
+        PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
+        PointPo cusPoint = this.pointUsageFacade.refund(usage);
+        ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
 
     @Idempotent(name = "refund-point")
     @ApiOperation(value = "退款")

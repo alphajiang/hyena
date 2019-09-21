@@ -41,7 +41,11 @@ public class PointRecPo extends BasePo {
     private Long refund;
     private Long cancelled;
     private Long expire;
+    @ApiModelProperty("总成本")
     private Long totalCost;
+    @ApiModelProperty("冻结的成本")
+    private Long frozenCost;
+    @ApiModelProperty("已消耗的成本")
     private Long usedCost;
     private String tag;
     private String orderNo;

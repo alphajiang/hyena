@@ -27,7 +27,7 @@ import io.github.alphajiang.hyena.model.param.SortParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
-import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
@@ -87,7 +87,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         Assert.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPoingLog = new PointLog();
-        expectPoingLog.setUid(this.uid).setType(PointStatus.DECREASE.code())
+        expectPoingLog.setUid(this.uid).setType(PointOpType.DECREASE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(number)
                 .setPoint(result.getPoint()).setAvailable(result.getAvailable())
                 .setUsed(result.getUsed()).setFrozen(result.getFrozen())
@@ -131,7 +131,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         var expectPointRecLog = new PointRecLogPo();
         expectPointRecLog.setUid(super.uid).setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
-                .setType(PointStatus.DECREASE.code()).setDelta(number)
+                .setType(PointOpType.DECREASE.code()).setDelta(number)
                 .setAvailable(pointRec.getAvailable())
                 .setUsed(pointRec.getUsed())
                 .setFrozen(0L).setCancelled(0L).setExpire(0L)

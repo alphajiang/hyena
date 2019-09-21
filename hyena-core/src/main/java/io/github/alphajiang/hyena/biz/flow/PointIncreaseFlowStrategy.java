@@ -24,7 +24,7 @@ import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
-import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +50,7 @@ public class PointIncreaseFlowStrategy extends AbstractPointFlowStrategy {
     @Override
     @Transactional
     public void addFlow(PointUsage usage, PointPo point) {
-        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointStatus.INCREASE, usage, point);
+        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointOpType.INCREASE, usage, point);
         var pointRec = this.pointRecDs.addPointRec(usage, point, point.getSeqNum());
 
 

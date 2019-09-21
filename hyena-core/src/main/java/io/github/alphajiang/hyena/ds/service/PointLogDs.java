@@ -25,7 +25,7 @@ import io.github.alphajiang.hyena.model.dto.PointLog;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
@@ -49,7 +49,7 @@ public class PointLogDs {
     private PointTableDs pointTableDs;
 
 
-    public PointLogPo addPointLog(@NonNull String type, @NonNull PointStatus actionType,
+    public PointLogPo addPointLog(@NonNull String type, @NonNull PointOpType actionType,
                                   @NonNull PointUsage usage, @NonNull PointPo point) {
         String tableName = TableNameHelper.getPointTableName(type);
         PointLogPo pointLog = new PointLogPo();

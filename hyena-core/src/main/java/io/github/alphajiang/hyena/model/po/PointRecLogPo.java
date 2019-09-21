@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.model.po;
 
 import io.github.alphajiang.hyena.model.base.BasePo;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -39,13 +40,20 @@ public class PointRecLogPo extends BasePo {
      */
     private Integer type;
     private Long delta;
+    @ApiModelProperty("变动部分的实际成本")
+    private Long deltaCost;
     private Long available;
     private Long used;
     private Long frozen;
     private Long refund;
     private Long cancelled;
     private Long expire;
+    @ApiModelProperty("变动后,实际成本")
     private Long cost;
+    @ApiModelProperty("变动后,冻结的实际成本")
+    private Long frozenCost;
+    @ApiModelProperty("变动后,已消耗的实际成本")
+    private Long usedCost;
 
     private Integer sourceType;
     private Integer orderType;

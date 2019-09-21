@@ -26,7 +26,7 @@ import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
-import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +95,7 @@ public class PointExpireStrategy extends AbstractPointStrategy {
         this.pointDs.update(usage.getType(), point2Update);
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1);
-        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointStatus.EXPIRE, usage,  curPoint);
+        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointOpType.EXPIRE, usage,  curPoint);
 
 
 

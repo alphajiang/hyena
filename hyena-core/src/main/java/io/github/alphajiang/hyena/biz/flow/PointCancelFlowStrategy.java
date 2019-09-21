@@ -29,7 +29,7 @@ import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
-import io.github.alphajiang.hyena.model.type.PointStatus;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
@@ -62,7 +62,7 @@ public class PointCancelFlowStrategy extends AbstractPointFlowStrategy {
     @Override
     @Transactional
     public void addFlow(PointUsage usage, PointPo point) {
-        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointStatus.CANCEL, usage, point);
+        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointOpType.CANCEL, usage, point);
 
         long gap = usage.getPoint();
         List<PointRecLogPo> recLogs = new ArrayList<>();

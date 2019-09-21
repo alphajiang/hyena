@@ -17,7 +17,10 @@
 
 package io.github.alphajiang.hyena.model.type;
 
-public enum PointStatus {
+/**
+ * 变动类型
+ */
+public enum PointOpType {
 
     INCREASE(1),    // 增加
 
@@ -33,18 +36,22 @@ public enum PointStatus {
 
     REFUND(7),      // 退款
 
+    REFUND_FREEZE(8),   // 退款冻结
+
+    REFUND_UNFREEZE(9),     // 退款解冻
+
     UNKNOWN(0)
     ;
 
 
     private final int code;
 
-    PointStatus(int code) {
+    PointOpType(int code) {
         this.code = code;
     }
 
-    public static PointStatus fromCode(int code){
-        for (PointStatus type : values()) {
+    public static PointOpType fromCode(int code){
+        for (PointOpType type : values()) {
             if (type.code == code) {
                 return type;
             }
