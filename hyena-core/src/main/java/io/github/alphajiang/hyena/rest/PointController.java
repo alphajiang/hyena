@@ -35,6 +35,7 @@ import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.param.*;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.SortOrder;
+import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DateUtils;
 import io.github.alphajiang.hyena.utils.LoggerHelper;
 import io.swagger.annotations.Api;
@@ -107,8 +108,9 @@ public class PointController {
             HttpServletRequest request,
             @RequestBody ListPointLogParam param) {
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
-
-        param.setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
+        if (CollectionUtils.isEmpty(param.getSorts())) {
+            param.setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
+        }
         var res = this.pointLogDs.listPointLog4Page(param);
 
 
@@ -153,7 +155,7 @@ public class PointController {
 
         ListPointRecLogParam param = new ListPointRecLogParam();
         param.setUid(uid).setRecId(recId).setTag(tag);
-        if(seqNum != null) {
+        if (seqNum != null) {
             param.setSeqNum(seqNum);
         }
         param.setEnable(enable).setSorts(List.of(SortParam.as("log.id", SortOrder.desc)))
@@ -268,7 +270,7 @@ public class PointController {
     public ObjectResponse<PointPo> refund(HttpServletRequest request,
                                           @RequestBody PointRefundParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
-        if(param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
+        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
             throw new HyenaParameterException("invalid parameter: unfreezePoint");
         }
         PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
