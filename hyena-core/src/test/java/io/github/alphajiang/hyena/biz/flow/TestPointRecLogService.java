@@ -44,11 +44,12 @@ public class TestPointRecLogService extends HyenaTestBase {
         rec.setPid(super.getUserPoint().getId())
                 .setAvailable(1000L).setCancelled(0L)
                 .setExpire(1L).setFrozen(20L).setTotal(1000L).setUsed(100L)
-        .setId(100L);
+                .setTotalCost(100L).setFrozenCost(90L).setUsedCost(10L)
+                .setId(100L);
         this.pointRecLogService.addLogByRec(super.getPointType(), PointOpType.INCREASE,
                 rec, 100L, 100L, "UT-test_addRecLog");
 
         Thread.sleep(1000L);
         log.info("<<");
-        }
+    }
 }

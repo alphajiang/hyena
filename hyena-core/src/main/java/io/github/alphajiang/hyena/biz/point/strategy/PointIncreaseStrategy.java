@@ -74,11 +74,9 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         point2Update.setPoint(usage.getPoint())
                 .setAvailable(usage.getPoint())
                 .setUid(usage.getUid());
-        if (usage.getCost() != null && usage.getCost() > 0L) {
-            point2Update.setCost(usage.getCost());
-        } else {
-            point2Update.setCost(0L);
-        }
+        long cost = usage.getCost() != null && usage.getCost() > 0L ? usage.getCost() : 0L;
+        point2Update.setCost(cost);
+
         if (StringUtils.isNotBlank(usage.getName())) {
             point2Update.setName(usage.getName());
         }
@@ -89,7 +87,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         if (usage.getPoint() > 0L) {
             var pointRec = this.pointRecDs.addPointRec(usage, retPoint.getId(), retPoint.getSeqNum());
 
-            if(usage.getPoint() > retPoint.getPoint()) {
+            if (usage.getPoint() > retPoint.getPoint()) {
                 // 之前有欠款 TODO: 待验证
                 long number = usage.getPoint() - retPoint.getPoint();
                 pointRec.setAvailable(pointRec.getAvailable() - number);
@@ -99,7 +97,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
 
             PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.INCREASE, usage, retPoint);
             PointRecLogPo recLog = this.pointRecLogDs.buildRecLog(pointRec, pointLog, usage.getPoint(),
-                    usage.getCost());
+                    cost);
 
 
             pointFlowService.addFlow(getType(), usage, retPoint, pointLog, List.of(recLog));

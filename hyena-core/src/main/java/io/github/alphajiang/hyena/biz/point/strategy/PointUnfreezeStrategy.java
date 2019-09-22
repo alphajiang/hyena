@@ -25,7 +25,6 @@ import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
-import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
@@ -75,20 +74,9 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
     public PointPo process(PointUsage usage) {
         log.info("unfreeze. usage = {}", usage);
         super.preProcess(usage);
-        int retry = 3;
-        PointPo curPoint = null;
-        for (int i = 0; i < retry; i++) {
-            try {
-                curPoint = this.unfreeze(usage);
-                if (curPoint != null) {
-                    break;
-                }
-            } catch (HyenaParameterException e) {
-                throw e;
-            } catch (Exception e) {
-                log.warn("unfreeze failed. retry = {}, error = {}", retry, e.getMessage(), e);
-            }
-        }
+//        int retry = 3;
+        PointPo curPoint = this.unfreeze(usage);
+
         if (curPoint == null) {
             throw new HyenaServiceException(HyenaConstants.RES_CODE_SERVICE_BUSY, "service busy, please retry later");
         }
@@ -96,8 +84,9 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
     }
 
 
+
     private PointPo unfreeze(PointUsage usage) {
-        PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
+        PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.isTrue(curPoint.getFrozen().longValue() >= usage.getPoint(),

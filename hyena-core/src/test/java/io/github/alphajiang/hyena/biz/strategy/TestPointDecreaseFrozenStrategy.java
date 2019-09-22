@@ -94,7 +94,7 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
 
         // verify point log
         ListPointLogParam listPointLogParam = new ListPointLogParam();
-        listPointLogParam.setUid(this.uid).setSeqNum(result.getSeqNum())
+        listPointLogParam.setUid(this.uid).setSeqNum(result.getSeqNum() -1)
                 .setSourceTypes(List.of(DECREASE_SOURCE_TYPE))
                 .setOrderTypes(List.of(DECREASE_ORDER_TYPE))
                 .setPayTypes(List.of(DECREASE_PAY_TYPE))
@@ -102,11 +102,11 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
                 .setSorts(List.of(SortParam.as("log.id", SortOrder.asc)));
         var pointLogs = pointLogDs.listPointLog(listPointLogParam);
         log.info("pointLogs = {}", pointLogs);
-        Assert.assertEquals(2, pointLogs.size());
+        Assert.assertEquals(1, pointLogs.size());
         var pointLogUnfreeze = pointLogs.get(0);
         var expectPoingLogUnfreeze = new PointLog();
         expectPoingLogUnfreeze.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
-                .setSeqNum(result.getSeqNum()).setDelta(freezeNum)
+                .setSeqNum(result.getSeqNum() -1).setDelta(freezeNum)
                 .setPoint(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1)
                 .setUsed(0L).setFrozen(0L)
                 .setExpire(0L).setTag(usage.getTag())
@@ -118,7 +118,16 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
                 .setNote(usage.getNote());
         HyenaTestAssert.assertEquals(expectPoingLogUnfreeze, pointLogUnfreeze);
 
-        var pointLogDecrease = pointLogs.get(1);
+        listPointLogParam = new ListPointLogParam();
+        listPointLogParam.setUid(this.uid).setSeqNum(result.getSeqNum())
+                .setSourceTypes(List.of(DECREASE_SOURCE_TYPE))
+                .setOrderTypes(List.of(DECREASE_ORDER_TYPE))
+                .setPayTypes(List.of(DECREASE_PAY_TYPE))
+                .setType(super.getPointType())
+                .setSorts(List.of(SortParam.as("log.id", SortOrder.asc)));
+        pointLogs = pointLogDs.listPointLog(listPointLogParam);
+        log.info("pointLogs = {}", pointLogs);
+        var pointLogDecrease = pointLogs.get(0);
         var expectPoingLogDecrease = new PointLog();
         expectPoingLogDecrease.setUid(this.uid).setType(PointOpType.DECREASE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(useNumber)
@@ -178,7 +187,7 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         var pointRecLogUnfreeze = pointRecLogList.get(1);
         var expectPointRecLogUnfreeze = new PointRecLogPo();
         expectPointRecLogUnfreeze.setUid(super.uid).setPid(super.point.getId())
-                .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
+                .setSeqNum(result.getSeqNum() -1).setRecId(pointRec.getId())
                 .setType(PointOpType.UNFREEZE.code()).setDelta(freezeNum)
                 .setAvailable(INCREASE_POINT_1)
                 .setUsed(0L)

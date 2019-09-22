@@ -24,8 +24,6 @@ import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
-import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
-import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
@@ -57,6 +55,12 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     @Autowired
     private PointFlowService pointFlowService;
 
+    @Autowired
+    private PointUnfreezeStrategy pointUnfreezeStrategy;
+
+    @Autowired
+    private PointDecreaseStrategy pointDecreaseStrategy;
+
     @Override
     public CalcType getType() {
         return CalcType.DECREASE_FROZEN;
@@ -66,31 +70,41 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     @Transactional
     public PointPo process(PointUsage usage) {
         log.info("decrease frozen. usage = {}", usage);
-        super.preProcess(usage);
-        int retry = 3;
-        DecreaseResult ret = null;
-        for(int i = 0; i < retry; i ++){
-            try {
-                ret = this.decrease(usage);
-                if(ret != null) {
-                    break;
-                }
-            }
-            catch (HyenaParameterException e) {
-                throw e;
-            }
-            catch (Exception e) {
-                log.warn("decrease frozen failed. retry = {}, error = {}", retry, e.getMessage(), e);
-            }
+        //super.preProcess(usage);
+//        int retry = 3;
+//        DecreaseResult ret = null;
+//        for(int i = 0; i < retry; i ++){
+//            try {
+//                ret = this.decrease(usage);
+//                if(ret != null) {
+//                    break;
+//                }
+//            }
+//            catch (HyenaParameterException e) {
+//                throw e;
+//            }
+//            catch (Exception e) {
+//                log.warn("decrease frozen failed. retry = {}, error = {}", retry, e.getMessage(), e);
+//            }
+//        }
+//        if(ret == null) {
+//            throw new HyenaServiceException(HyenaConstants.RES_CODE_SERVICE_BUSY, "service busy, please retry later");
+//        }
+//        if(ret.getPostUnfreeze() != null) {
+//            pointFlowService.addFlow(CalcType.UNFREEZE, ret.getUsage4Unfreeze(), ret.getPostUnfreeze());
+//        }
+//        pointFlowService.addFlow(CalcType.DECREASE, usage, ret.getPostDecrease());
+//        return ret.getPostDecrease();
+
+        if(usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L) {
+            PointUsage usage4Unfreeze = new PointUsage();
+            BeanUtils.copyProperties(usage, usage4Unfreeze);
+            usage4Unfreeze.setPoint(usage.getUnfreezePoint());
+
+            this.pointUnfreezeStrategy.process(usage4Unfreeze);
         }
-        if(ret == null) {
-            throw new HyenaServiceException(HyenaConstants.RES_CODE_SERVICE_BUSY, "service busy, please retry later");
-        }
-        if(ret.getPostUnfreeze() != null) {
-            pointFlowService.addFlow(CalcType.UNFREEZE, ret.getUsage4Unfreeze(), ret.getPostUnfreeze());
-        }
-        pointFlowService.addFlow(CalcType.DECREASE, usage, ret.getPostDecrease());
-        return ret.getPostDecrease();
+
+        return this.pointDecreaseStrategy.process(usage);
     }
 
 

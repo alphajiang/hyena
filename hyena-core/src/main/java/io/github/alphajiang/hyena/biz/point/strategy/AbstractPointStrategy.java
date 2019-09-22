@@ -45,7 +45,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
         //String tableName =
         HyenaAssert.notBlank(usage.getType(), "invalid parameter, 'type' can't blank");
         HyenaAssert.notBlank(usage.getUid(), "invalid parameter, 'uid' can't blank");
-        if(getType() != CalcType.INCREASE) {
+        if (getType() != CalcType.INCREASE) {
             HyenaAssert.isTrue(usage.getPoint() > 0L, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                     "invalid parameter, 'point' must great than 0");
         }
@@ -56,10 +56,11 @@ abstract class AbstractPointStrategy implements PointStrategy {
 
     @Data
     @Accessors(chain = true)
-   public static class LoopResult {
+    public static class LoopResult {
         private long delta;
         private long deltaCost;
         private List<PointRecLogPo> recLogs;
 
     }
+
 }
