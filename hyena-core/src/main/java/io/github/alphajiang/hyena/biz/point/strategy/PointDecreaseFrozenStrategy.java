@@ -21,6 +21,9 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -33,6 +36,7 @@ import org.slf4j.event.Level;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -41,6 +45,14 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     @Autowired
     private PointDs pointDs;
 
+    @Autowired
+    private PointLogDs pointLogDs;
+
+    @Autowired
+    private PointRecDs pointRecDs;
+
+    @Autowired
+    private PointRecLogDs pointRecLogDs;
 
     @Autowired
     private PointFlowService pointFlowService;
@@ -51,7 +63,7 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     }
 
     @Override
-    //@Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public PointPo process(PointUsage usage) {
         log.info("decrease frozen. usage = {}", usage);
         super.preProcess(usage);

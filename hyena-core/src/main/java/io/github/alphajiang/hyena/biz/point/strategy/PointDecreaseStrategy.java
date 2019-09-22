@@ -21,22 +21,44 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
+import io.github.alphajiang.hyena.model.param.ListPointRecParam;
+import io.github.alphajiang.hyena.model.param.SortParam;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecLogPo;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.type.PointOpType;
+import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Slf4j
 @Component
 public class PointDecreaseStrategy extends AbstractPointStrategy {
-    private static final Logger logger = LoggerFactory.getLogger(PointDecreaseStrategy.class);
 
     @Autowired
     private PointDs pointDs;
 
+    @Autowired
+    private PointLogDs pointLogDs;
+
+    @Autowired
+    private PointRecDs pointRecDs;
+
+    @Autowired
+    private PointRecLogDs pointRecLogDs;
 
     @Autowired
     private PointFlowService pointFlowService;
@@ -47,12 +69,12 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
     }
 
     @Override
-    //@Transactional
+    @Transactional
     public PointPo process(PointUsage usage) {
-        logger.info("decrease. usage = {}", usage);
+        log.info("decrease. usage = {}", usage);
         super.preProcess(usage);
         PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
-        logger.debug("curPoint = {}", curPoint);
+        log.debug("curPoint = {}", curPoint);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
         HyenaAssert.notNull(curPoint.getAvailable(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
@@ -78,11 +100,81 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
                 .setAvailable(curPoint.getAvailable())
                 .setUsed(curPoint.getUsed()).setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
+        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
+
+        PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.DECREASE, usage, curPoint);
+
+        long gap = usage.getPoint();
+        long cost = 0L;
+        List<PointRecLogPo> recLogs = new ArrayList<>();
+        try {
+            do {
+                var recLogsRet = this.decreasePointLoop(usage.getType(), curPoint, pointLog, gap);
+                gap = gap - recLogsRet.getDelta();
+                cost = cost + recLogsRet.getDeltaCost();
+                recLogs.addAll(recLogsRet.getRecLogs());
+                log.debug("gap = {}", gap);
+            } while (gap > 0L);
+        } catch (HyenaNoPointException e) {
+
+        }
+        if (cost > 0L) {
+            pointLog.setDeltaCost(cost).setCost(pointLog.getCost() - cost);
+            curPoint.setCost(curPoint.getCost() - cost);
+            point2Update.setCost(curPoint.getCost());
+        }
+
         boolean ret = this.pointDs.update(usage.getType(), point2Update);
         HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
-        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
-        pointFlowService.addFlow(getType(), usage, curPoint);
+
+        pointFlowService.addFlow(getType(), usage, curPoint, pointLog, recLogs);
         return curPoint;
+    }
+
+    private LoopResult decreasePointLoop(String type, PointPo point, PointLogPo pointLog, long expected) {
+        log.info("decrease. type = {}, uid = {}, expected = {}", type, point.getUid(), expected);
+        ListPointRecParam param = new ListPointRecParam();
+        param.setUid(point.getUid()).setAvailable(true).setLock(true)
+                .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
+                .setSize(5);
+        var recList = this.pointRecDs.listPointRec(type, param);
+        if (recList.isEmpty()) {
+            throw new HyenaNoPointException("no enough point", Level.DEBUG);
+        }
+        LoopResult result = new LoopResult();
+        long sum = 0L;
+        long cost = 0L;
+        List<PointRecLogPo> recLogs = new ArrayList<>();
+        for (PointRecPo rec : recList) {
+            long gap = expected - sum;
+            if (gap < 1L) {
+                log.warn("gap = {} !!!", gap);
+                break;
+            } else if (rec.getAvailable() < gap) {
+                sum += rec.getAvailable();
+                long delta = rec.getAvailable();
+                long costDelta = this.pointRecDs.accountCost(rec, delta);
+                cost += costDelta;
+                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, costDelta);
+
+
+                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, delta, costDelta);
+                recLogs.add(recLog);
+            } else {
+                sum += gap;
+                long costDelta = this.pointRecDs.accountCost(rec, gap);
+                cost += costDelta;
+                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, costDelta);
+
+                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, gap, costDelta);
+                recLogs.add(recLog);
+                break;
+            }
+        }
+        //var ret = point - sum;
+        result.setDelta(sum).setDeltaCost(cost).setRecLogs(recLogs);
+        log.debug("result = {}", result);
+        return result;
     }
 
 
