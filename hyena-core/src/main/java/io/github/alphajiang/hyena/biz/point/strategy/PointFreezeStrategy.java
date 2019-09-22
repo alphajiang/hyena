@@ -19,6 +19,7 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
+import io.github.alphajiang.hyena.biz.point.CostCalculator;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
@@ -64,6 +65,9 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
     @Autowired
     private PointFlowService pointFlowService;
 
+
+    @Autowired
+    private CostCalculator costCalculator;
 
     @Override
     public CalcType getType() {
@@ -175,14 +179,14 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
                 long delta = rec.getAvailable();
-                long deltaCost = this.pointRecDs.accountCost(rec, delta);
+                long deltaCost = this.costCalculator.accountCost(rec, delta);
                 cost += deltaCost;
                 var retRec = this.pointRecDs.freezePoint(type, rec, gap, deltaCost);
                 var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, delta, deltaCost);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                long deltaCost = this.pointRecDs.accountCost(rec, gap);
+                long deltaCost = this.costCalculator.accountCost(rec, gap);
                 cost += deltaCost;
                 var retRec = this.pointRecDs.freezePoint(type, rec, gap, deltaCost);
                 var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, gap, deltaCost);

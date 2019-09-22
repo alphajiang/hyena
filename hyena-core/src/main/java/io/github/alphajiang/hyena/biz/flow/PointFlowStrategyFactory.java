@@ -42,8 +42,14 @@ public class PointFlowStrategyFactory {
 
 @Transactional
     public void addFlow(PointFlowWrapper o) {
-        Optional<PointFlowStrategy> strategy = getStrategy(o.getCalcType());
-        strategy.ifPresent(act -> act.addFlow2(o.getUsage(), o.getPointLog(), o.getRecLogs()));
+        if(o.getPointLog() != null) {
+            Optional<PointFlowStrategy> strategy = getStrategy(CalcType.INCREASE);
+            strategy.ifPresent(act -> act.addFlow2(o.getUsage(), o.getPointLog(), o.getRecLogs()));
+        }
+        else {// TODO: 旧的逻辑, 需要移除
+            Optional<PointFlowStrategy> strategy = getStrategy(o.getCalcType());
+            strategy.ifPresent(act -> act.addFlow2(o.getUsage(), o.getPointLog(), o.getRecLogs()));
+        }
     }
 //    private static synchronized PointFlowStrategyFactory getInstance() {
 //        if (instance == null) {

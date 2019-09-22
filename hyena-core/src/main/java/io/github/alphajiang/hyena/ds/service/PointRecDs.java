@@ -277,36 +277,5 @@ public class PointRecDs {
         return ret == null ? 0L : ret;
     }
 
-    /**
-     * 计算delta(变动)部分在积分块中的所占成本
-     *
-     * @param rec   积分块
-     * @param delta 变动部分
-     * @return 所占成本
-     */
-    public long accountCost(PointRecPo rec, long delta) {
-        long cost = 0L;
-        if (rec.getTotalCost() == null || rec.getTotalCost() < 1L) { // 积分块没有成本时直接返回0
-            return cost;
-        }
-        if (rec.getAvailable() <= delta) { // 不够抵扣时返回剩余的全部
-            cost = rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
-        } else { // 按比例计算
-            cost = delta * rec.getTotalCost() / rec.getTotal();
-        }
-        return cost;
-    }
 
-    public long accountCost4Unfreeze(PointRecPo rec, long delta) {
-        long cost = 0L;
-        if (rec.getTotalCost() == null || rec.getTotalCost() < 1L) { // 积分块没有成本时直接返回0
-            return cost;
-        }
-        if (rec.getFrozen() <= delta) { // 不够解冻时返回剩余的全部
-            cost = rec.getFrozenCost();
-        } else { // 按比例计算
-            cost = delta * rec.getTotalCost() / rec.getTotal();
-        }
-        return cost;
-    }
 }

@@ -48,7 +48,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class PointUnfreezeStrategy extends AbstractPointStrategy {
+public class PointFreezeCostStrategy extends AbstractPointStrategy {
 
     @Autowired
     private PointDs pointDs;
@@ -68,18 +68,21 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
     @Autowired
     private CostCalculator costCalculator;
 
+
     @Override
     public CalcType getType() {
-        return CalcType.UNFREEZE;
+        return CalcType.FREEZE_COST;
     }
 
     @Override
-    @Transactional//(propagation = Propagation.MANDATORY)
+    @Transactional
     public PointPo process(PointUsage usage) {
-        log.info("unfreeze. usage = {}", usage);
+        log.info("cost freeze. usage = {}", usage);
         super.preProcess(usage);
-//        int retry = 3;
-        PointPo curPoint = this.unfreeze(usage);
+
+        PointPo curPoint = null;
+
+        curPoint = this.freezeCost(usage);
 
         if (curPoint == null) {
             throw new HyenaServiceException(HyenaConstants.RES_CODE_SERVICE_BUSY, "service busy, please retry later");
@@ -87,72 +90,70 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
         return curPoint;
     }
 
-
-
-    private PointPo unfreeze(PointUsage usage) {
+    private PointPo freezeCost(PointUsage usage) {
         PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
         HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
-        HyenaAssert.isTrue(curPoint.getFrozen().longValue() >= usage.getPoint(),
+        long availableCost = curPoint.getCost().longValue() - curPoint.getFrozenCost().longValue();
+        HyenaAssert.isTrue(availableCost >= usage.getPoint(),
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
-                "no enough frozen point");
+                "no enough available cost");
 
 
-        curPoint.setAvailable(curPoint.getAvailable() + usage.getPoint())
-                .setFrozen(curPoint.getFrozen() - usage.getPoint());
-
+        curPoint.setFrozenCost(curPoint.getFrozenCost() + usage.getPoint());
         var point2Update = new PointPo();
-        point2Update.setAvailable(curPoint.getAvailable()).setFrozen(curPoint.getFrozen())
+        point2Update.setFrozenCost(curPoint.getFrozenCost())
                 .setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1);
 
-        PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.UNFREEZE, usage, curPoint);
-
+        PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.FREEZE_COST, usage, curPoint);
         long gap = usage.getPoint();
         long cost = 0L;
+        long sumPoint = 0L;
         List<PointRecLogPo> recLogs = new ArrayList<>();
         try {
             do {
-                var recLogsRet = this.unfreezePointLoop(usage.getType(), curPoint, pointLog, gap);
-                gap = gap - recLogsRet.getDelta();
-                cost += recLogsRet.getDeltaCost();
+                var recLogsRet = this.freezePointLoop(usage.getType(), curPoint, pointLog, gap);
+                gap = gap - recLogsRet.getDeltaCost();
+                cost = cost + recLogsRet.getDeltaCost();
+                sumPoint += recLogsRet.getDelta();
                 recLogs.addAll(recLogsRet.getRecLogs());
                 log.debug("gap = {}", gap);
             } while (gap > 0L);
         } catch (HyenaNoPointException e) {
 
         }
-        if(gap != 0L) {
-            log.warn("no enough frozen point. usage = {}, point = {}", usage, curPoint);
+        if (gap != 0L) {
+            log.warn("no enough available cost! gap = {}", gap);
+            //throw new HyenaServiceException("no enough available point!");
         }
-//        if (CollectionUtils.isNotEmpty(recLogs)) {
-//            this.pointRecLogDs.addPointRecLogs(usage.getType(), recLogs);
-//        }
+        curPoint.setFrozen(curPoint.getFrozen() + sumPoint)
+                .setAvailable(curPoint.getAvailable() - sumPoint);
+        point2Update.setFrozen(curPoint.getFrozen())
+                .setAvailable(curPoint.getAvailable());
 
-        if (cost > 0L) {
-            pointLog.setDeltaCost(cost).setFrozenCost(pointLog.getFrozenCost() - cost);
-            curPoint.setFrozenCost(curPoint.getFrozenCost() - cost);
-            point2Update.setFrozenCost(curPoint.getFrozenCost());
-        }
+        pointLog.setDelta(sumPoint)
+                .setDeltaCost(cost).setFrozenCost(curPoint.getFrozenCost())
+                .setAvailable(curPoint.getAvailable())
+                .setFrozen(curPoint.getFrozen());
+        //HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
         boolean ret = this.pointDs.update(usage.getType(), point2Update);
         if (!ret) {
-            log.warn("unfreeze failed!!! please retry later. usage = {}", usage);
+            log.warn("freeze cost failed!!! please retry later. usage = {}", usage);
             return null;
         }
 
-
         pointFlowService.addFlow(getType(), usage, curPoint, pointLog, recLogs);
-        //pointFlowService.addFlow(getType(), usage, curPoint);
         return curPoint;
     }
 
 
-    private LoopResult unfreezePointLoop(String type, PointPo point, PointLogPo pointLog, long expected) {
-        log.info("unfreeze. type = {}, uid = {}, expected = {}", type, point.getUid(), expected);
+    private LoopResult freezePointLoop(String type, PointPo point, PointLogPo pointLog, long expected) {
+        log.info("freeze. type = {}, uid = {}, expected = {}", type, point.getUid(), expected);
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(point.getUid()).setFrozen(true).setLock(true)
+        param.setUid(point.getUid()).setAvailable(true).setLock(true)
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)))
                 .setSize(5);
         var recList = this.pointRecDs.listPointRec(type, param);
@@ -161,34 +162,41 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
         }
         LoopResult result = new LoopResult();
         long sum = 0L;
+        long sumPoint = 0L;
         long cost = 0L;
         List<PointRecLogPo> recLogs = new ArrayList<>();
         for (PointRecPo rec : recList) {
             long gap = expected - sum;
+            long availableCost = this.costCalculator.getAvailableCost(rec);
             if (gap < 1L) {
                 log.warn("gap = {} !!!", gap);
                 break;
-            } else if (rec.getFrozen() < gap) {
-                sum += rec.getFrozen();
-                long delta = rec.getFrozen();
-                long deltaCost = this.costCalculator.accountCost4Unfreeze(rec, delta);
+            } else if (availableCost < gap) {
+                sum += availableCost;
+                long deltaCost = availableCost;
+                long delta = this.costCalculator.accountPoint(rec, deltaCost);
+                sumPoint += delta;
                 cost += deltaCost;
-                var retRec = this.pointRecDs.unfreezePoint(type, rec, gap, deltaCost);
+                var retRec = this.pointRecDs.freezePoint(type, rec, delta, deltaCost);
                 var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, delta, deltaCost);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                long deltaCost = this.costCalculator.accountCost4Unfreeze(rec, gap);
+                long deltaCost = gap;
+                long delta = this.costCalculator.accountPoint(rec, deltaCost);
+                sumPoint += delta;
                 cost += deltaCost;
-                var retRec = this.pointRecDs.unfreezePoint(type, rec, gap, deltaCost);
-                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, gap, deltaCost);
+                var retRec = this.pointRecDs.freezePoint(type, rec, delta, deltaCost);
+                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, delta, deltaCost);
                 recLogs.add(recLog);
                 break;
             }
         }
-
-        result.setDelta(sum).setDeltaCost(cost).setRecLogs(recLogs);
+        //var ret = point - sum;
+        result.setDelta(sumPoint).setDeltaCost(cost).setRecLogs(recLogs);
         log.debug("result = {}", result);
         return result;
     }
+
+
 }

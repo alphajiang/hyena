@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.biz.flow;
 
+import io.github.alphajiang.hyena.biz.point.CostCalculator;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
@@ -53,6 +54,8 @@ public class PointCancelFlowStrategy extends AbstractPointFlowStrategy {
     @Autowired
     private PointRecLogDs pointRecLogDs;
 
+    @Autowired
+    private CostCalculator costCalculator;
 
     @Override
     public CalcType getType() {
@@ -103,7 +106,7 @@ public class PointCancelFlowStrategy extends AbstractPointFlowStrategy {
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
                 long delta = rec.getAvailable();
-                long costDelta = this.pointRecDs.accountCost(rec, delta);
+                long costDelta = this.costCalculator.accountCost(rec, delta);
                 var retRec = this.pointRecDs.cancelPoint(type, rec, gap);
 
 
@@ -111,7 +114,7 @@ public class PointCancelFlowStrategy extends AbstractPointFlowStrategy {
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                long costDelta = this.pointRecDs.accountCost(rec, gap);
+                long costDelta = this.costCalculator.accountCost(rec, gap);
                 var retRec = this.pointRecDs.cancelPoint(type, rec, gap);
 
                 var recLog = this.pointRecLogDs.addLogByRec(type, retRec, pointLog, gap, costDelta);

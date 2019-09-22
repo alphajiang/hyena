@@ -30,6 +30,10 @@ public enum CalcType {
 
     REFUND,
 
+    FREEZE_COST,   // 退款冻结
+
+    UNFREEZE_COST,     // 退款解冻
+
     EXPIRE,
 
     CANCEL

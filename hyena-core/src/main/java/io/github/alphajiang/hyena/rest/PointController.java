@@ -261,17 +261,17 @@ public class PointController {
         return res;
     }
 
-    @Idempotent(name = "refund-freeze")
-    @ApiOperation(value = "退款冻结")
-    @PostMapping(value = "/refundFreeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ObjectResponse<PointPo> refundFreeze(HttpServletRequest request,
+    @Idempotent(name = "freeze-cost")
+    @ApiOperation(value = "按成本冻结")
+    @PostMapping(value = "/freezeCost", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ObjectResponse<PointPo> freezeCost(HttpServletRequest request,
                                           @RequestBody PointRefundParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
         if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
             throw new HyenaParameterException("invalid parameter: unfreezePoint");
         }
         PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
-        PointPo cusPoint = this.pointUsageFacade.refund(usage);
+        PointPo cusPoint = this.pointUsageFacade.freezeCost(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
