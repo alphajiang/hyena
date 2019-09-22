@@ -163,17 +163,19 @@ public class PointRecDs {
     }
 
     @Transactional
-    public PointRecPo unfreezePoint(String type, PointRecPo rec, long point) {
+    public PointRecPo unfreezePoint(String type, PointRecPo rec, long point, long deltaCost) {
 
         long delta = point;
         if (rec.getFrozen() < delta) {
             long available = rec.getAvailable() + rec.getFrozen();
-            rec.setFrozen(0L).setAvailable(available);
+            rec.setFrozen(0L).setAvailable(available)
+                    .setFrozenCost(rec.getFrozenCost() - deltaCost);
             this.updatePointRec(type, rec);
         } else {
             long frozen = rec.getFrozen() - point;
             long available = rec.getAvailable() + point;
-            rec.setAvailable(available).setFrozen(frozen);
+            rec.setAvailable(available).setFrozen(frozen)
+                    .setFrozenCost(rec.getFrozenCost() - deltaCost);
             this.updatePointRec(type, rec);
 
         }
@@ -289,6 +291,19 @@ public class PointRecDs {
         }
         if (rec.getAvailable() <= delta) { // 不够抵扣时返回剩余的全部
             cost = rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
+        } else { // 按比例计算
+            cost = delta * rec.getTotalCost() / rec.getTotal();
+        }
+        return cost;
+    }
+
+    public long accountCost4Unfreeze(PointRecPo rec, long delta) {
+        long cost = 0L;
+        if (rec.getTotalCost() == null || rec.getTotalCost() < 1L) { // 积分块没有成本时直接返回0
+            return cost;
+        }
+        if (rec.getFrozen() <= delta) { // 不够解冻时返回剩余的全部
+            cost = rec.getFrozenCost();
         } else { // 按比例计算
             cost = delta * rec.getTotalCost() / rec.getTotal();
         }

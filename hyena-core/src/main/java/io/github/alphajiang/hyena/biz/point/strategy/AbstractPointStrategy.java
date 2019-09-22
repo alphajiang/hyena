@@ -20,11 +20,15 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
+import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
+import lombok.Data;
+import lombok.experimental.Accessors;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 abstract class AbstractPointStrategy implements PointStrategy {
 
@@ -47,5 +51,15 @@ abstract class AbstractPointStrategy implements PointStrategy {
         }
         this.cusPointTableDs.getOrCreateTable(usage.getType());
         //logger.debug("tableName = {}", tableName);
+    }
+
+
+    @Data
+    @Accessors(chain = true)
+   public static class LoopResult {
+        private long delta;
+        private long deltaCost;
+        private List<PointRecLogPo> recLogs;
+
     }
 }

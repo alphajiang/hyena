@@ -36,8 +36,6 @@ import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
-import lombok.Data;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,12 +196,5 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
         return result;
     }
 
-    @Data
-    @Accessors(chain = true)
-    class LoopResult {
-        private long delta;
-        private long deltaCost;
-        private List<PointRecLogPo> recLogs;
 
-    }
 }

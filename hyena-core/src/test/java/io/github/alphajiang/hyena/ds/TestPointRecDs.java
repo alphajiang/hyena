@@ -73,7 +73,7 @@ public class TestPointRecDs extends HyenaTestBase {
         pointRecDs.freezePoint(super.getPointType(), recA, 20, 0L);
 
         recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
-        pointRecDs.unfreezePoint(super.getPointType(), recA, 20);
+        pointRecDs.unfreezePoint(super.getPointType(), recA, 20, 10L);
 
     }
 

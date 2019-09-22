@@ -82,6 +82,7 @@ public class PointRecLogDs {
 //        return recLog;
 //    }
 
+    @Deprecated
     public PointRecLogPo buildRecLog(PointRecPo rec, PointLogPo pointLog,
                                      long delta) {
         return this.buildRecLog(rec, pointLog, delta, 0L);
