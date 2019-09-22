@@ -63,7 +63,8 @@ public class PointFreezeFlowStrategy extends AbstractPointFlowStrategy {
     @Override
     @Transactional
     public void addFlow(PointUsage usage, PointPo point) {
-        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointOpType.FREEZE, usage, point);
+        //PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointOpType.FREEZE, usage, point);
+        PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.FREEZE, usage, point);
 
         long gap = usage.getPoint();
         List<PointRecLogPo> recLogs = new ArrayList<>();
@@ -81,7 +82,7 @@ public class PointFreezeFlowStrategy extends AbstractPointFlowStrategy {
             log.warn("no enough available point! gap = {}", gap);
             //throw new HyenaServiceException("no enough available point!");
         }
-
+        this.pointLogDs.addPointLog(usage.getType(), pointLog);
         if(CollectionUtils.isNotEmpty(recLogs)) {
             this.pointRecLogDs.addPointRecLogs(usage.getType(), recLogs);
         }
@@ -108,13 +109,15 @@ public class PointFreezeFlowStrategy extends AbstractPointFlowStrategy {
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
                 long delta = rec.getAvailable();
-                var retRec = this.pointRecDs.freezePoint(type, rec, gap);
-                var recLog = this.pointRecLogDs.buildRecLog( retRec, pointLog, delta);
+                long deltaCost = this.pointRecDs.accountCost(rec, delta);
+                var retRec = this.pointRecDs.freezePoint(type, rec, gap, deltaCost);
+                var recLog = this.pointRecLogDs.buildRecLog( retRec, pointLog, delta, deltaCost);
                 recLogs.add(recLog);
             } else {
                 //sum += gap;
-                var retRec = this.pointRecDs.freezePoint(type, rec, gap);
-                var recLog = this.pointRecLogDs.buildRecLog( retRec, pointLog, gap);
+                long deltaCost = this.pointRecDs.accountCost(rec, gap);
+                var retRec = this.pointRecDs.freezePoint(type, rec, gap, deltaCost);
+                var recLog = this.pointRecLogDs.buildRecLog( retRec, pointLog, gap, deltaCost);
                 recLogs.add(recLog);
                 break;
             }

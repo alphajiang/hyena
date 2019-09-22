@@ -173,6 +173,9 @@
         <if test="rec.cancelled != null">
             cancelled = #{rec.cancelled},
         </if>
+        <if test="rec.frozenCost != null">
+            frozenCost = #{rec.frozenCost},
+        </if>
         <if test="rec.usedCost != null">
             usedCost = #{rec.usedCost},
         </if>

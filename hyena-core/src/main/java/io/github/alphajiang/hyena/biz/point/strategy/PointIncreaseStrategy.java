@@ -20,15 +20,22 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 增加积分
@@ -40,17 +47,18 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     @Autowired
     private PointDs pointDs;
 
+
+    @Autowired
+    private PointLogDs pointLogDs;
+
+    @Autowired
+    private PointRecDs pointRecDs;
+
+    @Autowired
+    private PointRecLogDs pointRecLogDs;
+
     @Autowired
     private PointFlowService pointFlowService;
-
-//    @Autowired
-//    private PointLogDs pointLogDs;
-//
-//    @Autowired
-//    private PointRecDs pointRecDs;
-//
-//    @Autowired
-//    private PointRecLogDs pointRecLogDs;
 
     @Override
     public CalcType getType() {
@@ -58,46 +66,45 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional //(isolation = Isolation.READ_COMMITTED)
     public PointPo process(PointUsage usage) {
         logger.info("increase. usage = {}", usage);
         super.preProcess(usage);
         var point2Update = new PointPo();
-        point2Update.setPoint( usage.getPoint())
-                .setAvailable( usage.getPoint())
+        point2Update.setPoint(usage.getPoint())
+                .setAvailable(usage.getPoint())
                 .setUid(usage.getUid());
-        if(StringUtils.isNotBlank(usage.getName())) {
+        if (usage.getCost() != null && usage.getCost() > 0L) {
+            point2Update.setCost(usage.getCost());
+        } else {
+            point2Update.setCost(0L);
+        }
+        if (StringUtils.isNotBlank(usage.getName())) {
             point2Update.setName(usage.getName());
         }
-        this.pointDs.addPoint(usage.getType(), point2Update);
-        PointPo cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
 
-//        var cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
-//        if (cusPoint == null) {
-//            cusPoint = new PointPo();
-//            cusPoint.setUid(usage.getUid()).setName(usage.getName())
-//                    .setPoint(usage.getPoint()).setAvailable(usage.getPoint())
-//                    .setUsed(0L).setFrozen(0L).setExpire(0L);
-//            if(cusPoint.getName() == null) {
-//                cusPoint.setName("");
-//            }
-//            this.pointDs.addPoint(usage.getType(), cusPoint);
-//        } else {
-//
-//            this.pointDs.update(usage.getType(), point2Update);
-//            cusPoint.setPoint(point2Update.getPoint())
-//                    .setAvailable(point2Update.getAvailable());
-//        }
-//        cusPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
-        if(usage.getPoint() > 0L) {
-            pointFlowService.addFlow(getType(), usage, cusPoint);
+        this.pointDs.addPoint(usage.getType(), point2Update);
+        PointPo retPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
+
+        if (usage.getPoint() > 0L) {
+            var pointRec = this.pointRecDs.addPointRec(usage, retPoint.getId(), retPoint.getSeqNum());
+
+            if(usage.getPoint() > retPoint.getPoint()) {
+                // 之前有欠款 TODO: 待验证
+                long number = usage.getPoint() - retPoint.getPoint();
+                pointRec.setAvailable(pointRec.getAvailable() - number);
+                pointRec.setUsed(number);
+                this.pointRecDs.updatePointRec(usage.getType(), pointRec);
+            }
+
+            PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.INCREASE, usage, retPoint);
+            PointRecLogPo recLog = this.pointRecLogDs.buildRecLog(pointRec, pointLog, usage.getPoint(),
+                    usage.getCost());
+
+
+            pointFlowService.addFlow(getType(), usage, retPoint, pointLog, List.of(recLog));
         }
-//        var pointRec = this.pointRecDs.addPointRec(usage, cusPoint.getId());
-//        var recLog = this.pointRecLogDs.addLogByRec(usage.getType(), PointStatus.INCREASE,
-//                pointRec, usage.getPoint(), usage.getNote());
-//        var recLogs = List.of(recLog);
-//        this.pointLogDs.addPointLog(usage.getType(), cusPoint, usage.getPoint(),
-//                usage.getTag(), usage.getExtra(), recLogs);
-        return cusPoint;
+
+        return retPoint;
     }
 }

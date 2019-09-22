@@ -23,7 +23,6 @@ import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
-import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
@@ -80,15 +79,16 @@ public class PointRecDs {
      * 增加积分
      *
      * @param param 参数
-     * @param point 当前积分对象
+     * @param pid   当前积分对象ID
      * @return 返回积分记录
      */
     @Transactional
-    public PointRecPo addPointRec(PointUsage param, PointPo point, long seqNum) {
+    public PointRecPo addPointRec(PointUsage param, long pid, long seqNum) {
         logger.info("param = {}", param);
         PointRecPo rec = new PointRecPo();
-        rec.setPid(point.getId()).setSeqNum(seqNum).setTotal(param.getPoint())
+        rec.setPid(pid).setSeqNum(seqNum).setTotal(param.getPoint())
                 .setAvailable(param.getPoint())
+                .setFrozenCost(0L)
                 .setUsedCost(0L)
                 .setOrderNo(param.getOrderNo());
         if (param.getCost() != null && param.getCost() > 0L) {
@@ -143,17 +143,19 @@ public class PointRecDs {
 
 
     @Transactional
-    public PointRecPo freezePoint(String type, PointRecPo rec, long point) {
+    public PointRecPo freezePoint(String type, PointRecPo rec, long point, long deltaCost) {
 
         long delta = point;
         if (rec.getAvailable() < delta) {
             long frozen = rec.getFrozen() + rec.getAvailable();
-            rec.setAvailable(0L).setFrozen(frozen);
+            rec.setAvailable(0L).setFrozen(frozen)
+                    .setFrozenCost(rec.getFrozenCost() + deltaCost);
             this.updatePointRec(type, rec);
         } else {
             long available = rec.getAvailable() - point;
             long frozen = rec.getFrozen() + point;
-            rec.setAvailable(available).setFrozen(frozen);
+            rec.setAvailable(available).setFrozen(frozen)
+                    .setFrozenCost(rec.getFrozenCost() + deltaCost);
             this.updatePointRec(type, rec);
 
         }
@@ -202,7 +204,8 @@ public class PointRecDs {
         rec.setAvailable(0L).setCancelled(available);
         this.updatePointRec(type, rec);
 
-        this.pointRecLogDs.addLogByRec(type, rec, pointLog, available);
+        long deltaCost = rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
+        this.pointRecLogDs.addLogByRec(type, rec, pointLog, available, deltaCost);
     }
 
     @Transactional
@@ -210,8 +213,8 @@ public class PointRecDs {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setExpire(available).setEnable(false);
         this.updatePointRec(type, rec);
-
-        this.pointRecLogDs.addLogByRec(type, rec, pointLog, available);
+        long deltaCost = rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
+        this.pointRecLogDs.addLogByRec(type, rec, pointLog, available, deltaCost);
     }
 
     @Transactional
@@ -232,19 +235,19 @@ public class PointRecDs {
         return rec;
     }
 
-    @Transactional
-    public void refundPointRec(String type, PointRecPo rec, PointLogPo pointLog) {
-//        PointRecPo rec = this.getById(usage.getType(), usage.getRecId(), true);
-//        if(rec == null){
-//            throw new HyenaParameterException("invalid parameter");
-//        }
-        long available = rec.getAvailable();
-        rec.setAvailable(0L)
-                .setRefund(rec.getAvailable())
-                .setId(rec.getId());
-        this.updatePointRec(type, rec);
-        this.pointRecLogDs.addLogByRec(type, rec, pointLog, available);
-    }
+//    @Transactional
+//    public void refundPointRec(String type, PointRecPo rec, PointLogPo pointLog) {
+////        PointRecPo rec = this.getById(usage.getType(), usage.getRecId(), true);
+////        if(rec == null){
+////            throw new HyenaParameterException("invalid parameter");
+////        }
+//        long available = rec.getAvailable();
+//        rec.setAvailable(0L)
+//                .setRefund(rec.getAvailable())
+//                .setId(rec.getId());
+//        this.updatePointRec(type, rec);
+//        this.pointRecLogDs.addLogByRec(type, rec, pointLog, available);
+//    }
 
     @Transactional
     public void updatePointRec(String type, PointRecPo rec) {
@@ -270,5 +273,25 @@ public class PointRecDs {
         String pointTableName = TableNameHelper.getPointTableName(type);
         Long ret = this.pointRecMapper.getIncreasedPoint(pointTableName, uid, start, end);
         return ret == null ? 0L : ret;
+    }
+
+    /**
+     * 计算delta(变动)部分在积分块中的所占成本
+     *
+     * @param rec   积分块
+     * @param delta 变动部分
+     * @return 所占成本
+     */
+    public long accountCost(PointRecPo rec, long delta) {
+        long cost = 0L;
+        if (rec.getTotalCost() == null || rec.getTotalCost() < 1L) { // 积分块没有成本时直接返回0
+            return cost;
+        }
+        if (rec.getAvailable() <= delta) { // 不够抵扣时返回剩余的全部
+            cost = rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
+        } else { // 按比例计算
+            cost = delta * rec.getTotalCost() / rec.getTotal();
+        }
+        return cost;
     }
 }

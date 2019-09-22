@@ -18,7 +18,9 @@
 package io.github.alphajiang.hyena.biz.flow;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.vo.QueueInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -50,10 +52,16 @@ public class PointFlowService {
         }
     }
 
-
+    @Deprecated
     public void addFlow(CalcType calcType, PointUsage usage, PointPo point) {
         PointFlowProcessor processor = processorList.get((int) (point.getId() % THREAD_SIZE));
         processor.push(calcType, usage, point);
+    }
+
+    public void addFlow(CalcType calcType, PointUsage usage, PointPo point,
+                        PointLogPo pointLog, List<PointRecLogPo> recLogs) {
+        PointFlowProcessor processor = processorList.get((int) (point.getId() % THREAD_SIZE));
+        processor.push(calcType, usage, point, pointLog, recLogs);
     }
 
 

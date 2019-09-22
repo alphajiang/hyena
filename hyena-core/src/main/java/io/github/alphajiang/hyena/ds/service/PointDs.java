@@ -61,6 +61,9 @@ public class PointDs {
     }
 
     public boolean addPoint(String type, PointPo point) {
+        if(point.getName() == null) {
+            point.setName("");
+        }
         String tableName = TableNameHelper.getPointTableName(type);
         Integer ret = this.pointMapper.addPoint(tableName, point);
         return ret != null && ret.intValue() > 0;

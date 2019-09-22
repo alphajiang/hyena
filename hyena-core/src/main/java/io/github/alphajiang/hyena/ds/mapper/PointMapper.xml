@@ -21,15 +21,18 @@
 
     <insert id="addPoint"  useGeneratedKeys="true" keyProperty="point.id">
         insert into `${tableName}` (
-        `uid`, `name`, `point`, `available`, seqNum
+        `uid`, `name`, `point`, `available`, `cost`,
+        seqNum
         ) values(
-        #{point.uid}, #{point.name}, #{point.point}, #{point.point}, 1 )
+        #{point.uid}, #{point.name}, #{point.point}, #{point.point}, #{point.cost},
+        1 )
         on duplicate key update
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( point.name )">
             `name` = #{point.name},
         </if>
         `point` = `point` + #{point.point},
         `available` = `available` + #{point.point},
+        `cost` = `cost` + #{point.cost},
         `enable` = true,
         `seqNum` = `seqNum` + 1
     </insert>
@@ -149,6 +152,12 @@
         </if>
         <if test="cusPoint.expire != null">
             expire = #{cusPoint.expire},
+        </if>
+        <if test="cusPoint.cost != null">
+            cost = #{cusPoint.cost},
+        </if>
+        <if test="cusPoint.frozenCost != null">
+            frozenCost = #{cusPoint.frozenCost},
         </if>
         <if test="cusPoint.enable != null">
             enable = #{cusPoint.enable},

@@ -48,7 +48,8 @@ public class PointRecLogService {
         }).start();
     }
 
-    public PointRecLogPo addLogByRec(String type, PointOpType eventType, PointRecPo rec, long delta, String note) {
+    public PointRecLogPo addLogByRec(String type, PointOpType eventType, PointRecPo rec,
+                                     long delta, long deltaCost, String note) {
 
         PointRecLogPo recLog = new PointRecLogPo();
         recLog.setPid(rec.getPid()).setRecId(rec.getId()).setType(eventType.code())
@@ -58,6 +59,9 @@ public class PointRecLogService {
         recLog.setFrozen(rec.getFrozen() == null ? 0L : rec.getFrozen());
         recLog.setCancelled(rec.getCancelled() == null ? 0L : rec.getCancelled());
         recLog.setExpire(rec.getExpire() == null ? 0L : rec.getExpire());
+        recLog.setCost(rec.getTotalCost() - rec.getFrozenCost() - rec.getUsedCost());
+        recLog.setFrozenCost(rec.getFrozenCost());
+        recLog.setDeltaCost(deltaCost);
         recLog.setNote(note == null ? "" : note);
         this.push(type, recLog);
         return recLog;

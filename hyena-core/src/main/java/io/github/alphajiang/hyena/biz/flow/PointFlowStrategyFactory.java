@@ -43,7 +43,7 @@ public class PointFlowStrategyFactory {
 @Transactional
     public void addFlow(PointFlowWrapper o) {
         Optional<PointFlowStrategy> strategy = getStrategy(o.getCalcType());
-        strategy.ifPresent(act -> act.addFlow(o.getUsage(), o.getPoint()));
+        strategy.ifPresent(act -> act.addFlow2(o.getUsage(), o.getPointLog(), o.getRecLogs()));
     }
 //    private static synchronized PointFlowStrategyFactory getInstance() {
 //        if (instance == null) {

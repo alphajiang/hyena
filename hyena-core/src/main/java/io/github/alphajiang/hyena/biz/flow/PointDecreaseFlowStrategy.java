@@ -113,25 +113,19 @@ public class PointDecreaseFlowStrategy extends AbstractPointFlowStrategy {
             } else if (rec.getAvailable() < gap) {
                 sum += rec.getAvailable();
                 long delta = rec.getAvailable();
-                long cost = 0L;
-                if (rec.getTotalCost() != null && rec.getTotalCost() > 0L) {
-                    cost = rec.getTotalCost() - rec.getUsedCost();
-                }
+                long costDelta = this.pointRecDs.accountCost(rec, delta);
 
-                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, cost);
+                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, costDelta);
 
 
-                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, delta, cost);
+                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, delta, costDelta);
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                long cost = 0L;
-                if (rec.getTotalCost() != null && rec.getTotalCost() > 0L) {
-                    cost = gap * rec.getTotalCost() / rec.getTotal();
-                }
-                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, cost);
+                long costDelta = this.pointRecDs.accountCost(rec, gap);
+                var retRec = this.pointRecDs.decreasePoint(type, rec, gap, costDelta);
 
-                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, gap, cost);
+                var recLog = this.pointRecLogDs.buildRecLog(retRec, pointLog, gap, costDelta);
                 recLogs.add(recLog);
                 break;
             }

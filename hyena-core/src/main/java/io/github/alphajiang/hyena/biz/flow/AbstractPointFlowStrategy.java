@@ -17,12 +17,28 @@
 
 package io.github.alphajiang.hyena.biz.flow;
 
+import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
+import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
+import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 public abstract class AbstractPointFlowStrategy implements PointFlowStrategy {
 
+
+    @Autowired
+    private PointLogDs pointLogDs;
+
+    @Autowired
+    private PointRecDs pointRecDs;
+
+    @Autowired
+    private PointRecLogDs pointRecLogDs;
 
     @Autowired
     private PointFlowStrategyFactory pointFlowStrategyFactory;
@@ -30,5 +46,11 @@ public abstract class AbstractPointFlowStrategy implements PointFlowStrategy {
     @PostConstruct
     public void init() {
         pointFlowStrategyFactory.addStrategy(this);
+    }
+
+    @Override
+    public void addFlow2(PointUsage usage, PointLogPo pointLog, List<PointRecLogPo> recLogs) {
+        this.pointLogDs.addPointLog(usage.getType(), pointLog);
+        this.pointRecLogDs.addPointRecLogs(usage.getType(), recLogs);
     }
 }

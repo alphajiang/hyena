@@ -36,6 +36,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Service
@@ -48,30 +49,83 @@ public class PointLogDs {
     @Autowired
     private PointTableDs pointTableDs;
 
-
-    public PointLogPo addPointLog(@NonNull String type, @NonNull PointOpType actionType,
+    public PointLogPo buildPointLog(@NonNull PointOpType actionType,
                                   @NonNull PointUsage usage, @NonNull PointPo point) {
-        String tableName = TableNameHelper.getPointTableName(type);
+        //String tableName = TableNameHelper.getPointTableName(type);
         PointLogPo pointLog = new PointLogPo();
         pointLog.setPid(point.getId()).setUid(point.getUid())
                 .setSeqNum(point.getSeqNum())
-                .setDelta(usage.getPoint()).setPoint(point.getPoint())
+                .setDelta(usage.getPoint())
+                .setPoint(point.getPoint())
                 .setAvailable(point.getAvailable())
                 .setUsed(point.getUsed())
                 .setFrozen(point.getFrozen())
                 .setRefund(point.getRefund())
                 .setExpire(point.getExpire())
+                .setCost(point.getCost())
+                .setFrozenCost(point.getFrozenCost())
                 .setType(actionType.code())
                 .setOrderNo(usage.getOrderNo())
                 .setSourceType(usage.getSourceType())
                 .setOrderType(usage.getOrderType())
                 .setPayType(usage.getPayType())
                 .setExtra(usage.getExtra());
-        if (usage.getCost() != null && usage.getCost() > 0L) {
-            pointLog.setCost(usage.getCost());
-        } else {
-            pointLog.setCost(0L);
+        if(usage.getCost() != null) {
+            pointLog.setDeltaCost(usage.getCost());
         }
+        else {
+            pointLog.setDeltaCost(0L);
+        }
+//        if (usage.getCost() != null && usage.getCost() > 0L) {
+//            pointLog.setCost(usage.getCost());
+//        } else {
+//            pointLog.setCost(0L);
+//        }
+
+        if (StringUtils.isNotBlank(usage.getTag())) {
+            pointLog.setTag(usage.getTag());
+        } else {
+            pointLog.setTag("");
+        }
+        if (StringUtils.isNotBlank(usage.getNote())) {
+            pointLog.setNote(usage.getNote());
+        } else {
+            pointLog.setNote("");
+        }
+        //this.pointLogMapper.addPointLog(tableName, pointLog);
+        return pointLog;
+    }
+
+    @Deprecated
+    public PointLogPo addPointLog(@NonNull String type, @NonNull PointOpType actionType,
+                                  @NonNull PointUsage usage, @NonNull PointPo point) {
+        String tableName = TableNameHelper.getPointTableName(type);
+        PointLogPo pointLog = new PointLogPo();
+        pointLog.setPid(point.getId()).setUid(point.getUid())
+                .setSeqNum(point.getSeqNum())
+                .setDelta(usage.getPoint())
+                .setDeltaCost(usage.getCost())
+                .setPoint(point.getPoint())
+                .setAvailable(point.getAvailable())
+                .setUsed(point.getUsed())
+                .setFrozen(point.getFrozen())
+                .setRefund(point.getRefund())
+                .setExpire(point.getExpire())
+                .setCost(point.getCost())
+                .setFrozenCost(point.getFrozenCost())
+                .setType(actionType.code())
+                .setOrderNo(usage.getOrderNo())
+                .setSourceType(usage.getSourceType())
+                .setOrderType(usage.getOrderType())
+                .setPayType(usage.getPayType())
+                .setExtra(usage.getExtra());
+
+//        if (usage.getCost() != null && usage.getCost() > 0L) {
+//            pointLog.setCost(usage.getCost());
+//        } else {
+//            pointLog.setCost(0L);
+//        }
+
         if (StringUtils.isNotBlank(usage.getTag())) {
             pointLog.setTag(usage.getTag());
         } else {
@@ -84,6 +138,12 @@ public class PointLogDs {
         }
         this.pointLogMapper.addPointLog(tableName, pointLog);
         return pointLog;
+    }
+
+    public void addPointLog(@NonNull String type, @NotNull PointLogPo pointLog) {
+        String tableName = TableNameHelper.getPointTableName(type);
+
+        this.pointLogMapper.addPointLog(tableName, pointLog);
     }
 
     public void updateCost(@NonNull String type, long logId, long cost) {

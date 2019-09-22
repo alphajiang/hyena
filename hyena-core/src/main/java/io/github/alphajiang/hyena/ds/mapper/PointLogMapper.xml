@@ -4,8 +4,10 @@
 
     <insert id="addPointLog" useGeneratedKeys="true" keyProperty="pointLog.id" keyColumn="id">
         insert into `${pointTableName}_log` (
-        `pid`, `uid`, `seqNum`, `delta`, `point`, `available`,
-        `used`, `frozen`, `refund`, `expire`, `cost`, `type`,
+        `pid`, `uid`, `seqNum`, `type`,
+        `delta`, `deltaCost`, `point`, `available`,
+        `used`, `frozen`, `refund`, `expire`,
+        `cost`, `frozenCost`,
         `tag`,
         <if test="pointLog.orderNo != null">
         `orderNo`,
@@ -21,8 +23,10 @@
         </if>
         `extra`, `note`
         ) values(
-        #{pointLog.pid}, #{pointLog.uid}, #{pointLog.seqNum}, #{pointLog.delta}, #{pointLog.point}, #{pointLog.available},
-        #{pointLog.used}, #{pointLog.frozen}, #{pointLog.refund}, #{pointLog.expire}, #{pointLog.cost}, #{pointLog.type},
+        #{pointLog.pid}, #{pointLog.uid}, #{pointLog.seqNum}, #{pointLog.type},
+        #{pointLog.delta}, #{pointLog.deltaCost}, #{pointLog.point}, #{pointLog.available},
+        #{pointLog.used}, #{pointLog.frozen}, #{pointLog.refund}, #{pointLog.expire},
+        #{pointLog.cost}, #{pointLog.frozenCost},
         #{pointLog.tag},
         <if test="pointLog.orderNo != null">
         #{pointLog.orderNo},

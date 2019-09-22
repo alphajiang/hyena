@@ -26,6 +26,7 @@
         `recId` = #{recLog.recId},
         `type` = #{recLog.type},
         `delta` = #{recLog.delta},
+        `deltaCost` = #{recLog.deltaCost},
         `available` = #{recLog.available},
         `used` = #{recLog.used},
         `frozen` = #{recLog.frozen},
@@ -33,6 +34,8 @@
         `cancelled` = #{recLog.cancelled},
         `expire` = #{recLog.expire},
         `cost` = #{recLog.cost},
+        `frozenCost` = #{recLog.frozenCost},
+        `usedCost` = #{recLog.usedCost},
         <if test="recLog.sourceType != null">
             `sourceType` = #{recLog.sourceType},
         </if>
@@ -47,8 +50,10 @@
 
     <insert id="addPointRecLogs">
         insert into `${tableName}` (`pid`, `seqNum`, recId, `type`,
-        delta, available, used, frozen, refund,
-        cancelled, expire, `cost`,
+        delta, deltaCost,
+        available, used, frozen, refund,
+        cancelled, expire,
+        `cost`, `frozenCost`, usedCost,
         `sourceType`,
         `orderType`,
         `payType`,
@@ -57,8 +62,10 @@
         <foreach item="recLog" collection="recLogs"
                  open="(" separator="),(" close=")">
             #{recLog.pid}, #{recLog.seqNum}, #{recLog.recId}, #{recLog.type},
-            #{recLog.delta}, #{recLog.available}, #{recLog.used}, #{recLog.frozen}, #{recLog.refund},
-            #{recLog.cancelled}, #{recLog.expire}, #{recLog.cost},
+            #{recLog.delta}, #{recLog.deltaCost},
+            #{recLog.available}, #{recLog.used}, #{recLog.frozen}, #{recLog.refund},
+            #{recLog.cancelled}, #{recLog.expire},
+            #{recLog.cost}, #{recLog.frozenCost}, #{recLog.usedCost},
             #{recLog.sourceType},
             #{recLog.orderType},
             #{recLog.payType},

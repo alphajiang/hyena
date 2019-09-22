@@ -42,17 +42,19 @@ public class PointRecLogDs {
 
     @Transactional
     public PointRecLogPo addLogByRec(String type, PointRecPo rec, PointLogPo pointLog,
-                                     long delta) {
+                                     long delta, long deltaCost) {
         PointRecLogPo recLog = new PointRecLogPo();
         recLog.setPid(rec.getPid()).setSeqNum(pointLog.getSeqNum()).setRecId(rec.getId()).setType(pointLog.getType())
-                .setDelta(delta);
+                .setDelta(delta).setDeltaCost(deltaCost);
         recLog.setAvailable(rec.getAvailable() == null ? 0L : rec.getAvailable());
         recLog.setUsed(rec.getUsed() == null ? 0L : rec.getUsed());
         recLog.setFrozen(rec.getFrozen() == null ? 0L : rec.getFrozen());
         recLog.setRefund(rec.getRefund() == null ? 0L : rec.getRefund());
         recLog.setCancelled(rec.getCancelled() == null ? 0L : rec.getCancelled());
         recLog.setExpire(rec.getExpire() == null ? 0L : rec.getExpire());
-        recLog.setCost(0L);
+        recLog.setCost(rec.getTotalCost() - rec.getFrozenCost() - rec.getUsedCost());
+        recLog.setFrozenCost(rec.getFrozenCost());
+        recLog.setUsedCost(rec.getUsedCost());
         recLog.setSourceType(pointLog.getSourceType()).setOrderType(pointLog.getOrderType())
                 .setPayType(pointLog.getPayType());
         recLog.setNote(pointLog.getNote() == null ? "" : pointLog.getNote());
@@ -86,17 +88,19 @@ public class PointRecLogDs {
     }
 
     public PointRecLogPo buildRecLog(PointRecPo rec, PointLogPo pointLog,
-                            long delta, long cost) {
+                            long delta, long deltaCost) {
         PointRecLogPo recLog = new PointRecLogPo();
         recLog.setPid(rec.getPid()).setSeqNum(pointLog.getSeqNum()).setRecId(rec.getId()).setType(pointLog.getType())
-                .setDelta(delta);
+                .setDelta(delta).setDeltaCost(deltaCost);
         recLog.setAvailable(rec.getAvailable() == null ? 0L : rec.getAvailable());
         recLog.setUsed(rec.getUsed() == null ? 0L : rec.getUsed());
         recLog.setFrozen(rec.getFrozen() == null ? 0L : rec.getFrozen());
         recLog.setRefund(rec.getRefund() == null ? 0L : rec.getRefund());
         recLog.setCancelled(rec.getCancelled() == null ? 0L : rec.getCancelled());
         recLog.setExpire(rec.getExpire() == null ? 0L : rec.getExpire());
-        recLog.setCost(cost);
+        recLog.setCost(rec.getTotalCost() - rec.getUsedCost());
+        recLog.setFrozenCost(rec.getFrozenCost());
+        recLog.setUsedCost(rec.getUsedCost());
         recLog.setSourceType(pointLog.getSourceType()).setOrderType(pointLog.getOrderType())
                 .setPayType(pointLog.getPayType());
         recLog.setNote(pointLog.getNote() == null ? "" : pointLog.getNote());

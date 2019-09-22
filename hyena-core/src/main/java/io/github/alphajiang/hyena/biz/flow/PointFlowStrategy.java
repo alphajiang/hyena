@@ -18,12 +18,18 @@
 package io.github.alphajiang.hyena.biz.flow;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+
+import java.util.List;
 
 public interface PointFlowStrategy {
 
     CalcType getType();
 
     void addFlow(PointUsage usage, PointPo point);
+
+    void addFlow2(PointUsage usage, PointLogPo pointLog, List<PointRecLogPo> recLogs);
 }

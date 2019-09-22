@@ -18,10 +18,14 @@
 package io.github.alphajiang.hyena.biz.flow;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -29,5 +33,7 @@ public class PointFlowWrapper {
     private CalcType calcType;
     private PointUsage usage;
     private PointPo point;
+    private PointLogPo pointLog;
+    private List<PointRecLogPo> recLogs;
     private int retry;
 }
