@@ -297,9 +297,9 @@ public class PointController {
     @ApiOperation(value = "按成本退款")
     @PostMapping(value = "/refundCost", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> refund(HttpServletRequest request,
-                                          @RequestBody PointDecreaseParam param) {
+                                          @RequestBody PointRefundParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
-        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
         usage.setUnfreezePoint(param.getUnfreezePoint());
         PointPo cusPoint = this.pointUsageFacade.refund(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
