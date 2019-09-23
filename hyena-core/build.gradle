@@ -25,7 +25,10 @@ dependencies {
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
 
     implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
-    
+
+
+    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+
     runtimeOnly('com.h2database:h2:1.4.199')
     testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }
