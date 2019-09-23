@@ -221,19 +221,9 @@ public class PointRecDs {
 
     @Transactional
     public PointRecPo refundPoint(String type, PointRecPo rec, long point, long cost) {
-
-        long delta = point;
-        if (rec.getAvailable() < delta) {
-            long refund = rec.getRefund() + rec.getAvailable();
-            rec.setAvailable(0L).setRefund(refund).setUsedCost(rec.getUsedCost() + cost);
-            this.updatePointRec(type, rec);
-        } else {
-            long available = rec.getAvailable() - point;
-            long refund = rec.getRefund() + point;
-            rec.setAvailable(available).setRefund(refund).setUsedCost(rec.getUsedCost() + cost);
-            this.updatePointRec(type, rec);
-
-        }
+        rec.setAvailable(rec.getAvailable() - point)
+                .setRefund(rec.getRefund() + point)
+                .setRefundCost(rec.getRefundCost() + cost);
         return rec;
     }
 

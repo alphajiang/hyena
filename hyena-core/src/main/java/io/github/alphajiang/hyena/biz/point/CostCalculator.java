@@ -32,7 +32,8 @@ public class CostCalculator {
         if (rec.getTotalCost() == null || rec.getTotalCost() < 1L) {
             return 0L;
         }
-        return rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
+        return rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost()
+                - rec.getRefundCost();
     }
 
     /**
@@ -68,7 +69,7 @@ public class CostCalculator {
             return cost;
         }
         if (rec.getAvailable() <= delta) { // 不够抵扣时返回剩余的全部
-            cost = rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
+            cost = this.getAvailableCost(rec);
         } else { // 按比例计算
             cost = delta * rec.getTotalCost() / rec.getTotal();
         }

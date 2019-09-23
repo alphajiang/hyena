@@ -102,6 +102,7 @@ public class PointRecLogDs {
         recLog.setCost(rec.getTotalCost() - rec.getUsedCost());
         recLog.setFrozenCost(rec.getFrozenCost());
         recLog.setUsedCost(rec.getUsedCost());
+        recLog.setRefundCost(rec.getRefundCost());
         recLog.setSourceType(pointLog.getSourceType()).setOrderType(pointLog.getOrderType())
                 .setPayType(pointLog.getPayType());
         recLog.setNote(pointLog.getNote() == null ? "" : pointLog.getNote());

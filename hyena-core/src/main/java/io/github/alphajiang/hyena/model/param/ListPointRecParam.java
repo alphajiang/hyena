@@ -18,9 +18,17 @@
 package io.github.alphajiang.hyena.model.param;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class ListPointRecParam extends BaseListParam {
 
 
@@ -31,51 +39,9 @@ public class ListPointRecParam extends BaseListParam {
     private String tag;
 
     private boolean available = false;
+    private Boolean cost;
     private Boolean frozen;
     private Date expireTime;
 
-    public String getUid() {
-        return uid;
-    }
 
-    public ListPointRecParam setUid(String uid) {
-        this.uid = uid;
-        return this;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public ListPointRecParam setTag(String tag) {
-        this.tag = tag;
-        return this;
-    }
-
-    public boolean getAvailable() {
-        return available;
-    }
-
-    public ListPointRecParam setAvailable(boolean available) {
-        this.available = available;
-        return this;
-    }
-
-    public Boolean getFrozen() {
-        return frozen;
-    }
-
-    public ListPointRecParam setFrozen(Boolean frozen) {
-        this.frozen = frozen;
-        return this;
-    }
-
-    public Date getExpireTime() {
-        return expireTime;
-    }
-
-    public ListPointRecParam setExpireTime(Date expireTime) {
-        this.expireTime = expireTime;
-        return this;
-    }
 }

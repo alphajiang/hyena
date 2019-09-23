@@ -36,6 +36,7 @@
         `cost` = #{recLog.cost},
         `frozenCost` = #{recLog.frozenCost},
         `usedCost` = #{recLog.usedCost},
+        `refundCost` = #{recLog.refundCost},
         <if test="recLog.sourceType != null">
             `sourceType` = #{recLog.sourceType},
         </if>
@@ -53,7 +54,7 @@
         delta, deltaCost,
         available, used, frozen, refund,
         cancelled, expire,
-        `cost`, `frozenCost`, usedCost,
+        `cost`, `frozenCost`, usedCost, refundCost,
         `sourceType`,
         `orderType`,
         `payType`,
@@ -65,7 +66,7 @@
             #{recLog.delta}, #{recLog.deltaCost},
             #{recLog.available}, #{recLog.used}, #{recLog.frozen}, #{recLog.refund},
             #{recLog.cancelled}, #{recLog.expire},
-            #{recLog.cost}, #{recLog.frozenCost}, #{recLog.usedCost},
+            #{recLog.cost}, #{recLog.frozenCost}, #{recLog.usedCost}, #{recLog.refundCost},
             #{recLog.sourceType},
             #{recLog.orderType},
             #{recLog.payType},

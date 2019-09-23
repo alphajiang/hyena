@@ -36,6 +36,7 @@
         `available` = #{rec.available},
         `totalCost` = #{rec.totalCost},
         `usedCost` = #{rec.usedCost},
+        `refundCost` = #{rec.refundCost},
         <if test="rec.tag != null">
             `tag` = #{rec.tag},
         </if>
@@ -72,6 +73,16 @@
         </if>
         <if test="param.available == true">
             and rec.available > 0
+        </if>
+        <if test="param.cost != null">
+            <choose>
+                <when test="param.cost == true">
+                    and rec.totalCost > 0
+                </when>
+                <otherwise>
+                    and rec.totalCost = 0
+                </otherwise>
+            </choose>
         </if>
         <choose>
             <when test="param.frozen != null and param.frozen == true">
@@ -126,6 +137,16 @@
         </if>
         <if test="param.available == true">
             and rec.available > 0
+        </if>
+        <if test="param.cost != null">
+            <choose>
+                <when test="param.cost == true">
+                    and rec.totalCost > 0
+                </when>
+                <otherwise>
+                    and rec.totalCost = 0
+                </otherwise>
+            </choose>
         </if>
         <choose>
             <when test="param.frozen != null and param.frozen == true">
