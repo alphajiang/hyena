@@ -25,10 +25,22 @@ public interface UpgradeSchemaMapper {
 
 
     void addPointRefund(@Param(value = "pointTableName") String pointTableName );
+    void addPointCost(@Param(value = "pointTableName") String pointTableName );
+    void addPointFrozenCost(@Param(value = "pointTableName") String pointTableName );
+
+
+    void addPointLogDeltaCost(@Param(value = "pointTableName") String pointTableName );
 
     void addPointLogRefund(@Param(value = "pointTableName") String pointTableName );
+    void addPointLogFrozenCost(@Param(value = "pointTableName") String pointTableName );
 
     void addPointRecRefund(@Param(value = "pointTableName") String pointTableName );
+    void addPointRecFrozenCost(@Param(value = "pointTableName") String pointTableName );
+    void addPointRecRefundCost(@Param(value = "pointTableName") String pointTableName );
 
+    void addPointRecLogDeltaCost(@Param(value = "pointTableName") String pointTableName );
     void addPointRecLogRefund(@Param(value = "pointTableName") String pointTableName );
+    void addPointRecLogFrozenCost(@Param(value = "pointTableName") String pointTableName );
+    void addPointRecLogUsedCost(@Param(value = "pointTableName") String pointTableName );
+    void addPointRecLogRefundCost(@Param(value = "pointTableName") String pointTableName );
 }

@@ -27,6 +27,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 
+import java.util.List;
+
 @Slf4j
 @Configuration
 public class HyenaInitialization {
@@ -53,8 +55,12 @@ public class HyenaInitialization {
 
     public int upgradeSql() {
         int sqlVer = sysPropertyDs.getSqlVersion();
+        List<String> tables = pointTableDs.listTable();
         if (sqlVer == 0) {
-            upgradeSchemaDs.addRefundColumn(pointTableDs.listTable());
+            upgradeSchemaDs.addRefundColumn(tables);
+        }
+        if(sqlVer<2) {
+            upgradeSchemaDs.addCostColumns(tables);
         }
         return sqlVer;
     }

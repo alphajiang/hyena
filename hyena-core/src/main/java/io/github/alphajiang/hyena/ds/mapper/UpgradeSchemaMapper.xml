@@ -23,14 +23,49 @@
     <update id="addPointRefund">
         alter table ${pointTableName} add column `refund` bigint(20) not null default 0 after frozen
     </update>
+    <update id="addPointCost">
+        alter table ${pointTableName} add column `cost` bigint(20) not null default 0 after expire
+    </update>
+    <update id="addPointFrozenCost">
+        alter table ${pointTableName} add column `frozenCost` bigint(20) not null default 0 after cost
+    </update>
+
+    <update id="addPointLogDeltaCost">
+        alter table ${pointTableName}_log add column `deltaCost` bigint(20) not null default 0 after delta
+    </update>
     <update id="addPointLogRefund">
         alter table ${pointTableName}_log add column `refund` bigint(20) not null default 0 after frozen
     </update>
+
+    <update id="addPointLogFrozenCost">
+        alter table ${pointTableName}_log add column `frozenCost` bigint(20) not null default 0 after cost
+    </update>
+
+
     <update id="addPointRecRefund">
         alter table ${pointTableName}_rec add column `refund` bigint(20) not null default 0 after frozen
     </update>
+    <update id="addPointRecFrozenCost">
+        alter table ${pointTableName}_rec add column `frozenCost` bigint(20) not null default 0 after totalCost
+    </update>
+    <update id="addPointRecRefundCost">
+        alter table ${pointTableName}_rec add column `refundCost` bigint(20) not null default 0 after usedCost
+    </update>
+
+    <update id="addPointRecLogDeltaCost">
+        alter table ${pointTableName}_rec_log add column `deltaCost` bigint(20) not null default 0 after delta
+    </update>
     <update id="addPointRecLogRefund">
         alter table ${pointTableName}_rec_log add column `refund` bigint(20) not null default 0 after frozen
+    </update>
+    <update id="addPointRecLogFrozenCost">
+        alter table ${pointTableName}_rec_log add column `frozenCost` bigint(20) not null default 0 after cost
+    </update>
+    <update id="addPointRecLogUsedCost">
+        alter table ${pointTableName}_rec_log add column `usedCost` bigint(20) not null default 0 after frozenCost
+    </update>
+    <update id="addPointRecLogRefundCost">
+        alter table ${pointTableName}_rec_log add column `refundCost` bigint(20) not null default 0 after usedCost
     </update>
 
 </mapper>

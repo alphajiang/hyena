@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @Slf4j
 @Repository
@@ -35,29 +36,39 @@ public class UpgradeSchemaDs {
 
 
     public void addRefundColumn(List<String> pointTypes) {
-        pointTypes.stream().forEach(p -> addRefundColumn(p));
+        pointTypes.stream().forEach(p -> {
+            executeSql(t-> upgradeSchemaMapper.addPointRefund((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointLogRefund((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecRefund((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogRefund((String)t), p);
+
+        });
     }
 
-    private void addRefundColumn(String pointType) {
+    public void addCostColumns(List<String> pointTypes) {
+        pointTypes.stream().forEach(p-> {
+            executeSql(t-> upgradeSchemaMapper.addPointCost((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointFrozenCost((String)t), p);
+
+            executeSql(t-> upgradeSchemaMapper.addPointLogDeltaCost((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointLogFrozenCost((String)t), p);
+
+            executeSql(t-> upgradeSchemaMapper.addPointRecFrozenCost((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecRefundCost((String)t), p);
+
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogDeltaCost((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogFrozenCost((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogUsedCost((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogRefundCost((String)t), p);
+        });
+    }
+
+
+    private void executeSql(Consumer f, String pointType) {
         try {
-            upgradeSchemaMapper.addPointRefund(pointType);
+            f.accept(pointType);
         }catch (Exception e) {
-            log.error("addPointRefund failed. error = {}", e.getMessage(), e);
-        }
-        try {
-            upgradeSchemaMapper.addPointLogRefund(pointType);
-        }catch (Exception e) {
-            log.error("addPointLogRefund failed. error = {}", e.getMessage(), e);
-        }
-        try {
-            upgradeSchemaMapper.addPointRecRefund(pointType);
-        }catch (Exception e) {
-            log.error("addPointRecRefund failed. error = {}", e.getMessage(), e);
-        }
-        try {
-            upgradeSchemaMapper.addPointRecLogRefund(pointType);
-        }catch (Exception e) {
-            log.error("addPointRecLogRefund failed. error = {}", e.getMessage(), e);
+            log.error("{} failed. error = {}",f.toString(),  e.getMessage(), e);
         }
     }
 }

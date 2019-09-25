@@ -88,6 +88,7 @@ public class PointRecDs {
         PointRecPo rec = new PointRecPo();
         rec.setPid(pid).setSeqNum(seqNum).setTotal(param.getPoint())
                 .setAvailable(param.getPoint())
+                .setRefundCost(0L)
                 .setFrozenCost(0L)
                 .setUsedCost(0L)
                 .setOrderNo(param.getOrderNo());

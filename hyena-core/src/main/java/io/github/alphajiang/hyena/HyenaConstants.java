@@ -20,7 +20,7 @@ package io.github.alphajiang.hyena;
 
 public interface HyenaConstants {
 
-    int SQL_VERSION = 1;
+    int SQL_VERSION = 2;
 
     int RES_CODE_SUCCESS = 0;
     int RES_CODE_SERVICE_ERROR = 1000;
