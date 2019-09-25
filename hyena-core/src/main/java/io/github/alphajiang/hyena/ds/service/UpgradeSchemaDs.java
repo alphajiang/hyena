@@ -37,34 +37,34 @@ public class UpgradeSchemaDs {
 
     public void addRefundColumn(List<String> pointTypes) {
         pointTypes.stream().forEach(p -> {
-            executeSql(t-> upgradeSchemaMapper.addPointRefund((String)t), p);
-            executeSql(t-> upgradeSchemaMapper.addPointLogRefund((String)t), p);
-            executeSql(t-> upgradeSchemaMapper.addPointRecRefund((String)t), p);
-            executeSql(t-> upgradeSchemaMapper.addPointRecLogRefund((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRefund(t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointLogRefund(t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecRefund(t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogRefund(t), p);
 
         });
     }
 
     public void addCostColumns(List<String> pointTypes) {
         pointTypes.stream().forEach(p-> {
-            executeSql(t-> upgradeSchemaMapper.addPointCost((String)t), p);
-            executeSql(t-> upgradeSchemaMapper.addPointFrozenCost((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointCost(t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointFrozenCost(t), p);
 
-            executeSql(t-> upgradeSchemaMapper.addPointLogDeltaCost((String)t), p);
-            executeSql(t-> upgradeSchemaMapper.addPointLogFrozenCost((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointLogDeltaCost(t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointLogFrozenCost(t), p);
 
-            executeSql(t-> upgradeSchemaMapper.addPointRecFrozenCost((String)t), p);
-            executeSql(t-> upgradeSchemaMapper.addPointRecRefundCost((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecFrozenCost(t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecRefundCost(t), p);
 
-            executeSql(t-> upgradeSchemaMapper.addPointRecLogDeltaCost((String)t), p);
-            executeSql(t-> upgradeSchemaMapper.addPointRecLogFrozenCost((String)t), p);
-            executeSql(t-> upgradeSchemaMapper.addPointRecLogUsedCost((String)t), p);
-            executeSql(t-> upgradeSchemaMapper.addPointRecLogRefundCost((String)t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogDeltaCost(t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogFrozenCost(t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogUsedCost(t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogRefundCost(t), p);
         });
     }
 
 
-    private void executeSql(Consumer f, String pointType) {
+    private void executeSql(Consumer<String> f, String pointType) {
         try {
             f.accept(pointType);
         }catch (Exception e) {

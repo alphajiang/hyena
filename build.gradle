@@ -66,12 +66,12 @@ subprojects {
 
 
     task javadocJar(type: Jar) {
-        classifier = 'javadoc'
+        archiveClassifier = 'javadoc'
         from javadoc
     }
 
     task sourcesJar(type: Jar) {
-        classifier = 'sources'
+        archiveClassifier = 'sources'
         from sourceSets.main.allSource
     }
 
@@ -162,9 +162,9 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
     description = 'Generates an aggregate report from all subprojects'
     dependsOn publishedProjects.test, jacocoMerge
 
-    additionalSourceDirs = files(publishedProjects.sourceSets.main.allSource.srcDirs)
-    sourceDirectories = files(publishedProjects.sourceSets.main.allSource.srcDirs)
-    classDirectories = files(publishedProjects.sourceSets.main.output)
+    additionalSourceDirs.from = publishedProjects.sourceSets.main.allSource.srcDirs
+    sourceDirectories.from = publishedProjects.sourceSets.main.allSource.srcDirs
+    classDirectories.from = publishedProjects.sourceSets.main.output
     executionData jacocoMerge.destinationFile
 
     reports {
