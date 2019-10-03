@@ -59,6 +59,22 @@
         `expireTime` = #{rec.expireTime}
     </insert>
 
+    <insert id="batchInsert">
+        insert into `${pointTableName}_rec` (`pid`, `seqNum`, total, `available`,
+        totalCost, usedCost,
+        refundCost, tag, orderNo, sourceType,
+        orderType, payType,
+        `extra`, `issueTime`, expireTime)
+        <foreach item="rec" collection="recList"
+                 open="values (" separator="),(" close=")">
+            #{rec.pid}, #{rec.seqNum}, #{rec.total}, #{rec.available},
+            #{rec.totalCost}, #{rec.usedCost},
+            #{rec.refundCost}, #{rec.tag}, #{rec.orderNo}, #{rec.sourceType},
+            #{rec.orderType}, #{rec.payType},
+            #{rec.extra}, #{rec.issueTime}, #{rec.expireTime}
+        </foreach>
+    </insert>
+
 
     <select id="listPointRec" resultType="io.github.alphajiang.hyena.model.dto.PointRec">
         select rec.*, p.uid as uid
@@ -200,6 +216,9 @@
         <if test="rec.usedCost != null">
             usedCost = #{rec.usedCost},
         </if>
+        <if test="rec.refundCost != null">
+            refundCost = #{rec.refundCost},
+        </if>
         <if test="rec.extra != null">
             extra = #{rec.extra},
         </if>
@@ -221,4 +240,58 @@
         where p.uid = #{uid}
         and rec.createTime between #{start} and #{end}
     </select>
+
+
+    <update id="batchUpdate">
+        <foreach collection="list" item="rec" open="" close="" separator=";">
+            update `${pointTableName}_rec`
+            set
+            <if test="rec.available != null">
+                available = #{rec.available},
+            </if>
+            <if test="rec.used != null">
+                used = #{rec.used},
+            </if>
+            <if test="rec.frozen != null">
+                frozen = #{rec.frozen},
+            </if>
+            <if test="rec.expire != null">
+                expire = #{rec.expire},
+            </if>
+            <if test="rec.refund != null">
+                refund = #{rec.refund},
+            </if>
+            <if test="rec.cancelled != null">
+                cancelled = #{rec.cancelled},
+            </if>
+            <if test="rec.frozenCost != null">
+                frozenCost = #{rec.frozenCost},
+            </if>
+            <if test="rec.usedCost != null">
+                usedCost = #{rec.usedCost},
+            </if>
+            <if test="rec.refundCost != null">
+                refundCost = #{rec.refundCost},
+            </if>
+            <if test="rec.extra != null">
+                extra = #{rec.extra},
+            </if>
+            <if test="rec.issueTime != null">
+                issueTime = #{rec.issueTime},
+            </if>
+            <if test="rec.enable != null">
+                `enable` = #{rec.enable},
+            </if>
+            updateTime=now()
+            where
+            <choose>
+                <when test="rec.id != null">
+                    id = #{rec.id}
+                </when>
+                <otherwise>
+                    pid = #{rec.pid} and seqNum = #{rec.seqNum}
+                </otherwise>
+            </choose>
+        </foreach>
+    </update>
 </mapper>

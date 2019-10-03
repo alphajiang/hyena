@@ -91,7 +91,8 @@ public class PointRecLogDs {
     public PointRecLogPo buildRecLog(PointRecPo rec, PointLogPo pointLog,
                             long delta, long deltaCost) {
         PointRecLogPo recLog = new PointRecLogPo();
-        recLog.setPid(rec.getPid()).setSeqNum(pointLog.getSeqNum()).setRecId(rec.getId()).setType(pointLog.getType())
+        recLog.setPid(rec.getPid()).setSeqNum(pointLog.getSeqNum())
+                .setRecId(rec.getId()).setType(pointLog.getType())
                 .setDelta(delta).setDeltaCost(deltaCost);
         recLog.setAvailable(rec.getAvailable() == null ? 0L : rec.getAvailable());
         recLog.setUsed(rec.getUsed() == null ? 0L : rec.getUsed());
@@ -114,9 +115,9 @@ public class PointRecLogDs {
         this.pointRecLogMapper.addPointRecLog(tableName, recLog);
     }
 
-    public void addPointRecLogs(String type, List<PointRecLogPo> recLogs) {
+    public void batchInsert(String type, List<PointRecLogPo> recLogs) {
         String tableName = TableNameHelper.getPointRecLogTableName(type);
-        this.pointRecLogMapper.addPointRecLogs(tableName, recLogs);
+        this.pointRecLogMapper.batchInsert(tableName, recLogs);
     }
 
     @Transactional

@@ -20,6 +20,7 @@ package io.github.alphajiang.hyena.ds;
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class TestPointRecDs extends HyenaTestBase {
     private final Logger logger = LoggerFactory.getLogger(TestPointRecDs.class);
@@ -88,5 +92,65 @@ public class TestPointRecDs extends HyenaTestBase {
                 super.getUid(), start.getTime(), end.getTime());
         logger.info("increased = {}", increased);
         Assert.assertEquals(super.getUserPoint().getPoint().longValue(), increased);
+    }
+
+    @Test
+    public void test_batchInsert() {
+        List<PointRecPo> list = new ArrayList<>();
+        for (long i = 0; i < 5; i++) {
+            PointRecPo rec = new PointRecPo();
+
+            rec.setPid(i + 1)
+                    .setSeqNum(45L)
+                    .setTotal(999L)
+                    .setTotalCost(998L)
+                    .setAvailable(111L)
+                    .setUsed(222L)
+                    .setFrozen(333L)
+                    .setExpire(444L)
+                    .setRefund(555L)
+                    .setCancelled(666L)
+                    .setFrozenCost(777L)
+                    .setUsedCost(888L)
+                    .setRefundCost(999L)
+                    .setExtra("abcd1234")
+                    .setIssueTime(new Date())
+                    .setTag("ddddd")
+                    .setOrderNo("eeeee")
+                    .setSourceType(3)
+                    .setOrderType(4)
+                    .setPayType(5)
+                    .setExpireTime(new Date());
+
+            list.add(rec);
+        }
+        this.pointRecDs.batchInsert(super.getPointType(), list);
+    }
+
+    @Test
+    public void test_batchUpdate() {
+        List<PointRecPo> list = new ArrayList<>();
+        for (long i = 0; i < 5; i++) {
+            PointRecPo rec = new PointRecPo();
+            if (i % 2 == 1) {
+                rec.setId(i + 1);
+                rec.setAvailable(111L)
+                        .setUsed(222L)
+                        .setFrozen(333L)
+                        .setExpire(444L)
+                        .setRefund(555L)
+                        .setCancelled(666L)
+                        .setFrozenCost(777L)
+                        .setUsedCost(888L)
+                        .setRefundCost(999L)
+                        .setExtra("abcd1234")
+                        .setIssueTime(new Date())
+                        .setEnable(false);
+            } else {
+                rec.setPid(11L).setSeqNum(45L);
+            }
+            list.add(rec);
+        }
+        this.pointRecDs.batchUpdate(super.getPointType(), list);
     }
 }

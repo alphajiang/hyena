@@ -28,6 +28,7 @@
 /.nb-gradle/
 
 **/*.log
+logs/
 
 **/.sass-cache
 

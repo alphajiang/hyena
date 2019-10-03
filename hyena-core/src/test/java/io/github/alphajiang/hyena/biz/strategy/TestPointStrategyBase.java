@@ -28,6 +28,7 @@ import io.github.alphajiang.hyena.model.po.PointPo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
@@ -72,6 +73,7 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
     protected String uid = "";
     protected PointPo point;
     protected long seqNumIncrease1;
+    protected long seqNumIncrease2;
 
 
     @Before
@@ -89,7 +91,9 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
                 .setTag(INCREASE_TAG_1)
                 .setOrderNo(INCREASE_ORDER_NO_1)
                 .setSourceType(INCREASE_SOURCE_TYPE).setOrderType(INCREASE_ORDER_TYPE).setPayType(INCREASE_PAY_TYPE);
-        this.point = this.pointIncreaseStrategy.process(usage);
+        var resultPoint = this.pointIncreaseStrategy.process(usage);
+        this.point = new PointPo();
+        BeanUtils.copyProperties(resultPoint, this.point);
         log.info("point = {}", point);
         Assert.assertEquals(INCREASE_POINT_1, point.getPoint().longValue());
         Assert.assertEquals(INCREASE_POINT_1, point.getAvailable().longValue());
@@ -106,6 +110,7 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
     }
 
     public PointPo increase2(PointPo beforeIncrease) {
+        log.info(">>");
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setUid(this.uid).setPoint(INCREASE_POINT_2)
                 .setTag(INCREASE_TAG_2)
@@ -118,6 +123,7 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
         Assert.assertEquals(beforeIncrease.getFrozen().longValue(), result.getFrozen().longValue());
         Assert.assertEquals(beforeIncrease.getExpire().longValue(), result.getExpire().longValue());
         Assert.assertEquals(true, result.getEnable().booleanValue());
+        this.seqNumIncrease2 = result.getSeqNum();
         try {
             Thread.sleep(100L);
         } catch (Exception e) {

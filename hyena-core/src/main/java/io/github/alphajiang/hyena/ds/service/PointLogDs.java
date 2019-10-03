@@ -50,10 +50,11 @@ public class PointLogDs {
     private PointTableDs pointTableDs;
 
     public PointLogPo buildPointLog(@NonNull PointOpType actionType,
-                                  @NonNull PointUsage usage, @NonNull PointPo point) {
+                                    @NonNull PointUsage usage, @NonNull PointPo point) {
         //String tableName = TableNameHelper.getPointTableName(type);
         PointLogPo pointLog = new PointLogPo();
-        pointLog.setPid(point.getId()).setUid(point.getUid())
+        pointLog.setPid(point.getId())
+                .setUid(point.getUid())
                 .setSeqNum(point.getSeqNum())
                 .setDelta(usage.getPoint())
                 .setPoint(point.getPoint())
@@ -70,10 +71,9 @@ public class PointLogDs {
                 .setOrderType(usage.getOrderType())
                 .setPayType(usage.getPayType())
                 .setExtra(usage.getExtra());
-        if(usage.getCost() != null) {
+        if (usage.getCost() != null) {
             pointLog.setDeltaCost(usage.getCost());
-        }
-        else {
+        } else {
             pointLog.setDeltaCost(0L);
         }
 //        if (usage.getCost() != null && usage.getCost() > 0L) {
@@ -81,7 +81,9 @@ public class PointLogDs {
 //        } else {
 //            pointLog.setCost(0L);
 //        }
-
+        if (pointLog.getOrderNo() == null) {
+            pointLog.setOrderNo("");
+        }
         if (StringUtils.isNotBlank(usage.getTag())) {
             pointLog.setTag(usage.getTag());
         } else {
@@ -144,6 +146,11 @@ public class PointLogDs {
         String tableName = TableNameHelper.getPointTableName(type);
 
         this.pointLogMapper.addPointLog(tableName, pointLog);
+    }
+
+    public void batchInsert(@NonNull String type, @NotNull List<PointLogPo> pointLogList) {
+        String tableName = TableNameHelper.getPointTableName(type);
+        this.pointLogMapper.batchInsert(tableName, pointLogList);
     }
 
     public void updateCost(@NonNull String type, long logId, long cost) {

@@ -150,7 +150,7 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         Assert.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
-        expectPointRec.setPid(super.point.getId()).setSeqNum(super.point.getSeqNum())
+        expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
                 .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1 - useNumber)
                 .setUsed(useNumber).setFrozen(0L).setExpire(0L).setCancelled(0L)
                 .setTag(super.INCREASE_TAG_1)

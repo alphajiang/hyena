@@ -19,32 +19,91 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.alphajiang.hyena.ds.mapper.PointMapper">
 
-    <insert id="addPoint"  useGeneratedKeys="true" keyProperty="point.id">
+
+    <resultMap id="pointVoMap" type="io.github.alphajiang.hyena.model.vo.PointVo">
+        <result column="id" property="id"/>
+        <result column="uid" property="uid"/>
+        <result column="name" property="name"/>
+        <result column="point" property="point"/>
+        <result column="available" property="available"/>
+        <result column="used" property="used"/>
+        <result column="frozen" property="frozen"/>
+        <result column="refund" property="refund"/>
+        <result column="expire" property="expire"/>
+        <result column="cost" property="cost"/>
+        <result column="frozenCost" property="frozenCost"/>
+        <result column="seqNum" property="seqNum"/>
+        <result column="enable" property="enable"/>
+        <result column="createTime" property="createTime"/>
+        <result column="updateTime" property="updateTime"/>
+        <collection property="recList"
+                    ofType="io.github.alphajiang.hyena.model.po.PointRecPo">
+            <result column="rec_id" property="id"/>
+            <result column="rec_pid" property="pid"/>
+            <result column="rec_seqNum" property="seqNum"/>
+            <result column="rec_total" property="total"/>
+            <result column="rec_available" property="available"/>
+            <result column="rec_used" property="used"/>
+            <result column="rec_frozen" property="frozen"/>
+            <result column="rec_refund" property="refund"/>
+            <result column="rec_cancelled" property="cancelled"/>
+            <result column="rec_expire" property="expire"/>
+            <result column="rec_totalCost" property="totalCost"/>
+            <result column="rec_frozenCost" property="frozenCost"/>
+            <result column="rec_usedCost" property="usedCost"/>
+            <result column="rec_refundCost" property="refundCost"/>
+            <result column="rec_tag" property="tag"/>
+            <result column="rec_orderNo" property="orderNo"/>
+            <result column="rec_sourceType" property="sourceType"/>
+            <result column="rec_orderType" property="orderType"/>
+            <result column="rec_payType" property="payType"/>
+            <result column="rec_extra" property="extra"/>
+            <result column="rec_issueTime" property="issueTime"/>
+            <result column="rec_expireTime" property="expireTime"/>
+            <result column="rec_enable" property="enable"/>
+            <result column="rec_createTime" property="createTime"/>
+            <result column="rec_updateTime" property="updateTime"/>
+
+        </collection>
+    </resultMap>
+
+    <sql id="pointVoColumns">
+        p.*,
+        rec.id as rec_id,
+        rec.pid as rec_pid,
+        rec.seqNum as rec_seqNum,
+        rec.total as rec_total,
+        rec.available as rec_available,
+        rec.used as rec_used,
+        rec.frozen as rec_frozen,
+        rec.refund as rec_refund,
+        rec.cancelled as rec_cancelled,
+        rec.expire as rec_expire,
+        rec.totalCost as rec_totalCost,
+        rec.frozenCost as rec_frozenCost,
+        rec.usedCost as rec_usedCost,
+        rec.refundCost as rec_refundCost,
+        rec.orderNo as rec_orderNo,
+        rec.tag as rec_tag,
+        rec.issueTime as rec_issueTime,
+        rec.sourceType as rec_sourceType,
+        rec.orderType as rec_orderType,
+        rec.payType as rec_payType,
+        rec.extra as rec_extra,
+        rec.expireTime as rec_expireTime,
+        rec.enable as rec_enable,
+        rec.createTime as rec_createTime,
+        rec.updateTime as rec_updateTime
+    </sql>
+
+    <insert id="addPoint" useGeneratedKeys="true" keyProperty="point.id">
         insert into `${tableName}` (
         `uid`, `name`, `point`, `available`, `cost`,
         seqNum
         ) values(
         #{point.uid}, #{point.name}, #{point.point}, #{point.point}, #{point.cost},
-        1 )
-        on duplicate key update
-        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( point.name )">
-            `name` = #{point.name},
-        </if>
-        `point` = `point` + #{point.point},
-        `available` = `available` + #{point.point},
-        `cost` = `cost` + #{point.cost},
-        `enable` = true,
-        `seqNum` = `seqNum` + 1
+        #{point.seqNum} )
     </insert>
-
-<!--    <select id="getCusPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">-->
-<!--        select cp.*-->
-<!--        from `${tableName}` as cp-->
-<!--        where cp.id = ( select id from `${tableName}` as tmp where tmp.uid = #{uid} )-->
-<!--        <if test="lock == true">-->
-<!--            for update-->
-<!--        </if>-->
-<!--    </select>-->
 
     <select id="getCusPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">
         select cp.*
@@ -129,7 +188,7 @@
         where uid = #{uid} and `enable` = false
     </update>
 
-    <update id="updateCusPoint" >
+    <update id="updateCusPoint">
         update `${tableName}`
         set seqNum = seqNum + 1,
         <if test="cusPoint.name != null">
@@ -165,4 +224,59 @@
         updateTime = now()
         where id = #{cusPoint.id} and seqNum = #{cusPoint.seqNum}
     </update>
+
+    <update id="batchUpdate">
+        <foreach collection="pointList" item="p" open="" close="" separator=";">
+            update `${pointTableName}` set
+            seqNum = #{p.seqNum},
+            <if test="p.name != null">
+                `name` = #{p.name},
+            </if>
+            <if test="p.point != null">
+                point = #{p.point},
+            </if>
+            <if test="p.available != null">
+                available = #{p.available},
+            </if>
+            <if test="p.used != null">
+                used = #{p.used},
+            </if>
+            <if test="p.frozen != null">
+                frozen = #{p.frozen},
+            </if>
+            <if test="p.refund != null">
+                refund = #{p.refund},
+            </if>
+            <if test="p.expire != null">
+                expire = #{p.expire},
+            </if>
+            <if test="p.cost != null">
+                cost = #{p.cost},
+            </if>
+            <if test="p.frozenCost != null">
+                frozenCost = #{p.frozenCost},
+            </if>
+            <if test="p.enable != null">
+                enable = #{p.enable},
+            </if>
+            updateTime=now()
+            where
+            id = #{p.id}
+        </foreach>
+    </update>
+
+    <select id="getPointVo" resultMap="pointVoMap">
+        select
+        <include refid="pointVoColumns"/>
+        from `${pointTableName}` as p
+        left join `${pointTableName}_rec` as rec on p.id = rec.pid
+        where 1=1
+        <if test="pid != null">
+            and p.id = #{pid}
+        </if>
+        <if test="uid != null">
+            and p.uid = #{uid}
+        </if>
+        order by rec.id desc
+    </select>
 </mapper>

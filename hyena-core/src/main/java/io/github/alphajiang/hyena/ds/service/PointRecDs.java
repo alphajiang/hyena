@@ -48,6 +48,16 @@ public class PointRecDs {
     @Autowired
     private PointRecLogDs pointRecLogDs;
 
+    public void batchInsert(String type, List<PointRecPo> recList) {
+        String pointTableName = TableNameHelper.getPointTableName(type);
+        this.pointRecMapper.batchInsert(pointTableName, recList);
+    }
+
+    public void batchUpdate(String type, List<PointRecPo> recList) {
+        String pointTableName = TableNameHelper.getPointTableName(type);
+        this.pointRecMapper.batchUpdate(pointTableName, recList);
+    }
+
     public PointRecPo getById(String type, long id, boolean lock) {
         String pointTableName = TableNameHelper.getPointTableName(type);
         return this.pointRecMapper.getById(pointTableName, id, lock);
@@ -86,12 +96,26 @@ public class PointRecDs {
     public PointRecPo addPointRec(PointUsage param, long pid, long seqNum) {
         logger.info("param = {}", param);
         PointRecPo rec = new PointRecPo();
-        rec.setPid(pid).setSeqNum(seqNum).setTotal(param.getPoint())
+        rec.setPid(pid).setSeqNum(seqNum)
+                .setTotal(param.getPoint())
                 .setAvailable(param.getPoint())
+                .setFrozen(0L)
+                .setUsed(0L)
                 .setRefundCost(0L)
                 .setFrozenCost(0L)
                 .setUsedCost(0L)
-                .setOrderNo(param.getOrderNo());
+                .setRefund(0L)
+                .setRefundCost(0L)
+                .setCancelled(0L)
+                .setExpire(0L)
+                .setEnable(true)
+                .setCreateTime(new Date())
+                .setUpdateTime(new Date());
+        if (param.getOrderNo() == null) {
+            rec.setOrderNo("");
+        } else {
+            rec.setOrderNo(param.getOrderNo());
+        }
         if (param.getCost() != null && param.getCost() > 0L) {
             rec.setTotalCost(param.getCost());
         } else {
@@ -123,26 +147,74 @@ public class PointRecDs {
         return rec;
     }
 
-    @Transactional
-    public PointRecPo decreasePoint(String type, PointRecPo rec, long point, long cost) {
 
+    public PointRecPo buildPointRec(PointUsage param, long pid, long seqNum) {
+        logger.info("param = {}", param);
+        PointRecPo rec = new PointRecPo();
+        rec.setPid(pid).setSeqNum(seqNum).setTotal(param.getPoint())
+                .setAvailable(param.getPoint())
+                .setRefundCost(0L)
+                .setFrozenCost(0L)
+                .setUsedCost(0L)
+                .setOrderNo(param.getOrderNo());
+        if (param.getCost() != null && param.getCost() > 0L) {
+            rec.setTotalCost(param.getCost());
+        } else {
+            rec.setTotalCost(0L);
+        }
+        if (param.getTag() == null) {
+            rec.setTag("");
+        } else {
+            rec.setTag(param.getTag());
+        }
+        if (StringUtils.isNotBlank(param.getExtra())) {
+            rec.setExtra(param.getExtra());
+        }
+        if (param.getIssueTime() != null) {
+            rec.setIssueTime(param.getIssueTime());
+        } else {
+            rec.setIssueTime(new Date());
+        }
+        if (param.getExpireTime() != null) {
+            rec.setExpireTime(param.getExpireTime());
+        }
+        rec.setSourceType(param.getSourceType())
+                .setOrderType(param.getOrderType())
+                .setPayType(param.getPayType());
+        // String recTableName = TableNameHelper.getPointRecTableName(param.getType());
+        //this.pointRecMapper.addPointRec(recTableName, rec);
+
+
+        return rec;
+    }
+
+    //@Transactional
+    public PointRecPo decreasePoint(String type, PointRecPo rec, long point, long cost) {
+        PointRecPo rec4Update = new PointRecPo();
+        rec4Update.setId(rec.getId());
         long delta = point;
         if (rec.getAvailable() < delta) {
             long used = rec.getUsed() + rec.getAvailable();
             rec.setAvailable(0L).setUsed(used).setUsedCost(rec.getUsedCost() + cost);
-
-            this.updatePointRec(type, rec);
+            if (rec.getFrozen() < 1L) {
+                rec.setEnable(false);
+            }
+            //this.updatePointRec(type, rec);
         } else {
             long available = rec.getAvailable() - point;
             long used = rec.getUsed() + point;
             rec.setAvailable(available).setUsed(used).setUsedCost(rec.getUsedCost() + cost);
-            this.updatePointRec(type, rec);
+            //this.updatePointRec(type, rec);
 
         }
+        rec4Update.setAvailable(rec.getAvailable())
+                .setUsed(rec.getUsed())
+                .setUsedCost(rec.getUsedCost())
+                .setEnable(rec.getEnable());
         return rec;
     }
 
-
+    @Deprecated //freezePoint2
     @Transactional
     public PointRecPo freezePoint(String type, PointRecPo rec, long point, long deltaCost) {
 
@@ -163,24 +235,53 @@ public class PointRecDs {
         return rec;
     }
 
-    @Transactional
+    public PointRecPo freezePoint2(PointRecPo rec, long point, long deltaCost) {
+        PointRecPo rec4Update = new PointRecPo();
+        rec4Update.setId(rec.getId());
+        long delta = point;
+        if (rec.getAvailable() < delta) {
+            long frozen = rec.getFrozen() + rec.getAvailable();
+            rec.setAvailable(0L)
+                    .setFrozen(frozen)
+                    .setFrozenCost(rec.getFrozenCost() + deltaCost);
+            // this.updatePointRec(type, rec);
+        } else {
+            long available = rec.getAvailable() - point;
+            long frozen = rec.getFrozen() + point;
+            rec.setAvailable(available).setFrozen(frozen)
+                    .setFrozenCost(rec.getFrozenCost() + deltaCost);
+            // this.updatePointRec(type, rec);
+
+        }
+        rec4Update.setAvailable(rec.getAvailable())
+                .setFrozen(rec.getFrozen())
+                .setFrozenCost(rec.getFrozenCost());
+        return rec4Update;
+    }
+
+    //@Transactional
     public PointRecPo unfreezePoint(String type, PointRecPo rec, long point, long deltaCost) {
+        PointRecPo rec4Update = new PointRecPo();
+        rec4Update.setId(rec.getId());
 
         long delta = point;
         if (rec.getFrozen() < delta) {
             long available = rec.getAvailable() + rec.getFrozen();
             rec.setFrozen(0L).setAvailable(available)
                     .setFrozenCost(rec.getFrozenCost() - deltaCost);
-            this.updatePointRec(type, rec);
+            //this.updatePointRec(type, rec);
         } else {
             long frozen = rec.getFrozen() - point;
             long available = rec.getAvailable() + point;
             rec.setAvailable(available).setFrozen(frozen)
                     .setFrozenCost(rec.getFrozenCost() - deltaCost);
-            this.updatePointRec(type, rec);
+            //this.updatePointRec(type, rec);
 
         }
-        return rec;
+        rec4Update.setFrozen(rec.getFrozen())
+                .setAvailable(rec.getAvailable())
+                .setFrozenCost(rec.getFrozenCost());
+        return rec4Update;
     }
 
     @Transactional
@@ -212,19 +313,23 @@ public class PointRecDs {
     }
 
     @Transactional
-    public void expirePointRec(String type, PointRecPo rec, PointLogPo pointLog) {
+    public PointRecPo expirePointRec(PointRecPo rec) {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setExpire(available).setEnable(false);
-        this.updatePointRec(type, rec);
-        long deltaCost = rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
-        this.pointRecLogDs.addLogByRec(type, rec, pointLog, available, deltaCost);
+        //this.updatePointRec(type, rec);
+        //long deltaCost = rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
+        //this.pointRecLogDs.addLogByRec(type, rec, pointLog, available, deltaCost);
+        return rec;
     }
 
     @Transactional
-    public PointRecPo refundPoint(String type, PointRecPo rec, long point, long cost) {
+    public PointRecPo refundPoint(PointRecPo rec, long point, long cost) {
         rec.setAvailable(rec.getAvailable() - point)
                 .setRefund(rec.getRefund() + point)
                 .setRefundCost(rec.getRefundCost() + cost);
+        if (rec.getAvailable() < 1L && rec.getFrozen() < 1L) {
+            rec.setEnable(false);
+        }
         return rec;
     }
 

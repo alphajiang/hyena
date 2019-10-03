@@ -15,33 +15,34 @@
  *
  */
 
-package io.github.alphajiang.hyena.model.po;
+package io.github.alphajiang.hyena.biz.point;
 
-import io.github.alphajiang.hyena.model.base.BasePo;
-import io.swagger.annotations.ApiModelProperty;
+import io.github.alphajiang.hyena.model.vo.PointVo;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import lombok.experimental.Accessors;
+
+import java.util.Date;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Data
 @Accessors(chain = true)
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class PointPo extends BasePo {
+public class PointCache {
+    //private Long pid;
+    private String key; // type + uid
 
-    private String uid;
-    private String name;
-    private Long point;
-    private Long available;
-    private Long used;
-    private Long frozen;
-    private Long refund;
-    private Long expire;
-    @ApiModelProperty("实际成本(不含冻结部分)")
-    private Long cost;
-    @ApiModelProperty("冻结的成本")
-    private Long frozenCost;
-    private Long seqNum;
+    private PointVo point;
+
+    private Date updateTime;
+
+    private ReentrantLock lock = new ReentrantLock();
+
+    public void lock() {
+        this.lock.lock();
+    }
+
+    public void unlock() {
+        this.lock.unlock();
+    }
+
 
 }

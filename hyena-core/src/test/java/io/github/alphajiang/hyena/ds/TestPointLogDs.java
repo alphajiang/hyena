@@ -18,14 +18,20 @@
 package io.github.alphajiang.hyena.ds;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
+import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointLog;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
+import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 public class TestPointLogDs extends HyenaTestBase {
 
@@ -45,5 +51,23 @@ public class TestPointLogDs extends HyenaTestBase {
                 .setType(super.getPointType());
         ListResponse<PointLog> res = this.pointLogDs.listPointLog4Page(param);
         Assert.assertNotNull(res);
+    }
+
+    @Test
+    public void test_batchInsert() {
+        long seq = 1L;
+        List<PointLogPo> list = List.of(
+                this.buildPointLog(seq++),
+                this.buildPointLog(seq++)
+        );
+        this.pointLogDs.batchInsert(super.getPointType(), list);
+    }
+
+    private PointLogPo buildPointLog(long seq) {
+        PointUsage usage = new PointUsage();
+        usage.setPoint(1000L);
+        PointPo point = super.getUserPoint();
+        point.setSeqNum(seq);
+        return this.pointLogDs.buildPointLog(PointOpType.INCREASE, usage, point);
     }
 }

@@ -19,6 +19,7 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
+import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
@@ -61,7 +62,7 @@ public class PointCancelStrategy extends AbstractPointStrategy {
     @Transactional
     public PointPo process(PointUsage usage) {
         logger.info("cancel. usage = {}", usage);
-        super.preProcess(usage);
+        super.preProcess(usage, false);
         PointPo curPoint;
         if(usage.getRecId() != null && usage.getRecId().longValue() > 0L) {
             curPoint = cancelByRecId(usage);
@@ -71,7 +72,10 @@ public class PointCancelStrategy extends AbstractPointStrategy {
 
         return curPoint;
     }
+    @Override
+    public void processPoint(PointUsage usage, PointCache pointCache){
 
+    }
 
     private PointPo cancelByRecId(PointUsage usage) {
         HyenaAssert.notNull(usage.getRecId(), "invalid parameter, 'recId' can't be null");

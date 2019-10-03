@@ -49,7 +49,7 @@
         `note` = #{recLog.note}
     </insert>
 
-    <insert id="addPointRecLogs">
+    <insert id="batchInsert">
         insert into `${tableName}` (`pid`, `seqNum`, recId, `type`,
         delta, deltaCost,
         available, used, frozen, refund,
@@ -59,9 +59,8 @@
         `orderType`,
         `payType`,
         `note`)
-        values
         <foreach item="recLog" collection="recLogs"
-                 open="(" separator="),(" close=")">
+                 open="values (" separator="),(" close=")">
             #{recLog.pid}, #{recLog.seqNum}, #{recLog.recId}, #{recLog.type},
             #{recLog.delta}, #{recLog.deltaCost},
             #{recLog.available}, #{recLog.used}, #{recLog.frozen}, #{recLog.refund},
@@ -82,7 +81,7 @@
         left join `${pointTableName}_rec` as rec on rec.id = log.recId
         left join `${pointTableName}` as p on rec.pid = p.id
         left join `${pointTableName}_log` as pLog on log.pid = pLog.pid
-            and log.seqNum = pLog.seqNum and pLog.`type` = `log`.`type`
+        and log.seqNum = pLog.seqNum and pLog.`type` = `log`.`type`
         where 1=1
         <if test="param.pid &gt; 0">
             and p.id = #{param.pid}

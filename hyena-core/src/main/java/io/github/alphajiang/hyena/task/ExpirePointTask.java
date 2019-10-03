@@ -65,15 +65,18 @@ public class ExpirePointTask {
         param.setFrozen(false).setExpireTime(new Date()).setType(type).setEnable(true);
         List<PointRec> pointRecList = this.pointRecDs.listPointRec(type, param);
 
-        pointRecList.stream().forEach(rec -> {
-            try {
-                PointUsage usage = new PointUsage();
-                usage.setUid(rec.getUid()).setPoint(rec.getAvailable())
-                        .setType(type).setNote("expire").setRecId(rec.getId());
-                this.pointUsageFacade.expire(usage);
-            } catch (Exception e) {
-                logger.error("rec = {}, error = {}", rec, e.getMessage(), e);
-            }
-        });
+        pointRecList.stream()
+                .filter(rec -> rec.getAvailable() > 0L)
+                .forEach(rec -> {
+                    try {
+                        PointUsage usage = new PointUsage();
+
+                        usage.setUid(rec.getUid()).setPoint(rec.getAvailable())
+                                .setType(type).setNote("expire").setRecId(rec.getId());
+                        this.pointUsageFacade.expire(usage);
+                    } catch (Exception e) {
+                        logger.error("rec = {}, error = {}", rec, e.getMessage(), e);
+                    }
+                });
     }
 }

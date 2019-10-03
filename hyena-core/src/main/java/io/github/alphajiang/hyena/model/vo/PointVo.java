@@ -15,33 +15,22 @@
  *
  */
 
-package io.github.alphajiang.hyena.model.po;
+package io.github.alphajiang.hyena.model.vo;
 
-import io.github.alphajiang.hyena.model.base.BasePo;
-import io.swagger.annotations.ApiModelProperty;
+import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 @Data
 @Accessors(chain = true)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class PointPo extends BasePo {
+public class PointVo extends PointPo {
 
-    private String uid;
-    private String name;
-    private Long point;
-    private Long available;
-    private Long used;
-    private Long frozen;
-    private Long refund;
-    private Long expire;
-    @ApiModelProperty("实际成本(不含冻结部分)")
-    private Long cost;
-    @ApiModelProperty("冻结的成本")
-    private Long frozenCost;
-    private Long seqNum;
-
+    private List<PointRecPo> recList;
 }

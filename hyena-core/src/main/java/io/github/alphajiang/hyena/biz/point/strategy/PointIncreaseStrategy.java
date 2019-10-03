@@ -18,7 +18,9 @@
 package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
+import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.biz.point.PointWrapper;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
@@ -26,20 +28,24 @@ import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 /**
  * 增加积分
  */
+@Slf4j
 @Component
 public class PointIncreaseStrategy extends AbstractPointStrategy {
     private static final Logger logger = LoggerFactory.getLogger(PointIncreaseStrategy.class);
@@ -60,6 +66,10 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     @Autowired
     private PointFlowService pointFlowService;
 
+    @Autowired
+    private PointMemCacheService pointMemCacheService;
+
+
     @Override
     public CalcType getType() {
         return CalcType.INCREASE;
@@ -69,11 +79,35 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     @Transactional //(isolation = Isolation.READ_COMMITTED)
     public PointPo process(PointUsage usage) {
         logger.info("increase. usage = {}", usage);
-        super.preProcess(usage);
+        try (PointWrapper pw = super.preProcess(usage, true, false)) {
+            if (pw.getPointCache().getPoint() == null) {
+                this.addPoint(usage, pw.getPointCache());
+            } else if (usage.getPoint() > 0L) {
+                this.updatePointCache(usage, pw.getPointCache());
+            } else {
+                log.info("do nothing... usage = {}", usage);
+            }
+            return pw.getPointCache().getPoint();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    // 创建新帐号
+    private void addPoint(PointUsage usage, PointCache pc) {
         var point2Update = new PointPo();
-        point2Update.setPoint(usage.getPoint())
+        point2Update.setSeqNum(1L)
+                .setPoint(usage.getPoint())
                 .setAvailable(usage.getPoint())
-                .setUid(usage.getUid());
+                .setUid(usage.getUid())
+                .setUsed(0L)
+                .setFrozen(0L)
+                .setRefund(0L)
+                .setExpire(0L)
+                .setFrozenCost(0L)
+                .setEnable(true)
+                .setCreateTime(new Date())
+                .setUpdateTime(new Date());
         long cost = usage.getCost() != null && usage.getCost() > 0L ? usage.getCost() : 0L;
         point2Update.setCost(cost);
 
@@ -82,27 +116,78 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         }
 
         this.pointDs.addPoint(usage.getType(), point2Update);
-        PointPo retPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
 
-        if (usage.getPoint() > 0L) {
-            var pointRec = this.pointRecDs.addPointRec(usage, retPoint.getId(), retPoint.getSeqNum());
+        if (usage.getPoint() > 0L) {    // <= 0 表示仅创建帐号
+            PointRecPo rec = this.pointRecDs.addPointRec(usage, point2Update.getId(), point2Update.getSeqNum());
 
-            if (usage.getPoint() > retPoint.getPoint()) {
-                // 之前有欠款 TODO: 待验证
-                long number = usage.getPoint() - retPoint.getPoint();
-                pointRec.setAvailable(pointRec.getAvailable() - number);
-                pointRec.setUsed(number);
-                this.pointRecDs.updatePointRec(usage.getType(), pointRec);
-            }
-
-            PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.INCREASE, usage, retPoint);
-            PointRecLogPo recLog = this.pointRecLogDs.buildRecLog(pointRec, pointLog, usage.getPoint(),
+            PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.INCREASE, usage, point2Update);
+            PointRecLogPo recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, usage.getPoint(),
                     cost);
 
 
-            pointFlowService.addFlow(getType(), usage, retPoint, pointLog, List.of(recLog));
+            pointFlowService.addFlow(getType(), usage, point2Update, pointLog, List.of(recLog));
         }
 
-        return retPoint;
+        pc.setPoint(this.pointDs.getPointVo(usage.getType(), point2Update.getId(), null));
+    }
+
+
+    private void updatePointCache(PointUsage usage, PointCache pc) {
+        PointPo point = pc.getPoint();
+        var point2Update = new PointPo();
+        point.setSeqNum(point.getSeqNum() + 1L)
+                .setPoint(point.getPoint() + usage.getPoint())
+                .setAvailable(point.getAvailable() + usage.getPoint());
+        long cost = usage.getCost() != null && usage.getCost() > 0L ? usage.getCost() : 0L;
+        point.setCost(point.getCost() + cost);
+        if (StringUtils.isNotBlank(usage.getName())) {
+            point.setName(usage.getName());
+        }
+
+        point2Update.setSeqNum(point.getSeqNum())
+                .setPoint(point.getPoint())
+                .setAvailable(point.getAvailable())
+                .setCost(point.getCost())
+                .setName(point.getName())
+                .setId(point.getId());
+        point2Update.setCost(cost);
+
+
+        this.pointFlowService.updatePoint(usage.getType(), point2Update);
+
+        //this.pointDs.addPoint(usage.getType(), point2Update);
+
+        //PointPo retPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), false);
+
+        var pointRec = this.pointRecDs.addPointRec(usage, point.getId(), point.getSeqNum());
+        //pointFlowService.insertPointRec(usage.getType(), pointRec);
+
+        //pc.setPoint(this.pointDs.getPointVo(usage.getType(), point2Update.getId(), null));
+        pc.getPoint().getRecList().add(pointRec);
+
+        if (usage.getPoint() > point.getPoint()) {
+            // 之前有欠款 TODO: 待验证
+            long number = usage.getPoint() - point.getPoint();
+            PointRecPo rec4Update = new PointRecPo();
+            rec4Update.setPid(pointRec.getPid())
+                    .setSeqNum(pointRec.getSeqNum())
+                    .setAvailable(pointRec.getAvailable() - number)
+                    .setUsed(number);
+            //this.pointRecDs.updatePointRec(usage.getType(), pointRec);
+            this.pointFlowService.updatePointRec(usage.getType(), List.of(rec4Update));
+        }
+
+        PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.INCREASE, usage, point);
+        PointRecLogPo recLog = this.pointRecLogDs.buildRecLog(pointRec, pointLog, usage.getPoint(),
+                cost);
+
+
+        pointFlowService.addFlow(getType(), usage, point, pointLog, List.of(recLog));
+
+    }
+
+    @Override
+    public void processPoint(PointUsage usage, PointCache pointCache) {
+
     }
 }

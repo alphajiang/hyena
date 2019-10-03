@@ -19,14 +19,11 @@ package io.github.alphajiang.hyena.biz.flow;
 
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.vo.QueueInfo;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -68,18 +65,18 @@ public class PointFlowProcessor implements Runnable {
     }
 
 
-    public void push(CalcType calcType, PointUsage usage, PointPo point,
-                     PointLogPo pointLog, List<PointRecLogPo> recLogs) {
-        try {
-            this.queue.put(new PointFlowWrapper(calcType, usage, point,  pointLog, recLogs, 5));
-            long curSize = queueSize.addAndGet(1L);
-            if(curSize > maxSize) {
-                maxSize = curSize;
-            }
-        } catch (InterruptedException e) {
-            log.error("queue.size = {}, error = {}", queue.size(), e.getMessage(), e);
-        }
-    }
+//    public void push(CalcType calcType, PointUsage usage, PointPo point,
+//                     PointLogPo pointLog, List<PointRecLogPo> recLogs) {
+//        try {
+//            this.queue.put(new PointFlowWrapper(calcType, usage, point,  pointLog, recLogs, 5));
+//            long curSize = queueSize.addAndGet(1L);
+//            if(curSize > maxSize) {
+//                maxSize = curSize;
+//            }
+//        } catch (InterruptedException e) {
+//            log.error("queue.size = {}, error = {}", queue.size(), e.getMessage(), e);
+//        }
+//    }
 
     @Override
     public void run() {

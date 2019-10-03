@@ -36,6 +36,8 @@ public interface PointRecMapper {
     void addPointRec(@Param(value = "tableName") String tableName,
                      @Param(value = "rec") PointRecPo rec);
 
+    void batchInsert(@Param(value = "pointTableName") String tableName,
+                     @Param(value = "recList") List<PointRecPo> recList);
 
     List<PointRec> listPointRec(@Param(value = "pointTableName") String pointTableName,
                                 @Param(value = "param") ListPointRecParam param);
@@ -51,4 +53,7 @@ public interface PointRecMapper {
                            @Param(value = "uid") String uid,
                            @Param(value = "start") Date start,
                            @Param(value = "end") Date end);
+
+    void batchUpdate(@Param(value = "pointTableName") String pointTableName,
+                         @Param(value = "list") List<PointRecPo> list);
 }

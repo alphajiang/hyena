@@ -108,7 +108,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         Assert.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
-        expectPointRec.setPid(super.point.getId()).setSeqNum(super.point.getSeqNum())
+        expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
                 .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1 - number)
                 .setUsed(0L).setFrozen(number).setExpire(0L).setCancelled(0L)
                 .setTag(super.INCREASE_TAG_1)
@@ -220,7 +220,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
 
         PointRecPo pointRec2 = pointRecList.get(1);
         var expectPointRec2 = new PointRecPo();
-        expectPointRec2.setPid(super.point.getId()).setSeqNum(point.getSeqNum())
+        expectPointRec2.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease2)
                 .setTotal(INCREASE_POINT_2).setAvailable(INCREASE_POINT_1 + INCREASE_POINT_2 - number)
                 .setUsed(0L).setFrozen(number - INCREASE_POINT_1)
                 .setExpire(0L).setCancelled(0L).setTag(INCREASE_TAG_2)
@@ -262,7 +262,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
                 .setType(PointOpType.FREEZE.code()).setDelta(number - INCREASE_POINT_1)
                 .setAvailable(INCREASE_POINT_1 + INCREASE_POINT_2 - number)
                 .setUsed(0L)
-                .setFrozen(number -  INCREASE_POINT_1).setCancelled(0L).setExpire(0L)
+                .setFrozen(number - INCREASE_POINT_1).setCancelled(0L).setExpire(0L)
                 .setSourceType(FREEZE_SOURCE_TYPE)
                 .setOrderType(FREEZE_ORDER_TYPE)
                 .setPayType(FREEZE_PAY_TYPE)

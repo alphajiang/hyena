@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.vo.QueueInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,18 @@ public class PointFlowService {
     @Autowired
     private PointFlowStrategyFactory pointFlowStrategyFactory;
 
+    @Autowired
+    private PointLogFlowQueue pointLogFlowQueue;
+
+    @Autowired
+    private PointRecLogFlowQueue pointRecLogFlowQueue;
+
+    @Autowired
+    private PointRecDsQueue pointRecDsQueue;
+
+    @Autowired
+    private PointUpdateQueue pointUpdateQueue;
+
     @PostConstruct
     public void init() {
 
@@ -60,10 +73,26 @@ public class PointFlowService {
 
     public void addFlow(CalcType calcType, PointUsage usage, PointPo point,
                         PointLogPo pointLog, List<PointRecLogPo> recLogs) {
-        PointFlowProcessor processor = processorList.get((int) (point.getId() % THREAD_SIZE));
-        processor.push(calcType, usage, point, pointLog, recLogs);
+//        PointFlowProcessor processor = processorList.get((int) (point.getId() % THREAD_SIZE));
+//        processor.push(calcType, usage, point, pointLog, recLogs);
+
+
+        this.pointLogFlowQueue.offer(new PointLogFlowQueue.PointLog(usage.getType(), pointLog));
+        recLogs.stream().forEach(o -> this.pointRecLogFlowQueue.offer(new PointRecLogFlowQueue.PointRecLog(usage.getType(), o)));
+
     }
 
+    public void updatePoint(String type, PointPo point) {
+        this.pointUpdateQueue.offer(new PointUpdateQueue.Point(type, point));
+    }
+
+    public void insertPointRec(String type, PointRecPo rec) {
+        this.pointRecDsQueue.offer(new PointRecDsQueue.PointRec(true, type, rec));
+    }
+
+    public void updatePointRec(String type, List<PointRecPo> recList) {
+        recList.stream().forEach(o -> this.pointRecDsQueue.offer(new PointRecDsQueue.PointRec(false, type, o)));
+    }
 
     public List<QueueInfo> listQueueInfo() {
         List<QueueInfo> list = new ArrayList<>();

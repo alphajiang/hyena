@@ -24,17 +24,17 @@ import io.github.alphajiang.hyena.model.param.ListPointParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.SortOrder;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class TestPointDs extends HyenaTestBase {
-    private final Logger logger = LoggerFactory.getLogger(TestPointDs.class);
 
     @Autowired
     private PointDs pointDs;
@@ -47,6 +47,28 @@ public class TestPointDs extends HyenaTestBase {
         this.pointDs.addPoint(super.getPointType(), point);
     }
 
+    @Test
+    public void test_batchUpdate() {
+        List<PointPo> list = new ArrayList<>();
+        for (long i = 0; i < 5; i++) {
+            PointPo p = new PointPo();
+            p.setSeqNum(i + 1).setId(i + 1);
+            if (i % 2 == 0) {
+                p.setName("bwlegjaalgejg")
+                        .setPoint(123L)
+                        .setAvailable(456L)
+                        .setUsed(3423L)
+                        .setFrozen(3234L)
+                        .setRefund(323L)
+                        .setExpire(111L)
+                        .setCost(222L)
+                        .setFrozenCost(333L)
+                        .setEnable(false);
+            }
+            list.add(p);
+        }
+        this.pointDs.batchUpdate(super.getPointType(), list);
+    }
 
     @Test
     public void test_listPoint() {
@@ -55,7 +77,7 @@ public class TestPointDs extends HyenaTestBase {
                 .setStart(0L).setSize(5);
         param.setType(super.getPointType());
         List<PointPo> list = this.pointDs.listPoint(param);
-        logger.info("list = {}", list);
+        log.info("list = {}", list);
         Assert.assertFalse(list.isEmpty());
     }
 
@@ -65,8 +87,19 @@ public class TestPointDs extends HyenaTestBase {
         param.setEnable(null);
         param.setType(super.getPointType());
         ListResponse<PointPo> ret = this.pointDs.listPoint4Page(param);
-        logger.info("ret = {}", ret);
+        log.info("ret = {}", ret);
         Assert.assertTrue(ret.getTotal() > 0L);
         Assert.assertFalse(ret.getData().isEmpty());
+    }
+
+    @Test
+    public void test_getPointVo() {
+        var result = this.pointDs.getPointVo(super.getPointType(), null, super.getUid());
+        log.info("result = {}", result);
+        Assert.assertNotNull(result);
+
+        result = this.pointDs.getPointVo(super.getPointType(), super.getUserPoint().getId(), null);
+        log.info("result = {}", result);
+        Assert.assertNotNull(result);
     }
 }

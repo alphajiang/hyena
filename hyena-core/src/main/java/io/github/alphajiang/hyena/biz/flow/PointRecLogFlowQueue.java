@@ -15,42 +15,44 @@
  *
  */
 
-package io.github.alphajiang.hyena.ds;
+package io.github.alphajiang.hyena.biz.flow;
 
-import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
-import org.junit.Before;
-import org.junit.Test;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.PostConstruct;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class TestPointRecLogDs extends HyenaTestBase {
+@Service
+public class PointRecLogFlowQueue {
+
+
+    private LinkedBlockingQueue<PointRecLog> queue;
+
+    private PointRecLogFlowConsumer consumer;
 
     @Autowired
     private PointRecLogDs pointRecLogDs;
 
-    @Before
+    @PostConstruct
     public void init() {
-        super.init();
+        queue = new LinkedBlockingQueue<>();
+        consumer = new PointRecLogFlowConsumer(queue, pointRecLogDs);
+        new Thread(consumer).start();
     }
 
-    @Test
-    public void test_addPointRecLogs() {
-        List<PointRecLogPo> logs = new ArrayList<>();
-        PointRecLogPo log1 = new PointRecLogPo();
-        log1.setUsed(123L);
-        logs.add(log1);
-        this.pointRecLogDs.batchInsert(super.getPointType(), logs);
-
-
-        PointRecLogPo log2 = new PointRecLogPo();
-        log2.setUsed(456L);
-        logs.add(log2);
-        this.pointRecLogDs.batchInsert(super.getPointType(), logs);
+    public boolean offer(PointRecLog pl) {
+        return this.queue.offer(pl);
     }
 
-
+    @Data
+    @AllArgsConstructor
+    public static class PointRecLog {
+        private String type;
+        private PointRecLogPo pointRecLog;
+    }
 }

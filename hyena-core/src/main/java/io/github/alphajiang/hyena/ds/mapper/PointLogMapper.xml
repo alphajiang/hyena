@@ -10,7 +10,7 @@
         `cost`, `frozenCost`,
         `tag`,
         <if test="pointLog.orderNo != null">
-        `orderNo`,
+            `orderNo`,
         </if>
         <if test="pointLog.sourceType != null">
             `sourceType`,
@@ -29,7 +29,7 @@
         #{pointLog.cost}, #{pointLog.frozenCost},
         #{pointLog.tag},
         <if test="pointLog.orderNo != null">
-        #{pointLog.orderNo},
+            #{pointLog.orderNo},
         </if>
         <if test="pointLog.sourceType != null">
             #{pointLog.sourceType},
@@ -43,7 +43,34 @@
         #{pointLog.extra}, #{pointLog.note} )
     </insert>
 
-    <update id="updateCost" >
+    <insert id="batchInsert">
+        insert into `${pointTableName}_log` (
+        `pid`, `uid`, `seqNum`, `type`,
+        `delta`, `deltaCost`, `point`, `available`,
+        `used`, `frozen`, `refund`, `expire`,
+        `cost`, `frozenCost`,
+        `tag`,
+        `orderNo`,
+        `sourceType`,
+        `orderType`,
+        `payType`,
+        `extra`, `note`
+        )
+        <foreach item="pointLog" collection="pointLogList" open="values(" close=")" separator="),(">
+            #{pointLog.pid}, #{pointLog.uid}, #{pointLog.seqNum}, #{pointLog.type},
+            #{pointLog.delta}, #{pointLog.deltaCost}, #{pointLog.point}, #{pointLog.available},
+            #{pointLog.used}, #{pointLog.frozen}, #{pointLog.refund}, #{pointLog.expire},
+            #{pointLog.cost}, #{pointLog.frozenCost},
+            #{pointLog.tag},
+            #{pointLog.orderNo},
+            #{pointLog.sourceType},
+            #{pointLog.orderType},
+            #{pointLog.payType},
+            #{pointLog.extra}, #{pointLog.note}
+        </foreach>
+    </insert>
+
+    <update id="updateCost">
         update `${pointTableName}_log` set `cost` = #{cost} where id=#{id}
     </update>
 

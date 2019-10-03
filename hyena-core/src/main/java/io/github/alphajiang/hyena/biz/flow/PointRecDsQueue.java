@@ -17,40 +17,43 @@
 
 package io.github.alphajiang.hyena.biz.flow;
 
-import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
-import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
-import io.github.alphajiang.hyena.model.po.PointLogPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public abstract class AbstractPointFlowStrategy implements PointFlowStrategy {
+@Service
+public class PointRecDsQueue {
 
 
-    @Autowired
-    private PointLogDs pointLogDs;
+    private LinkedBlockingQueue<PointRec> queue;
+
+    private PointRecDsConsumer consumer;
 
     @Autowired
     private PointRecDs pointRecDs;
 
-    @Autowired
-    private PointRecLogDs pointRecLogDs;
-
-    @Autowired
-    private PointFlowStrategyFactory pointFlowStrategyFactory;
-
     @PostConstruct
     public void init() {
-        pointFlowStrategyFactory.addStrategy(this);
+        queue = new LinkedBlockingQueue<>();
+        consumer = new PointRecDsConsumer(queue, pointRecDs);
+        new Thread(consumer).start();
     }
 
-    @Override
-    public void addFlow2(PointUsage usage, PointLogPo pointLog, List<PointRecLogPo> recLogs) {
-        this.pointLogDs.addPointLog(usage.getType(), pointLog);
-        this.pointRecLogDs.batchInsert(usage.getType(), recLogs);
+    public boolean offer(PointRec pl) {
+        return this.queue.offer(pl);
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class PointRec {
+        private boolean insert;
+        private String type;
+        private PointRecPo pointRec;
     }
 }

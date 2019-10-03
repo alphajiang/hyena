@@ -19,6 +19,7 @@ package io.github.alphajiang.hyena.ds.mapper;
 
 import io.github.alphajiang.hyena.model.param.ListPointParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.vo.PointVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,12 +32,12 @@ public interface PointMapper {
 
 
     PointPo getCusPoint(@Param(value = "tableName") String tableName,
-                             @Param(value = "id") long id,
-                             @Param(value = "lock") boolean lock);
+                        @Param(value = "id") long id,
+                        @Param(value = "lock") boolean lock);
 
     PointPo getCusPointByUid(@Param(value = "tableName") String tableName,
-                        @Param(value = "uid") String uid,
-                        @Param(value = "lock") boolean lock);
+                             @Param(value = "uid") String uid,
+                             @Param(value = "lock") boolean lock);
 
 
     List<PointPo> listPoint(@Param(value = "pointTableName") String pointTableName,
@@ -50,5 +51,12 @@ public interface PointMapper {
                        @Param(value = "uid") String uid);
 
     int updateCusPoint(@Param(value = "tableName") String tableName,
-                        @Param(value = "cusPoint") PointPo cusPoint);
+                       @Param(value = "cusPoint") PointPo cusPoint);
+
+    void batchUpdate(@Param(value = "pointTableName") String pointTableName,
+                     @Param(value = "pointList") List<PointPo> pointList);
+
+    PointVo getPointVo(@Param(value = "pointTableName") String pointTableName,
+                       @Param(value = "pid") Long pid,
+                       @Param(value = "uid") String uid);
 }

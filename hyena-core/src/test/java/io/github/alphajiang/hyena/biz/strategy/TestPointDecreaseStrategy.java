@@ -33,6 +33,7 @@ import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -108,7 +109,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         Assert.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
-        expectPointRec.setPid(super.point.getId()).setSeqNum(super.point.getSeqNum())
+        expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
                 .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1 - number)
                 .setUsed(number).setFrozen(0L).setExpire(0L).setCancelled(0L)
                 .setTag(super.INCREASE_TAG_1)
@@ -150,8 +151,8 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
 
         PointUsage increaseUsage = new PointUsage();
         increaseUsage.setType(super.getPointType()).setUid(this.uid).setPoint(555L).setNote("test_decreasePoint2");
-        super.point = this.pointIncreaseStrategy.process(increaseUsage);
-
+        var resultPoint = this.pointIncreaseStrategy.process(increaseUsage);
+        BeanUtils.copyProperties(resultPoint, super.point);
 
         long number = 123L;
         long resultNumber = this.point.getPoint() - number;

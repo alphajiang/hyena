@@ -20,6 +20,7 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.CostCalculator;
+import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
@@ -78,7 +79,7 @@ public class PointFreezeCostStrategy extends AbstractPointStrategy {
     @Transactional
     public PointPo process(PointUsage usage) {
         log.info("cost freeze. usage = {}", usage);
-        super.preProcess(usage);
+        super.preProcess(usage, false);
 
         PointPo curPoint = null;
 
@@ -88,6 +89,11 @@ public class PointFreezeCostStrategy extends AbstractPointStrategy {
             throw new HyenaServiceException(HyenaConstants.RES_CODE_SERVICE_BUSY, "service busy, please retry later");
         }
         return curPoint;
+    }
+
+    @Override
+    public void processPoint(PointUsage usage, PointCache pointCache){
+
     }
 
     private PointPo freezeCost(PointUsage usage) {

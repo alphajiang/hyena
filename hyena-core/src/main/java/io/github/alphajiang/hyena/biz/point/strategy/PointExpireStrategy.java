@@ -17,23 +17,28 @@
 
 package io.github.alphajiang.hyena.biz.point.strategy;
 
-import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.biz.flow.PointFlowService;
+import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class PointExpireStrategy extends AbstractPointStrategy {
@@ -48,61 +53,97 @@ public class PointExpireStrategy extends AbstractPointStrategy {
     @Autowired
     private PointRecDs pointRecDs;
 
+
+    @Autowired
+    private PointRecLogDs pointRecLogDs;
+
+
+    @Autowired
+    private PointFlowService pointFlowService;
+
+
     @Override
     public CalcType getType() {
         return CalcType.EXPIRE;
     }
 
     @Override
-    @Transactional
-    public PointPo process(PointUsage usage) {
+    public void processPoint(PointUsage usage, PointCache pointCache) {
         logger.info("expire. usage = {}", usage);
-        super.preProcess(usage);
+        //super.preProcess(usage, false);
         HyenaAssert.notNull(usage.getRecId(), "invalid parameter, 'recId' can't be null");
         HyenaAssert.isTrue(usage.getRecId().longValue() > 0L, "invalid parameter: recId");
 
-        PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
-        HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
-                "can't find point to the uid: " + usage.getUid(), Level.WARN);
-        HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= usage.getPoint(),
-                HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
-                "no enough available point");
+        //PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
+        PointPo curPoint = pointCache.getPoint();
+//        HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
+//                "can't find point to the uid: " + usage.getUid(), Level.WARN);
+//        HyenaAssert.isTrue(curPoint.getAvailable().longValue() >= usage.getPoint(),
+//                HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+//                "no enough available point");
 
-        PointRecPo rec = this.pointRecDs.getById(usage.getType(), usage.getRecId(), true);
-        HyenaAssert.notNull(rec, HyenaConstants.RES_CODE_PARAMETER_ERROR,
-                "can't find point record with id = " + usage.getRecId(), Level.WARN);
-        if (rec.getExpire() > 0) {
-            return curPoint;
-        }
-        logger.info("curPoint = {}", curPoint);
-        logger.info("rec = {}", rec);
-        HyenaAssert.isTrue(rec.getFrozen().longValue() < 1L,
-                HyenaConstants.RES_CODE_STATUS_ERROR,
-                "can't expire frozen point record");
-        HyenaAssert.isTrue(rec.getPid() == curPoint.getId(), "invalid parameter.");
-        HyenaAssert.isTrue(rec.getAvailable().longValue() == usage.getPoint(), "point mis-match");
-        long delta = rec.getAvailable();
+        List<PointRecPo> recList4Update = new ArrayList<>();
+        List<PointRecLogPo> recLogList = new ArrayList<>();
+        //List<PointLogPo> pointLogList = new ArrayList<>();
+        //List<PointRecPo> recList =
+        pointCache.getPoint().getRecList().stream()
+                .filter(rec -> rec.getFrozen() < 1L)
+                .forEach(rec -> {
+                    long delta = rec.getAvailable();
+                    long deltaCost = rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
+                    curPoint.setSeqNum(curPoint.getSeqNum() + 1)
+                            .setAvailable(curPoint.getAvailable() - rec.getAvailable())
+                            .setPoint(curPoint.getPoint() - rec.getAvailable())
+                            .setExpire(curPoint.getExpire() + rec.getAvailable());
+                    recList4Update.add(pointRecDs.expirePointRec(rec));
+                    PointLogPo pl = this.pointLogDs.buildPointLog(PointOpType.EXPIRE, usage, curPoint);
 
-        curPoint.setAvailable(curPoint.getAvailable() - delta)
-                .setPoint(curPoint.getPoint() - delta)
-                .setExpire(curPoint.getExpire() + delta);
+                    recLogList.add(pointRecLogDs.buildRecLog(rec, pl, delta, deltaCost));
 
-        var point2Update = new PointPo();
-        point2Update.setAvailable(curPoint.getAvailable())
-                .setPoint(curPoint.getPoint())
-                .setExpire(curPoint.getExpire()).setSeqNum(curPoint.getSeqNum())
-                .setId(curPoint.getId());
-        this.pointDs.update(usage.getType(), point2Update);
+                    pointFlowService.addFlow(getType(), usage, curPoint, pl, recLogList);
+                });
+        List<PointRecPo> recList = pointCache.getPoint().getRecList().stream().filter(rec -> rec.getEnable())
+                .collect(Collectors.toList());
+        pointCache.getPoint().setRecList(recList);
 
-        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
-        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointOpType.EXPIRE, usage,  curPoint);
-
+        pointFlowService.updatePoint(usage.getType(), curPoint);
+        pointFlowService.updatePointRec(usage.getType(), recList4Update);
 
 
-        this.pointRecDs.expirePointRec(usage.getType(), rec, pointLog);
+//        PointRecPo rec = this.pointRecDs.getById(usage.getType(), usage.getRecId(), true);
+//        HyenaAssert.notNull(rec, HyenaConstants.RES_CODE_PARAMETER_ERROR,
+//                "can't find point record with id = " + usage.getRecId(), Level.WARN);
+//        if (rec.getExpire() > 0) {
+//            //return curPoint;
+//            return;
+//        }
+//        logger.info("curPoint = {}", curPoint);
+//        logger.info("rec = {}", rec);
+//        HyenaAssert.isTrue(rec.getFrozen().longValue() < 1L,
+//                HyenaConstants.RES_CODE_STATUS_ERROR,
+//                "can't expire frozen point record");
+//        HyenaAssert.isTrue(rec.getPid() == curPoint.getId(), "invalid parameter.");
+//        HyenaAssert.isTrue(rec.getAvailable().longValue() == usage.getPoint(), "point mis-match");
+//        long delta = rec.getAvailable();
+//
+//        curPoint.setAvailable(curPoint.getAvailable() - delta)
+//                .setPoint(curPoint.getPoint() - delta)
+//                .setExpire(curPoint.getExpire() + delta);
+//
+//        var point2Update = new PointPo();
+//        point2Update.setAvailable(curPoint.getAvailable())
+//                .setPoint(curPoint.getPoint())
+//                .setExpire(curPoint.getExpire()).setSeqNum(curPoint.getSeqNum())
+//                .setId(curPoint.getId());
+//        this.pointDs.update(usage.getType(), point2Update);
+//
+//        curPoint.setSeqNum(curPoint.getSeqNum() + 1);
+//        PointLogPo pointLog = this.pointLogDs.addPointLog(usage.getType(), PointOpType.EXPIRE, usage, curPoint);
+//
+//
+//        this.pointRecDs.expirePointRec(usage.getType(), rec, pointLog);
 
 
-
-        return curPoint;
+        //return curPoint;
     }
 }
