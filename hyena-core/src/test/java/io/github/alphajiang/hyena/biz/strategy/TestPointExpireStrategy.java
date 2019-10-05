@@ -63,6 +63,7 @@ public class TestPointExpireStrategy extends TestPointStrategyBase {
         Assert.assertEquals(0L, result.getFrozen().longValue());
         Assert.assertEquals(number, result.getExpire().longValue());
 
+        Thread.sleep(100L);
         PointRecPo resultRec = this.pointRecDs.getById(super.getPointType(), rec.getId(), false);
         logger.info("resultRec = {}", resultRec);
         Assert.assertFalse(resultRec.getEnable());

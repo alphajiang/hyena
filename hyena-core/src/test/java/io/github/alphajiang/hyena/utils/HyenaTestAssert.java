@@ -29,11 +29,16 @@ public class HyenaTestAssert {
         Assert.assertEquals(expect.getType().intValue(), actual.getType().intValue());
         Assert.assertEquals(expect.getSeqNum(), actual.getSeqNum());
         Assert.assertEquals(expect.getDelta().longValue(), actual.getDelta().longValue());
+        Assert.assertEquals(expect.getDeltaCost().longValue(), actual.getDeltaCost().longValue());
         Assert.assertEquals(expect.getPoint().longValue(), actual.getPoint().longValue());
         Assert.assertEquals(expect.getAvailable().longValue(), actual.getAvailable().longValue());
         Assert.assertEquals(expect.getUsed().longValue(), actual.getUsed().longValue());
         Assert.assertEquals(expect.getFrozen().longValue(), actual.getFrozen().longValue());
         Assert.assertEquals(expect.getExpire().longValue(), actual.getExpire().longValue());
+        Assert.assertEquals(expect.getRefund().longValue(), actual.getRefund().longValue());
+        Assert.assertEquals(expect.getCost().longValue(), actual.getCost().longValue());
+        Assert.assertEquals(expect.getFrozenCost().longValue(), actual.getFrozenCost().longValue());
+
         if (expect.getTag() != null) {
             Assert.assertEquals(expect.getTag(), actual.getTag());
         }
@@ -65,6 +70,11 @@ public class HyenaTestAssert {
         Assert.assertEquals(expect.getFrozen().longValue(), actual.getFrozen().longValue());
         Assert.assertEquals(expect.getCancelled().longValue(), actual.getCancelled().longValue());
         Assert.assertEquals(expect.getExpire().longValue(), actual.getExpire().longValue());
+        Assert.assertEquals(expect.getTotalCost().longValue(), actual.getTotalCost().longValue());
+        Assert.assertEquals(expect.getFrozenCost().longValue(), actual.getFrozenCost().longValue());
+        Assert.assertEquals(expect.getUsedCost().longValue(), actual.getUsedCost().longValue());
+        Assert.assertEquals(expect.getRefundCost().longValue(), actual.getRefundCost().longValue());
+
         Assert.assertEquals(expect.getTag(), actual.getTag());
         Assert.assertEquals(expect.getOrderNo(), actual.getOrderNo());
         if (expect.getSourceType() != null) {
@@ -98,6 +108,10 @@ public class HyenaTestAssert {
         Assert.assertEquals(expect.getFrozen().longValue(), actual.getFrozen().longValue());
         Assert.assertEquals(expect.getCancelled().longValue(), actual.getCancelled().longValue());
         Assert.assertEquals(expect.getExpire().longValue(), actual.getExpire().longValue());
+        Assert.assertEquals(expect.getCost().longValue(), actual.getCost().longValue());
+        Assert.assertEquals(expect.getFrozenCost().longValue(), actual.getFrozenCost().longValue());
+        Assert.assertEquals(expect.getUsedCost().longValue(), actual.getUsedCost().longValue());
+        Assert.assertEquals(expect.getRefundCost().longValue(), actual.getRefundCost().longValue());
 
         if (expect.getSourceType() != null) {
             Assert.assertEquals(expect.getSourceType().intValue(), actual.getSourceType().intValue());

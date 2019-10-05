@@ -15,7 +15,7 @@
  *
  */
 
-package io.github.alphajiang.hyena.biz.point;
+package io.github.alphajiang.hyena.biz.calculator;
 
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import org.springframework.stereotype.Service;
@@ -25,6 +25,7 @@ public class CostCalculator {
 
     /**
      * 计算可用成本
+     *
      * @param rec 积分块
      * @return 总成本 - 已用成本 - 冻结成本
      */
@@ -39,7 +40,7 @@ public class CostCalculator {
     /**
      * 根据成本计算可用积分
      *
-     * @param rec 积分块
+     * @param rec  积分块
      * @param cost 变动部分成本
      * @return 对应的积分
      */
@@ -67,8 +68,7 @@ public class CostCalculator {
         long cost = 0L;
         if (rec.getTotalCost() == null || rec.getTotalCost() < 1L) { // 积分块没有成本时直接返回0
             return cost;
-        }
-        if (rec.getAvailable() <= delta) { // 不够抵扣时返回剩余的全部
+        } else if (rec.getAvailable() <= delta) { // 不够抵扣时返回剩余的全部
             cost = this.getAvailableCost(rec);
         } else { // 按比例计算
             cost = delta * rec.getTotalCost() / rec.getTotal();
@@ -80,8 +80,7 @@ public class CostCalculator {
         long cost = 0L;
         if (rec.getTotalCost() == null || rec.getTotalCost() < 1L) { // 积分块没有成本时直接返回0
             return cost;
-        }
-        if (rec.getFrozen() <= delta) { // 不够解冻时返回剩余的全部
+        } else if (rec.getFrozen() <= delta) { // 不够解冻时返回剩余的全部
             cost = rec.getFrozenCost();
         } else { // 按比例计算
             cost = delta * rec.getTotalCost() / rec.getTotal();

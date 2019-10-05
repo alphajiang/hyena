@@ -176,7 +176,7 @@ public class PointController {
         PointPo ret = this.pointUsageFacade.increase(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));
-        debugPerformance(startTime);
+        debugPerformance(request, startTime);
         return res;
     }
 
@@ -191,7 +191,7 @@ public class PointController {
         PointPo ret = this.pointUsageFacade.decrease(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));
-        debugPerformance(startTime);
+        debugPerformance(request, startTime);
         return res;
     }
 
@@ -208,7 +208,7 @@ public class PointController {
         PointPo ret = this.pointUsageFacade.decreaseFrozen(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));
-        debugPerformance(startTime);
+        debugPerformance(request, startTime);
         return res;
     }
 
@@ -225,7 +225,7 @@ public class PointController {
         PointPo cusPoint = this.pointUsageFacade.freeze(usage);
         ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));
-        debugPerformance(startTime);
+        debugPerformance(request, startTime);
         return res;
     }
 
@@ -242,7 +242,7 @@ public class PointController {
 
         ObjectResponse<PointPo> res = new ObjectResponse<>(cusPoint);
         logger.info(LoggerHelper.formatLeaveLog(request));
-        debugPerformance(startTime);
+        debugPerformance(request, startTime);
         return res;
     }
 
@@ -265,7 +265,7 @@ public class PointController {
     @ApiOperation(value = "按成本冻结")
     @PostMapping(value = "/freezeCost", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> freezeCost(HttpServletRequest request,
-                                          @RequestBody PointOpParam param) {
+                                              @RequestBody PointOpParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
 //        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
 //            throw new HyenaParameterException("invalid parameter: unfreezePoint");
@@ -281,7 +281,7 @@ public class PointController {
     @ApiOperation(value = "按成本解冻")
     @PostMapping(value = "/unfreezeCost", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> refundUnfreeze(HttpServletRequest request,
-                                                @RequestBody PointOpParam param) {
+                                                  @RequestBody PointOpParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
 //        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
 //            throw new HyenaParameterException("invalid parameter: unfreezePoint");
@@ -343,10 +343,12 @@ public class PointController {
         return BaseResponse.success();
     }
 
-    private void debugPerformance(long startTime) {
+    private void debugPerformance(HttpServletRequest request, long startTime) {
         long curTime = System.nanoTime();
         if (curTime - startTime > 2000L * 1000000) {
-            logger.warn("延迟过大...{}. ", (curTime - startTime) / 1000000);
+            logger.warn("延迟过大...{}. url = {}",
+                    (curTime - startTime) / 1000000,
+                    request.getRequestURI());
         }
     }
 }

@@ -92,9 +92,14 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         var expectPoingLog = new PointLog();
         expectPoingLog.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(unfreezeNumber)
+                .setDeltaCost(unfreezeNumber/2)
                 .setPoint(INCREASE_POINT_1).setAvailable(expectAvailable)
                 .setUsed(0L).setFrozen(expectFrozen)
-                .setExpire(0L).setTag(usage.getTag())
+                .setExpire(0L)
+                .setRefund(0L)
+                .setCost(INCREASE_COST_1)
+                .setFrozenCost(15L)
+                .setTag(usage.getTag())
                 .setOrderNo(usage.getOrderNo())
                 .setExtra(usage.getExtra())
                 .setNote(usage.getNote());
@@ -111,6 +116,10 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
                 .setTotal(INCREASE_POINT_1).setAvailable(expectAvailable)
                 .setUsed(0L).setFrozen(expectFrozen).setExpire(0L).setCancelled(0L)
+                .setTotalCost(super.INCREASE_COST_1)
+                .setFrozenCost((freezeNum - unfreezeNumber) / 2)
+                .setUsedCost(0L)
+                .setRefundCost(0L)
                 .setTag(super.INCREASE_TAG_1)
                 .setOrderNo(super.INCREASE_ORDER_NO_1);
         HyenaTestAssert.assertEquals(expectPointRec, pointRec);
@@ -132,6 +141,10 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setAvailable(expectAvailable)
                 .setUsed(0L)
                 .setFrozen(expectFrozen).setCancelled(0L).setExpire(0L)
+                .setCost(super.INCREASE_COST_1)
+                .setFrozenCost((80L - 50L) / 2)
+                .setUsedCost(0L)
+                .setRefundCost(0L)
                 .setNote(usage.getNote());
         HyenaTestAssert.assertEquals(expectPointRecLog, pointRecLog);
         log.info("<< test end");
@@ -185,9 +198,14 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         var expectPoingLog = new PointLog();
         expectPoingLog.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(unfreezeNumber)
+                .setDeltaCost(unfreezeNumber/2)
                 .setPoint(INCREASE_POINT_1).setAvailable(expectAvailable)
                 .setUsed(0L).setFrozen(expectFrozen)
-                .setExpire(0L).setTag(usage.getTag())
+                .setExpire(0L)
+                .setRefund(0L)
+                .setCost(INCREASE_COST_1)
+                .setFrozenCost(5L)
+                .setTag(usage.getTag())
                 .setOrderNo(usage.getOrderNo())
                 .setExtra(usage.getExtra())
                 .setNote(usage.getNote());
@@ -204,6 +222,10 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
                 .setTotal(INCREASE_POINT_1).setAvailable(expectAvailable)
                 .setUsed(0L).setFrozen(expectFrozen).setExpire(0L).setCancelled(0L)
+                .setTotalCost(super.INCREASE_COST_1)
+                .setFrozenCost((20L + 30L - 40L)/2)
+                .setUsedCost(0L)
+                .setRefundCost(0L)
                 .setTag(super.INCREASE_TAG_1)
                 .setOrderNo(super.INCREASE_ORDER_NO_1);
         HyenaTestAssert.assertEquals(expectPointRec, pointRec);
@@ -225,6 +247,10 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setAvailable(expectAvailable)
                 .setUsed(0L)
                 .setFrozen(expectFrozen).setCancelled(0L).setExpire(0L)
+                .setCost(super.INCREASE_COST_1 )
+                .setFrozenCost((20L + 30L - 40L) / 2)
+                .setUsedCost(0L)
+                .setRefundCost(0L)
                 .setNote(usage.getNote());
         HyenaTestAssert.assertEquals(expectPointRecLog, pointRecLog);
         log.info("<< test end");

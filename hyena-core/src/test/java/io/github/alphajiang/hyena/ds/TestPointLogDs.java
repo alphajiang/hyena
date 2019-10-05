@@ -45,6 +45,12 @@ public class TestPointLogDs extends HyenaTestBase {
     }
 
     @Test
+    public void test_addPointLog() {
+        PointLogPo pl = this.buildPointLog(45L);
+        this.pointLogDs.addPointLog(super.getPointType(), pl);
+    }
+
+    @Test
     public void test_listPointLog4Page() {
         ListPointLogParam param = new ListPointLogParam();
         param.setUid(super.getUid()).setOrderNo("abcd123").setSk("abewfgewgewgewgewg")

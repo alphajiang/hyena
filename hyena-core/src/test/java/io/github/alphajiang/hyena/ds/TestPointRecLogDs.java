@@ -38,7 +38,7 @@ public class TestPointRecLogDs extends HyenaTestBase {
     }
 
     @Test
-    public void test_addPointRecLogs() {
+    public void test_batchInsert() {
         List<PointRecLogPo> logs = new ArrayList<>();
         PointRecLogPo log1 = new PointRecLogPo();
         log1.setUsed(123L);
@@ -52,5 +52,11 @@ public class TestPointRecLogDs extends HyenaTestBase {
         this.pointRecLogDs.batchInsert(super.getPointType(), logs);
     }
 
+    @Test
+    public void test_addPointRecLog() {
+        PointRecLogPo log1 = new PointRecLogPo();
+        log1.setUsed(111L);
 
+        this.pointRecLogDs.addPointRecLog(super.getPointType(), log1);
+    }
 }

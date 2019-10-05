@@ -18,13 +18,13 @@
 package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.biz.calculator.CostCalculator;
+import io.github.alphajiang.hyena.biz.calculator.PointRecCalculator;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
-import io.github.alphajiang.hyena.biz.point.CostCalculator;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
-import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
@@ -33,6 +33,7 @@ import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
+import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
@@ -53,7 +54,7 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
     private PointLogDs pointLogDs;
 
     @Autowired
-    private PointRecDs pointRecDs;
+    private PointRecCalculator pointRecCalculator;
 
     @Autowired
     private PointRecLogDs pointRecLogDs;
@@ -130,7 +131,7 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
 
         pointFlowService.updatePoint(usage.getType(), point2Update);
         pointFlowService.updatePointRec(usage.getType(), recLogsRet.getRecList4Update());
-        pointFlowService.addFlow(getType(), usage, curPoint, pointLog, recLogs);
+        pointFlowService.addFlow(usage, pointLog, recLogs);
         //pointFlowService.addFlow(getType(), usage, curPoint);
         //return curPoint;
     }
@@ -139,10 +140,11 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
     private LoopResult unfreezePointLoop(String type, PointCache pointCache,
                                          PointLogPo pointLog, long expected) {
         log.info("unfreeze. type = {}, uid = {}, expected = {}", type, pointCache.getPoint().getUid(), expected);
-
+        List<PointRecPo> recList = pointCache.getPoint().getRecList();
         LoopResult result = new LoopResult();
         long sum = 0L;
-        long cost = 0L;
+        long deltaCost = 0L;
+
         List<PointRecPo> recList4Update = new ArrayList<>();
         List<PointRecLogPo> recLogs = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
@@ -155,25 +157,24 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
             } else if (rec.getFrozen() < gap) {
                 sum += rec.getFrozen();
                 long delta = rec.getFrozen();
-                long deltaCost = this.costCalculator.accountCost4Unfreeze(rec, delta);
-                cost += deltaCost;
-                var rec4Update = this.pointRecDs.unfreezePoint(type, rec, gap, deltaCost);
-                recList4Update.add(rec4Update);
-                var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, delta, deltaCost);
+
+                PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, delta);
+                recList4Update.add(calcResult.getRec4Update());
+                deltaCost += calcResult.getDeltaCost();
+                var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                long deltaCost = this.costCalculator.accountCost4Unfreeze(rec, gap);
-                cost += deltaCost;
-                var rec4Update = this.pointRecDs.unfreezePoint(type, rec, gap, deltaCost);
-                recList4Update.add(rec4Update);
-                var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, gap, deltaCost);
+                PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, gap);
+                recList4Update.add(calcResult.getRec4Update());
+                deltaCost += calcResult.getDeltaCost();
+                var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
                 recLogs.add(recLog);
                 break;
             }
         }
 
-        result.setDelta(sum).setDeltaCost(cost)
+        result.setDelta(sum).setDeltaCost(deltaCost)
                 .setRecList4Update(recList4Update)
                 .setRecLogs(recLogs);
         log.debug("result = {}", result);

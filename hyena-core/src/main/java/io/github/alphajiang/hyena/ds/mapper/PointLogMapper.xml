@@ -70,9 +70,6 @@
         </foreach>
     </insert>
 
-    <update id="updateCost">
-        update `${pointTableName}_log` set `cost` = #{cost} where id=#{id}
-    </update>
 
     <select id="listPointLog" resultType="io.github.alphajiang.hyena.model.dto.PointLog">
         select log.*

@@ -49,18 +49,18 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
     private PointLogDs pointLogDs;
 
     @Test
-    public void test_cancelPoint_byRecId() {
+    public void test_cancelPoint_byRecId() throws InterruptedException {
         log.info(">> test start");
         ListPointRecParam param = new ListPointRecParam();
         param.setUid(super.uid).setStart(0L).setSize(1);
         List<PointRec> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
         PointRec rec = recList.get(0);
-
+        log.info("rec = {}", rec);
         long number = rec.getAvailable();
         long resultAvailable = this.point.getPoint() - number;
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setRecId(rec.getId())
-                .setUid(this.uid).setPoint(number).setNote("test_cancelPoint");
+                .setUid(this.uid).setPoint(number).setNote("test_cancelPoint_byRecId");
         PointPo result = this.pointCancelStrategy.process(usage);
         log.info("result = {}", result);
         // Assert.assertEquals(number, result.getPoint().longValue());
@@ -69,6 +69,7 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
         Assert.assertEquals(0L, result.getFrozen().longValue());
         Assert.assertEquals(0L, result.getExpire().longValue());
 
+        Thread.sleep(100);
         PointRecPo resultRec = this.pointRecDs.getById(super.getPointType(), rec.getId(), false);
         log.info("resultRec = {}", resultRec);
         Assert.assertFalse(resultRec.getEnable());
@@ -77,7 +78,7 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
         log.info("<< test end");
     }
 
-    // @Test TODO: 临时屏蔽
+    @Test
     public void test_cancelPoint_nonRecId() throws InterruptedException {
         log.info(">> test start");
         ListPointRecParam param = new ListPointRecParam();

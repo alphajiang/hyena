@@ -100,7 +100,7 @@ public class PointExpireStrategy extends AbstractPointStrategy {
 
                     recLogList.add(pointRecLogDs.buildRecLog(rec, pl, delta, deltaCost));
 
-                    pointFlowService.addFlow(getType(), usage, curPoint, pl, recLogList);
+                    pointFlowService.addFlow(usage, pl, recLogList);
                 });
         List<PointRecPo> recList = pointCache.getPoint().getRecList().stream().filter(rec -> rec.getEnable())
                 .collect(Collectors.toList());

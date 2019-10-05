@@ -48,11 +48,13 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
     protected final int DECREASE_PAY_TYPE = 65;
 
     protected final long INCREASE_POINT_1 = 100L;
+    protected final long INCREASE_COST_1 = 50L;
     protected final String INCREASE_TAG_1 = "TAG_" + UUID.randomUUID().toString();
     protected final String INCREASE_ORDER_NO_1 = "ORDER_NO_" + UUID.randomUUID().toString();
 
 
     protected final long INCREASE_POINT_2 = 200L;
+    protected final long INCREASE_COST_2 = 100L;
     protected final String INCREASE_TAG_2 = "TAG_" + UUID.randomUUID().toString();
     protected final String INCREASE_ORDER_NO_2 = "ORDER_NO_" + UUID.randomUUID().toString();
 
@@ -88,6 +90,7 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
     public void increase1() {
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setUid(this.uid).setPoint(INCREASE_POINT_1)
+                .setCost(INCREASE_COST_1)
                 .setTag(INCREASE_TAG_1)
                 .setOrderNo(INCREASE_ORDER_NO_1)
                 .setSourceType(INCREASE_SOURCE_TYPE).setOrderType(INCREASE_ORDER_TYPE).setPayType(INCREASE_PAY_TYPE);
@@ -114,6 +117,7 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setUid(this.uid).setPoint(INCREASE_POINT_2)
                 .setTag(INCREASE_TAG_2)
+                .setCost(INCREASE_COST_2)
                 .setOrderNo(INCREASE_ORDER_NO_2);
         var result = this.pointIncreaseStrategy.process(usage);
         log.info("result = {}", result);

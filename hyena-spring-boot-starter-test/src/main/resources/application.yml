@@ -36,7 +36,7 @@ spring:
     name: hyena
     username: abc
     password: abc
-    url: jdbc:mysql://000.000.000.000:3306/hyena?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
+    url: jdbc:mysql://000.000.000.000:3306/hyena?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&allowMultiQueries=true
     initialPoolSize: 1
     minPoolSize: 1
     maxPoolSize: 10

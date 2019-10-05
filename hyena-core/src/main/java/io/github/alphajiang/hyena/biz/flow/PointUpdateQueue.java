@@ -20,7 +20,7 @@ package io.github.alphajiang.hyena.biz.flow;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +49,7 @@ public class PointUpdateQueue {
         return this.queue.offer(p);
     }
 
-    @Data
+    @Getter
     @AllArgsConstructor
     public static class Point {
         private String type;

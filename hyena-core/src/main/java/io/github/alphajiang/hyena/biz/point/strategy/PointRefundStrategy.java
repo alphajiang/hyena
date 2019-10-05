@@ -1,13 +1,13 @@
 package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.biz.calculator.CostCalculator;
+import io.github.alphajiang.hyena.biz.calculator.PointRecCalculator;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
-import io.github.alphajiang.hyena.biz.point.CostCalculator;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
-import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -32,13 +32,13 @@ public class PointRefundStrategy extends AbstractPointStrategy {
     private PointDs pointDs;
 
     @Autowired
-    private PointRecDs pointRecDs;
-
-    @Autowired
     private PointLogDs pointLogDs;
 
     @Autowired
     private PointRecLogDs pointRecLogDs;
+
+    @Autowired
+    private PointRecCalculator pointRecCalculator;
 
     @Autowired
     private PointFlowService pointFlowService;
@@ -63,7 +63,7 @@ public class PointRefundStrategy extends AbstractPointStrategy {
 
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1)
-                .setCost(curPoint.getCost() - usage.getCost());
+                .setCost(curPoint.getCost() - usage.getPoint());
         var point2Update = new PointPo();
         point2Update.setCost(curPoint.getCost())
                 .setSeqNum(curPoint.getSeqNum())
@@ -95,16 +95,10 @@ public class PointRefundStrategy extends AbstractPointStrategy {
         pointLog.setDelta(sumPoint)
                 .setDeltaCost(cost).setRefund(curPoint.getRefund())
                 .setAvailable(curPoint.getAvailable());
-        //HyenaAssert.isTrue(ret, HyenaConstants.RES_CODE_STATUS_ERROR, "status changed. please retry later");
-//        boolean ret = this.pointDs.update(usage.getType(), point2Update);
-//        if (!ret) {
-//            log.warn("refund cost failed!!! please retry later. usage = {}", usage);
-//            return null;
-//        }
 
         pointFlowService.updatePoint(usage.getType(), point2Update);
         pointFlowService.updatePointRec(usage.getType(), recLogsRet.getRecList4Update());
-        pointFlowService.addFlow(getType(), usage, curPoint, pointLog, recLogs);
+        pointFlowService.addFlow(usage, pointLog, recLogs);
         //return pointCache.getPoint();
     }
 
@@ -133,7 +127,7 @@ public class PointRefundStrategy extends AbstractPointStrategy {
                 long delta = this.costCalculator.accountPoint(rec, deltaCost);
                 sumPoint += delta;
                 cost += deltaCost;
-                var rec4Update = this.pointRecDs.refundPoint(rec, delta, deltaCost);
+                var rec4Update = this.pointRecCalculator.refundPoint(rec, delta, deltaCost);
                 recList4Update.add(rec4Update);
                 var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, delta, deltaCost);
                 recLogs.add(recLog);
@@ -143,7 +137,7 @@ public class PointRefundStrategy extends AbstractPointStrategy {
                 long delta = this.costCalculator.accountPoint(rec, deltaCost);
                 sumPoint += delta;
                 cost += deltaCost;
-                var rec4Update = this.pointRecDs.refundPoint(rec, delta, deltaCost);
+                var rec4Update = this.pointRecCalculator.refundPoint(rec, delta, deltaCost);
                 recList4Update.add(rec4Update);
                 var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, delta, deltaCost);
                 recLogs.add(recLog);

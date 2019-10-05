@@ -18,7 +18,6 @@
 package io.github.alphajiang.hyena.ds;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
-import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import org.junit.Assert;
@@ -64,22 +63,7 @@ public class TestPointRecDs extends HyenaTestBase {
 //    }
 
 
-    @Test
-    public void test_unfreezePoint() {
-        PointUsage param = new PointUsage();
-        param.setType(super.getPointType()).setPoint(10).setTag("test")
-                .setExtra("{\"abc\" : 123}")
-                .setNote(null)
-                .setExpireTime(null);
-        // 增加并冻结第一笔积分
-        var pointRec = pointRecDs.addPointRec(param, super.getUserPoint().getId(), super.getUserPoint().getSeqNum());
-        var recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
-        pointRecDs.freezePoint(super.getPointType(), recA, 20, 0L);
 
-        recA = pointRecDs.getById(super.getPointType(), pointRec.getId(), false);
-        pointRecDs.unfreezePoint(super.getPointType(), recA, 20, 10L);
-
-    }
 
     @Test
     public void test_getIncreasedPoint() throws InterruptedException {

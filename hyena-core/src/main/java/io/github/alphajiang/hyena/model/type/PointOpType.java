@@ -36,10 +36,6 @@ public enum PointOpType {
 
     REFUND(7),      // 退款
 
-    FREEZE_COST(8),   // 按成本冻结
-
-    UNFREEZE_COST(9),     // 按成本解冻
-
     UNKNOWN(0)
     ;
 

@@ -22,7 +22,6 @@ import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
-import io.github.alphajiang.hyena.model.vo.QueueInfo;
 import io.github.alphajiang.hyena.utils.LoggerHelper;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import io.swagger.annotations.Api;
@@ -35,7 +34,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -74,13 +72,13 @@ public class SystemController {
     }
 
 
-    @ApiOperation(value = "获取缓冲队列信息")
-    @GetMapping(value = "/listQueueInfo", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ListResponse<QueueInfo> listQueueInfo(HttpServletRequest request) {
-        logger.info(LoggerHelper.formatEnterLog(request));
-        List<QueueInfo> flowQueueInfo = this.pointFlowService.listQueueInfo();
-        ListResponse<QueueInfo> ret = new ListResponse<>(flowQueueInfo);
-        logger.info(LoggerHelper.formatLeaveLog(request));
-        return ret;
-    }
+//    @ApiOperation(value = "获取缓冲队列信息")
+//    @GetMapping(value = "/listQueueInfo", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//    public ListResponse<QueueInfo> listQueueInfo(HttpServletRequest request) {
+//        logger.info(LoggerHelper.formatEnterLog(request));
+//        List<QueueInfo> flowQueueInfo = this.pointFlowService.listQueueInfo();
+//        ListResponse<QueueInfo> ret = new ListResponse<>(flowQueueInfo);
+//        logger.info(LoggerHelper.formatLeaveLog(request));
+//        return ret;
+//    }
 }

@@ -125,7 +125,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
                     cost);
 
 
-            pointFlowService.addFlow(getType(), usage, point2Update, pointLog, List.of(recLog));
+            pointFlowService.addFlow(usage, pointLog, List.of(recLog));
         }
 
         pc.setPoint(this.pointDs.getPointVo(usage.getType(), point2Update.getId(), null));
@@ -182,7 +182,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
                 cost);
 
 
-        pointFlowService.addFlow(getType(), usage, point, pointLog, List.of(recLog));
+        pointFlowService.addFlow(usage, pointLog, List.of(recLog));
 
     }
 
