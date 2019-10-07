@@ -20,27 +20,31 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointWrapper;
 import io.github.alphajiang.hyena.ds.service.PointDs;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.model.vo.PointVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class PointMemCacheService {
 
+
+    @Value("${hyena.mem.ttl:30}")
+    private int cacheTtl; // minutes
+
     //private final String type;
-    private Map<String, PointCache> map = new HashMap<>();
+    private Map<String, PointCache> map = new ConcurrentHashMap<>();
 
     @Autowired
     private PointDs pointDs;
 
-
-//    public PointMemCacheService(String type, PointDs pointDs) {
-//        this.type = type;
-//        this.pointDs = pointDs;
-//    }
 
     public PointWrapper getPoint(String type, String uid, boolean lock) {
         PointWrapper result = new PointWrapper(this.getPointX(type, uid));
@@ -49,7 +53,11 @@ public class PointMemCacheService {
             result.getPointCache().lock();
         }
         if (result.getPointCache().getPoint() == null) {
-            result.getPointCache().setPoint(this.pointDs.getPointVo(type, null, uid));
+            PointVo p = this.pointDs.getPointVo(type, null, uid);
+            if (p != null && p.getRecList() != null) {
+                p.setRecList(p.getRecList().stream().sorted(Comparator.comparingLong(PointRecPo::getId)).collect(Collectors.toList()));
+            }
+            result.getPointCache().setPoint(p);
         }
         return result;
     }
@@ -63,9 +71,34 @@ public class PointMemCacheService {
         PointCache p = map.get(key);
         if (p == null) {
             p = new PointCache();
-            p.setKey(key).setUpdateTime(new Date());
+            p.setKey(key);
             map.put(key, p);
         }
+        p.setUpdateTime(new Date());
         return p;
+    }
+
+    public Collection<PointCache> dump() {
+        return map.values();
+    }
+
+    public void expireCache() {
+        if (map.isEmpty()) {
+            return;
+        }
+        Calendar calExpire = Calendar.getInstance();
+        calExpire.add(Calendar.MINUTE, -cacheTtl);
+        Date expire = calExpire.getTime();
+        List<String> keyList = new ArrayList<>();
+        map.forEach((k, v) -> {
+            if (v.getUpdateTime().before(expire)) {
+                keyList.add(k);
+            }
+        });
+        if (!keyList.isEmpty()) {
+            log.info("start remove the mem cache keys: {}", keyList);
+            keyList.stream().forEach(k -> map.remove(k));
+            log.info("end remove mem cache");
+        }
     }
 }

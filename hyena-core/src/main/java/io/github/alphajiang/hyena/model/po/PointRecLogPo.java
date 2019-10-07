@@ -36,7 +36,7 @@ public class PointRecLogPo extends BasePo {
     private long recId;
 
     /**
-     * PointStatus
+     * PointOpType
      */
     private Integer type;
     private Long delta;

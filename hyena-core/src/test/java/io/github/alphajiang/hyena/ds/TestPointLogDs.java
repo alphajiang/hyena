@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.ds;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
+import io.github.alphajiang.hyena.biz.point.PointBuilder;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.model.base.ListResponse;
@@ -38,6 +39,8 @@ public class TestPointLogDs extends HyenaTestBase {
     @Autowired
     private PointLogDs pointLogDs;
 
+    @Autowired
+    private PointBuilder pointBuilder;
 
     @Before
     public void init() {
@@ -74,6 +77,6 @@ public class TestPointLogDs extends HyenaTestBase {
         usage.setPoint(1000L);
         PointPo point = super.getUserPoint();
         point.setSeqNum(seq);
-        return this.pointLogDs.buildPointLog(PointOpType.INCREASE, usage, point);
+        return this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage, point);
     }
 }

@@ -23,10 +23,11 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointWrapper;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
-import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -50,15 +51,14 @@ abstract class AbstractPointStrategy implements PointStrategy {
         PointStrategyFactory.addStrategy(this);
     }
 
-    abstract void processPoint(PointUsage usage, PointCache p);
+    abstract PointOpResult processPoint(PointUsage usage, PointCache p);
 
     @Override
-    public PointPo process(PointUsage usage) {
+    public PointOpResult process(PointUsage usage) {
         log.info("usage = {}", usage);
         try (PointWrapper pw = preProcess(usage, true, true)) {
             PointCache p = pw.getPointCache();
-            this.processPoint(usage, p);
-            return p.getPoint();
+            return this.processPoint(usage, p);
         } catch (Exception e) {
             throw e;
         }
@@ -77,7 +77,14 @@ abstract class AbstractPointStrategy implements PointStrategy {
         //String tableName =
         HyenaAssert.notBlank(usage.getType(), "invalid parameter, 'type' can't blank");
         HyenaAssert.notBlank(usage.getUid(), "invalid parameter, 'uid' can't blank");
-        if (getType() != CalcType.INCREASE) {
+        if (getType() == CalcType.INCREASE) {
+
+        } else if ((getType() == CalcType.FREEZE_COST || getType() == CalcType.REFUND)
+                && usage.getCost() != null) {
+            if (usage.getCost() < 1L) {
+                throw new HyenaParameterException("invalid parameter cost");
+            }
+        } else {
             HyenaAssert.isTrue(usage.getPoint() > 0L, HyenaConstants.RES_CODE_PARAMETER_ERROR,
                     "invalid parameter, 'point' must great than 0");
         }
@@ -87,6 +94,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
         if (fetchPoint) {
             PointWrapper pw = this.pointMemCacheService.getPoint(usage.getType(), usage.getUid(), true);
             if (mustExist && pw.getPointCache().getPoint() == null) {
+                pw.close();
                 throw new HyenaParameterException("account not exist");
             }
             return pw;
@@ -103,7 +111,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
         private long deltaCost;
         private List<PointRecPo> recList4Update;
         private List<PointRecLogPo> recLogs;
-
+        private List<FreezeOrderRecPo> forList;
     }
 
 }

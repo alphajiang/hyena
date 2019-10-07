@@ -79,4 +79,38 @@ public class TestSystemController extends HyenaTestBase {
         res = JsonUtils.fromJson(resBody, BaseResponse.class);
         Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
     }
+
+    @Test
+    public void test_dumpMemCache() throws Exception {
+        String pointType = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/system/dumpMemCache").param("name", pointType);
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
+        Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+
+        // add twice
+        resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        res = JsonUtils.fromJson(resBody, BaseResponse.class);
+        Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+    }
+
+    @Test
+    public void test_dumpQueue() throws Exception {
+        String pointType = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/system/dumpQueue").param("name", pointType);
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
+        Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+
+        // add twice
+        resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        res = JsonUtils.fromJson(resBody, BaseResponse.class);
+        Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+    }
 }

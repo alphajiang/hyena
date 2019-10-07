@@ -61,10 +61,10 @@ public class PointRecCalculator {
     }
 
 
-    public PointRecCalcResult unfreezePoint(PointRecPo rec, long delta) {
+    public PointRecCalcResult unfreezePoint(PointRecPo rec, long delta, Long deltaCost) {
         PointRecPo rec4Update = new PointRecPo();
         rec4Update.setId(rec.getId());
-        long deltaCost;
+
 
         if (rec.getFrozen() < delta) {
             log.warn("no enough frozen point. rec = {}, delta = {}", rec, delta);
@@ -72,12 +72,16 @@ public class PointRecCalculator {
         } else if (rec.getFrozen() > delta) {
             long frozen = rec.getFrozen() - delta;
             long available = rec.getAvailable() + delta;
-            deltaCost = this.costCalculator.accountCost4Unfreeze(rec, delta);
+            if(deltaCost == null) {
+                deltaCost = this.costCalculator.accountCost4Unfreeze(rec, delta);
+            }
             rec.setAvailable(available).setFrozen(frozen)
                     .setFrozenCost(rec.getFrozenCost() - deltaCost);
         } else {
             long available = rec.getAvailable() + rec.getFrozen();
-            deltaCost = rec.getFrozenCost();
+            if(deltaCost == null) {
+                deltaCost = rec.getFrozenCost();
+            }
             rec.setFrozen(0L).setAvailable(available)
                     .setFrozenCost(0L);
         }

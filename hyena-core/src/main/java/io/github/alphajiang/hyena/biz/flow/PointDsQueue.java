@@ -15,15 +15,8 @@
  *
  */
 
-package io.github.alphajiang.hyena.biz.point.strategy;
+package io.github.alphajiang.hyena.biz.flow;
 
-import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.model.type.CalcType;
-import io.github.alphajiang.hyena.model.vo.PointOpResult;
-
-public interface PointStrategy {
-
-    CalcType getType();
-
-    PointOpResult process(PointUsage usage);
+public interface PointDsQueue {
+    int getQueueSize();
 }

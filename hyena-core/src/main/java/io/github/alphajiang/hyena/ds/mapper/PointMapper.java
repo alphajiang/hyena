@@ -51,7 +51,7 @@ public interface PointMapper {
                        @Param(value = "uid") String uid);
 
     int updateCusPoint(@Param(value = "tableName") String tableName,
-                       @Param(value = "cusPoint") PointPo cusPoint);
+                       @Param(value = "p") PointPo point);
 
     void batchUpdate(@Param(value = "pointTableName") String pointTableName,
                      @Param(value = "pointList") List<PointPo> pointList);

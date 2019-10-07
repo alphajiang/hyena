@@ -15,15 +15,24 @@
  *
  */
 
-package io.github.alphajiang.hyena.biz.point.strategy;
+package io.github.alphajiang.hyena.model.vo;
 
-import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.model.type.CalcType;
-import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import io.github.alphajiang.hyena.model.po.PointPo;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
-public interface PointStrategy {
+@Data
+@Accessors(chain = true)
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class PointOpResult extends PointPo {
 
-    CalcType getType();
+    @ApiModelProperty("变更的积分")
+    private Long opPoint;
 
-    PointOpResult process(PointUsage usage);
+    @ApiModelProperty("变更的成本")
+    private Long opCost;
 }

@@ -21,27 +21,33 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.calculator.CostCalculator;
 import io.github.alphajiang.hyena.biz.calculator.PointRecCalculator;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
+import io.github.alphajiang.hyena.biz.point.PointBuilder;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.ds.service.FreezeOrderRecDs;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
-import io.github.alphajiang.hyena.model.po.PointLogPo;
-import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
-import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
+import io.github.alphajiang.hyena.model.po.*;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
+import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
+import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
+import io.github.alphajiang.hyena.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -60,6 +66,9 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
     private PointRecLogDs pointRecLogDs;
 
     @Autowired
+    private FreezeOrderRecDs freezeOrderRecDs;
+
+    @Autowired
     private PointFlowService pointFlowService;
 
     @Autowired
@@ -68,17 +77,18 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
     @Autowired
     private CostCalculator costCalculator;
 
+    @Autowired
+    private PointBuilder pointBuilder;
+
     @Override
     public CalcType getType() {
         return CalcType.UNFREEZE;
     }
 
     @Override
-    public void processPoint(PointUsage usage, PointCache pointCache) {
-        //PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
+    public PointOpResult processPoint(PointUsage usage, PointCache pointCache) {
         PointPo curPoint = pointCache.getPoint();
-//        HyenaAssert.notNull(curPoint, HyenaConstants.RES_CODE_PARAMETER_ERROR,
-//                "can't find point to the uid: " + usage.getUid(), Level.WARN);
+
         if (curPoint.getFrozen() < usage.getPoint()) {
             log.warn("no enough frozen point. usage = {}, curPoint = {}", usage, curPoint);
             throw new HyenaNoPointException("no enough frozen point", Level.WARN);
@@ -93,53 +103,49 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
                 .setFrozen(curPoint.getFrozen() - usage.getPoint());
 
         var point2Update = new PointPo();
-        point2Update.setAvailable(curPoint.getAvailable()).setFrozen(curPoint.getFrozen())
+        point2Update.setAvailable(curPoint.getAvailable())
+                .setFrozen(curPoint.getFrozen())
                 .setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
 
 
-        PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.UNFREEZE, usage, curPoint);
+        PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.UNFREEZE, usage, curPoint);
 
-        long gap = usage.getPoint();
-        long cost = 0L;
-        List<PointRecLogPo> recLogs = new ArrayList<>();
-
-        LoopResult recLogsRet = this.unfreezePointLoop(usage.getType(),
-                pointCache, pointLog, gap);
-        gap = gap - recLogsRet.getDelta();
-        cost += recLogsRet.getDeltaCost();
-        recLogs.addAll(recLogsRet.getRecLogs());
-        log.debug("gap = {}", gap);
-
-        if (gap != 0L) {
-            log.warn("no enough frozen point. usage = {}, point = {}", usage, curPoint);
+        LoopResult recLogsRet = null;
+        if (Boolean.TRUE.equals(usage.getUnfreezeByOrderNo())) {
+            recLogsRet = this.unfreezeByOrderNo(usage,
+                    pointCache, pointLog);
+        } else {
+            recLogsRet = this.unfreezePointLoop(usage,
+                    pointCache, pointLog, usage.getPoint());
         }
-//        if (CollectionUtils.isNotEmpty(recLogs)) {
-//            this.pointRecLogDs.addPointRecLogs(usage.getType(), recLogs);
-//        }
 
-        if (cost > 0L) {
-            pointLog.setDeltaCost(cost).setFrozenCost(pointLog.getFrozenCost() - cost);
-            curPoint.setFrozenCost(curPoint.getFrozenCost() - cost);
+        if (recLogsRet.getDeltaCost() > 0L) {
+            pointLog.setDeltaCost(recLogsRet.getDeltaCost())
+                    .setFrozenCost(pointLog.getFrozenCost() - recLogsRet.getDeltaCost());
+            curPoint.setFrozenCost(curPoint.getFrozenCost() - recLogsRet.getDeltaCost());
             point2Update.setFrozenCost(curPoint.getFrozenCost());
         }
-//        boolean ret = this.pointDs.update(usage.getType(), point2Update);
-//        if (!ret) {
-//            log.warn("unfreeze failed!!! please retry later. usage = {}", usage);
-//            return null;
-//        }
 
         pointFlowService.updatePoint(usage.getType(), point2Update);
         pointFlowService.updatePointRec(usage.getType(), recLogsRet.getRecList4Update());
-        pointFlowService.addFlow(usage, pointLog, recLogs);
-        //pointFlowService.addFlow(getType(), usage, curPoint);
-        //return curPoint;
+        if (CollectionUtils.isNotEmpty(recLogsRet.getForList())) {
+            pointFlowService.closeFreezeOrderRec(usage.getType(), recLogsRet.getForList());
+        }
+        pointFlowService.addFlow(usage, pointLog, recLogsRet.getRecLogs());
+
+        PointOpResult ret = new PointOpResult();
+        BeanUtils.copyProperties(curPoint, ret);
+        ret.setOpPoint(recLogsRet.getDelta())
+                .setOpCost(recLogsRet.getDeltaCost());
+        return ret;
     }
 
 
-    private LoopResult unfreezePointLoop(String type, PointCache pointCache,
+    private LoopResult unfreezePointLoop(PointUsage usage, PointCache pointCache,
                                          PointLogPo pointLog, long expected) {
-        log.info("unfreeze. type = {}, uid = {}, expected = {}", type, pointCache.getPoint().getUid(), expected);
+        log.info("unfreeze. type = {}, uid = {}, expected = {}",
+                usage.getType(), pointCache.getPoint().getUid(), expected);
         List<PointRecPo> recList = pointCache.getPoint().getRecList();
         LoopResult result = new LoopResult();
         long sum = 0L;
@@ -158,17 +164,17 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
                 sum += rec.getFrozen();
                 long delta = rec.getFrozen();
 
-                PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, delta);
+                PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, delta, null);
                 recList4Update.add(calcResult.getRec4Update());
                 deltaCost += calcResult.getDeltaCost();
-                var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
+                var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
             } else {
                 sum += gap;
-                PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, gap);
+                PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, gap, null);
                 recList4Update.add(calcResult.getRec4Update());
                 deltaCost += calcResult.getDeltaCost();
-                var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
+                var recLog = this.pointBuilder.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
                 recLogs.add(recLog);
                 break;
             }
@@ -177,6 +183,79 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
         result.setDelta(sum).setDeltaCost(deltaCost)
                 .setRecList4Update(recList4Update)
                 .setRecLogs(recLogs);
+        log.debug("result = {}", result);
+        return result;
+    }
+
+    private LoopResult unfreezeByOrderNo(PointUsage usage, PointCache pointCache,
+                                         PointLogPo pointLog) {
+        log.info("unfreeze. type = {}, uid = {}",
+                usage.getType(), pointCache.getPoint().getUid());
+        if (StringUtils.isBlank(usage.getOrderNo())) {
+            log.warn("invalid parameter: orderNo is blank. usage = {}", usage);
+            throw new HyenaParameterException("invalid parameter, orderNo must not blank");
+        }
+        List<FreezeOrderRecPo> forList = this.freezeOrderRecDs.getFreezeOrderRecList(usage.getType(),
+                pointCache.getPoint().getId(),
+                usage.getOrderType(), usage.getOrderNo());
+        long frozen = forList.stream().mapToLong(FreezeOrderRecPo::getFrozen).sum();
+        if (frozen != usage.getPoint()) {
+            log.warn("frozen number mis-match. type = {}, uid = {}, usage.frozen = {}, actual frozen = {}",
+                    usage.getType(), usage.getUid(), usage.getPoint(), frozen);
+            throw new HyenaNoPointException("frozen number mis-match", Level.WARN);
+        }
+
+
+        List<PointRecPo> recList4Update = new ArrayList<>();
+        List<PointRecLogPo> recLogs = new ArrayList<>();
+
+        // 将同一个积分块的冻结记录做合并
+        Map<Long, FreezeOrderRecPo> forMap = new HashMap<>();
+        forList.stream().forEach(fo -> {
+            if (forMap.containsKey(fo.getRecId())) {
+                FreezeOrderRecPo l = forMap.get(fo.getRecId());
+                l.setFrozen(l.getFrozen() + fo.getFrozen())
+                        .setFrozenCost(l.getFrozenCost() + fo.getFrozenCost());
+            } else {
+                FreezeOrderRecPo l = new FreezeOrderRecPo();
+                BeanUtils.copyProperties(fo, l);
+                forMap.put(fo.getRecId(), l);
+            }
+        });
+
+        forMap.forEach((k, f) -> {
+            pointCache.getPoint().getRecList()
+                    .stream().filter(rec -> rec.getId() == f.getRecId())
+                    .findFirst()
+                    .ifPresent(rec -> {
+                        PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, f.getFrozen(), f.getFrozenCost());
+                        recList4Update.add(calcResult.getRec4Update());
+                        PointRecLogPo recLog = this.pointBuilder.buildRecLog(rec, pointLog, f.getFrozen(), f.getFrozenCost());
+                        recLogs.add(recLog);
+                    });
+        });
+//        forList.stream().forEach(f -> {
+//            pointCache.getPoint().getRecList()
+//                    .stream().filter(rec -> rec.getId() == f.getRecId())
+//                    .findFirst()
+//                    .ifPresent(rec -> {
+//                        PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, f.getFrozen(), f.getFrozenCost());
+//                        recList4Update.add(calcResult.getRec4Update());
+//                        PointRecLogPo recLog = this.pointBuilder.buildRecLog(rec, pointLog, f.getFrozen(), f.getFrozenCost());
+//                        recLogs.add(recLog);
+//                    });
+//        });
+
+        long delta = forList.stream().mapToLong(FreezeOrderRecPo::getFrozen).sum();
+        long deltaCost = forList.stream().mapToLong(FreezeOrderRecPo::getFrozenCost).sum();
+
+        LoopResult result = new LoopResult();
+
+        result.setDelta(delta)
+                .setDeltaCost(deltaCost)
+                .setRecList4Update(recList4Update)
+                .setRecLogs(recLogs)
+                .setForList(forList);
         log.debug("result = {}", result);
         return result;
     }

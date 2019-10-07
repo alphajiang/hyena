@@ -18,16 +18,12 @@
 package io.github.alphajiang.hyena.ds.service;
 
 import io.github.alphajiang.hyena.HyenaConstants;
-import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.mapper.PointLogMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointLog;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
-import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
-import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,47 +45,7 @@ public class PointLogDs {
     @Autowired
     private PointTableDs pointTableDs;
 
-    public PointLogPo buildPointLog(@NonNull PointOpType actionType,
-                                    @NonNull PointUsage usage, @NonNull PointPo point) {
-        PointLogPo pointLog = new PointLogPo();
-        pointLog.setPid(point.getId())
-                .setUid(point.getUid())
-                .setSeqNum(point.getSeqNum())
-                .setDelta(usage.getPoint())
-                .setPoint(point.getPoint())
-                .setAvailable(point.getAvailable())
-                .setUsed(point.getUsed())
-                .setFrozen(point.getFrozen())
-                .setRefund(point.getRefund())
-                .setExpire(point.getExpire())
-                .setCost(point.getCost())
-                .setFrozenCost(point.getFrozenCost())
-                .setType(actionType.code())
-                .setOrderNo(usage.getOrderNo())
-                .setSourceType(usage.getSourceType())
-                .setOrderType(usage.getOrderType())
-                .setPayType(usage.getPayType())
-                .setExtra(usage.getExtra());
-        if (usage.getCost() != null) {
-            pointLog.setDeltaCost(usage.getCost());
-        } else {
-            pointLog.setDeltaCost(0L);
-        }
-        if (pointLog.getOrderNo() == null) {
-            pointLog.setOrderNo("");
-        }
-        if (StringUtils.isNotBlank(usage.getTag())) {
-            pointLog.setTag(usage.getTag());
-        } else {
-            pointLog.setTag("");
-        }
-        if (StringUtils.isNotBlank(usage.getNote())) {
-            pointLog.setNote(usage.getNote());
-        } else {
-            pointLog.setNote("");
-        }
-        return pointLog;
-    }
+
 
 
     public void addPointLog(@NonNull String type, @NotNull PointLogPo pointLog) {

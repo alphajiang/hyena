@@ -17,10 +17,7 @@
 
 package io.github.alphajiang.hyena.biz.point;
 
-import io.github.alphajiang.hyena.model.param.PointCancelParam;
-import io.github.alphajiang.hyena.model.param.PointIncreaseParam;
-import io.github.alphajiang.hyena.model.param.PointOpParam;
-import io.github.alphajiang.hyena.model.param.PointRefundParam;
+import io.github.alphajiang.hyena.model.param.*;
 import io.github.alphajiang.hyena.utils.JsonUtils;
 
 public class PointUsageBuilder {
@@ -57,14 +54,32 @@ public class PointUsageBuilder {
         return usage;
     }
 
+    public static PointUsage fromPointFreezeParam(PointFreezeParam param) {
+        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        usage.setCost(param.getCost());
+        return usage;
+    }
+
+    public static PointUsage fromPointUnfreezeParam(PointUnfreezeParam param) {
+        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        usage.setUnfreezeByOrderNo(param.getUnfreezeByOrderNo());
+        return usage;
+    }
+
     public static PointUsage fromPointCancelParam(PointCancelParam param) {
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         usage.setRecId(param.getRecId());
         return usage;
     }
 
+    public static PointUsage fromPointDecreaseParam(PointDecreaseParam param) {
+        PointUsage usage = PointUsageBuilder.fromPointUnfreezeParam(param);
+        usage.setUnfreezePoint(param.getUnfreezePoint());
+        return usage;
+    }
+
     public static PointUsage fromPointRefundParam(PointRefundParam param) {
-        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        PointUsage usage = PointUsageBuilder.fromPointUnfreezeParam(param);
         usage.setCost(param.getCost()).setUnfreezePoint(param.getUnfreezePoint());
         return usage;
     }

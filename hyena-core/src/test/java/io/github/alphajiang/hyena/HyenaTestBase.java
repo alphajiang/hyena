@@ -56,9 +56,9 @@ public abstract class HyenaTestBase {
 
     private String uid;
 
-    private Integer sourceType =1;
-    private Integer orderType=11;
-    private Integer payType=21;
+    private Integer sourceType = 1;
+    private Integer orderType = 11;
+    private Integer payType = 21;
 
     private PointUsage initialPointUsage;
 
@@ -73,7 +73,9 @@ public abstract class HyenaTestBase {
         extra.put("aaa", "bbbb");
         extra.put("ccc", 123L);
         this.initialPointUsage = new PointUsage();
-        this.initialPointUsage.setType(this.pointType).setTag(tag).setUid(this.uid).setPoint(99887L)
+        this.initialPointUsage.setType(this.pointType).setTag(tag)
+                .setUid(this.uid).setPoint(10000L)
+                .setCost(5000L)
                 .setSourceType(sourceType).setOrderType(orderType).setPayType(payType)
                 .setExtra(JsonUtils.toJsonString(extra));
     }

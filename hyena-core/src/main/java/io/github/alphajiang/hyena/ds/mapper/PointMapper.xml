@@ -183,46 +183,45 @@
 
     <update id="disableAccount">
         update `${tableName}`
-        set seqNum = seqNum + 1,
-        `enable` = false
-        where uid = #{uid} and `enable` = false
+        set `enable` = false
+        where uid = #{uid} and `enable` = true
     </update>
 
     <update id="updateCusPoint">
         update `${tableName}`
-        set seqNum = seqNum + 1,
-        <if test="cusPoint.name != null">
-            `name` = #{cusPoint.name},
+        set seqNum = #{p.seqNum},
+        <if test="p.name != null">
+            `name` = #{p.name},
         </if>
-        <if test="cusPoint.point != null">
-            point = #{cusPoint.point},
+        <if test="p.point != null">
+            point = #{p.point},
         </if>
-        <if test="cusPoint.available != null">
-            available = #{cusPoint.available},
+        <if test="p.available != null">
+            available = #{p.available},
         </if>
-        <if test="cusPoint.used != null">
-            used = #{cusPoint.used},
+        <if test="p.used != null">
+            used = #{p.used},
         </if>
-        <if test="cusPoint.frozen != null">
-            frozen = #{cusPoint.frozen},
+        <if test="p.frozen != null">
+            frozen = #{p.frozen},
         </if>
-        <if test="cusPoint.refund != null">
-            refund = #{cusPoint.refund},
+        <if test="p.refund != null">
+            refund = #{p.refund},
         </if>
-        <if test="cusPoint.expire != null">
-            expire = #{cusPoint.expire},
+        <if test="p.expire != null">
+            expire = #{p.expire},
         </if>
-        <if test="cusPoint.cost != null">
-            cost = #{cusPoint.cost},
+        <if test="p.cost != null">
+            cost = #{p.cost},
         </if>
-        <if test="cusPoint.frozenCost != null">
-            frozenCost = #{cusPoint.frozenCost},
+        <if test="p.frozenCost != null">
+            frozenCost = #{p.frozenCost},
         </if>
-        <if test="cusPoint.enable != null">
-            enable = #{cusPoint.enable},
+        <if test="p.enable != null">
+            enable = #{p.enable},
         </if>
         updateTime = now()
-        where id = #{cusPoint.id} and seqNum = #{cusPoint.seqNum}
+        where id = #{p.id}
     </update>
 
     <update id="batchUpdate">
@@ -277,6 +276,5 @@
         <if test="uid != null">
             and p.uid = #{uid}
         </if>
-        order by rec.id desc
     </select>
 </mapper>

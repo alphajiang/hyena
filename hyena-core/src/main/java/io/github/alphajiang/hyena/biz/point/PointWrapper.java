@@ -18,9 +18,9 @@
 package io.github.alphajiang.hyena.biz.point;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class PointWrapper  implements AutoCloseable {
 

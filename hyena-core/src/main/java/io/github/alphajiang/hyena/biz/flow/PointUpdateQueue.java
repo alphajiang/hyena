@@ -19,8 +19,10 @@ package io.github.alphajiang.hyena.biz.flow;
 
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +30,7 @@ import javax.annotation.PostConstruct;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Service
-public class PointUpdateQueue {
+public class PointUpdateQueue implements PointDsQueue {
 
 
     private LinkedBlockingQueue<Point> queue;
@@ -38,21 +40,31 @@ public class PointUpdateQueue {
     @Autowired
     private PointDs pointDs;
 
+    @Autowired
+    private QueueMonitor queueMonitor;
+
     @PostConstruct
     public void init() {
         queue = new LinkedBlockingQueue<>();
         consumer = new PointUpdateConsumer(queue, pointDs);
         new Thread(consumer).start();
+        queueMonitor.addQueue(this);
     }
 
     public boolean offer(Point p) {
         return this.queue.offer(p);
     }
 
-    @Getter
-    @AllArgsConstructor
-    public static class Point {
-        private String type;
+    @Override
+    public int getQueueSize() {
+        return queue.size();
+    }
+
+    @Data
+    @Accessors(chain = true)
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
+    public static class Point extends QueueItem {
         private PointPo point;
     }
 }

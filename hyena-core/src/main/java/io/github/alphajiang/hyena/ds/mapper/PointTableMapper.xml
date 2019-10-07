@@ -169,6 +169,25 @@
     </update>
 
 
+    <update id="createFreezeOrderRecTable" flushCache="true">
+        create table if not exists ${pointTableName}_freeze_order_rec (
+        id bigint(20) not null auto_increment primary key,
+        `pid` bigint(20) not null,
+        `uid` varchar(128) not null,
+        `recId` bigint(20) not null,
+        `seqNum` bigint(20) not null default 0,
+        orderType int not null,
+        `frozen` bigint(20) not null default 0,
+        `frozenCost` bigint(20) not null default 0,
+        `orderNo` varchar(128) not null default '',
+        `enable` boolean not null default true,
+        `createTime` timestamp default now(),
+        `updateTime` timestamp default now()
+        ) engine=InnoDB default charset=utf8mb4
+    </update>
 
-
+    <update id="createFreezeOrderRecTableIndex" flushCache="true">
+        create index ${pointTableName}_freeze_order_rec_pid_orderType_orderNo
+        ON ${pointTableName}_freeze_order_rec(pid, orderType, orderNo)
+    </update>
 </mapper>

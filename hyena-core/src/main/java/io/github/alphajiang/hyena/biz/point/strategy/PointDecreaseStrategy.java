@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.calculator.CostCalculator;
 import io.github.alphajiang.hyena.biz.calculator.PointRecCalculator;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
+import io.github.alphajiang.hyena.biz.point.PointBuilder;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
@@ -32,10 +33,12 @@ import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
+import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -68,6 +71,9 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
 
 
     @Autowired
+    private PointBuilder pointBuilder;
+
+    @Autowired
     private CostCalculator costCalculator;
 
     @Override
@@ -76,7 +82,7 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
     }
 
     @Override
-    public void processPoint(PointUsage usage, PointCache pointCache) {
+    public PointOpResult processPoint(PointUsage usage, PointCache pointCache) {
         PointPo curPoint = pointCache.getPoint();
         log.debug("curPoint = {}", curPoint);
 
@@ -94,7 +100,7 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
                 .setUsed(curPoint.getUsed()).setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
 
-        PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.DECREASE, usage, curPoint);
+        PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.DECREASE, usage, curPoint);
 
         long gap = usage.getPoint();
         long cost = 0L;
@@ -118,6 +124,11 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         pointFlowService.updatePointRec(usage.getType(), recLogsRet.getRecList4Update());
         pointFlowService.addFlow(usage, pointLog, recLogs);
         //return curPoint;
+        PointOpResult ret = new PointOpResult();
+        BeanUtils.copyProperties(curPoint, ret);
+        ret.setOpPoint(recLogsRet.getDelta())
+                .setOpCost(recLogsRet.getDeltaCost());
+        return ret;
     }
 
     private LoopResult decreasePointLoop(String type, PointCache pointCache,
@@ -142,14 +153,14 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
                 PointRecCalcResult calcResult = this.pointRecCalculator.decreasePoint(rec, delta);
                 recList4Update.add(calcResult.getRec4Update());
                 deltaCost += calcResult.getDeltaCost();
-                var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
+                var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
             } else {
                 sum += gap;
                 PointRecCalcResult calcResult = this.pointRecCalculator.decreasePoint(rec, gap);
                 recList4Update.add(calcResult.getRec4Update());
                 deltaCost += calcResult.getDeltaCost();
-                var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
+                var recLog = this.pointBuilder.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
                 recLogs.add(recLog);
                 break;
             }

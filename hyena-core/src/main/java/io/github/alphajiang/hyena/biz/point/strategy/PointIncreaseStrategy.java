@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
+import io.github.alphajiang.hyena.biz.point.PointBuilder;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointWrapper;
@@ -25,16 +26,19 @@ import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
+import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,6 +73,8 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     @Autowired
     private PointMemCacheService pointMemCacheService;
 
+    @Autowired
+    private PointBuilder pointBuilder;
 
     @Override
     public CalcType getType() {
@@ -77,7 +83,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
 
     @Override
     @Transactional //(isolation = Isolation.READ_COMMITTED)
-    public PointPo process(PointUsage usage) {
+    public PointOpResult process(PointUsage usage) {
         logger.info("increase. usage = {}", usage);
         try (PointWrapper pw = super.preProcess(usage, true, false)) {
             if (pw.getPointCache().getPoint() == null) {
@@ -87,7 +93,11 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
             } else {
                 log.info("do nothing... usage = {}", usage);
             }
-            return pw.getPointCache().getPoint();
+            PointOpResult ret = new PointOpResult();
+            BeanUtils.copyProperties(pw.getPointCache().getPoint(), ret);
+            ret.setOpPoint(usage.getPoint())
+                    .setOpCost(usage.getCost());
+            return ret;
         } catch (Exception e) {
             throw e;
         }
@@ -120,8 +130,8 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         if (usage.getPoint() > 0L) {    // <= 0 表示仅创建帐号
             PointRecPo rec = this.pointRecDs.addPointRec(usage, point2Update.getId(), point2Update.getSeqNum());
 
-            PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.INCREASE, usage, point2Update);
-            PointRecLogPo recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, usage.getPoint(),
+            PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage, point2Update);
+            PointRecLogPo recLog = this.pointBuilder.buildRecLog(rec, pointLog, usage.getPoint(),
                     cost);
 
 
@@ -177,8 +187,8 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
             this.pointFlowService.updatePointRec(usage.getType(), List.of(rec4Update));
         }
 
-        PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.INCREASE, usage, point);
-        PointRecLogPo recLog = this.pointRecLogDs.buildRecLog(pointRec, pointLog, usage.getPoint(),
+        PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage, point);
+        PointRecLogPo recLog = this.pointBuilder.buildRecLog(pointRec, pointLog, usage.getPoint(),
                 cost);
 
 
@@ -187,7 +197,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     }
 
     @Override
-    public void processPoint(PointUsage usage, PointCache pointCache) {
-
+    public PointOpResult processPoint(PointUsage usage, PointCache pointCache) {
+        throw new HyenaServiceException("invalid logic");
     }
 }

@@ -32,6 +32,7 @@ import io.github.alphajiang.hyena.model.dto.PointRecLog;
 import io.github.alphajiang.hyena.model.param.*;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.PointOpType;
+import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DateUtils;
 import io.github.alphajiang.hyena.utils.JsonUtils;
@@ -207,7 +208,7 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
         PointPo result = res.getData();
@@ -260,7 +261,7 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
         PointPo result = res.getData();
@@ -269,7 +270,7 @@ public class TestPointController extends HyenaTestBase {
 
     @Test
     public void test_freeze() throws Exception {
-        PointOpParam param = new PointOpParam();
+        PointFreezeParam param = new PointFreezeParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
         param.setPoint(1L);
@@ -279,7 +280,7 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
         PointPo result = res.getData();
@@ -302,7 +303,7 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
         PointPo result = res.getData();
@@ -329,7 +330,7 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
         PointPo result = res.getData();
@@ -343,7 +344,7 @@ public class TestPointController extends HyenaTestBase {
         freeze.setPoint(9L).setType(super.getPointType()).setUid(super.getUid());
         this.pointUsageFacade.freeze(freeze);
 
-        PointOpParam param = new PointOpParam();
+        PointUnfreezeParam param = new PointUnfreezeParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
         param.setPoint(9L);
@@ -353,7 +354,28 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+
+        });
+        PointPo result = res.getData();
+        Assert.assertNotNull(result);
+    }
+
+
+    @Test
+    public void test_refund() throws Exception {
+        PointRefundParam param = new PointRefundParam();
+        param.setType(super.getPointType());
+        param.setUid(super.getUid());
+        param.setCost(5L); // 退款部分的成本
+        param.setPoint(10L); // 退款的部分
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/refund")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(JsonUtils.toJsonString(param));
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
         PointPo result = res.getData();
@@ -383,7 +405,7 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
         PointPo result = res.getData();

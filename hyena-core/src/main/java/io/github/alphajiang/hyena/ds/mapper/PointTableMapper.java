@@ -50,8 +50,10 @@ public interface PointTableMapper {
 
     Integer createPointRecordLogTable(@Param(value = "pointTableName") String pointTableName);
 
-
     void createPointRecordLogTableIndexPid(@Param(value = "pointTableName") String pointTableName);
     void createPointRecordLogTableIndexRecId(@Param(value = "pointTableName") String pointTableName);
 
+
+    Integer createFreezeOrderRecTable(@Param(value = "pointTableName") String pointTableName);
+    void createFreezeOrderRecTableIndex(@Param(value = "pointTableName") String pointTableName);
 }

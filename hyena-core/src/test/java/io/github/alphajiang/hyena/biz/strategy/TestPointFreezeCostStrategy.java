@@ -52,7 +52,7 @@ public class TestPointFreezeCostStrategy extends TestPointStrategyBase {
         long number = 20L;
         long resultAvailable = 60L; // 100 - 20*2
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number)
+        usage.setType(super.getPointType()).setUid(this.uid).setCost(number)
                 .setOrderNo(UUID.randomUUID().toString()).setTag(USAGE_TAG)
                 .setSourceType(FREEZE_SOURCE_TYPE).setOrderType(FREEZE_ORDER_TYPE)
                 .setPayType(FREEZE_PAY_TYPE)

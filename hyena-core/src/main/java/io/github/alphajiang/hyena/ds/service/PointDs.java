@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -71,6 +73,7 @@ public class PointDs {
         return ret != null && ret.intValue() > 0;
     }
 
+    @Transactional(propagation=Propagation.REQUIRES_NEW)
     public void batchUpdate(String type, List<PointPo> pointList) {
         String pointTableName = TableNameHelper.getPointTableName(type);
         this.pointMapper.batchUpdate(pointTableName, pointList);

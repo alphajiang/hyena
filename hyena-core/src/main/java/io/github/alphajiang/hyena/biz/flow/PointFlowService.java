@@ -18,10 +18,7 @@
 package io.github.alphajiang.hyena.biz.flow;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.model.po.PointLogPo;
-import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
-import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.model.po.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,15 +42,27 @@ public class PointFlowService {
     @Autowired
     private PointUpdateQueue pointUpdateQueue;
 
+    @Autowired
+    private FreezeOrderRecDsQueue freezeOrderRecDsQueue;
+
 
     public void addFlow(PointUsage usage, PointLogPo pointLog, List<PointRecLogPo> recLogs) {
-        this.pointLogFlowQueue.offer(new PointLogFlowQueue.PointLog(usage.getType(), pointLog));
-        recLogs.stream().forEach(o -> this.pointRecLogFlowQueue.offer(new PointRecLogFlowQueue.PointRecLog(usage.getType(), o)));
+        PointLogFlowQueue.PointLog logItem = new PointLogFlowQueue.PointLog();
+        logItem.setPointLog(pointLog).setType(usage.getType());
+        this.pointLogFlowQueue.offer(logItem);
+
+        recLogs.stream().forEach(o -> {
+            PointRecLogFlowQueue.PointRecLog item = new PointRecLogFlowQueue.PointRecLog();
+            item.setPointRecLog(o).setType(usage.getType());
+            this.pointRecLogFlowQueue.offer(item);
+        });
 
     }
 
     public void updatePoint(String type, PointPo point) {
-        this.pointUpdateQueue.offer(new PointUpdateQueue.Point(type, point));
+        PointUpdateQueue.Point item = new PointUpdateQueue.Point();
+        item.setPoint(point).setType(type);
+        this.pointUpdateQueue.offer(item);
     }
 
 //    public void insertPointRec(String type, PointRecPo rec) {
@@ -61,8 +70,26 @@ public class PointFlowService {
 //    }
 
     public void updatePointRec(String type, List<PointRecPo> recList) {
-        recList.stream().forEach(o -> this.pointRecDsQueue.offer(new PointRecDsQueue.PointRec(false, type, o)));
+        recList.stream().forEach(o -> {
+            PointRecDsQueue.PointRec item = new PointRecDsQueue.PointRec();
+            item.setPointRec(o).setInsert(false).setType(type);
+            this.pointRecDsQueue.offer(item);
+        });
     }
 
+    public void addFreezeOrderRec(String type, List<FreezeOrderRecPo> foList) {
+        foList.stream().forEach(o -> {
+            FreezeOrderRecDsQueue.FreezeOrderRec item = new FreezeOrderRecDsQueue.FreezeOrderRec();
+            item.setFreezeOrderRec(o).setInsert(true).setType(type);
+            this.freezeOrderRecDsQueue.offer(item);
+        });
+    }
 
+    public void closeFreezeOrderRec(String type, List<FreezeOrderRecPo> foList) {
+        foList.stream().forEach(o -> {
+            FreezeOrderRecDsQueue.FreezeOrderRec item = new FreezeOrderRecDsQueue.FreezeOrderRec();
+            item.setFreezeOrderRec(o).setInsert(true).setType(type);
+            this.freezeOrderRecDsQueue.offer(item);
+        });
+    }
 }

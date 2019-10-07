@@ -19,8 +19,8 @@ package io.github.alphajiang.hyena.biz.point;
 
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategyFactory;
-import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +36,7 @@ public class PointUsageFacade {
      * @return 增加后的用户积分
      */
     @Transactional
-    public PointPo increase(PointUsage usage) {
+    public PointOpResult increase(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.INCREASE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
@@ -48,7 +48,7 @@ public class PointUsageFacade {
      * @return 减少后的用户积分
      */
     //@Transactional
-    public PointPo decrease(PointUsage usage) {
+    public PointOpResult decrease(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.DECREASE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
@@ -60,7 +60,7 @@ public class PointUsageFacade {
      * @return 减少后的用户积分
      */
     //@Transactional
-    public PointPo decreaseFrozen(PointUsage usage) {
+    public PointOpResult decreaseFrozen(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.DECREASE_FROZEN);
 //        if(usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L){
 //            // 有需要解冻的积分, 先做解冻操作
@@ -81,7 +81,7 @@ public class PointUsageFacade {
      * @return 冻结后的用户积分
      */
     //@Transactional
-    public PointPo freeze(PointUsage usage) {
+    public PointOpResult freeze(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.FREEZE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
@@ -93,38 +93,38 @@ public class PointUsageFacade {
      * @return 解冻后的用户积分
      */
     //@Transactional
-    public PointPo unfreeze(PointUsage usage) {
+    public PointOpResult unfreeze(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.UNFREEZE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
 
     @Transactional
-    public PointPo cancel(PointUsage usage) {
+    public PointOpResult cancel(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.CANCEL);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
 
     @Transactional
-    public PointPo freezeCost(PointUsage usage) {
+    public PointOpResult freezeCost(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.FREEZE_COST);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
 
     @Transactional
-    public PointPo unfreezeCost(PointUsage usage) {
+    public PointOpResult unfreezeCost(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.UNFREEZE_COST);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
 
     @Transactional
-    public PointPo refund(PointUsage usage) {
+    public PointOpResult refund(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.REFUND);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
 
 
     @Transactional
-    public PointPo expire(PointUsage usage) {
+    public PointOpResult expire(PointUsage usage) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.EXPIRE);
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }

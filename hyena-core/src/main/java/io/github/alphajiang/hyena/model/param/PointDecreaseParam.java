@@ -25,7 +25,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
-public class PointDecreaseParam extends PointOpParam {
+public class PointDecreaseParam extends PointUnfreezeParam {
 
     @ApiModelProperty(value = "解冻积分数量", example = "1000")
     private Long unfreezePoint;

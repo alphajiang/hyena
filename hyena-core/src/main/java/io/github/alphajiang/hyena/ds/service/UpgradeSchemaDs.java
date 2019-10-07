@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.ds.service;
 
+import io.github.alphajiang.hyena.ds.mapper.PointTableMapper;
 import io.github.alphajiang.hyena.ds.mapper.UpgradeSchemaMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,8 @@ import java.util.function.Consumer;
 @Repository
 public class UpgradeSchemaDs {
 
-
+    @Autowired
+    private PointTableMapper pointTableMapper;
 
     @Autowired
     private UpgradeSchemaMapper upgradeSchemaMapper;
@@ -63,6 +65,14 @@ public class UpgradeSchemaDs {
         });
     }
 
+
+    public void addSqlV3(List<String> pointTypes){
+        pointTypes.stream().forEach(p-> {
+            executeSql(t-> pointTableMapper.createFreezeOrderRecTable(t), p);
+            executeSql(t-> pointTableMapper.createFreezeOrderRecTableIndex(t), p);
+
+        });
+    }
 
     private void executeSql(Consumer<String> f, String pointType) {
         try {

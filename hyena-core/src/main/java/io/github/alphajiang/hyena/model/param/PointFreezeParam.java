@@ -15,15 +15,18 @@
  *
  */
 
-package io.github.alphajiang.hyena.biz.point.strategy;
+package io.github.alphajiang.hyena.model.param;
 
-import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.model.type.CalcType;
-import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
-public interface PointStrategy {
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
+public class PointFreezeParam extends PointOpParam {
 
-    CalcType getType();
-
-    PointOpResult process(PointUsage usage);
+    @ApiModelProperty(value = "实际成本, 按成本冻结时传递", example = "0")
+    private Long cost;
 }

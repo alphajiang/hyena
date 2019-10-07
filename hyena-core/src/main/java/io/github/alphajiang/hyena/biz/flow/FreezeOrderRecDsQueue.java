@@ -17,8 +17,8 @@
 
 package io.github.alphajiang.hyena.biz.flow;
 
-import io.github.alphajiang.hyena.ds.service.PointLogDs;
-import io.github.alphajiang.hyena.model.po.PointLogPo;
+import io.github.alphajiang.hyena.ds.service.FreezeOrderRecDs;
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -30,15 +30,15 @@ import javax.annotation.PostConstruct;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Service
-public class PointLogFlowQueue implements PointDsQueue {
+public class FreezeOrderRecDsQueue implements PointDsQueue {
 
 
-    private LinkedBlockingQueue<PointLog> queue;
+    private LinkedBlockingQueue<FreezeOrderRec> queue;
 
-    private PointLogFlowConsumer consumer;
+    private FreezeOrderRecDsConsumer consumer;
 
     @Autowired
-    private PointLogDs pointLogDs;
+    private FreezeOrderRecDs freezeOrderRecDs;
 
     @Autowired
     private QueueMonitor queueMonitor;
@@ -46,12 +46,12 @@ public class PointLogFlowQueue implements PointDsQueue {
     @PostConstruct
     public void init() {
         queue = new LinkedBlockingQueue<>();
-        consumer = new PointLogFlowConsumer(queue, pointLogDs);
+        consumer = new FreezeOrderRecDsConsumer(queue, freezeOrderRecDs);
         new Thread(consumer).start();
         queueMonitor.addQueue(this);
     }
 
-    public boolean offer(PointLog pl) {
+    public boolean offer(FreezeOrderRec pl) {
         return this.queue.offer(pl);
     }
 
@@ -64,7 +64,7 @@ public class PointLogFlowQueue implements PointDsQueue {
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
-    public static class PointLog extends QueueItem {
-        private PointLogPo pointLog;
+    public static class FreezeOrderRec extends QueueItem {
+        private FreezeOrderRecPo freezeOrderRec;
     }
 }

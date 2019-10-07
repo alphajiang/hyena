@@ -18,11 +18,28 @@
 package io.github.alphajiang.hyena.utils;
 
 import io.github.alphajiang.hyena.model.po.PointLogPo;
+import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import org.junit.Assert;
 
 public class HyenaTestAssert {
+
+    public static void assertEquals(PointPo expect, PointPo actual) {
+        Assert.assertEquals(expect.getUid(), actual.getUid());
+        Assert.assertEquals(expect.getName(), actual.getName());
+        Assert.assertEquals(expect.getPoint(), actual.getPoint());
+        Assert.assertEquals(expect.getAvailable(), actual.getAvailable());
+        Assert.assertEquals(expect.getUsed(), actual.getUsed());
+        Assert.assertEquals(expect.getFrozen(), actual.getFrozen());
+        Assert.assertEquals(expect.getRefund(), actual.getRefund());
+        Assert.assertEquals(expect.getExpire(), actual.getExpire());
+        Assert.assertEquals(expect.getCost(), actual.getCost());
+        Assert.assertEquals(expect.getFrozenCost(), actual.getFrozenCost());
+        Assert.assertEquals(expect.getSeqNum(), actual.getSeqNum());
+        Assert.assertEquals(expect.getEnable(), actual.getEnable());
+
+    }
 
     public static void assertEquals(PointLogPo expect, PointLogPo actual) {
         Assert.assertEquals(expect.getUid(), actual.getUid());

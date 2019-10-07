@@ -59,8 +59,11 @@ public class HyenaInitialization {
         if (sqlVer == 0) {
             upgradeSchemaDs.addRefundColumn(tables);
         }
-        if(sqlVer<2) {
+        if (sqlVer < 2) {
             upgradeSchemaDs.addCostColumns(tables);
+        }
+        if (sqlVer < 3) {
+            upgradeSchemaDs.addSqlV3(tables);
         }
         return sqlVer;
     }

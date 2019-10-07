@@ -15,15 +15,20 @@
  *
  */
 
-package io.github.alphajiang.hyena.biz.point.strategy;
+package io.github.alphajiang.hyena.model.param;
 
-import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.model.type.CalcType;
-import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
-public interface PointStrategy {
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
+@ApiModel(value = "解冻请求参数")
+public class PointUnfreezeParam extends PointOpParam {
 
-    CalcType getType();
-
-    PointOpResult process(PointUsage usage);
+    @ApiModelProperty("根据订单号做解冻操作")
+    private Boolean unfreezeByOrderNo;
 }

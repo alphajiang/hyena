@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -51,6 +52,7 @@ public class PointRecDs {
         this.pointRecMapper.batchInsert(pointTableName, recList);
     }
 
+    @Transactional(propagation= Propagation.REQUIRES_NEW)
     public void batchUpdate(String type, List<PointRecPo> recList) {
         String pointTableName = TableNameHelper.getPointTableName(type);
         this.pointRecMapper.batchUpdate(pointTableName, recList);

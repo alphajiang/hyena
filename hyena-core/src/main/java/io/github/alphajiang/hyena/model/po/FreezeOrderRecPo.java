@@ -15,15 +15,23 @@
  *
  */
 
-package io.github.alphajiang.hyena.biz.point.strategy;
+package io.github.alphajiang.hyena.model.po;
 
-import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.model.type.CalcType;
-import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import io.github.alphajiang.hyena.model.base.BasePo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
-public interface PointStrategy {
-
-    CalcType getType();
-
-    PointOpResult process(PointUsage usage);
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
+public class FreezeOrderRecPo extends BasePo {
+    private long pid;
+    private String uid;
+    private long recId;
+    private long seqNum;
+    private int orderType;
+    private long frozen;
+    private long frozenCost;
+    private String orderNo;
 }

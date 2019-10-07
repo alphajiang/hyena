@@ -15,15 +15,14 @@
  *
  */
 
-package io.github.alphajiang.hyena.biz.point.strategy;
+package io.github.alphajiang.hyena.biz.flow;
 
-import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.model.type.CalcType;
-import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
-public interface PointStrategy {
-
-    CalcType getType();
-
-    PointOpResult process(PointUsage usage);
+@Data
+@Accessors(chain = true)
+public class QueueItem {
+    private boolean insert;
+    private String type;
 }

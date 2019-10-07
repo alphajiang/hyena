@@ -24,8 +24,7 @@ import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -33,9 +32,9 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Component
 public class ExpirePointTask {
-    private static final Logger logger = LoggerFactory.getLogger(ExpirePointTask.class);
 
 
     @Autowired
@@ -49,14 +48,14 @@ public class ExpirePointTask {
 
     @Scheduled(fixedRate = 60 * 60 * 1000, initialDelay = 30 * 1000)  // every 1 hour
     public void expirePointTask() {
-        logger.debug(">>");
+        log.debug(">>");
 
         List<String> tables = this.pointTableDs.listTable();
         tables.forEach(t -> {
             String type = t.replaceFirst(HyenaConstants.PREFIX_POINT_TABLE_NAME, "");
             this.expirePointByType(type);
         });
-        logger.debug("<<");
+        log.debug("<<");
     }
 
     private void expirePointByType(String type) {
@@ -75,7 +74,7 @@ public class ExpirePointTask {
                                 .setType(type).setNote("expire").setRecId(rec.getId());
                         this.pointUsageFacade.expire(usage);
                     } catch (Exception e) {
-                        logger.error("rec = {}, error = {}", rec, e.getMessage(), e);
+                        log.error("rec = {}, error = {}", rec, e.getMessage(), e);
                     }
                 });
     }

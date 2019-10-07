@@ -24,8 +24,10 @@ import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
+import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +60,6 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     private PointDecreaseStrategy pointDecreaseStrategy;
 
 
-
     @Override
     public CalcType getType() {
         return CalcType.DECREASE_FROZEN;
@@ -66,26 +67,26 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
 
     @Override
     @Transactional
-    public PointPo process(PointUsage usage) {
+    public PointOpResult process(PointUsage usage) {
         log.info("decrease frozen. usage = {}", usage);
         PointPo ret = null;
 
-            if (usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L) {
-                PointUsage usage4Unfreeze = new PointUsage();
-                BeanUtils.copyProperties(usage, usage4Unfreeze);
-                usage4Unfreeze.setPoint(usage.getUnfreezePoint());
+        if (usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L) {
+            PointUsage usage4Unfreeze = new PointUsage();
+            BeanUtils.copyProperties(usage, usage4Unfreeze);
+            usage4Unfreeze.setPoint(usage.getUnfreezePoint());
 
-                this.pointUnfreezeStrategy.process(usage4Unfreeze);
-            }
+            this.pointUnfreezeStrategy.process(usage4Unfreeze);
+        }
 
-            ret = this.pointDecreaseStrategy.process(usage);
+        return this.pointDecreaseStrategy.process(usage);
 
-        return ret;
+
     }
 
     @Override
-    public void processPoint(PointUsage usage, PointCache pointCache){
-
+    public PointOpResult processPoint(PointUsage usage, PointCache pointCache) {
+        throw new HyenaServiceException("invalid logic");
     }
 
 }

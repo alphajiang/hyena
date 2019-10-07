@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.biz.calculator;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
+import io.github.alphajiang.hyena.biz.point.PointBuilder;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
@@ -33,7 +34,11 @@ import java.util.Random;
 public class TestPointRecCalculator extends HyenaTestBase {
 
     @Autowired
+    private PointBuilder pointBuilder;
+
+    @Autowired
     private PointRecCalculator calculator;
+
     private PointRecPo rec;
 
     @Before
@@ -106,7 +111,7 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setAvailable(100L).setFrozen(30L)
                 .setTotalCost(100L)
                 .setFrozenCost(15L);
-        calculator.unfreezePoint(rec, 40);
+        calculator.unfreezePoint(rec, 40, null);
     }
 
     @Test
@@ -115,7 +120,7 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setAvailable(100L).setFrozen(30L)
                 .setTotalCost(100L)
                 .setFrozenCost(15L);
-        PointRecCalcResult result = calculator.unfreezePoint(rec, 30L);
+        PointRecCalcResult result = calculator.unfreezePoint(rec, 30L, null);
         log.info("result = {}", result);
         Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
         Assert.assertEquals(130L,   // 100 + 15
@@ -135,7 +140,7 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setAvailable(100L).setFrozen(80L)
                 .setTotalCost(100L)
                 .setFrozenCost(40L);
-        PointRecCalcResult result = calculator.unfreezePoint(rec, 20L);
+        PointRecCalcResult result = calculator.unfreezePoint(rec, 20L, null);
         log.info("result = {}", result);
         Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
         Assert.assertEquals(120L,   // 100 + 15

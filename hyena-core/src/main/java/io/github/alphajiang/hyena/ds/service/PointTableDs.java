@@ -78,6 +78,8 @@ public class PointTableDs {
 
         this.pointTableMapper.createPointRecordLogTable(pointTableName);
 
+        this.pointTableMapper.createFreezeOrderRecTable(pointTableName);
+
         if(StringUtils.equals(datasourceDriver, HyenaConstants.CONST_TEST_DB_DRIVER)) {
             // 单元测试使用h2
             this.pointTableMapper.createPointTableIndexH2(pointTableName);
@@ -92,6 +94,7 @@ public class PointTableDs {
             this.pointTableMapper.createPointRecTableIndexOrderNo(pointTableName);
             this.pointTableMapper.createPointRecordLogTableIndexPid(pointTableName);
             this.pointTableMapper.createPointRecordLogTableIndexRecId(pointTableName);
+            this.pointTableMapper.createFreezeOrderRecTableIndex(pointTableName);
         }
         //}
         this.refreshTables();

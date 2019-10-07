@@ -11,17 +11,17 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "退款请求参数")
-public class PointRefundParam extends PointOpParam {
+public class PointRefundParam extends PointUnfreezeParam {
 
     /**
      * 实际成本
      */
-    @ApiModelProperty(value = "实际成本")
+    @ApiModelProperty(value = "实际成本", notes = "退款按实际成本计算", example = "100")
     private Long cost;
 
 
-    @ApiModelProperty(value = "要退款的积分记录ID")
-    private Long recId; // 积分记录的ID
+//    @ApiModelProperty(value = "要退款的积分记录ID")
+//    private Long recId; // 积分记录的ID
 
     @ApiModelProperty(value = "解冻积分数量", example = "1000")
     private Long unfreezePoint;

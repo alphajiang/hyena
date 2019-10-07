@@ -1,0 +1,44 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.alphajiang.hyena.ds.mapper.FreezeOrderRecMapper">
+
+
+    <insert id="batchInsert">
+        insert into `${pointTableName}_freeze_order_rec` (
+        `pid`, `uid`, `recId`, `seqNum`,
+        `orderType`,
+        `frozen`, `frozenCost`,
+        `orderNo`
+        )
+        <foreach item="for" collection="freezeOrderRecList" open="values(" close=")" separator="),(">
+            #{for.pid}, #{for.uid}, #{for.recId}, #{for.seqNum},
+            #{for.orderType},
+            #{for.frozen}, #{for.frozenCost},
+            #{for.orderNo}
+        </foreach>
+    </insert>
+
+
+    <update id="closeByIdList">
+        update `${pointTableName}_freeze_order_rec`
+        set `enable` = false, updateTime = now()
+        where
+        <foreach collection="idList" item="id" open="id in (" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+
+    <select id="getFreezeOrderRecList" resultType="io.github.alphajiang.hyena.model.po.FreezeOrderRecPo">
+        select * from `${pointTableName}_freeze_order_rec`
+        where pid = #{pid}
+        <if test="orderType != null">
+            and orderType = #{orderType}
+        </if>
+        <if test="orderNo != null">
+            and orderNo = #{orderNo}
+        </if>
+        and `enable` = true
+    </select>
+
+</mapper>

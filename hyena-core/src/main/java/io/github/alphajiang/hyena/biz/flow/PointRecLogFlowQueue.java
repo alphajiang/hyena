@@ -19,8 +19,10 @@ package io.github.alphajiang.hyena.biz.flow;
 
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +30,7 @@ import javax.annotation.PostConstruct;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Service
-public class PointRecLogFlowQueue {
+public class PointRecLogFlowQueue implements PointDsQueue {
 
 
     private LinkedBlockingQueue<PointRecLog> queue;
@@ -38,21 +40,31 @@ public class PointRecLogFlowQueue {
     @Autowired
     private PointRecLogDs pointRecLogDs;
 
+    @Autowired
+    private QueueMonitor queueMonitor;
+
     @PostConstruct
     public void init() {
         queue = new LinkedBlockingQueue<>();
         consumer = new PointRecLogFlowConsumer(queue, pointRecLogDs);
         new Thread(consumer).start();
+        queueMonitor.addQueue(this);
     }
 
     public boolean offer(PointRecLog pl) {
         return this.queue.offer(pl);
     }
 
-    @Getter
-    @AllArgsConstructor
-    public static class PointRecLog {
-        private String type;
+    @Override
+    public int getQueueSize() {
+        return queue.size();
+    }
+
+    @Data
+    @Accessors(chain = true)
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
+    public static class PointRecLog extends QueueItem {
         private PointRecLogPo pointRecLog;
     }
 }

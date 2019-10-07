@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.calculator.CostCalculator;
 import io.github.alphajiang.hyena.biz.calculator.PointRecCalculator;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
+import io.github.alphajiang.hyena.biz.point.PointBuilder;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
@@ -31,10 +32,12 @@ import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
+import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -63,6 +66,9 @@ public class PointCancelStrategy extends AbstractPointStrategy {
     private PointRecCalculator pointRecCalculator;
 
     @Autowired
+    private PointBuilder pointBuilder;
+
+    @Autowired
     private CostCalculator costCalculator;
 
     @Override
@@ -78,13 +84,16 @@ public class PointCancelStrategy extends AbstractPointStrategy {
 //        return curPoint;
 //    }
     @Override
-    public void processPoint(PointUsage usage, PointCache pointCache) {
+    public PointOpResult processPoint(PointUsage usage, PointCache pointCache) {
 
         if (usage.getRecId() != null && usage.getRecId().longValue() > 0L) {
             cancelByRecId(usage, pointCache);
         } else {
             cancelPoint(usage, pointCache);
         }
+        PointOpResult ret = new PointOpResult();
+        BeanUtils.copyProperties(pointCache.getPoint(), ret);
+        return ret;
     }
 
     private void cancelByRecId(PointUsage usage, PointCache pointCache) {
@@ -133,8 +142,8 @@ public class PointCancelStrategy extends AbstractPointStrategy {
 
         }
 
-        PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.CANCEL, usage, curPoint);
-        PointRecLogPo recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, delta, deltaCost);
+        PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.CANCEL, usage, curPoint);
+        PointRecLogPo recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, deltaCost);
 
         pointFlowService.updatePoint(usage.getType(), point2Update);
         pointFlowService.updatePointRec(usage.getType(), List.of(rec));
@@ -153,7 +162,7 @@ public class PointCancelStrategy extends AbstractPointStrategy {
                 .setAvailable(curPoint.getAvailable() - usage.getPoint());
 
 
-        PointLogPo pointLog = this.pointLogDs.buildPointLog(PointOpType.CANCEL, usage, curPoint);
+        PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.CANCEL, usage, curPoint);
 
         LoopResult lr = this.cancelPointLoop(usage.getType(), pointCache, pointLog, usage.getPoint());
 
@@ -193,14 +202,14 @@ public class PointCancelStrategy extends AbstractPointStrategy {
                 PointRecCalcResult calcResult = this.pointRecCalculator.cancelPoint(rec, delta);
                 recList4Update.add(calcResult.getRec4Update());
                 deltaCost += calcResult.getDeltaCost();
-                var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
+                var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
             } else {
                 sum += gap;
                 PointRecCalcResult calcResult = this.pointRecCalculator.cancelPoint(rec, gap);
                 recList4Update.add(calcResult.getRec4Update());
                 deltaCost += calcResult.getDeltaCost();
-                var recLog = this.pointRecLogDs.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
+                var recLog = this.pointBuilder.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
                 recLogs.add(recLog);
                 break;
             }
