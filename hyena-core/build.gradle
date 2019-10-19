@@ -12,7 +12,7 @@ sourceSets {
 
 test {
     include 'io/github/alphajiang/hyena/**'
-
+    useJUnitPlatform()
 }
 
 dependencies {
