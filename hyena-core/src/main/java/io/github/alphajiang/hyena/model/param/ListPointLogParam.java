@@ -20,12 +20,14 @@ package io.github.alphajiang.hyena.model.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.List;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class ListPointLogParam extends BaseListParam {
     @ApiModelProperty(value = "用户ID")
     private String uid;

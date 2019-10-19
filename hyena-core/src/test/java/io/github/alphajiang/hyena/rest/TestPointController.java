@@ -36,9 +36,9 @@ import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DateUtils;
 import io.github.alphajiang.hyena.utils.JsonUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +67,7 @@ public class TestPointController extends HyenaTestBase {
     private PointRecDs pointRecDs;
 
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
     }
@@ -85,7 +85,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         PointPo ret = res.getData();
-        Assert.assertNotNull(ret);
+        Assertions.assertNotNull(ret);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         List<PointPo> list = res.getData();
-        Assert.assertFalse(list.isEmpty());
+        Assertions.assertFalse(list.isEmpty());
     }
 
     @Test
@@ -126,7 +126,7 @@ public class TestPointController extends HyenaTestBase {
         logger.info("response = {}", resBody);
         BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
 
-        Assert.assertFalse(res.getStatus() == HyenaConstants.RES_CODE_SUCCESS);
+        Assertions.assertFalse(res.getStatus() == HyenaConstants.RES_CODE_SUCCESS);
     }
 
     @Test
@@ -151,8 +151,8 @@ public class TestPointController extends HyenaTestBase {
 
         });
         List<PointLog> list = res.getData();
-        Assert.assertFalse(list.isEmpty());
-        Assert.assertTrue(res.getTotal() > 0L);
+        Assertions.assertFalse(list.isEmpty());
+        Assertions.assertTrue(res.getTotal() > 0L);
     }
 
     @Test
@@ -168,8 +168,8 @@ public class TestPointController extends HyenaTestBase {
 
         });
         List<PointRec> list = res.getData();
-        Assert.assertFalse(list.isEmpty());
-        Assert.assertTrue(res.getTotal() > 0L);
+        Assertions.assertFalse(list.isEmpty());
+        Assertions.assertTrue(res.getTotal() > 0L);
     }
 
     @Test
@@ -185,8 +185,8 @@ public class TestPointController extends HyenaTestBase {
 
         });
         List<PointRecLog> list = res.getData();
-        Assert.assertFalse(list.isEmpty());
-        Assert.assertTrue(res.getTotal() > 0L);
+        Assertions.assertFalse(list.isEmpty());
+        Assertions.assertTrue(res.getTotal() > 0L);
     }
 
 
@@ -212,7 +212,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         PointPo result = res.getData();
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
     }
 
     @Test
@@ -228,7 +228,7 @@ public class TestPointController extends HyenaTestBase {
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
         BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
-        Assert.assertEquals(HyenaConstants.RES_CODE_PARAMETER_ERROR, res.getStatus());
+        Assertions.assertEquals(HyenaConstants.RES_CODE_PARAMETER_ERROR, res.getStatus());
     }
 
     @Test
@@ -245,7 +245,7 @@ public class TestPointController extends HyenaTestBase {
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
         BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
-        Assert.assertEquals(HyenaConstants.RES_CODE_PARAMETER_ERROR, res.getStatus());
+        Assertions.assertEquals(HyenaConstants.RES_CODE_PARAMETER_ERROR, res.getStatus());
     }
 
 
@@ -265,7 +265,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         PointPo result = res.getData();
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
     }
 
     @Test
@@ -284,7 +284,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         PointPo result = res.getData();
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
     }
 
     @Test
@@ -307,7 +307,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         PointPo result = res.getData();
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
     }
 
     /**
@@ -334,7 +334,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         PointPo result = res.getData();
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
     }
 
 
@@ -358,7 +358,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         PointPo result = res.getData();
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
     }
 
 
@@ -379,7 +379,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         PointPo result = res.getData();
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
     }
 
     @Test
@@ -390,7 +390,7 @@ public class TestPointController extends HyenaTestBase {
         listParam.setFrozen(false).setUid(super.getUid()).setType(super.getPointType());
         Thread.sleep(100L);
         List<PointRec> recList = this.pointRecDs.listPointRec(super.getPointType(), listParam);
-        Assert.assertTrue(CollectionUtils.isNotEmpty(recList));
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(recList));
         PointRec rec = recList.iterator().next();
 
 
@@ -409,7 +409,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         PointPo result = res.getData();
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
     }
 
     @Test
@@ -432,7 +432,7 @@ public class TestPointController extends HyenaTestBase {
 
         });
         Long result = res.getData();
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.longValue() > 0L);
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.longValue() > 0L);
     }
 }

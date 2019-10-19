@@ -19,9 +19,9 @@ package io.github.alphajiang.hyena.ds;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.ds.service.SysPropertyDs;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class TestSysPropertyDs extends HyenaTestBase {
@@ -29,7 +29,7 @@ public class TestSysPropertyDs extends HyenaTestBase {
     @Autowired
     private SysPropertyDs sysPropertyDs;
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
     }
@@ -39,6 +39,6 @@ public class TestSysPropertyDs extends HyenaTestBase {
         int ver = 10;
         this.sysPropertyDs.setSqlVersion(ver);
         int result = this.sysPropertyDs.getSqlVersion();
-        Assert.assertEquals(ver, result);
+        Assertions.assertEquals(ver, result);
     }
 }

@@ -31,8 +31,8 @@ import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -59,12 +59,12 @@ public class TestPointFreezeCostStrategy extends TestPointStrategyBase {
                 .setNote("test_freezeCost");
         PointPo result = this.strategy.process(usage);
         log.info("result = {}", result);
-        Assert.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());
-        Assert.assertEquals(resultAvailable, result.getAvailable().longValue());
-        Assert.assertEquals(0L, result.getUsed().longValue());
-        Assert.assertEquals(40L, result.getFrozen().longValue());
-        Assert.assertEquals(0L, result.getExpire().longValue());
-        Assert.assertEquals(20L, result.getFrozenCost().longValue());
+        Assertions.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());
+        Assertions.assertEquals(resultAvailable, result.getAvailable().longValue());
+        Assertions.assertEquals(0L, result.getUsed().longValue());
+        Assertions.assertEquals(40L, result.getFrozen().longValue());
+        Assertions.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(20L, result.getFrozenCost().longValue());
 
         Thread.sleep(200L);
 
@@ -77,7 +77,7 @@ public class TestPointFreezeCostStrategy extends TestPointStrategyBase {
                 .setType(super.getPointType());
         var pointLogs = pointLogDs.listPointLog(listPointLogParam);
         log.info("pointLogs = {}", pointLogs);
-        Assert.assertEquals(1, pointLogs.size());
+        Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPointLog = new PointLog();
         expectPointLog.setUid(this.uid).setType(PointOpType.FREEZE.code())
@@ -104,7 +104,7 @@ public class TestPointFreezeCostStrategy extends TestPointStrategyBase {
         listPointRecParam.setUid(this.uid).setType(super.getPointType());
         var pointRecList = pointRecDs.listPointRec(super.getPointType(), listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
-        Assert.assertEquals(1, pointRecList.size());
+        Assertions.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
@@ -129,7 +129,7 @@ public class TestPointFreezeCostStrategy extends TestPointStrategyBase {
                 .setSorts(List.of(pointRecLogSortParam));
         var pointRecLogList = pointRecLogDs.listPointRecLog(super.getPointType(), listPointRecLogParam);
         log.info("pointRecLogList = {}", pointRecLogList);
-        Assert.assertEquals(2, pointRecLogList.size()); // 0: freeze; 1: increase
+        Assertions.assertEquals(2, pointRecLogList.size()); // 0: freeze; 1: increase
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
         expectPointRecLog.setUid(super.uid).setPid(super.point.getId())

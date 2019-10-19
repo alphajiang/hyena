@@ -24,8 +24,8 @@ import io.github.alphajiang.hyena.model.dto.PointRec;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,17 +57,17 @@ public class TestPointExpireStrategy extends TestPointStrategyBase {
                 .setUid(this.uid).setPoint(number).setNote("test_expirePoint");
         PointPo result = this.pointExpireStrategy.process(usage);
         logger.info("result = {}", result);
-        Assert.assertEquals(this.point.getPoint().longValue() - number, result.getPoint().longValue());
-        Assert.assertEquals(resultAvailable, result.getAvailable().longValue());
-        Assert.assertEquals(0L, result.getUsed().longValue());
-        Assert.assertEquals(0L, result.getFrozen().longValue());
-        Assert.assertEquals(number, result.getExpire().longValue());
+        Assertions.assertEquals(this.point.getPoint().longValue() - number, result.getPoint().longValue());
+        Assertions.assertEquals(resultAvailable, result.getAvailable().longValue());
+        Assertions.assertEquals(0L, result.getUsed().longValue());
+        Assertions.assertEquals(0L, result.getFrozen().longValue());
+        Assertions.assertEquals(number, result.getExpire().longValue());
 
         Thread.sleep(100L);
         PointRecPo resultRec = this.pointRecDs.getById(super.getPointType(), rec.getId(), false);
         logger.info("resultRec = {}", resultRec);
-        Assert.assertFalse(resultRec.getEnable());
-        Assert.assertTrue(resultRec.getAvailable().longValue() == 0L);
-        Assert.assertTrue(resultRec.getExpire().longValue() == number);
+        Assertions.assertFalse(resultRec.getEnable());
+        Assertions.assertTrue(resultRec.getAvailable().longValue() == 0L);
+        Assertions.assertTrue(resultRec.getExpire().longValue() == number);
     }
 }

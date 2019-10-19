@@ -21,126 +21,126 @@ import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 public class HyenaTestAssert {
 
     public static void assertEquals(PointPo expect, PointPo actual) {
-        Assert.assertEquals(expect.getUid(), actual.getUid());
-        Assert.assertEquals(expect.getName(), actual.getName());
-        Assert.assertEquals(expect.getPoint(), actual.getPoint());
-        Assert.assertEquals(expect.getAvailable(), actual.getAvailable());
-        Assert.assertEquals(expect.getUsed(), actual.getUsed());
-        Assert.assertEquals(expect.getFrozen(), actual.getFrozen());
-        Assert.assertEquals(expect.getRefund(), actual.getRefund());
-        Assert.assertEquals(expect.getExpire(), actual.getExpire());
-        Assert.assertEquals(expect.getCost(), actual.getCost());
-        Assert.assertEquals(expect.getFrozenCost(), actual.getFrozenCost());
-        Assert.assertEquals(expect.getSeqNum(), actual.getSeqNum());
-        Assert.assertEquals(expect.getEnable(), actual.getEnable());
+        Assertions.assertEquals(expect.getUid(), actual.getUid());
+        Assertions.assertEquals(expect.getName(), actual.getName());
+        Assertions.assertEquals(expect.getPoint(), actual.getPoint());
+        Assertions.assertEquals(expect.getAvailable(), actual.getAvailable());
+        Assertions.assertEquals(expect.getUsed(), actual.getUsed());
+        Assertions.assertEquals(expect.getFrozen(), actual.getFrozen());
+        Assertions.assertEquals(expect.getRefund(), actual.getRefund());
+        Assertions.assertEquals(expect.getExpire(), actual.getExpire());
+        Assertions.assertEquals(expect.getCost(), actual.getCost());
+        Assertions.assertEquals(expect.getFrozenCost(), actual.getFrozenCost());
+        Assertions.assertEquals(expect.getSeqNum(), actual.getSeqNum());
+        Assertions.assertEquals(expect.getEnable(), actual.getEnable());
 
     }
 
     public static void assertEquals(PointLogPo expect, PointLogPo actual) {
-        Assert.assertEquals(expect.getUid(), actual.getUid());
-        Assert.assertEquals(expect.getType().intValue(), actual.getType().intValue());
-        Assert.assertEquals(expect.getSeqNum(), actual.getSeqNum());
-        Assert.assertEquals(expect.getDelta().longValue(), actual.getDelta().longValue());
-        Assert.assertEquals(expect.getDeltaCost().longValue(), actual.getDeltaCost().longValue());
-        Assert.assertEquals(expect.getPoint().longValue(), actual.getPoint().longValue());
-        Assert.assertEquals(expect.getAvailable().longValue(), actual.getAvailable().longValue());
-        Assert.assertEquals(expect.getUsed().longValue(), actual.getUsed().longValue());
-        Assert.assertEquals(expect.getFrozen().longValue(), actual.getFrozen().longValue());
-        Assert.assertEquals(expect.getExpire().longValue(), actual.getExpire().longValue());
-        Assert.assertEquals(expect.getRefund().longValue(), actual.getRefund().longValue());
-        Assert.assertEquals(expect.getCost().longValue(), actual.getCost().longValue());
-        Assert.assertEquals(expect.getFrozenCost().longValue(), actual.getFrozenCost().longValue());
+        Assertions.assertEquals(expect.getUid(), actual.getUid());
+        Assertions.assertEquals(expect.getType().intValue(), actual.getType().intValue());
+        Assertions.assertEquals(expect.getSeqNum(), actual.getSeqNum());
+        Assertions.assertEquals(expect.getDelta().longValue(), actual.getDelta().longValue());
+        Assertions.assertEquals(expect.getDeltaCost().longValue(), actual.getDeltaCost().longValue());
+        Assertions.assertEquals(expect.getPoint().longValue(), actual.getPoint().longValue());
+        Assertions.assertEquals(expect.getAvailable().longValue(), actual.getAvailable().longValue());
+        Assertions.assertEquals(expect.getUsed().longValue(), actual.getUsed().longValue());
+        Assertions.assertEquals(expect.getFrozen().longValue(), actual.getFrozen().longValue());
+        Assertions.assertEquals(expect.getExpire().longValue(), actual.getExpire().longValue());
+        Assertions.assertEquals(expect.getRefund().longValue(), actual.getRefund().longValue());
+        Assertions.assertEquals(expect.getCost().longValue(), actual.getCost().longValue());
+        Assertions.assertEquals(expect.getFrozenCost().longValue(), actual.getFrozenCost().longValue());
 
         if (expect.getTag() != null) {
-            Assert.assertEquals(expect.getTag(), actual.getTag());
+            Assertions.assertEquals(expect.getTag(), actual.getTag());
         }
         if (expect.getOrderNo() != null) {
-            Assert.assertEquals(expect.getOrderNo(), actual.getOrderNo());
+            Assertions.assertEquals(expect.getOrderNo(), actual.getOrderNo());
         }
         if (expect.getSourceType() != null) {
-            Assert.assertEquals(expect.getSourceType().intValue(), actual.getSourceType().intValue());
+            Assertions.assertEquals(expect.getSourceType().intValue(), actual.getSourceType().intValue());
         }
         if (expect.getOrderType() != null) {
-            Assert.assertEquals(expect.getOrderType().intValue(), actual.getOrderType().intValue());
+            Assertions.assertEquals(expect.getOrderType().intValue(), actual.getOrderType().intValue());
         }
         if (expect.getPayType() != null) {
-            Assert.assertEquals(expect.getPayType().intValue(), actual.getPayType().intValue());
+            Assertions.assertEquals(expect.getPayType().intValue(), actual.getPayType().intValue());
         }
-        Assert.assertEquals(expect.getExtra(), actual.getExtra());
+        Assertions.assertEquals(expect.getExtra(), actual.getExtra());
         if (expect.getNote() != null) {
-            Assert.assertEquals(expect.getNote(), actual.getNote());
+            Assertions.assertEquals(expect.getNote(), actual.getNote());
         }
     }
 
     public static void assertEquals(PointRecPo expect, PointRecPo actual) {
 
-        Assert.assertEquals(expect.getPid(), actual.getPid());
-        Assert.assertEquals(expect.getSeqNum(), actual.getSeqNum());
-        Assert.assertEquals(expect.getTotal().longValue(), actual.getTotal().longValue());
-        Assert.assertEquals(expect.getAvailable().longValue(), actual.getAvailable().longValue());
-        Assert.assertEquals(expect.getUsed().longValue(), actual.getUsed().longValue());
-        Assert.assertEquals(expect.getFrozen().longValue(), actual.getFrozen().longValue());
-        Assert.assertEquals(expect.getCancelled().longValue(), actual.getCancelled().longValue());
-        Assert.assertEquals(expect.getExpire().longValue(), actual.getExpire().longValue());
-        Assert.assertEquals(expect.getTotalCost().longValue(), actual.getTotalCost().longValue());
-        Assert.assertEquals(expect.getFrozenCost().longValue(), actual.getFrozenCost().longValue());
-        Assert.assertEquals(expect.getUsedCost().longValue(), actual.getUsedCost().longValue());
-        Assert.assertEquals(expect.getRefundCost().longValue(), actual.getRefundCost().longValue());
+        Assertions.assertEquals(expect.getPid(), actual.getPid());
+        Assertions.assertEquals(expect.getSeqNum(), actual.getSeqNum());
+        Assertions.assertEquals(expect.getTotal().longValue(), actual.getTotal().longValue());
+        Assertions.assertEquals(expect.getAvailable().longValue(), actual.getAvailable().longValue());
+        Assertions.assertEquals(expect.getUsed().longValue(), actual.getUsed().longValue());
+        Assertions.assertEquals(expect.getFrozen().longValue(), actual.getFrozen().longValue());
+        Assertions.assertEquals(expect.getCancelled().longValue(), actual.getCancelled().longValue());
+        Assertions.assertEquals(expect.getExpire().longValue(), actual.getExpire().longValue());
+        Assertions.assertEquals(expect.getTotalCost().longValue(), actual.getTotalCost().longValue());
+        Assertions.assertEquals(expect.getFrozenCost().longValue(), actual.getFrozenCost().longValue());
+        Assertions.assertEquals(expect.getUsedCost().longValue(), actual.getUsedCost().longValue());
+        Assertions.assertEquals(expect.getRefundCost().longValue(), actual.getRefundCost().longValue());
 
-        Assert.assertEquals(expect.getTag(), actual.getTag());
-        Assert.assertEquals(expect.getOrderNo(), actual.getOrderNo());
+        Assertions.assertEquals(expect.getTag(), actual.getTag());
+        Assertions.assertEquals(expect.getOrderNo(), actual.getOrderNo());
         if (expect.getSourceType() != null) {
-            Assert.assertEquals(expect.getSourceType().intValue(), actual.getSourceType().intValue());
+            Assertions.assertEquals(expect.getSourceType().intValue(), actual.getSourceType().intValue());
         }
         if (expect.getOrderType() != null) {
-            Assert.assertEquals(expect.getOrderType().intValue(), actual.getOrderType().intValue());
+            Assertions.assertEquals(expect.getOrderType().intValue(), actual.getOrderType().intValue());
         }
         if (expect.getPayType() != null) {
-            Assert.assertEquals(expect.getPayType().intValue(), actual.getPayType().intValue());
+            Assertions.assertEquals(expect.getPayType().intValue(), actual.getPayType().intValue());
         }
-        Assert.assertEquals(expect.getExtra(), actual.getExtra());
+        Assertions.assertEquals(expect.getExtra(), actual.getExtra());
         if (expect.getIssueTime() != null) {
-            Assert.assertEquals(expect.getIssueTime(), actual.getIssueTime());
+            Assertions.assertEquals(expect.getIssueTime(), actual.getIssueTime());
         }
-        Assert.assertEquals(expect.getExpireTime(), actual.getExpireTime());
+        Assertions.assertEquals(expect.getExpireTime(), actual.getExpireTime());
 
     }
 
 
     public static void assertEquals(PointRecLogPo expect, PointRecLogPo actual) {
 
-        Assert.assertEquals(expect.getUid(), actual.getUid());
-        Assert.assertEquals(expect.getPid(), actual.getPid());
-        Assert.assertEquals(expect.getSeqNum(), actual.getSeqNum());
-        Assert.assertEquals(expect.getRecId(), actual.getRecId());
-        Assert.assertEquals(expect.getType(), actual.getType());
-        Assert.assertEquals(expect.getDelta().longValue(), actual.getDelta().longValue());
-        Assert.assertEquals(expect.getAvailable().longValue(), actual.getAvailable().longValue());
-        Assert.assertEquals(expect.getUsed().longValue(), actual.getUsed().longValue());
-        Assert.assertEquals(expect.getFrozen().longValue(), actual.getFrozen().longValue());
-        Assert.assertEquals(expect.getCancelled().longValue(), actual.getCancelled().longValue());
-        Assert.assertEquals(expect.getExpire().longValue(), actual.getExpire().longValue());
-        Assert.assertEquals(expect.getCost().longValue(), actual.getCost().longValue());
-        Assert.assertEquals(expect.getFrozenCost().longValue(), actual.getFrozenCost().longValue());
-        Assert.assertEquals(expect.getUsedCost().longValue(), actual.getUsedCost().longValue());
-        Assert.assertEquals(expect.getRefundCost().longValue(), actual.getRefundCost().longValue());
+        Assertions.assertEquals(expect.getUid(), actual.getUid());
+        Assertions.assertEquals(expect.getPid(), actual.getPid());
+        Assertions.assertEquals(expect.getSeqNum(), actual.getSeqNum());
+        Assertions.assertEquals(expect.getRecId(), actual.getRecId());
+        Assertions.assertEquals(expect.getType(), actual.getType());
+        Assertions.assertEquals(expect.getDelta().longValue(), actual.getDelta().longValue());
+        Assertions.assertEquals(expect.getAvailable().longValue(), actual.getAvailable().longValue());
+        Assertions.assertEquals(expect.getUsed().longValue(), actual.getUsed().longValue());
+        Assertions.assertEquals(expect.getFrozen().longValue(), actual.getFrozen().longValue());
+        Assertions.assertEquals(expect.getCancelled().longValue(), actual.getCancelled().longValue());
+        Assertions.assertEquals(expect.getExpire().longValue(), actual.getExpire().longValue());
+        Assertions.assertEquals(expect.getCost().longValue(), actual.getCost().longValue());
+        Assertions.assertEquals(expect.getFrozenCost().longValue(), actual.getFrozenCost().longValue());
+        Assertions.assertEquals(expect.getUsedCost().longValue(), actual.getUsedCost().longValue());
+        Assertions.assertEquals(expect.getRefundCost().longValue(), actual.getRefundCost().longValue());
 
         if (expect.getSourceType() != null) {
-            Assert.assertEquals(expect.getSourceType().intValue(), actual.getSourceType().intValue());
+            Assertions.assertEquals(expect.getSourceType().intValue(), actual.getSourceType().intValue());
         }
         if (expect.getOrderType() != null) {
-            Assert.assertEquals(expect.getOrderType().intValue(), actual.getOrderType().intValue());
+            Assertions.assertEquals(expect.getOrderType().intValue(), actual.getOrderType().intValue());
         }
         if (expect.getPayType() != null) {
-            Assert.assertEquals(expect.getPayType().intValue(), actual.getPayType().intValue());
+            Assertions.assertEquals(expect.getPayType().intValue(), actual.getPayType().intValue());
         }
         if (expect.getNote() != null) {
-            Assert.assertEquals(expect.getNote(), actual.getNote());
+            Assertions.assertEquals(expect.getNote(), actual.getNote());
         }
 
 

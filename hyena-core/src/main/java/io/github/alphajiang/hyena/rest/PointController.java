@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.aop.Idempotent;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageBuilder;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
+import io.github.alphajiang.hyena.biz.point.strategy.PointMemCacheService;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
@@ -76,6 +77,9 @@ public class PointController {
     @Autowired
     private PointRecLogDs pointRecLogDs;
 
+    @Autowired
+    private PointMemCacheService pointMemCacheService;
+
     @ApiOperation(value = "获取积分信息")
     @GetMapping(value = "/getPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointPo> getPoint(
@@ -83,8 +87,8 @@ public class PointController {
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
             @ApiParam(value = "用户ID") @RequestParam String uid) {
         logger.info(LoggerHelper.formatEnterLog(request));
-        var ret = this.pointDs.getCusPoint(type, uid, false);
-        ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
+        var ret = this.pointMemCacheService.getPoint(type, uid, false);
+        ObjectResponse<PointPo> res = new ObjectResponse<>(ret.getPointCache().getPoint());
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
@@ -187,7 +191,7 @@ public class PointController {
     public ObjectResponse<PointOpResult> decreasePoint(HttpServletRequest request,
                                                        @RequestBody PointOpParam param) {
         long startTime = System.nanoTime();
-        logger.info(LoggerHelper.formatEnterLog(request, false));
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         PointOpResult ret = this.pointUsageFacade.decrease(usage);
         ObjectResponse<PointOpResult> res = new ObjectResponse<>(ret);
@@ -203,7 +207,7 @@ public class PointController {
     public ObjectResponse<PointOpResult> decreaseFrozenPoint(HttpServletRequest request,
                                                              @RequestBody PointDecreaseParam param) {
         long startTime = System.nanoTime();
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointDecreaseParam(param);
 
         PointOpResult ret = this.pointUsageFacade.decreaseFrozen(usage);
@@ -220,7 +224,7 @@ public class PointController {
     public ObjectResponse<PointOpResult> freezePoint(HttpServletRequest request,
                                                      @RequestBody PointOpParam param) {
         long startTime = System.nanoTime();
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
 
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         PointOpResult cusPoint = this.pointUsageFacade.freeze(usage);
@@ -234,11 +238,11 @@ public class PointController {
     @ApiOperation(value = "解冻用户积分")
     @PostMapping(value = "/unfreeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointOpResult> unfreezePoint(HttpServletRequest request,
-                                                       @RequestBody PointOpParam param) {
+                                                       @RequestBody PointUnfreezeParam param) {
         long startTime = System.nanoTime();
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
 
-        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        PointUsage usage = PointUsageBuilder.fromPointUnfreezeParam(param);
         PointOpResult cusPoint = this.pointUsageFacade.unfreeze(usage);
 
         ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
@@ -252,7 +256,7 @@ public class PointController {
     @PostMapping(value = "/cancel", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointOpResult> cancelPoint(HttpServletRequest request,
                                                      @RequestBody PointCancelParam param) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
 
         PointUsage usage = PointUsageBuilder.fromPointCancelParam(param);
         PointOpResult cusPoint = this.pointUsageFacade.cancel(usage);
@@ -267,7 +271,7 @@ public class PointController {
     @PostMapping(value = "/freezeCost", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointOpResult> freezeCost(HttpServletRequest request,
                                                     @RequestBody PointFreezeParam param) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
 //        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
 //            throw new HyenaParameterException("invalid parameter: unfreezePoint");
 //        }
@@ -282,8 +286,8 @@ public class PointController {
     @ApiOperation(value = "按成本解冻")
     @PostMapping(value = "/unfreezeCost", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointOpResult> unfreezeCost(HttpServletRequest request,
-                                                        @RequestBody PointUnfreezeParam param) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+                                                      @RequestBody PointUnfreezeParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointUnfreezeParam(param);
         PointOpResult cusPoint = this.pointUsageFacade.unfreezeCost(usage);
         ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
@@ -296,7 +300,7 @@ public class PointController {
     @PostMapping(value = "/refund", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointOpResult> refund(HttpServletRequest request,
                                                 @RequestBody PointRefundParam param) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
         usage.setUnfreezePoint(param.getUnfreezePoint());
         PointOpResult cusPoint = this.pointUsageFacade.refund(usage);

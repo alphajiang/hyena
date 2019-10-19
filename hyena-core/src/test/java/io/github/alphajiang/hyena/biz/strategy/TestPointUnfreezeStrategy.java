@@ -31,8 +31,8 @@ import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -73,11 +73,11 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setNote("test_unfreezePoint");
         PointPo result = this.pointUnfreezeStrategy.process(usage);
         log.info("result = {}", result);
-        Assert.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());
-        Assert.assertEquals(expectAvailable, result.getAvailable().longValue());
-        Assert.assertEquals(0L, result.getUsed().longValue());
-        Assert.assertEquals(expectFrozen, result.getFrozen().longValue());
-        Assert.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());
+        Assertions.assertEquals(expectAvailable, result.getAvailable().longValue());
+        Assertions.assertEquals(0L, result.getUsed().longValue());
+        Assertions.assertEquals(expectFrozen, result.getFrozen().longValue());
+        Assertions.assertEquals(0L, result.getExpire().longValue());
 
         Thread.sleep(200L);
 
@@ -87,7 +87,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setType(super.getPointType());
         var pointLogs = pointLogDs.listPointLog(listPointLogParam);
         log.info("pointLogs = {}", pointLogs);
-        Assert.assertEquals(1, pointLogs.size());
+        Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPoingLog = new PointLog();
         expectPoingLog.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
@@ -110,7 +110,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         listPointRecParam.setUid(this.uid).setType(super.getPointType());
         var pointRecList = pointRecDs.listPointRec(super.getPointType(), listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
-        Assert.assertEquals(1, pointRecList.size());
+        Assertions.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
@@ -132,7 +132,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setSorts(List.of(pointRecLogSortParam));
         var pointRecLogList = pointRecLogDs.listPointRecLog(super.getPointType(), listPointRecLogParam);
         log.info("pointRecLogList = {}", pointRecLogList);
-        Assert.assertEquals(3, pointRecLogList.size()); // 0: unfreeze, 1, freeze; 2: increase
+        Assertions.assertEquals(3, pointRecLogList.size()); // 0: unfreeze, 1, freeze; 2: increase
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
         expectPointRecLog.setUid(super.uid).setPid(super.point.getId())
@@ -179,11 +179,11 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setNote("test_unfreezePoint");
         PointPo result = this.pointUnfreezeStrategy.process(usage);
         log.info("result = {}", result);
-        Assert.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());
-        Assert.assertEquals(expectAvailable, result.getAvailable().longValue());
-        Assert.assertEquals(0L, result.getUsed().longValue());
-        Assert.assertEquals(expectFrozen, result.getFrozen().longValue());
-        Assert.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());
+        Assertions.assertEquals(expectAvailable, result.getAvailable().longValue());
+        Assertions.assertEquals(0L, result.getUsed().longValue());
+        Assertions.assertEquals(expectFrozen, result.getFrozen().longValue());
+        Assertions.assertEquals(0L, result.getExpire().longValue());
 
         Thread.sleep(300L);
 
@@ -193,7 +193,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setType(super.getPointType());
         var pointLogs = pointLogDs.listPointLog(listPointLogParam);
         log.info("pointLogs = {}", pointLogs);
-        Assert.assertEquals(1, pointLogs.size());
+        Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPoingLog = new PointLog();
         expectPoingLog.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
@@ -216,7 +216,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         listPointRecParam.setUid(this.uid).setType(super.getPointType());
         var pointRecList = pointRecDs.listPointRec(super.getPointType(), listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
-        Assert.assertEquals(1, pointRecList.size());
+        Assertions.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
@@ -238,7 +238,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setSorts(List.of(pointRecLogSortParam));
         var pointRecLogList = pointRecLogDs.listPointRecLog(super.getPointType(), listPointRecLogParam);
         log.info("pointRecLogList = {}", pointRecLogList);
-        Assert.assertEquals(4, pointRecLogList.size()); // 0: unfreeze, 1, freeze; 2, freeze, 3: increase
+        Assertions.assertEquals(4, pointRecLogList.size()); // 0: unfreeze, 1, freeze; 2, freeze, 3: increase
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
         expectPointRecLog.setUid(super.uid).setPid(super.point.getId())
@@ -295,11 +295,11 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setNote("test_unfreezePoint");
         PointPo result = this.pointUnfreezeStrategy.process(usage);
         log.info("result = {}", result);
-        Assert.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());
-        Assert.assertEquals(expectAvailable, result.getAvailable().longValue());
-        Assert.assertEquals(0L, result.getUsed().longValue());
-        Assert.assertEquals(expectFrozen, result.getFrozen().longValue());
-        Assert.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());
+        Assertions.assertEquals(expectAvailable, result.getAvailable().longValue());
+        Assertions.assertEquals(0L, result.getUsed().longValue());
+        Assertions.assertEquals(expectFrozen, result.getFrozen().longValue());
+        Assertions.assertEquals(0L, result.getExpire().longValue());
 
         Thread.sleep(300L);
 
@@ -309,7 +309,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setType(super.getPointType());
         var pointLogs = pointLogDs.listPointLog(listPointLogParam);
         log.info("pointLogs = {}", pointLogs);
-        Assert.assertEquals(1, pointLogs.size());
+        Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPointLog = new PointLog();
         expectPointLog.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
@@ -332,7 +332,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         listPointRecParam.setUid(this.uid).setType(super.getPointType());
         var pointRecList = pointRecDs.listPointRec(super.getPointType(), listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
-        Assert.assertEquals(1, pointRecList.size());
+        Assertions.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
@@ -354,7 +354,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setSorts(List.of(pointRecLogSortParam));
         var pointRecLogList = pointRecLogDs.listPointRecLog(super.getPointType(), listPointRecLogParam);
         log.info("pointRecLogList = {}", pointRecLogList);
-        Assert.assertEquals(4, pointRecLogList.size()); // 0: unfreeze, 1, freeze; 2, freeze, 3: increase
+        Assertions.assertEquals(4, pointRecLogList.size()); // 0: unfreeze, 1, freeze; 2, freeze, 3: increase
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
         expectPointRecLog.setUid(super.uid).setPid(super.point.getId())

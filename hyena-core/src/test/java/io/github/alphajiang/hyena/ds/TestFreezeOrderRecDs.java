@@ -23,8 +23,8 @@ import io.github.alphajiang.hyena.ds.service.FreezeOrderRecDs;
 import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class TestFreezeOrderRecDs extends HyenaTestBase {
     @Autowired
     private PointBuilder pointBuilder;
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
     }

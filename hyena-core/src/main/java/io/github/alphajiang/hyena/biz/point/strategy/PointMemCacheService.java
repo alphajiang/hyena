@@ -62,6 +62,15 @@ public class PointMemCacheService {
         return result;
     }
 
+    public synchronized void removePoint(String type, String uid) {
+        try {
+            String key = this.formatKey(type, uid);
+            map.remove(key);
+        } catch (Exception e) {
+            log.error("can't remove point. type = {}, uid = {}", type, uid);
+        }
+    }
+
     private String formatKey(String type, String uid) {
         return type + "-" + uid;
     }

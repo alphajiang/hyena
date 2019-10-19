@@ -23,9 +23,9 @@ import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Random;
@@ -41,7 +41,7 @@ public class TestPointRecCalculator extends HyenaTestBase {
 
     private PointRecPo rec;
 
-    @Before
+    @BeforeEach
     public void init() {
         this.rec = new PointRecPo();
         this.rec.setUsed(0L)
@@ -53,13 +53,15 @@ public class TestPointRecCalculator extends HyenaTestBase {
     }
 
 
-    @Test(expected = HyenaNoPointException.class)
+    @Test
     public void test_freezePoint_no_enough_point() {
-        rec.setTotal(200L)
-                .setAvailable(100L).setFrozen(30L)
-                .setTotalCost(100L)
-                .setFrozenCost(15L);
-        calculator.freezePoint(rec, 200);
+        Assertions.assertThrows(HyenaNoPointException.class, () -> {
+            rec.setTotal(200L)
+                    .setAvailable(100L).setFrozen(30L)
+                    .setTotalCost(100L)
+                    .setFrozenCost(15L);
+            calculator.freezePoint(rec, 200);
+        });
     }
 
     @Test
@@ -71,16 +73,16 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozenCost(0L);
         PointRecCalcResult result = calculator.freezePoint(rec, 30L);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
-        Assert.assertEquals(0L,   //
+        Assertions.assertEquals(rec.getId(), result.getRec4Update().getId());
+        Assertions.assertEquals(0L,   //
                 rec.getAvailable().longValue());
-        Assert.assertEquals(0L,   //
+        Assertions.assertEquals(0L,   //
                 result.getRec4Update().getAvailable().longValue());
-        Assert.assertEquals(30L, rec.getFrozen().longValue());
-        Assert.assertEquals(30L, result.getRec4Update().getFrozen().longValue());
-        Assert.assertEquals(60L, rec.getFrozenCost().longValue());
-        Assert.assertEquals(60L, result.getRec4Update().getFrozenCost().longValue());
-        Assert.assertEquals(60L, result.getDeltaCost().longValue());
+        Assertions.assertEquals(30L, rec.getFrozen().longValue());
+        Assertions.assertEquals(30L, result.getRec4Update().getFrozen().longValue());
+        Assertions.assertEquals(60L, rec.getFrozenCost().longValue());
+        Assertions.assertEquals(60L, result.getRec4Update().getFrozenCost().longValue());
+        Assertions.assertEquals(60L, result.getDeltaCost().longValue());
     }
 
     @Test
@@ -91,27 +93,29 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozenCost(5L);
         PointRecCalcResult result = calculator.freezePoint(rec, 20L);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
-        Assert.assertEquals(60L,   // 80 - 20
+        Assertions.assertEquals(rec.getId(), result.getRec4Update().getId());
+        Assertions.assertEquals(60L,   // 80 - 20
                 rec.getAvailable().longValue());
-        Assert.assertEquals(60L,   // 80 - 20
+        Assertions.assertEquals(60L,   // 80 - 20
                 result.getRec4Update().getAvailable().longValue());
-        Assert.assertEquals(30L, // 10 + 20
+        Assertions.assertEquals(30L, // 10 + 20
                 rec.getFrozen().longValue());
-        Assert.assertEquals(30L, result.getRec4Update().getFrozen().longValue());
-        Assert.assertEquals(15L, rec.getFrozenCost().longValue());
-        Assert.assertEquals(15L, result.getRec4Update().getFrozenCost().longValue());
-        Assert.assertEquals(10L, result.getDeltaCost().longValue());
+        Assertions.assertEquals(30L, result.getRec4Update().getFrozen().longValue());
+        Assertions.assertEquals(15L, rec.getFrozenCost().longValue());
+        Assertions.assertEquals(15L, result.getRec4Update().getFrozenCost().longValue());
+        Assertions.assertEquals(10L, result.getDeltaCost().longValue());
     }
 
 
-    @Test(expected = HyenaNoPointException.class)
+    @Test
     public void test_unfreezePoint_no_enough_point() {
-        rec.setTotal(200L)
-                .setAvailable(100L).setFrozen(30L)
-                .setTotalCost(100L)
-                .setFrozenCost(15L);
-        calculator.unfreezePoint(rec, 40, null);
+        Assertions.assertThrows(HyenaNoPointException.class, () -> {
+            rec.setTotal(200L)
+                    .setAvailable(100L).setFrozen(30L)
+                    .setTotalCost(100L)
+                    .setFrozenCost(15L);
+            calculator.unfreezePoint(rec, 40, null);
+        });
     }
 
     @Test
@@ -122,16 +126,16 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozenCost(15L);
         PointRecCalcResult result = calculator.unfreezePoint(rec, 30L, null);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
-        Assert.assertEquals(130L,   // 100 + 15
+        Assertions.assertEquals(rec.getId(), result.getRec4Update().getId());
+        Assertions.assertEquals(130L,   // 100 + 15
                 rec.getAvailable().longValue());
-        Assert.assertEquals(130L,   // 100 + 15
+        Assertions.assertEquals(130L,   // 100 + 15
                 result.getRec4Update().getAvailable().longValue());
-        Assert.assertEquals(0L, rec.getFrozen().longValue());
-        Assert.assertEquals(0L, result.getRec4Update().getFrozen().longValue());
-        Assert.assertEquals(0L, rec.getFrozenCost().longValue());
-        Assert.assertEquals(0L, result.getRec4Update().getFrozenCost().longValue());
-        Assert.assertEquals(15L, result.getDeltaCost().longValue());
+        Assertions.assertEquals(0L, rec.getFrozen().longValue());
+        Assertions.assertEquals(0L, result.getRec4Update().getFrozen().longValue());
+        Assertions.assertEquals(0L, rec.getFrozenCost().longValue());
+        Assertions.assertEquals(0L, result.getRec4Update().getFrozenCost().longValue());
+        Assertions.assertEquals(15L, result.getDeltaCost().longValue());
     }
 
     @Test
@@ -142,26 +146,28 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozenCost(40L);
         PointRecCalcResult result = calculator.unfreezePoint(rec, 20L, null);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
-        Assert.assertEquals(120L,   // 100 + 15
+        Assertions.assertEquals(rec.getId(), result.getRec4Update().getId());
+        Assertions.assertEquals(120L,   // 100 + 15
                 rec.getAvailable().longValue());
-        Assert.assertEquals(120L,   // 100 + 15
+        Assertions.assertEquals(120L,   // 100 + 15
                 result.getRec4Update().getAvailable().longValue());
-        Assert.assertEquals(60L, // 60 - 30
+        Assertions.assertEquals(60L, // 60 - 30
                 rec.getFrozen().longValue());
-        Assert.assertEquals(60L, result.getRec4Update().getFrozen().longValue());
-        Assert.assertEquals(30L, rec.getFrozenCost().longValue());
-        Assert.assertEquals(30L, result.getRec4Update().getFrozenCost().longValue());
-        Assert.assertEquals(10L, result.getDeltaCost().longValue());
+        Assertions.assertEquals(60L, result.getRec4Update().getFrozen().longValue());
+        Assertions.assertEquals(30L, rec.getFrozenCost().longValue());
+        Assertions.assertEquals(30L, result.getRec4Update().getFrozenCost().longValue());
+        Assertions.assertEquals(10L, result.getDeltaCost().longValue());
     }
 
-    @Test(expected = HyenaNoPointException.class)
+    @Test
     public void test_decreasePoint_no_enough_point() {
-        rec.setTotal(200L)
-                .setAvailable(100L).setFrozen(30L)
-                .setTotalCost(100L)
-                .setFrozenCost(15L);
-        calculator.decreasePoint(rec, 200);
+        Assertions.assertThrows(HyenaNoPointException.class, () -> {
+            rec.setTotal(200L)
+                    .setAvailable(100L).setFrozen(30L)
+                    .setTotalCost(100L)
+                    .setFrozenCost(15L);
+            calculator.decreasePoint(rec, 200);
+        });
     }
 
     @Test
@@ -175,18 +181,18 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozenCost(10L);
         PointRecCalcResult result = calculator.decreasePoint(rec, 30L);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
-        Assert.assertEquals(0L,   //
+        Assertions.assertEquals(rec.getId(), result.getRec4Update().getId());
+        Assertions.assertEquals(0L,   //
                 rec.getAvailable().longValue());
-        Assert.assertEquals(0L,   //
+        Assertions.assertEquals(0L,   //
                 result.getRec4Update().getAvailable().longValue());
-        Assert.assertEquals(50L, rec.getUsed().longValue());
-        Assert.assertEquals(50L, result.getRec4Update().getUsed().longValue());
-        Assert.assertEquals(90L, rec.getUsedCost().longValue());
-        Assert.assertEquals(90L, result.getRec4Update().getUsedCost().longValue());
-        Assert.assertEquals(50L, result.getDeltaCost().longValue());
-        Assert.assertTrue(rec.getEnable());
-        Assert.assertTrue(result.getRec4Update().getEnable());
+        Assertions.assertEquals(50L, rec.getUsed().longValue());
+        Assertions.assertEquals(50L, result.getRec4Update().getUsed().longValue());
+        Assertions.assertEquals(90L, rec.getUsedCost().longValue());
+        Assertions.assertEquals(90L, result.getRec4Update().getUsedCost().longValue());
+        Assertions.assertEquals(50L, result.getDeltaCost().longValue());
+        Assertions.assertTrue(rec.getEnable());
+        Assertions.assertTrue(result.getRec4Update().getEnable());
     }
 
     @Test
@@ -200,18 +206,18 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozenCost(10L);
         PointRecCalcResult result = calculator.decreasePoint(rec, 30L);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
-        Assert.assertEquals(0L,   //
+        Assertions.assertEquals(rec.getId(), result.getRec4Update().getId());
+        Assertions.assertEquals(0L,   //
                 rec.getAvailable().longValue());
-        Assert.assertEquals(0L,   //
+        Assertions.assertEquals(0L,   //
                 result.getRec4Update().getAvailable().longValue());
-        Assert.assertEquals(50L, rec.getUsed().longValue());
-        Assert.assertEquals(50L, result.getRec4Update().getUsed().longValue());
-        Assert.assertEquals(90L, rec.getUsedCost().longValue());
-        Assert.assertEquals(90L, result.getRec4Update().getUsedCost().longValue());
-        Assert.assertEquals(50L, result.getDeltaCost().longValue());
-        Assert.assertFalse(rec.getEnable());
-        Assert.assertFalse(result.getRec4Update().getEnable());
+        Assertions.assertEquals(50L, rec.getUsed().longValue());
+        Assertions.assertEquals(50L, result.getRec4Update().getUsed().longValue());
+        Assertions.assertEquals(90L, rec.getUsedCost().longValue());
+        Assertions.assertEquals(90L, result.getRec4Update().getUsedCost().longValue());
+        Assertions.assertEquals(50L, result.getDeltaCost().longValue());
+        Assertions.assertFalse(rec.getEnable());
+        Assertions.assertFalse(result.getRec4Update().getEnable());
     }
 
 
@@ -225,27 +231,29 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozenCost(5L);
         PointRecCalcResult result = calculator.decreasePoint(rec, 20);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
-        Assert.assertEquals(60L,   // 80 - 20
+        Assertions.assertEquals(rec.getId(), result.getRec4Update().getId());
+        Assertions.assertEquals(60L,   // 80 - 20
                 rec.getAvailable().longValue());
-        Assert.assertEquals(60L,   // 80 - 20
+        Assertions.assertEquals(60L,   // 80 - 20
                 result.getRec4Update().getAvailable().longValue());
-        Assert.assertEquals(30L, // 10 + 20
+        Assertions.assertEquals(30L, // 10 + 20
                 rec.getUsed().longValue());
-        Assert.assertEquals(30L, result.getRec4Update().getUsed().longValue());
-        Assert.assertEquals(10L, rec.getUsedCost().longValue());
-        Assert.assertEquals(10L, result.getRec4Update().getUsedCost().longValue());
-        Assert.assertEquals(10L, result.getDeltaCost().longValue());
+        Assertions.assertEquals(30L, result.getRec4Update().getUsed().longValue());
+        Assertions.assertEquals(10L, rec.getUsedCost().longValue());
+        Assertions.assertEquals(10L, result.getRec4Update().getUsedCost().longValue());
+        Assertions.assertEquals(10L, result.getDeltaCost().longValue());
     }
 
 
-    @Test(expected = HyenaNoPointException.class)
+    @Test
     public void test_cancelPoint_no_enough_point() {
-        rec.setTotal(200L)
-                .setAvailable(100L).setFrozen(30L)
-                .setTotalCost(100L)
-                .setFrozenCost(15L);
-        calculator.cancelPoint(rec, 200);
+        Assertions.assertThrows(HyenaNoPointException.class, () -> {
+            rec.setTotal(200L)
+                    .setAvailable(100L).setFrozen(30L)
+                    .setTotalCost(100L)
+                    .setFrozenCost(15L);
+            calculator.cancelPoint(rec, 200);
+        });
     }
 
     @Test
@@ -259,18 +267,18 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozenCost(10L);
         PointRecCalcResult result = calculator.cancelPoint(rec, 30L);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
-        Assert.assertEquals(0L,   //
+        Assertions.assertEquals(rec.getId(), result.getRec4Update().getId());
+        Assertions.assertEquals(0L,   //
                 rec.getAvailable().longValue());
-        Assert.assertEquals(0L,   //
+        Assertions.assertEquals(0L,   //
                 result.getRec4Update().getAvailable().longValue());
-        Assert.assertEquals(50L, rec.getCancelled().longValue());
-        Assert.assertEquals(50L, result.getRec4Update().getCancelled().longValue());
-        Assert.assertEquals(90L, rec.getUsedCost().longValue());
-        Assert.assertEquals(90L, result.getRec4Update().getUsedCost().longValue());
-        Assert.assertEquals(50L, result.getDeltaCost().longValue());
-        Assert.assertTrue(rec.getEnable());
-        Assert.assertTrue(result.getRec4Update().getEnable());
+        Assertions.assertEquals(50L, rec.getCancelled().longValue());
+        Assertions.assertEquals(50L, result.getRec4Update().getCancelled().longValue());
+        Assertions.assertEquals(90L, rec.getUsedCost().longValue());
+        Assertions.assertEquals(90L, result.getRec4Update().getUsedCost().longValue());
+        Assertions.assertEquals(50L, result.getDeltaCost().longValue());
+        Assertions.assertTrue(rec.getEnable());
+        Assertions.assertTrue(result.getRec4Update().getEnable());
     }
 
     @Test
@@ -284,18 +292,18 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozenCost(10L);
         PointRecCalcResult result = calculator.cancelPoint(rec, 30L);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
-        Assert.assertEquals(0L,   //
+        Assertions.assertEquals(rec.getId(), result.getRec4Update().getId());
+        Assertions.assertEquals(0L,   //
                 rec.getAvailable().longValue());
-        Assert.assertEquals(0L,   //
+        Assertions.assertEquals(0L,   //
                 result.getRec4Update().getAvailable().longValue());
-        Assert.assertEquals(50L, rec.getCancelled().longValue());
-        Assert.assertEquals(50L, result.getRec4Update().getCancelled().longValue());
-        Assert.assertEquals(90L, rec.getUsedCost().longValue());
-        Assert.assertEquals(90L, result.getRec4Update().getUsedCost().longValue());
-        Assert.assertEquals(50L, result.getDeltaCost().longValue());
-        Assert.assertFalse(rec.getEnable());
-        Assert.assertFalse(result.getRec4Update().getEnable());
+        Assertions.assertEquals(50L, rec.getCancelled().longValue());
+        Assertions.assertEquals(50L, result.getRec4Update().getCancelled().longValue());
+        Assertions.assertEquals(90L, rec.getUsedCost().longValue());
+        Assertions.assertEquals(90L, result.getRec4Update().getUsedCost().longValue());
+        Assertions.assertEquals(50L, result.getDeltaCost().longValue());
+        Assertions.assertFalse(rec.getEnable());
+        Assertions.assertFalse(result.getRec4Update().getEnable());
     }
 
 
@@ -309,17 +317,17 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozenCost(5L);
         PointRecCalcResult result = calculator.cancelPoint(rec, 20);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getRec4Update().getId());
-        Assert.assertEquals(60L,   // 80 - 20
+        Assertions.assertEquals(rec.getId(), result.getRec4Update().getId());
+        Assertions.assertEquals(60L,   // 80 - 20
                 rec.getAvailable().longValue());
-        Assert.assertEquals(60L,   // 80 - 20
+        Assertions.assertEquals(60L,   // 80 - 20
                 result.getRec4Update().getAvailable().longValue());
-        Assert.assertEquals(30L, // 10 + 20
+        Assertions.assertEquals(30L, // 10 + 20
                 rec.getCancelled().longValue());
-        Assert.assertEquals(30L, result.getRec4Update().getCancelled().longValue());
-        Assert.assertEquals(10L, rec.getUsedCost().longValue());
-        Assert.assertEquals(10L, result.getRec4Update().getUsedCost().longValue());
-        Assert.assertEquals(10L, result.getDeltaCost().longValue());
+        Assertions.assertEquals(30L, result.getRec4Update().getCancelled().longValue());
+        Assertions.assertEquals(10L, rec.getUsedCost().longValue());
+        Assertions.assertEquals(10L, result.getRec4Update().getUsedCost().longValue());
+        Assertions.assertEquals(10L, result.getDeltaCost().longValue());
     }
 
     @Test
@@ -332,33 +340,33 @@ public class TestPointRecCalculator extends HyenaTestBase {
                 .setFrozen(0L);
         PointRecPo result = this.calculator.refundPoint(rec, refund, cost);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getId());
-        Assert.assertEquals(50L, // 150 - 100
+        Assertions.assertEquals(rec.getId(), result.getId());
+        Assertions.assertEquals(50L, // 150 - 100
                 rec.getAvailable().longValue());
-        Assert.assertEquals(50L, // 150 - 100
+        Assertions.assertEquals(50L, // 150 - 100
                 result.getAvailable().longValue());
-        Assert.assertEquals(100L, rec.getRefund().longValue());
-        Assert.assertEquals(100L, result.getRefund().longValue());
-        Assert.assertEquals(50L, rec.getRefundCost().longValue());
-        Assert.assertEquals(50L, result.getRefundCost().longValue());
-        Assert.assertTrue(rec.getEnable());
-        Assert.assertTrue(result.getEnable());
+        Assertions.assertEquals(100L, rec.getRefund().longValue());
+        Assertions.assertEquals(100L, result.getRefund().longValue());
+        Assertions.assertEquals(50L, rec.getRefundCost().longValue());
+        Assertions.assertEquals(50L, result.getRefundCost().longValue());
+        Assertions.assertTrue(rec.getEnable());
+        Assertions.assertTrue(result.getEnable());
 
         rec.setAvailable(100L)
                 .setRefund(0L)
                 .setRefundCost(0L);
         result = this.calculator.refundPoint(rec, refund, cost);
         log.info("result = {}", result);
-        Assert.assertEquals(rec.getId(), result.getId());
-        Assert.assertEquals(0L, // 150 - 100
+        Assertions.assertEquals(rec.getId(), result.getId());
+        Assertions.assertEquals(0L, // 150 - 100
                 rec.getAvailable().longValue());
-        Assert.assertEquals(0L, // 150 - 100
+        Assertions.assertEquals(0L, // 150 - 100
                 result.getAvailable().longValue());
-        Assert.assertEquals(100L, rec.getRefund().longValue());
-        Assert.assertEquals(100L, result.getRefund().longValue());
-        Assert.assertEquals(50L, rec.getRefundCost().longValue());
-        Assert.assertEquals(50L, result.getRefundCost().longValue());
-        Assert.assertFalse(rec.getEnable());
-        Assert.assertFalse(result.getEnable());
+        Assertions.assertEquals(100L, rec.getRefund().longValue());
+        Assertions.assertEquals(100L, result.getRefund().longValue());
+        Assertions.assertEquals(50L, rec.getRefundCost().longValue());
+        Assertions.assertEquals(50L, result.getRefundCost().longValue());
+        Assertions.assertFalse(rec.getEnable());
+        Assertions.assertFalse(result.getEnable());
     }
 }

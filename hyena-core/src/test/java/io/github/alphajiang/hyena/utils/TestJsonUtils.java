@@ -21,38 +21,39 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class TestJsonUtils {
-    private final Logger logger = LoggerFactory.getLogger(TestJsonUtils.class);
 
     @Test
     public void test_fromJson() {
         var obj = new BaseResponse(123, "gewlgejwg");
         String str = obj.toJsonString();
-        logger.info("json str = {}", str);
+        log.info("json str = {}", str);
         BaseResponse result = JsonUtils.fromJson(str, BaseResponse.class);
         HyenaAssert.notNull(result, "result is not null");
     }
 
-    @Test(expected = HyenaServiceException.class)
+    @Test
     public void test_fromJson_class_fail() {
-
         String str = "{ 123}";
-        BaseResponse result = JsonUtils.fromJson(str, BaseResponse.class);
-        Assert.fail();
+        Assertions.assertThrows(HyenaServiceException.class, () -> {
+            JsonUtils.fromJson(str, BaseResponse.class);
+            Assertions.fail();
+        });
     }
 
-    @Test(expected = HyenaServiceException.class)
+    @Test
     public void test_fromJson_type_fail() {
-
         String str = "{ 123}";
-        ObjectResponse<String> result = JsonUtils.fromJson(str, new TypeReference<ObjectResponse<String>>() {
-
+        Assertions.assertThrows(HyenaServiceException.class, () -> {
+            JsonUtils.fromJson(str, new TypeReference<ObjectResponse<String>>() {
+            });
+            Assertions.fail();
         });
-        Assert.fail();
+
     }
 }

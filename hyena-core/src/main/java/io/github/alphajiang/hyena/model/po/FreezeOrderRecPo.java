@@ -20,11 +20,13 @@ package io.github.alphajiang.hyena.model.po;
 import io.github.alphajiang.hyena.model.base.BasePo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class FreezeOrderRecPo extends BasePo {
     private long pid;
     private String uid;

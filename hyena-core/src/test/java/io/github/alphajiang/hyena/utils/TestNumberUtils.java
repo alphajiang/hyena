@@ -17,8 +17,8 @@
 
 package io.github.alphajiang.hyena.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestNumberUtils {
 
@@ -26,20 +26,20 @@ public class TestNumberUtils {
     public void test_parseLong_bytes() {
         String str = "12345";
         long result = NumberUtils.parseLong(str.getBytes(), 0L);
-        Assert.assertEquals(12345L, result);
+        Assertions.assertEquals(12345L, result);
     }
 
     @Test
     public void test_parseLong_bytes_null() {
         byte[] in = null;
         long result = NumberUtils.parseLong(in, 123L);
-        Assert.assertEquals(123L, result);
+        Assertions.assertEquals(123L, result);
     }
 
     @Test
     public void test_parseLong_not_number() {
         String str = "123ab";
         long result = NumberUtils.parseLong(str, 123L);
-        Assert.assertEquals(123L, result);
+        Assertions.assertEquals(123L, result);
     }
 }

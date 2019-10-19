@@ -31,8 +31,8 @@ import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -69,11 +69,11 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
                 .setNote("test_decreasePoint");
         PointPo result = this.pointDecreaseStrategy.process(usage);
         log.info("result = {}", result);
-        Assert.assertEquals(resultNumber, result.getPoint().longValue());
-        Assert.assertEquals(resultNumber, result.getAvailable().longValue());
-        Assert.assertEquals(number, result.getUsed().longValue());
-        Assert.assertEquals(0L, result.getFrozen().longValue());
-        Assert.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(resultNumber, result.getPoint().longValue());
+        Assertions.assertEquals(resultNumber, result.getAvailable().longValue());
+        Assertions.assertEquals(number, result.getUsed().longValue());
+        Assertions.assertEquals(0L, result.getFrozen().longValue());
+        Assertions.assertEquals(0L, result.getExpire().longValue());
         Thread.sleep(200L);
 
         // verify point log
@@ -85,7 +85,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
                 .setType(super.getPointType());
         var pointLogs = pointLogDs.listPointLog(listPointLogParam);
         log.info("pointLogs = {}", pointLogs);
-        Assert.assertEquals(1, pointLogs.size());
+        Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPoingLog = new PointLog();
         expectPoingLog.setUid(this.uid).setType(PointOpType.DECREASE.code())
@@ -111,7 +111,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         listPointRecParam.setUid(this.uid).setType(super.getPointType());
         var pointRecList = pointRecDs.listPointRec(super.getPointType(), listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
-        Assert.assertEquals(1, pointRecList.size());
+        Assertions.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
@@ -136,7 +136,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
                 .setSorts(List.of(pointRecLogSortParam));
         var pointRecLogList = pointRecLogDs.listPointRecLog(super.getPointType(), listPointRecLogParam);
         log.info("pointRecLogList = {}", pointRecLogList);
-        Assert.assertEquals(2, pointRecLogList.size()); // 0: decrease; 1: increase
+        Assertions.assertEquals(2, pointRecLogList.size()); // 0: decrease; 1: increase
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
         expectPointRecLog.setUid(super.uid).setPid(super.point.getId())
@@ -175,11 +175,11 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
 
         PointPo result = this.pointDecreaseStrategy.process(usage);
         log.info("result = {}", result);
-        Assert.assertEquals(resultNumber, result.getPoint().longValue());
-        Assert.assertEquals(resultNumber, result.getAvailable().longValue());
-        Assert.assertEquals(number, result.getUsed().longValue());
-        Assert.assertEquals(0L, result.getFrozen().longValue());
-        Assert.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(resultNumber, result.getPoint().longValue());
+        Assertions.assertEquals(resultNumber, result.getAvailable().longValue());
+        Assertions.assertEquals(number, result.getUsed().longValue());
+        Assertions.assertEquals(0L, result.getFrozen().longValue());
+        Assertions.assertEquals(0L, result.getExpire().longValue());
         log.info("<< test end");
     }
 
@@ -190,7 +190,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         long number = 9999999L;
         usage.setType(super.getPointType()).setUid(this.uid).setPoint(number).setNote("test_decreasePoint_not_enough");
         PointPo result = this.pointDecreaseStrategy.process(usage);
-        Assert.assertTrue(result.getAvailable() < 0L);
+        Assertions.assertTrue(result.getAvailable() < 0L);
         //Assert.fail();
         log.info("<< test end");
     }

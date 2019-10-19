@@ -20,11 +20,13 @@ package io.github.alphajiang.hyena.model.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class PointFreezeParam extends PointOpParam {
 
     @ApiModelProperty(value = "实际成本, 按成本冻结时传递", example = "0")

@@ -20,9 +20,9 @@ package io.github.alphajiang.hyena.ds;
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class TestPointRecDs extends HyenaTestBase {
     @Autowired
     private PointRecDs pointRecDs;
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
     }
@@ -75,7 +75,7 @@ public class TestPointRecDs extends HyenaTestBase {
         long increased = this.pointRecDs.getIncreasedPoint(super.getPointType(),
                 super.getUid(), start.getTime(), end.getTime());
         logger.info("increased = {}", increased);
-        Assert.assertEquals(super.getUserPoint().getPoint().longValue(), increased);
+        Assertions.assertEquals(super.getUserPoint().getPoint().longValue(), increased);
     }
 
     @Test

@@ -21,8 +21,8 @@ import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class TestPointUsageFacade extends HyenaTestBase {
         usage.setType(super.getPointType()).setUid("test_increase").setPoint(99887L);
         PointPo ret = this.pointUsageFacade.increase(usage);
         logger.info("point = {}", ret);
-        Assert.assertNotNull(ret);
+        Assertions.assertNotNull(ret);
 
     }
 

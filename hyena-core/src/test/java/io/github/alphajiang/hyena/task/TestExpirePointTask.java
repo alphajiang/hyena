@@ -18,8 +18,8 @@
 package io.github.alphajiang.hyena.task;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class TestExpirePointTask extends HyenaTestBase {
     private ExpirePointTask expirePointTask;
 
 
-    @Before
+    @BeforeEach
     public void init() {
         Calendar calExpire = Calendar.getInstance();
         calExpire.add(Calendar.MINUTE, -1);

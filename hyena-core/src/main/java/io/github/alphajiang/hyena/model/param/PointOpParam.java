@@ -21,11 +21,13 @@ import io.github.alphajiang.hyena.model.base.BaseObject;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class PointOpParam extends BaseObject {
     @ApiModelProperty(value = "请求消息序列号", example = "")
     private String seq;

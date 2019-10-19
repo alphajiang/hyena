@@ -17,8 +17,8 @@
 
 package io.github.alphajiang.hyena.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class TestCollectionUtils {
     @Test
     public void test_join_null() {
         String result = CollectionUtils.join(null, ",");
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
     }
 
     @Test
@@ -38,19 +38,19 @@ public class TestCollectionUtils {
         list.add(null);
         list.add("bbb");
         String result = CollectionUtils.join(list, "==");
-        Assert.assertEquals("aaa==bbb", result);
+        Assertions.assertEquals("aaa==bbb", result);
     }
 
     @Test
     public void test_join_empty() {
         String result = CollectionUtils.join(List.of("", ""), "==");
-        Assert.assertEquals("", result);
+        Assertions.assertEquals("", result);
     }
 
     @Test
     public void test_join_char() {
         String result = CollectionUtils.join(List.of(Character.valueOf('a'), Character.valueOf('b')), "-");
-        Assert.assertEquals("a-b", result);
+        Assertions.assertEquals("a-b", result);
     }
 
     @Test
@@ -60,6 +60,6 @@ public class TestCollectionUtils {
         list.add(null);
         list.add(456);
         String result = CollectionUtils.join(list, "-");
-        Assert.assertEquals("123-456", result);
+        Assertions.assertEquals("123-456", result);
     }
 }

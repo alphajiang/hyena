@@ -20,8 +20,8 @@ package io.github.alphajiang.hyena.ds;
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class TestPointRecLogDs extends HyenaTestBase {
     @Autowired
     private PointRecLogDs pointRecLogDs;
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
     }

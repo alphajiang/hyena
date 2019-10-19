@@ -23,9 +23,9 @@ import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.utils.JsonUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ public class TestSystemController extends HyenaTestBase {
     @Autowired
     private MockMvc mockMvc;
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
     }
@@ -60,7 +60,7 @@ public class TestSystemController extends HyenaTestBase {
 
         });
         List<String> list = res.getData();
-        Assert.assertFalse(list.isEmpty());
+        Assertions.assertFalse(list.isEmpty());
     }
 
     @Test
@@ -71,13 +71,13 @@ public class TestSystemController extends HyenaTestBase {
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
         BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
-        Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+        Assertions.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
 
         // add twice
         resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
         res = JsonUtils.fromJson(resBody, BaseResponse.class);
-        Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+        Assertions.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
     }
 
     @Test
@@ -88,13 +88,13 @@ public class TestSystemController extends HyenaTestBase {
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
         BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
-        Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+        Assertions.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
 
         // add twice
         resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
         res = JsonUtils.fromJson(resBody, BaseResponse.class);
-        Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+        Assertions.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
     }
 
     @Test
@@ -105,12 +105,12 @@ public class TestSystemController extends HyenaTestBase {
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
         BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
-        Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+        Assertions.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
 
         // add twice
         resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
         res = JsonUtils.fromJson(resBody, BaseResponse.class);
-        Assert.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+        Assertions.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
     }
 }

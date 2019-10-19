@@ -20,8 +20,8 @@ package io.github.alphajiang.hyena.biz.strategy;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +41,10 @@ public class TestPointIncreaseStrategy extends TestPointStrategyBase {
         usage.setType(super.getPointType()).setUid(this.uid).setPoint(number);
         PointPo result = this.pointIncreaseStrategy.process(usage);
         logger.info("result = {}", result);
-        Assert.assertEquals(resultNumber, result.getPoint().longValue());
-        Assert.assertEquals(resultNumber, result.getAvailable().longValue());
-        Assert.assertEquals(0L, result.getUsed().longValue());
-        Assert.assertEquals(0L, result.getFrozen().longValue());
-        Assert.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(resultNumber, result.getPoint().longValue());
+        Assertions.assertEquals(resultNumber, result.getAvailable().longValue());
+        Assertions.assertEquals(0L, result.getUsed().longValue());
+        Assertions.assertEquals(0L, result.getFrozen().longValue());
+        Assertions.assertEquals(0L, result.getExpire().longValue());
     }
 }

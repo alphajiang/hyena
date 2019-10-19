@@ -27,9 +27,9 @@ import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class TestPointDs extends HyenaTestBase {
     @Autowired
     private PointDs pointDs;
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
         PointPo point = new PointPo();
@@ -80,7 +80,7 @@ public class TestPointDs extends HyenaTestBase {
         param.setType(super.getPointType());
         List<PointPo> list = this.pointDs.listPoint(param);
         log.info("list = {}", list);
-        Assert.assertFalse(list.isEmpty());
+        Assertions.assertFalse(list.isEmpty());
     }
 
     @Test
@@ -90,24 +90,27 @@ public class TestPointDs extends HyenaTestBase {
         param.setType(super.getPointType());
         ListResponse<PointPo> ret = this.pointDs.listPoint4Page(param);
         log.info("ret = {}", ret);
-        Assert.assertTrue(ret.getTotal() > 0L);
-        Assert.assertFalse(ret.getData().isEmpty());
+        Assertions.assertTrue(ret.getTotal() > 0L);
+        Assertions.assertFalse(ret.getData().isEmpty());
     }
 
     @Test
     public void test_getPointVo() {
         var result = this.pointDs.getPointVo(super.getPointType(), null, super.getUid());
         log.info("result = {}", result);
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
 
         result = this.pointDs.getPointVo(super.getPointType(), super.getUserPoint().getId(), null);
         log.info("result = {}", result);
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
     }
 
-    @Test(expected = HyenaParameterException.class)
+    @Test
     public void test_getPointVo_no_pid_or_uid() {
-        this.pointDs.getPointVo(super.getPointType(), null, null);
+        Assertions.assertThrows(HyenaParameterException.class, () -> {
+            this.pointDs.getPointVo(super.getPointType(), null, null);
+            Assertions.fail();
+        });
     }
 
 
@@ -130,6 +133,6 @@ public class TestPointDs extends HyenaTestBase {
         this.pointDs.disableAccount(super.getPointType(), super.getUid());
 
         PointPo result = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), false);
-        Assert.assertFalse(result.getEnable());
+        Assertions.assertFalse(result.getEnable());
     }
 }

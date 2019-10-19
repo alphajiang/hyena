@@ -27,9 +27,9 @@ import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.PointOpType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class TestPointLogDs extends HyenaTestBase {
     @Autowired
     private PointBuilder pointBuilder;
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
     }
@@ -59,7 +59,7 @@ public class TestPointLogDs extends HyenaTestBase {
         param.setUid(super.getUid()).setOrderNo("abcd123").setSk("abewfgewgewgewgewg")
                 .setType(super.getPointType());
         ListResponse<PointLog> res = this.pointLogDs.listPointLog4Page(param);
-        Assert.assertNotNull(res);
+        Assertions.assertNotNull(res);
     }
 
     @Test

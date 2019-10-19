@@ -26,8 +26,8 @@ import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -78,7 +78,7 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
     protected long seqNumIncrease2;
 
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
         uid = UUID.randomUUID().toString().substring(0, 4);
@@ -98,12 +98,12 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
         this.point = new PointPo();
         BeanUtils.copyProperties(resultPoint, this.point);
         log.info("point = {}", point);
-        Assert.assertEquals(INCREASE_POINT_1, point.getPoint().longValue());
-        Assert.assertEquals(INCREASE_POINT_1, point.getAvailable().longValue());
-        Assert.assertEquals(0L, point.getUsed().longValue());
-        Assert.assertEquals(0L, point.getFrozen().longValue());
-        Assert.assertEquals(0L, point.getExpire().longValue());
-        Assert.assertEquals(true, point.getEnable().booleanValue());
+        Assertions.assertEquals(INCREASE_POINT_1, point.getPoint().longValue());
+        Assertions.assertEquals(INCREASE_POINT_1, point.getAvailable().longValue());
+        Assertions.assertEquals(0L, point.getUsed().longValue());
+        Assertions.assertEquals(0L, point.getFrozen().longValue());
+        Assertions.assertEquals(0L, point.getExpire().longValue());
+        Assertions.assertEquals(true, point.getEnable().booleanValue());
         seqNumIncrease1 = this.point.getSeqNum();
         try {
             Thread.sleep(100L);
@@ -121,12 +121,12 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
                 .setOrderNo(INCREASE_ORDER_NO_2);
         var result = this.pointIncreaseStrategy.process(usage);
         log.info("result = {}", result);
-        Assert.assertEquals(INCREASE_POINT_2 + beforeIncrease.getPoint(), result.getPoint().longValue());
-        Assert.assertEquals(INCREASE_POINT_2 + beforeIncrease.getPoint(), result.getAvailable().longValue());
-        Assert.assertEquals(beforeIncrease.getUsed().longValue(), result.getUsed().longValue());
-        Assert.assertEquals(beforeIncrease.getFrozen().longValue(), result.getFrozen().longValue());
-        Assert.assertEquals(beforeIncrease.getExpire().longValue(), result.getExpire().longValue());
-        Assert.assertEquals(true, result.getEnable().booleanValue());
+        Assertions.assertEquals(INCREASE_POINT_2 + beforeIncrease.getPoint(), result.getPoint().longValue());
+        Assertions.assertEquals(INCREASE_POINT_2 + beforeIncrease.getPoint(), result.getAvailable().longValue());
+        Assertions.assertEquals(beforeIncrease.getUsed().longValue(), result.getUsed().longValue());
+        Assertions.assertEquals(beforeIncrease.getFrozen().longValue(), result.getFrozen().longValue());
+        Assertions.assertEquals(beforeIncrease.getExpire().longValue(), result.getExpire().longValue());
+        Assertions.assertEquals(true, result.getEnable().booleanValue());
         this.seqNumIncrease2 = result.getSeqNum();
         try {
             Thread.sleep(100L);

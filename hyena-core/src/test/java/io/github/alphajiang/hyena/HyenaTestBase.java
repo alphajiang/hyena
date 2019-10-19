@@ -23,19 +23,18 @@ import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.ds.service.SysPropertyDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.utils.JsonUtils;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = HyenaTestMain.class)
 //@Transactional
 public abstract class HyenaTestBase {
@@ -87,7 +86,7 @@ public abstract class HyenaTestBase {
 
         userPoint = this.pointUsageFacade.increase(this.initialPointUsage);
         logger.info("userPoint = {}", userPoint);
-        Assert.assertNotNull(userPoint);
+        Assertions.assertNotNull(userPoint);
 
     }
 

@@ -17,8 +17,8 @@
 
 package io.github.alphajiang.hyena.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestStringUtils {
 
@@ -27,7 +27,7 @@ public class TestStringUtils {
     public void test_upperCase() {
         String str = "abc";
         String result = StringUtils.upperCase(str);
-        Assert.assertEquals("ABC", result);
+        Assertions.assertEquals("ABC", result);
     }
 
     @Test

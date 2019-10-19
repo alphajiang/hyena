@@ -28,10 +28,12 @@ import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import io.github.alphajiang.hyena.model.vo.PointVo;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -56,10 +58,19 @@ abstract class AbstractPointStrategy implements PointStrategy {
     @Override
     public PointOpResult process(PointUsage usage) {
         log.info("usage = {}", usage);
+        PointVo backup = null;
+        PointVo point = null;
         try (PointWrapper pw = preProcess(usage, true, true)) {
             PointCache p = pw.getPointCache();
+            point = p.getPoint();
+            backup = new PointVo();
+            BeanUtils.copyProperties(point, backup);
             return this.processPoint(usage, p);
         } catch (Exception e) {
+            if (point != null && backup != null) {
+                // 回滚缓存的数据
+                BeanUtils.copyProperties(backup, point);
+            }
             throw e;
         }
     }

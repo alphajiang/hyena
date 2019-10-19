@@ -146,7 +146,7 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
                                          PointLogPo pointLog, long expected) {
         log.info("unfreeze. type = {}, uid = {}, expected = {}",
                 usage.getType(), pointCache.getPoint().getUid(), expected);
-        List<PointRecPo> recList = pointCache.getPoint().getRecList();
+        //List<PointRecPo> recList = pointCache.getPoint().getRecList();
         LoopResult result = new LoopResult();
         long sum = 0L;
         long deltaCost = 0L;

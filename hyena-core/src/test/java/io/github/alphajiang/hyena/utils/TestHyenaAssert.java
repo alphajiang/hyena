@@ -21,63 +21,73 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.exception.HyenaStatusException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 
-
+@Slf4j
 public class TestHyenaAssert {
-    private final Logger logger = LoggerFactory.getLogger(TestHyenaAssert.class);
 
-    @Test(expected = HyenaStatusException.class)
+    @Test
     public void test_isTrue() {
-        HyenaAssert.isTrue(1 == 2, "expect HyenaStatusException");
-        logger.error("test case fail!!!");
-        Assert.fail();
+        Assertions.assertThrows(HyenaStatusException.class, () -> {
+            HyenaAssert.isTrue(1 == 2, "expect HyenaStatusException");
+            log.error("test case fail!!!");
+            Assertions.fail();
+        });
     }
 
-    @Test(expected = HyenaStatusException.class)
+    @Test
     public void test_isTrue_exception() {
-        HyenaAssert.isTrue(1 == 2, HyenaConstants.RES_CODE_STATUS_ERROR, "expect HyenaStatusException",
-                Level.INFO, HyenaStatusException.class);
-        logger.error("test case fail!!!");
-        Assert.fail();
+        Assertions.assertThrows(HyenaStatusException.class, () -> {
+            HyenaAssert.isTrue(1 == 2, HyenaConstants.RES_CODE_STATUS_ERROR, "expect HyenaStatusException",
+                    Level.INFO, HyenaStatusException.class);
+            log.error("test case fail!!!");
+            Assertions.fail();
+        });
     }
 
 
-    @Test(expected = HyenaServiceException.class)
+    @Test
     public void test_equals() {
-        HyenaAssert.equals("aaa", "bbb", "expect HyenaServiceException");
-        logger.error("test case fail!!!");
-        Assert.fail();
+        Assertions.assertThrows(HyenaServiceException.class, () -> {
+            HyenaAssert.equals("aaa", "bbb", "expect HyenaServiceException");
+            log.error("test case fail!!!");
+            Assertions.fail();
+        });
     }
 
 
-    @Test(expected = HyenaParameterException.class)
+    @Test
     public void test_isNull() {
         Integer obj = Integer.parseInt("123");
-        HyenaAssert.isNull(obj, "expect HyenaParameterException");
-        logger.error("test case fail!!!");
-        Assert.fail();
+        Assertions.assertThrows(HyenaParameterException.class, () -> {
+            HyenaAssert.isNull(obj, "expect HyenaParameterException");
+            log.error("test case fail!!!");
+            Assertions.fail();
+        });
     }
 
-    @Test(expected = HyenaServiceException.class)
+    @Test
     public void test_isNull_exception() {
         Integer obj = Integer.parseInt("123");
-        HyenaAssert.isNull(obj, HyenaConstants.RES_CODE_SERVICE_ERROR,
-                "expect HyenaParameterException", Level.DEBUG,
-                HyenaServiceException.class);
-        logger.error("test case fail!!!");
-        Assert.fail();
+        Assertions.assertThrows(HyenaServiceException.class, () -> {
+            HyenaAssert.isNull(obj, HyenaConstants.RES_CODE_SERVICE_ERROR,
+                    "expect HyenaParameterException", Level.DEBUG,
+                    HyenaServiceException.class);
+            log.error("test case fail!!!");
+            Assertions.fail();
+        });
     }
 
-    @Test(expected = HyenaParameterException.class)
+    @Test
     public void test_notNull() {
         Integer obj = null;
-        HyenaAssert.notNull(obj, "expect HyenaParameterException");
-        logger.error("test case fail!!!");
-        Assert.fail();
+        Assertions.assertThrows(HyenaParameterException.class, () -> {
+            HyenaAssert.notNull(obj, "expect HyenaParameterException");
+            log.error("test case fail!!!");
+            Assertions.fail();
+        });
     }
 }
