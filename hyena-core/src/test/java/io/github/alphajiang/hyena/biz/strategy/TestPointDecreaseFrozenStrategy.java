@@ -19,7 +19,7 @@ package io.github.alphajiang.hyena.biz.strategy;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
-import io.github.alphajiang.hyena.model.dto.PointLog;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
@@ -104,7 +104,7 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         log.info("pointLogs = {}", pointLogs);
         Assertions.assertEquals(1, pointLogs.size());
         var pointLogUnfreeze = pointLogs.get(0);
-        var expectPoingLogUnfreeze = new PointLog();
+        var expectPoingLogUnfreeze = new PointLogDto();
         expectPoingLogUnfreeze.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
                 .setSeqNum(result.getSeqNum() - 1).setDelta(freezeNum)
                 .setDeltaCost(freezeNum / 2)
@@ -133,7 +133,7 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         pointLogs = pointLogDs.listPointLog(listPointLogParam);
         log.info("pointLogs = {}", pointLogs);
         var pointLogDecrease = pointLogs.get(0);
-        var expectPoingLogDecrease = new PointLog();
+        var expectPoingLogDecrease = new PointLogDto();
         expectPoingLogDecrease.setUid(this.uid).setType(PointOpType.DECREASE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(useNumber)
                 .setDeltaCost(useNumber / 2)
@@ -185,7 +185,7 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         Assertions.assertEquals(4, pointRecLogList.size()); // [decrease, unfreeze, freeze, increase]
         var pointRecLogDecrease = pointRecLogList.get(0);
         var expectPointRecLogDecrease = new PointRecLogPo();
-        expectPointRecLogDecrease.setUid(super.uid).setPid(super.point.getId())
+        expectPointRecLogDecrease.setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
                 .setType(PointOpType.DECREASE.code()).setDelta(useNumber)
                 .setAvailable(expectAvailable)
@@ -204,7 +204,7 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
 
         var pointRecLogUnfreeze = pointRecLogList.get(1);
         var expectPointRecLogUnfreeze = new PointRecLogPo();
-        expectPointRecLogUnfreeze.setUid(super.uid).setPid(super.point.getId())
+        expectPointRecLogUnfreeze.setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum() - 1).setRecId(pointRec.getId())
                 .setType(PointOpType.UNFREEZE.code()).setDelta(freezeNum)
                 .setAvailable(INCREASE_POINT_1)

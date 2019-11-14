@@ -114,7 +114,6 @@ public class HyenaTestAssert {
 
     public static void assertEquals(PointRecLogPo expect, PointRecLogPo actual) {
 
-        Assertions.assertEquals(expect.getUid(), actual.getUid());
         Assertions.assertEquals(expect.getPid(), actual.getPid());
         Assertions.assertEquals(expect.getSeqNum(), actual.getSeqNum());
         Assertions.assertEquals(expect.getRecId(), actual.getRecId());

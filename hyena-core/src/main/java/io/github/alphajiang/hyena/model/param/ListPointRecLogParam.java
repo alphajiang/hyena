@@ -23,6 +23,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
@@ -37,11 +39,13 @@ public class ListPointRecLogParam extends BaseListParam {
     private long pid;
 
     @ApiModelProperty(value = "变更流水号")
-    private long seqNum = 0L;
+    private List<Long> seqNumList;
 
     @ApiModelProperty(value = "积分记录ID")
     private long recId;
 
+    @ApiModelProperty(value = "变更的订单号")
+    private List<String> orderNoList;
 
     @ApiModelProperty(value = "标签")
     private String tag;

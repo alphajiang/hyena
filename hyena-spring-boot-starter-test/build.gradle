@@ -13,7 +13,7 @@ sourceSets {
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Greenwich.SR2"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Greenwich.SR3"
     }
 }
 
@@ -27,8 +27,12 @@ dependencies {
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
 
     implementation('org.springframework.boot:spring-boot-starter-actuator')
-    //implementation("org.springframework.cloud:spring-cloud-starter-config")
+
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
+
+
+    implementation('net.logstash.logback:logstash-logback-encoder:6.1')
 
     implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
     runtimeOnly("io.springfox:springfox-swagger-ui:${swaggerVersion}")

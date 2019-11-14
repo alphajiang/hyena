@@ -22,7 +22,7 @@ import io.github.alphajiang.hyena.biz.point.PointBuilder;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.model.base.ListResponse;
-import io.github.alphajiang.hyena.model.dto.PointLog;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -58,7 +58,7 @@ public class TestPointLogDs extends HyenaTestBase {
         ListPointLogParam param = new ListPointLogParam();
         param.setUid(super.getUid()).setOrderNo("abcd123").setSk("abewfgewgewgewgewg")
                 .setType(super.getPointType());
-        ListResponse<PointLog> res = this.pointLogDs.listPointLog4Page(param);
+        ListResponse<PointLogDto> res = this.pointLogDs.listPointLog4Page(param);
         Assertions.assertNotNull(res);
     }
 

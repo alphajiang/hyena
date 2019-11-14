@@ -20,7 +20,7 @@ package io.github.alphajiang.hyena.biz.strategy;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointRefundStrategy;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
-import io.github.alphajiang.hyena.model.dto.PointLog;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
@@ -84,7 +84,7 @@ public class TestPointRefundStrategy extends TestPointStrategyBase {
         log.info("pointLogs = {}", pointLogs);
         Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
-        var expectPoingLog = new PointLog();
+        var expectPoingLog = new PointLogDto();
         expectPoingLog.setUid(this.uid).setType(PointOpType.REFUND.code())
                 .setSeqNum(result.getSeqNum()).setDelta(refundNum * 2)
                 .setDeltaCost(refundNum)
@@ -133,7 +133,7 @@ public class TestPointRefundStrategy extends TestPointStrategyBase {
         Assertions.assertEquals(1, pointRecLogList.size());
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
-        expectPointRecLog.setUid(super.uid).setPid(super.point.getId())
+        expectPointRecLog.setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
                 .setType(PointOpType.REFUND.code()).setDelta(refundNum * 2)
                 .setAvailable(20L)
@@ -208,7 +208,7 @@ public class TestPointRefundStrategy extends TestPointStrategyBase {
         log.info("pointLogs = {}", pointLogs);
         Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
-        var expectPointLog = new PointLog();
+        var expectPointLog = new PointLogDto();
         expectPointLog.setUid(this.uid).setType(PointOpType.REFUND.code())
                 .setSeqNum(result.getSeqNum()).setDelta(unfreezeNumber)
                 .setDeltaCost(unfreezeNumber / 2)
@@ -255,7 +255,7 @@ public class TestPointRefundStrategy extends TestPointStrategyBase {
         Assertions.assertEquals(5, pointRecLogList.size()); // 0: unfreeze, 1, freeze; 2, freeze, 3: increase
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
-        expectPointRecLog.setUid(super.uid).setPid(super.point.getId())
+        expectPointRecLog.setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
                 .setType(PointOpType.REFUND.code()).setDelta(unfreezeNumber)
                 .setAvailable(expectAvailable)

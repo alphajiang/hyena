@@ -30,7 +30,6 @@ import lombok.experimental.Accessors;
 @ToString(callSuper = true)
 public class PointRecLogPo extends BasePo {
 
-    private String uid;
     private long pid;
     private long seqNum;
     private long recId;

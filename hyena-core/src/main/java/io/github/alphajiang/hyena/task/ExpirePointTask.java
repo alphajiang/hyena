@@ -22,7 +22,7 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
-import io.github.alphajiang.hyena.model.dto.PointRec;
+import io.github.alphajiang.hyena.model.dto.PointRecDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +62,7 @@ public class ExpirePointTask {
 
         ListPointRecParam param = new ListPointRecParam();
         param.setFrozen(false).setExpireTime(new Date()).setType(type).setEnable(true);
-        List<PointRec> pointRecList = this.pointRecDs.listPointRec(type, param);
+        List<PointRecDto> pointRecList = this.pointRecDs.listPointRec(param);
 
         pointRecList.stream()
                 .filter(rec -> rec.getAvailable() > 0L)

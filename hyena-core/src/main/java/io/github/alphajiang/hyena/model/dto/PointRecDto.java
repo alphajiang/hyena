@@ -15,20 +15,20 @@
  *
  */
 
-package io.github.alphajiang.hyena.model.param;
+package io.github.alphajiang.hyena.model.dto;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.experimental.Accessors;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 
-@Data
-@Accessors(chain = true)
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class PointDecreaseParam extends PointOpParam {
+public class PointRecDto extends PointRecPo {
+    private String uid;
 
-    @ApiModelProperty(value = "指定减少的积分块ID", example = "123")
-    private Long recId;
+
+    public String getUid() {
+        return uid;
+    }
+
+    public PointRecDto setUid(String uid) {
+        this.uid = uid;
+        return this;
+    }
 }

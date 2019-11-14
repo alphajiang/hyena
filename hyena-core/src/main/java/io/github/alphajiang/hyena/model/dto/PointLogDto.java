@@ -17,18 +17,7 @@
 
 package io.github.alphajiang.hyena.model.dto;
 
-import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 
-public class PointRec extends PointRecPo {
-    private String uid;
-
-
-    public String getUid() {
-        return uid;
-    }
-
-    public PointRec setUid(String uid) {
-        this.uid = uid;
-        return this;
-    }
+public class PointLogDto extends PointLogPo {
 }

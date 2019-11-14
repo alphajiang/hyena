@@ -21,8 +21,8 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
-import io.github.alphajiang.hyena.model.dto.PointLog;
-import io.github.alphajiang.hyena.model.dto.PointRec;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
+import io.github.alphajiang.hyena.model.dto.PointRecDto;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -53,8 +53,8 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
         log.info(">> test start");
         ListPointRecParam param = new ListPointRecParam();
         param.setUid(super.uid).setStart(0L).setSize(1);
-        List<PointRec> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
-        PointRec rec = recList.get(0);
+        List<PointRecDto> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
+        PointRecDto rec = recList.get(0);
         log.info("rec = {}", rec);
         long number = rec.getAvailable();
         long resultAvailable = this.point.getPoint() - number;
@@ -83,8 +83,8 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
         log.info(">> test start");
         ListPointRecParam param = new ListPointRecParam();
         param.setUid(super.uid).setStart(0L).setSize(1);
-        List<PointRec> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
-        PointRec rec = recList.get(0);
+        List<PointRecDto> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
+        PointRecDto rec = recList.get(0);
 
         long number = rec.getAvailable();
         long resultAvailable = this.point.getPoint() - number;
@@ -108,9 +108,9 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
 
         ListPointLogParam listPointLogParam = new ListPointLogParam();
         listPointLogParam.setPid(result.getId()).setSeqNum(result.getSeqNum()).setType(super.getPointType());
-        List<PointLog> pointLogs = this.pointLogDs.listPointLog(listPointLogParam);
+        List<PointLogDto> pointLogs = this.pointLogDs.listPointLog(listPointLogParam);
         Assertions.assertTrue(pointLogs.size() == 1);
-        PointLog pointLog = pointLogs.get(0);
+        PointLogDto pointLog = pointLogs.get(0);
         log.info("pointLog = {}", pointLog);
         Assertions.assertEquals(number, pointLog.getDelta().longValue());
         Assertions.assertEquals(PointOpType.CANCEL.code(), pointLog.getType().intValue());

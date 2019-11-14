@@ -268,7 +268,7 @@
         select
         <include refid="pointVoColumns"/>
         from `${pointTableName}` as p
-        left join `${pointTableName}_rec` as rec on p.id = rec.pid
+        left join `${pointTableName}_rec` as rec on p.id = rec.pid and rec.enable = true
         where 1=1
         <if test="pid != null">
             and p.id = #{pid}

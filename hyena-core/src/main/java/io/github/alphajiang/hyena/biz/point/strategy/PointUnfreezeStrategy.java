@@ -28,9 +28,13 @@ import io.github.alphajiang.hyena.ds.service.FreezeOrderRecDs;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
-import io.github.alphajiang.hyena.model.po.*;
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
+import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
@@ -152,7 +156,7 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
         long deltaCost = 0L;
 
         List<PointRecPo> recList4Update = new ArrayList<>();
-        List<PointRecLogPo> recLogs = new ArrayList<>();
+        List<PointRecLogDto> recLogs = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
             long gap = expected - sum;
             if (gap < 1L) {
@@ -207,7 +211,7 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
 
 
         List<PointRecPo> recList4Update = new ArrayList<>();
-        List<PointRecLogPo> recLogs = new ArrayList<>();
+        List<PointRecLogDto> recLogs = new ArrayList<>();
 
         // 将同一个积分块的冻结记录做合并
         Map<Long, FreezeOrderRecPo> forMap = new HashMap<>();
@@ -230,7 +234,7 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
                     .ifPresent(rec -> {
                         PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, f.getFrozen(), f.getFrozenCost());
                         recList4Update.add(calcResult.getRec4Update());
-                        PointRecLogPo recLog = this.pointBuilder.buildRecLog(rec, pointLog, f.getFrozen(), f.getFrozenCost());
+                        var recLog = this.pointBuilder.buildRecLog(rec, pointLog, f.getFrozen(), f.getFrozenCost());
                         recLogs.add(recLog);
                     });
         });

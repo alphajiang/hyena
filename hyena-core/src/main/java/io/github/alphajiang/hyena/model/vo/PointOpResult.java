@@ -17,12 +17,16 @@
 
 package io.github.alphajiang.hyena.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -35,4 +39,8 @@ public class PointOpResult extends PointPo {
 
     @ApiModelProperty("变更的成本")
     private Long opCost;
+
+    @ApiModelProperty("积分块变更明细")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<PointRecLogDto> recLogList;
 }

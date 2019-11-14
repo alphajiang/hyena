@@ -72,7 +72,7 @@ public class PointUsageBuilder {
         return usage;
     }
 
-    public static PointUsage fromPointDecreaseParam(PointDecreaseParam param) {
+    public static PointUsage fromPointDecreaseParam(PointDecreaseFrozenParam param) {
         PointUsage usage = PointUsageBuilder.fromPointUnfreezeParam(param);
         usage.setUnfreezePoint(param.getUnfreezePoint());
         return usage;

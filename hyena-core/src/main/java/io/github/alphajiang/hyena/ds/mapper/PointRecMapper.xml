@@ -76,7 +76,7 @@
     </insert>
 
 
-    <select id="listPointRec" resultType="io.github.alphajiang.hyena.model.dto.PointRec">
+    <select id="listPointRec" resultType="io.github.alphajiang.hyena.model.dto.PointRecDto">
         select rec.*, p.uid as uid
         from `${pointTableName}_rec` as rec
         left join `${pointTableName}` as p on rec.pid = p.id
@@ -87,8 +87,11 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}
         </if>
-        <if test="param.available == true">
-            and rec.available > 0
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.seqNumList )">
+            <foreach item="seqNum" collection="param.seqNumList"
+                     open="and rec.seqNum in (" separator="," close=")">
+                #{seqNum}
+            </foreach>
         </if>
         <if test="param.cost != null">
             <choose>
@@ -151,8 +154,11 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}
         </if>
-        <if test="param.available == true">
-            and rec.available > 0
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.seqNumList )">
+            <foreach item="seqNum" collection="param.seqNumList"
+                     open="and rec.seqNum in (" separator="," close=")">
+                #{seqNum}
+            </foreach>
         </if>
         <if test="param.cost != null">
             <choose>

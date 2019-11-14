@@ -29,9 +29,9 @@ import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
-import io.github.alphajiang.hyena.model.dto.PointLog;
-import io.github.alphajiang.hyena.model.dto.PointRec;
-import io.github.alphajiang.hyena.model.dto.PointRecLog;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
+import io.github.alphajiang.hyena.model.dto.PointRecDto;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.param.*;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -109,7 +109,7 @@ public class PointController {
 
     @ApiOperation(value = "获取变更明细列表")
     @PostMapping(value = "/listPointLog", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ListResponse<PointLog> listPointLog(
+    public ListResponse<PointLogDto> listPointLog(
             HttpServletRequest request,
             @RequestBody ListPointLogParam param) {
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
@@ -122,48 +122,34 @@ public class PointController {
     }
 
     @ApiOperation(value = "获取记录列表")
-    @GetMapping(value = "/listPointRecord", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ListResponse<PointRec> listPointRecord(
-            HttpServletRequest request,
-            @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @ApiParam(value = "用户ID") @RequestParam(required = false) String uid,
-            @ApiParam(value = "标签") @RequestParam(required = false) String tag,
-            @RequestParam(required = false) Boolean enable,
-            @ApiParam(value = "请求记录的开始") @RequestParam(defaultValue = "0") long start,
-            @ApiParam(value = "请求记录数量") @RequestParam(defaultValue = "10") int size) {
+    @PostMapping(value = "/listPointRecord", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<PointRecDto> listPointRecord(HttpServletRequest request,
+                                                     @RequestBody ListPointRecParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
-
-        ListPointRecParam param = new ListPointRecParam();
-        param.setUid(uid).setTag(tag);
-        param.setEnable(enable).setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)))
-                .setStart(start).setSize(size);
-        var res = this.pointRecDs.listPointRec4Page(type, param);
+        if (CollectionUtils.isEmpty(param.getSorts())) {
+            param.setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)));
+        }
+        var res = this.pointRecDs.listPointRec4Page(param);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
 
     @ApiOperation(value = "获取记录历史明细列表")
-    @GetMapping(value = "/listPointRecordLog", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ListResponse<PointRecLog> listPointRecordLog(
+    @PostMapping(value = "/listPointRecordLog", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<PointRecLogDto> listPointRecordLog(
             HttpServletRequest request,
-            @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @ApiParam(value = "用户ID") @RequestParam(required = false) String uid,
-            @ApiParam(value = "变更流水号") @RequestParam(required = false) Long seqNum,
-            @ApiParam(value = "recId") @RequestParam(defaultValue = "0") long recId,
-            @ApiParam(value = "标签") @RequestParam(required = false) String tag,
-            @RequestParam(required = false) Boolean enable,
-            @ApiParam(value = "请求记录的开始") @RequestParam(defaultValue = "0") long start,
-            @ApiParam(value = "请求记录数量") @RequestParam(defaultValue = "10") int size) {
+            @RequestBody ListPointRecLogParam param) {
         logger.info(LoggerHelper.formatEnterLog(request));
 
-        ListPointRecLogParam param = new ListPointRecLogParam();
-        param.setUid(uid).setRecId(recId).setTag(tag);
-        if (seqNum != null) {
-            param.setSeqNum(seqNum);
+        //ListPointRecLogParam param = new ListPointRecLogParam();
+        //param.setUid(uid).setRecId(recId).setTag(tag);
+//        if (seqNum != null) {
+//            param.setSeqNum(seqNum);
+//        }
+        if (param.getSorts() == null) {
+            param.setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
         }
-        param.setEnable(enable).setSorts(List.of(SortParam.as("log.id", SortOrder.desc)))
-                .setStart(start).setSize(size);
-        var res = this.pointRecLogDs.listPointRecLog4Page(type, param);
+        var res = this.pointRecLogDs.listPointRecLog4Page(param);
 
 
         logger.info(LoggerHelper.formatLeaveLog(request));
@@ -189,10 +175,11 @@ public class PointController {
     @ApiOperation(value = "消费用户积分")
     @PostMapping(value = "/decrease", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointOpResult> decreasePoint(HttpServletRequest request,
-                                                       @RequestBody PointOpParam param) {
+                                                       @RequestBody PointDecreaseParam param) {
         long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        usage.setRecId(param.getRecId());
         PointOpResult ret = this.pointUsageFacade.decrease(usage);
         ObjectResponse<PointOpResult> res = new ObjectResponse<>(ret);
         logger.info(LoggerHelper.formatLeaveLog(request));
@@ -205,7 +192,7 @@ public class PointController {
     @ApiOperation(value = "消费已冻结的用户积分")
     @PostMapping(value = "/decreaseFrozen", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ObjectResponse<PointOpResult> decreaseFrozenPoint(HttpServletRequest request,
-                                                             @RequestBody PointDecreaseParam param) {
+                                                             @RequestBody PointDecreaseFrozenParam param) {
         long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointDecreaseParam(param);

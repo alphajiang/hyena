@@ -20,7 +20,7 @@ package io.github.alphajiang.hyena.ds.service;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.mapper.PointRecMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
-import io.github.alphajiang.hyena.model.dto.PointRec;
+import io.github.alphajiang.hyena.model.dto.PointRecDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.utils.StringUtils;
@@ -52,7 +52,7 @@ public class PointRecDs {
         this.pointRecMapper.batchInsert(pointTableName, recList);
     }
 
-    @Transactional(propagation= Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void batchUpdate(String type, List<PointRecPo> recList) {
         String pointTableName = TableNameHelper.getPointTableName(type);
         this.pointRecMapper.batchUpdate(pointTableName, recList);
@@ -64,22 +64,22 @@ public class PointRecDs {
     }
 
     @Transactional
-    public ListResponse<PointRec> listPointRec4Page(String type, ListPointRecParam param) {
-        var list = this.listPointRec(type, param);
-        var total = this.countPointRec(type, param);
+    public ListResponse<PointRecDto> listPointRec4Page(ListPointRecParam param) {
+        var list = this.listPointRec(param);
+        var total = this.countPointRec(param);
         var ret = new ListResponse<>(list, total);
         return ret;
     }
 
     @Transactional
-    public List<PointRec> listPointRec(String type, ListPointRecParam param) {
-        logger.debug("type = {}, param = {}", type, param);
-        String pointTableName = TableNameHelper.getPointTableName(type);
+    public List<PointRecDto> listPointRec(ListPointRecParam param) {
+        logger.debug(" param = {}", param);
+        String pointTableName = TableNameHelper.getPointTableName(param.getType());
         return this.pointRecMapper.listPointRec(pointTableName, param);
     }
 
-    public long countPointRec(String type, ListPointRecParam param) {
-        String pointTableName = TableNameHelper.getPointTableName(type);
+    public long countPointRec(ListPointRecParam param) {
+        String pointTableName = TableNameHelper.getPointTableName(param.getType());
         Long ret = this.pointRecMapper.countPointRec(pointTableName, param);
         return ret == null ? 0L : ret.longValue();
     }
@@ -189,17 +189,12 @@ public class PointRecDs {
 //    }
 
 
-
-
     @Transactional
     public PointRecPo expirePointRec(PointRecPo rec) {
         long available = rec.getAvailable();
         rec.setAvailable(0L).setExpire(available).setEnable(false);
         return rec;
     }
-
-
-
 
 
     @Transactional

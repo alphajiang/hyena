@@ -26,8 +26,12 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
-import io.github.alphajiang.hyena.model.po.*;
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
+import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
@@ -95,7 +99,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
         PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.FREEZE, usage, curPoint);
         long gap = usage.getPoint();
         long cost = 0L;
-        List<PointRecLogPo> recLogs = new ArrayList<>();
+        List<PointRecLogDto> recLogs = new ArrayList<>();
 
 
         LoopResult recLogsRet = this.freezePointLoop(usage, pointCache,
@@ -140,7 +144,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
         long sum = 0L;
         long deltaCost = 0L;
         List<PointRecPo> recList4Update = new ArrayList<>();
-        List<PointRecLogPo> recLogs = new ArrayList<>();
+        List<PointRecLogDto> recLogs = new ArrayList<>();
         List<FreezeOrderRecPo> forList = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
             long gap = expected - sum;

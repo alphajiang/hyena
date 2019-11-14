@@ -26,9 +26,9 @@ import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
-import io.github.alphajiang.hyena.model.dto.PointLog;
-import io.github.alphajiang.hyena.model.dto.PointRec;
-import io.github.alphajiang.hyena.model.dto.PointRecLog;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
+import io.github.alphajiang.hyena.model.dto.PointRecDto;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.param.*;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.PointOpType;
@@ -147,10 +147,10 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ListResponse<PointLog> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
+        ListResponse<PointLogDto> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
 
         });
-        List<PointLog> list = res.getData();
+        List<PointLogDto> list = res.getData();
         Assertions.assertFalse(list.isEmpty());
         Assertions.assertTrue(res.getTotal() > 0L);
     }
@@ -164,10 +164,10 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ListResponse<PointRec> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
+        ListResponse<PointRecDto> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
 
         });
-        List<PointRec> list = res.getData();
+        List<PointRecDto> list = res.getData();
         Assertions.assertFalse(list.isEmpty());
         Assertions.assertTrue(res.getTotal() > 0L);
     }
@@ -181,10 +181,10 @@ public class TestPointController extends HyenaTestBase {
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
-        ListResponse<PointRecLog> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointRecLog>>() {
+        ListResponse<PointRecLogDto> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointRecLogDto>>() {
 
         });
-        List<PointRecLog> list = res.getData();
+        List<PointRecLogDto> list = res.getData();
         Assertions.assertFalse(list.isEmpty());
         Assertions.assertTrue(res.getTotal() > 0L);
     }
@@ -319,7 +319,7 @@ public class TestPointController extends HyenaTestBase {
         freeze.setPoint(14L).setType(super.getPointType()).setUid(super.getUid());
         this.pointUsageFacade.freeze(freeze);
 
-        PointDecreaseParam param = new PointDecreaseParam();
+        PointDecreaseFrozenParam param = new PointDecreaseFrozenParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
         param.setUnfreezePoint(5L); // 要做解冻的部分
@@ -389,9 +389,9 @@ public class TestPointController extends HyenaTestBase {
         ListPointRecParam listParam = new ListPointRecParam();
         listParam.setFrozen(false).setUid(super.getUid()).setType(super.getPointType());
         Thread.sleep(100L);
-        List<PointRec> recList = this.pointRecDs.listPointRec(super.getPointType(), listParam);
+        List<PointRecDto> recList = this.pointRecDs.listPointRec(super.getPointType(), listParam);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(recList));
-        PointRec rec = recList.iterator().next();
+        PointRecDto rec = recList.iterator().next();
 
 
         PointCancelParam param = new PointCancelParam();

@@ -19,7 +19,7 @@ package io.github.alphajiang.hyena.biz.strategy;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
-import io.github.alphajiang.hyena.model.dto.PointLog;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
@@ -89,7 +89,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         log.info("pointLogs = {}", pointLogs);
         Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
-        var expectPoingLog = new PointLog();
+        var expectPoingLog = new PointLogDto();
         expectPoingLog.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(unfreezeNumber)
                 .setDeltaCost(unfreezeNumber/2)
@@ -135,7 +135,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         Assertions.assertEquals(3, pointRecLogList.size()); // 0: unfreeze, 1, freeze; 2: increase
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
-        expectPointRecLog.setUid(super.uid).setPid(super.point.getId())
+        expectPointRecLog.setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
                 .setType(PointOpType.UNFREEZE.code()).setDelta(unfreezeNumber)
                 .setAvailable(expectAvailable)
@@ -195,7 +195,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         log.info("pointLogs = {}", pointLogs);
         Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
-        var expectPoingLog = new PointLog();
+        var expectPoingLog = new PointLogDto();
         expectPoingLog.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(unfreezeNumber)
                 .setDeltaCost(unfreezeNumber/2)
@@ -241,7 +241,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         Assertions.assertEquals(4, pointRecLogList.size()); // 0: unfreeze, 1, freeze; 2, freeze, 3: increase
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
-        expectPointRecLog.setUid(super.uid).setPid(super.point.getId())
+        expectPointRecLog.setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
                 .setType(PointOpType.UNFREEZE.code()).setDelta(unfreezeNumber)
                 .setAvailable(expectAvailable)
@@ -311,7 +311,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         log.info("pointLogs = {}", pointLogs);
         Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
-        var expectPointLog = new PointLog();
+        var expectPointLog = new PointLogDto();
         expectPointLog.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(unfreezeNumber)
                 .setDeltaCost(unfreezeNumber/2)
@@ -357,7 +357,7 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         Assertions.assertEquals(4, pointRecLogList.size()); // 0: unfreeze, 1, freeze; 2, freeze, 3: increase
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
-        expectPointRecLog.setUid(super.uid).setPid(super.point.getId())
+        expectPointRecLog.setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
                 .setType(PointOpType.UNFREEZE.code()).setDelta(unfreezeNumber)
                 .setAvailable(expectAvailable)

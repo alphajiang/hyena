@@ -17,7 +17,7 @@
 
 package io.github.alphajiang.hyena.ds.mapper;
 
-import io.github.alphajiang.hyena.model.dto.PointRec;
+import io.github.alphajiang.hyena.model.dto.PointRecDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import org.apache.ibatis.annotations.Mapper;
@@ -39,8 +39,8 @@ public interface PointRecMapper {
     void batchInsert(@Param(value = "pointTableName") String tableName,
                      @Param(value = "recList") List<PointRecPo> recList);
 
-    List<PointRec> listPointRec(@Param(value = "pointTableName") String pointTableName,
-                                @Param(value = "param") ListPointRecParam param);
+    List<PointRecDto> listPointRec(@Param(value = "pointTableName") String pointTableName,
+                                   @Param(value = "param") ListPointRecParam param);
 
     Long countPointRec(@Param(value = "pointTableName") String pointTableName,
                        @Param(value = "param") ListPointRecParam param);

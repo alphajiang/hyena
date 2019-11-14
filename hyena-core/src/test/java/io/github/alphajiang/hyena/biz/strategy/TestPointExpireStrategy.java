@@ -20,7 +20,7 @@ package io.github.alphajiang.hyena.biz.strategy;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
-import io.github.alphajiang.hyena.model.dto.PointRec;
+import io.github.alphajiang.hyena.model.dto.PointRecDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
@@ -47,8 +47,8 @@ public class TestPointExpireStrategy extends TestPointStrategyBase {
         ListPointRecParam param = new ListPointRecParam();
         param.setUid(super.uid).setStart(0L).setSize(1);
         Thread.sleep(100L);
-        List<PointRec> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
-        PointRec rec = recList.get(0);
+        List<PointRecDto> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
+        PointRecDto rec = recList.get(0);
 
         long number = rec.getAvailable();
         long resultAvailable = this.point.getPoint() - number;

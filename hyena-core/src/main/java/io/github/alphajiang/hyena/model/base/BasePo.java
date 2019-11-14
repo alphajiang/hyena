@@ -24,10 +24,14 @@ import java.util.Date;
 
 public abstract class BasePo extends BaseObject {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long id;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Boolean enable;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Date createTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")

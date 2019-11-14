@@ -17,7 +17,11 @@
 
 package io.github.alphajiang.hyena.biz.point;
 
-import io.github.alphajiang.hyena.model.po.*;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
+import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import org.springframework.lang.NonNull;
@@ -72,10 +76,11 @@ public class PointBuilder {
     }
 
 
-    public PointRecLogPo buildRecLog(PointRecPo rec, PointLogPo pointLog,
-                                     long delta, long deltaCost) {
-        PointRecLogPo recLog = new PointRecLogPo();
-        recLog.setPid(rec.getPid()).setSeqNum(pointLog.getSeqNum())
+    public PointRecLogDto buildRecLog(PointRecPo rec, PointLogPo pointLog,
+                                      long delta, long deltaCost) {
+        PointRecLogDto recLog = new PointRecLogDto();
+        recLog.setRecOrigOrderNo(rec.getOrderNo())
+                .setPid(rec.getPid()).setSeqNum(pointLog.getSeqNum())
                 .setRecId(rec.getId()).setType(pointLog.getType())
                 .setDelta(delta).setDeltaCost(deltaCost);
         recLog.setAvailable(rec.getAvailable() == null ? 0L : rec.getAvailable());

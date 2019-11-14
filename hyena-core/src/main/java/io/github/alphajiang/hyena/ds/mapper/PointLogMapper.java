@@ -17,7 +17,7 @@
 
 package io.github.alphajiang.hyena.ds.mapper;
 
-import io.github.alphajiang.hyena.model.dto.PointLog;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import org.apache.ibatis.annotations.Mapper;
@@ -33,8 +33,8 @@ public interface PointLogMapper {
     void batchInsert(@Param(value = "pointTableName") String pointTableName,
                      @Param(value = "pointLogList") List<PointLogPo> pointLogList);
 
-    List<PointLog> listPointLog(@Param(value = "pointTableName") String pointTableName,
-                                @Param(value = "param") ListPointLogParam param);
+    List<PointLogDto> listPointLog(@Param(value = "pointTableName") String pointTableName,
+                                   @Param(value = "param") ListPointLogParam param);
 
     Long countPointLog(@Param(value = "pointTableName") String pointTableName,
                        @Param(value = "param") ListPointLogParam param);

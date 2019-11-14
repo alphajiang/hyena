@@ -25,9 +25,9 @@ import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
@@ -83,7 +83,7 @@ public class PointExpireStrategy extends AbstractPointStrategy {
 
 
         List<PointRecPo> recList4Update = new ArrayList<>();
-        List<PointRecLogPo> recLogList = new ArrayList<>();
+        List<PointRecLogDto> recLogList = new ArrayList<>();
 
         pointCache.getPoint().getRecList().stream()
                 .filter(rec -> rec.getFrozen() < 1L)

@@ -71,7 +71,7 @@
     </insert>
 
 
-    <select id="listPointLog" resultType="io.github.alphajiang.hyena.model.dto.PointLog">
+    <select id="listPointLog" resultType="io.github.alphajiang.hyena.model.dto.PointLogDto">
         select log.*
         from `${pointTableName}_log` as log
 

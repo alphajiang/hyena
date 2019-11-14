@@ -17,7 +17,9 @@
 
 package io.github.alphajiang.hyena.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,9 +29,19 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class PointRecLog extends PointRecLogPo {
+public class PointRecLogDto extends PointRecLogPo {
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String uid;
+
     private Long total;
+
+
+    @ApiModelProperty("变动记录的订单号")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String orderNo;
 
+    @ApiModelProperty("创建积分块的订单号")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String recOrigOrderNo;
 }

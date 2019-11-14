@@ -19,7 +19,7 @@ package io.github.alphajiang.hyena.ds.service;
 
 import io.github.alphajiang.hyena.ds.mapper.PointRecLogMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
-import io.github.alphajiang.hyena.model.dto.PointRecLog;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
@@ -51,15 +51,15 @@ public class PointRecLogDs {
     }
 
     @Transactional
-    public ListResponse<PointRecLog> listPointRecLog4Page(String type, ListPointRecLogParam param) {
-        logger.debug("type = {}, param = {}", type, param);
-        var list = this.listPointRecLog(type, param);
-        var total = this.countPointRecLog(type, param);
+    public ListResponse<PointRecLogDto> listPointRecLog4Page( ListPointRecLogParam param) {
+        logger.debug("param = {}", param);
+        var list = this.listPointRecLog(param.getType(), param);
+        var total = this.countPointRecLog(param.getType(), param);
         var ret = new ListResponse<>(list, total);
         return ret;
     }
 
-    public List<PointRecLog> listPointRecLog(String type, ListPointRecLogParam param) {
+    public List<PointRecLogDto> listPointRecLog(String type, ListPointRecLogParam param) {
         String pointTableName = TableNameHelper.getPointTableName(type);
         return this.pointRecLogMapper.listPointRecLog(pointTableName, param);
     }

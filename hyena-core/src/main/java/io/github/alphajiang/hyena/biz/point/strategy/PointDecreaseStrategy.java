@@ -27,9 +27,10 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
@@ -89,6 +90,9 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         HyenaAssert.notNull(curPoint.getAvailable(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
 
+        if (usage.getRecId() != null && usage.getRecId() > 0L) {
+            checkPointRec(usage, pointCache);   // 校验失败会抛出异常
+        }
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1)
                 .setPoint(curPoint.getPoint() - usage.getPoint())
@@ -104,11 +108,11 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
 
         long gap = usage.getPoint();
         long cost = 0L;
-        List<PointRecLogPo> recLogs = new ArrayList<>();
+        List<PointRecLogDto> recLogs = new ArrayList<>();
 
         var recLogsRet = this.decreasePointLoop(usage.getType(),
                 pointCache,
-                pointLog, gap);
+                pointLog, gap, usage.getRecId());
         gap = gap - recLogsRet.getDelta();
         cost = cost + recLogsRet.getDeltaCost();
         recLogs.addAll(recLogsRet.getRecLogs());
@@ -127,20 +131,25 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         PointOpResult ret = new PointOpResult();
         BeanUtils.copyProperties(curPoint, ret);
         ret.setOpPoint(recLogsRet.getDelta())
-                .setOpCost(recLogsRet.getDeltaCost());
+                .setOpCost(recLogsRet.getDeltaCost())
+                .setRecLogList(recLogs);
         return ret;
     }
 
     private LoopResult decreasePointLoop(String type, PointCache pointCache,
-                                         PointLogPo pointLog, long expected) {
-        log.info("decrease. type = {}, uid = {}, expected = {}", type, pointCache.getPoint().getUid(), expected);
+                                         PointLogPo pointLog, long expected, Long recId) {
+        log.info("decrease. type = {}, uid = {}, expected = {}, recId = {}",
+                type, pointCache.getPoint().getUid(), expected, recId);
 
         LoopResult result = new LoopResult();
         long sum = 0L;
         long deltaCost = 0L;
         List<PointRecPo> recList4Update = new ArrayList<>();
-        List<PointRecLogPo> recLogs = new ArrayList<>();
+        List<PointRecLogDto> recLogs = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
+            if (recId != null && recId > 0L && !recId.equals(rec.getId())) {
+                continue;
+            }
             long gap = expected - sum;
             if (gap < 1L) {
                 log.warn("gap = {} !!!", gap);
@@ -174,5 +183,24 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         return result;
     }
 
+    private boolean checkPointRec(PointUsage usage, PointCache pointCache) {
+        var filter = pointCache.getPoint().getRecList().stream()
+                .filter(rec -> rec.getId().equals(usage.getRecId())).findFirst();
+        if (filter.isPresent()) {
+            PointRecPo rec = filter.get();
+            if (rec.getAvailable() >= usage.getPoint()) {
+                return true;
+            } else {
+                log.warn("块内余额不足. rec = {}, usage = {}", rec, usage);
+                throw new HyenaServiceException("块内余额不足");
+            }
+        } else {
+            log.warn("积分块已消耗完. recId = {}, recIdList = {}",
+                    usage.getRecId(),
+                    pointCache.getPoint().getRecList().stream().map(PointRecPo::getId).collect(Collectors.toList()));
+            throw new HyenaServiceException("积分块已消耗完");
+        }
+
+    }
 
 }

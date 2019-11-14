@@ -74,7 +74,7 @@
     </insert>
 
 
-    <select id="listPointRecLog" resultType="io.github.alphajiang.hyena.model.dto.PointRecLog">
+    <select id="listPointRecLog" resultType="io.github.alphajiang.hyena.model.dto.PointRecLogDto">
         select log.*, p.uid as uid, rec.total as total,
         pLog.orderNo as orderNo
         from `${pointTableName}_rec_log` as log
@@ -89,14 +89,23 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
         </if>
-        <if test="param.seqNum &gt; 0">
-            and log.seqNum = #{param.seqNum}
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.seqNumList )">
+            <foreach item="seqNum" collection="param.seqNumList"
+                     open="and log.seqNum in (" separator="," close=") ">
+                #{seqNum}
+            </foreach>
         </if>
         <if test="param.recId &gt; 0">
             and log.recId = #{param.recId}
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.orderNoList )">
+            <foreach item="orderNo" collection="param.orderNoList"
+                     open="and pLog.orderNo in (" separator="," close=") ">
+                #{orderNo}
+            </foreach>
         </if>
         <if test="param.enable != null">
             and rec.enable = #{param.enable}
@@ -131,6 +140,7 @@
         from `${pointTableName}_rec_log` as log
         left join `${pointTableName}_rec` as rec on rec.id = log.recId
         left join `${pointTableName}` as p on rec.pid = p.id
+        left join `${pointTableName}_log` as pLog on log.pid = pLog.pid
         where 1=1
         <if test="param.pid &gt; 0">
             and p.id = #{param.pid}
@@ -138,8 +148,11 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
         </if>
-        <if test="param.seqNum &gt; 0">
-            and log.seqNum = #{param.seqNum}
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.seqNumList )">
+            <foreach item="seqNum" collection="param.seqNumList"
+                     open="and log.seqNum in (" separator="," close=") ">
+                #{seqNum}
+            </foreach>
         </if>
         <if test="param.recId &gt; 0">
             and log.recId = #{param.recId}
@@ -147,7 +160,12 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}
         </if>
-
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.orderNoList )">
+            <foreach item="orderNo" collection="param.orderNoList"
+                     open="and pLog.orderNo in (" separator="," close=") ">
+                #{orderNo}
+            </foreach>
+        </if>
         <if test="param.enable != null">
             and rec.enable = #{param.enable}
         </if>

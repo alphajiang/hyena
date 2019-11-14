@@ -24,6 +24,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -38,7 +39,10 @@ public class ListPointRecParam extends BaseListParam {
     @ApiModelProperty(value = "标签")
     private String tag;
 
-    private boolean available = false;
+    @ApiModelProperty(value = "创建积分的序列号列表")
+    private List<Long> seqNumList;
+
+    //private boolean available = false;
     private Boolean cost;
     private Boolean frozen;
     private Date expireTime;

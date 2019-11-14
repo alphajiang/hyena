@@ -17,7 +17,7 @@
 
 package io.github.alphajiang.hyena.ds.mapper;
 
-import io.github.alphajiang.hyena.model.dto.PointRecLog;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import org.apache.ibatis.annotations.Mapper;
@@ -33,8 +33,8 @@ public interface PointRecLogMapper {
     void batchInsert(@Param(value = "tableName") String tableName,
                          @Param(value = "recLogs") List<PointRecLogPo> recLogs);
 
-    List<PointRecLog> listPointRecLog(@Param(value = "pointTableName") String pointTableName,
-                                      @Param(value = "param") ListPointRecLogParam param);
+    List<PointRecLogDto> listPointRecLog(@Param(value = "pointTableName") String pointTableName,
+                                         @Param(value = "param") ListPointRecLogParam param);
 
     Long countPointRecLog(@Param(value = "pointTableName") String pointTableName,
                           @Param(value = "param") ListPointRecLogParam param);

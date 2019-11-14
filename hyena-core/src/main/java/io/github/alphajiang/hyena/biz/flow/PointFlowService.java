@@ -18,7 +18,11 @@
 package io.github.alphajiang.hyena.biz.flow;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.model.po.*;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
+import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +50,7 @@ public class PointFlowService {
     private FreezeOrderRecDsQueue freezeOrderRecDsQueue;
 
 
-    public void addFlow(PointUsage usage, PointLogPo pointLog, List<PointRecLogPo> recLogs) {
+    public void addFlow(PointUsage usage, PointLogPo pointLog, List<PointRecLogDto> recLogs) {
         PointLogFlowQueue.PointLog logItem = new PointLogFlowQueue.PointLog();
         logItem.setPointLog(pointLog).setType(usage.getType());
         this.pointLogFlowQueue.offer(logItem);

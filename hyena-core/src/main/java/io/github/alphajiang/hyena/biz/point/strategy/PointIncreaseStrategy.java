@@ -26,10 +26,10 @@ import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
@@ -131,7 +131,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
             PointRecPo rec = this.pointRecDs.addPointRec(usage, point2Update.getId(), point2Update.getSeqNum());
 
             PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage, point2Update);
-            PointRecLogPo recLog = this.pointBuilder.buildRecLog(rec, pointLog, usage.getPoint(),
+            PointRecLogDto recLog = this.pointBuilder.buildRecLog(rec, pointLog, usage.getPoint(),
                     cost);
 
 
@@ -160,7 +160,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
                 .setCost(point.getCost())
                 .setName(point.getName())
                 .setId(point.getId());
-        point2Update.setCost(cost);
+        //point2Update.setCost(cost);
 
 
         this.pointFlowService.updatePoint(usage.getType(), point2Update);
@@ -188,7 +188,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         }
 
         PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage, point);
-        PointRecLogPo recLog = this.pointBuilder.buildRecLog(pointRec, pointLog, usage.getPoint(),
+        PointRecLogDto recLog = this.pointBuilder.buildRecLog(pointRec, pointLog, usage.getPoint(),
                 cost);
 
 

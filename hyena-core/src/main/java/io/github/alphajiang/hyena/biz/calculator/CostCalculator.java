@@ -33,8 +33,9 @@ public class CostCalculator {
         if (rec.getTotalCost() == null || rec.getTotalCost() < 1L) {
             return 0L;
         }
-        return rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost()
+        long ret= rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost()
                 - rec.getRefundCost();
+        return ret > 0L ? ret : 0L;
     }
 
     /**

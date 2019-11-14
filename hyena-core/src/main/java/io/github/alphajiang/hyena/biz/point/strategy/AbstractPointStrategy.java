@@ -22,9 +22,9 @@ import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointWrapper;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
@@ -121,7 +121,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
         private long delta;
         private long deltaCost;
         private List<PointRecPo> recList4Update;
-        private List<PointRecLogPo> recLogs;
+        private List<PointRecLogDto> recLogs;
         private List<FreezeOrderRecPo> forList;
     }
 

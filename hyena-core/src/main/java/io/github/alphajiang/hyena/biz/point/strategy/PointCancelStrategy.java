@@ -26,9 +26,9 @@ import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
-import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
@@ -143,7 +143,7 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         }
 
         PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.CANCEL, usage, curPoint);
-        PointRecLogPo recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, deltaCost);
+        var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, deltaCost);
 
         pointFlowService.updatePoint(usage.getType(), point2Update);
         pointFlowService.updatePointRec(usage.getType(), List.of(rec));
@@ -188,7 +188,7 @@ public class PointCancelStrategy extends AbstractPointStrategy {
         long sum = 0L;
         long deltaCost = 0L;
         List<PointRecPo> recList4Update = new ArrayList<>();
-        List<PointRecLogPo> recLogs = new ArrayList<>();
+        List<PointRecLogDto> recLogs = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
             long gap = expected - sum;
             if (gap < 1L) {

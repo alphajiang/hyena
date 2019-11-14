@@ -20,7 +20,7 @@ package io.github.alphajiang.hyena.ds.service;
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.ds.mapper.PointLogMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
-import io.github.alphajiang.hyena.model.dto.PointLog;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
@@ -61,7 +61,7 @@ public class PointLogDs {
 
 
     @Transactional
-    public ListResponse<PointLog> listPointLog4Page(ListPointLogParam param) {
+    public ListResponse<PointLogDto> listPointLog4Page(ListPointLogParam param) {
         logger.debug("param = {}", param);
         var list = this.listPointLog(param);
         var total = this.countPointLog(param);
@@ -69,7 +69,7 @@ public class PointLogDs {
         return ret;
     }
 
-    public List<PointLog> listPointLog(ListPointLogParam param) {
+    public List<PointLogDto> listPointLog(ListPointLogParam param) {
         String pointTableName = TableNameHelper.getPointTableName(param.getType());
         HyenaAssert.isTrue(pointTableDs.isTableExists(pointTableName), HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "type not exist");
