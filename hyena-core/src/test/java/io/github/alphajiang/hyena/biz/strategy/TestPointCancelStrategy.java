@@ -52,8 +52,8 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
     public void test_cancelPoint_byRecId() throws InterruptedException {
         log.info(">> test start");
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(super.uid).setStart(0L).setSize(1);
-        List<PointRecDto> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
+        param.setUid(super.uid).setType(super.getPointType()).setStart(0L).setSize(1);
+        List<PointRecDto> recList = this.pointRecDs.listPointRec(param);
         PointRecDto rec = recList.get(0);
         log.info("rec = {}", rec);
         long number = rec.getAvailable();
@@ -82,8 +82,8 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
     public void test_cancelPoint_nonRecId() throws InterruptedException {
         log.info(">> test start");
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(super.uid).setStart(0L).setSize(1);
-        List<PointRecDto> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
+        param.setUid(super.uid).setType(super.getPointType()).setStart(0L).setSize(1);
+        List<PointRecDto> recList = this.pointRecDs.listPointRec( param);
         PointRecDto rec = recList.get(0);
 
         long number = rec.getAvailable();

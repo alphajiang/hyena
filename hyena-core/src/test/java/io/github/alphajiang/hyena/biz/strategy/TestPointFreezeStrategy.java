@@ -108,7 +108,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         // verify point record
         ListPointRecParam listPointRecParam = new ListPointRecParam();
         listPointRecParam.setUid(this.uid).setType(super.getPointType());
-        var pointRecList = pointRecDs.listPointRec(super.getPointType(), listPointRecParam);
+        var pointRecList = pointRecDs.listPointRec(listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
         Assertions.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
@@ -131,7 +131,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         var listPointRecLogParam = new ListPointRecLogParam();
         SortParam pointRecLogSortParam = new SortParam();
         pointRecLogSortParam.setColumns(List.of("log.id")).setOrder(SortOrder.desc);
-        listPointRecLogParam.setRecId(pointRec.getId())
+        listPointRecLogParam.setRecIdList(List.of(pointRec.getId()))
                 .setSorts(List.of(pointRecLogSortParam));
         var pointRecLogList = pointRecLogDs.listPointRecLog(super.getPointType(), listPointRecLogParam);
         log.info("pointRecLogList = {}", pointRecLogList);
@@ -221,7 +221,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         ListPointRecParam listPointRecParam = new ListPointRecParam();
         listPointRecParam.setUid(this.uid).setType(super.getPointType())
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)));
-        var pointRecList = pointRecDs.listPointRec(super.getPointType(), listPointRecParam);
+        var pointRecList = pointRecDs.listPointRec(listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
         Assertions.assertEquals(2, pointRecList.size());
         PointRecPo pointRec1 = pointRecList.get(0);
@@ -256,7 +256,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
 
         // verify point record-1 logs
         var listPointRecLogParam = new ListPointRecLogParam();
-        listPointRecLogParam.setRecId(pointRec1.getId())
+        listPointRecLogParam.setRecIdList(List.of(pointRec1.getId()))
                 .setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
         var pointRecLogList1 = pointRecLogDs.listPointRecLog(super.getPointType(), listPointRecLogParam);
         log.info("pointRecLogList1 = {}", pointRecLogList1);
@@ -281,7 +281,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
 
         // verify point record-2 logs
         listPointRecLogParam = new ListPointRecLogParam();
-        listPointRecLogParam.setRecId(pointRec2.getId())
+        listPointRecLogParam.setRecIdList(List.of(pointRec2.getId()))
                 .setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
         var pointRecLogList2 = pointRecLogDs.listPointRecLog(super.getPointType(), listPointRecLogParam);
         log.info("pointRecLogList2 = {}", pointRecLogList2);

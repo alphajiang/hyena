@@ -42,6 +42,9 @@ public class ListPointRecParam extends BaseListParam {
     @ApiModelProperty(value = "创建积分的序列号列表")
     private List<Long> seqNumList;
 
+    @ApiModelProperty(value = "是否获取积分块对应的流水明细", example = "false")
+    private Boolean fetchRecLogs;
+
     //private boolean available = false;
     private Boolean cost;
     private Boolean frozen;

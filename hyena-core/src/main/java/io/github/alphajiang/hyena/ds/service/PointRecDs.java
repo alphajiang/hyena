@@ -21,6 +21,8 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.mapper.PointRecMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointRecDto;
+import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
+import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.utils.StringUtils;
@@ -34,6 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PointRecDs {
@@ -67,9 +71,20 @@ public class PointRecDs {
     public ListResponse<PointRecDto> listPointRec4Page(ListPointRecParam param) {
         var list = this.listPointRec(param);
         var total = this.countPointRec(param);
+        if (Boolean.TRUE.equals(param.getFetchRecLogs())) {
+            List<Long> recIds = list.stream().map(PointRecDto::getId).collect(Collectors.toList());
+            ListPointRecLogParam recLogParam = new ListPointRecLogParam();
+            recLogParam.setRecIdList(recIds);
+            List<PointRecLogDto> recLogList = this.pointRecLogDs.listPointRecLog(param.getType(), recLogParam);
+            Map<Long, List<PointRecLogDto>> map = recLogList.stream().collect(Collectors.groupingBy(PointRecLogDto::getRecId, Collectors.toList()));
+            list.stream().forEach(rec -> {
+                rec.setRecLogs(map.get(rec.getId()));
+            });
+        }
         var ret = new ListResponse<>(list, total);
         return ret;
     }
+
 
     @Transactional
     public List<PointRecDto> listPointRec(ListPointRecParam param) {

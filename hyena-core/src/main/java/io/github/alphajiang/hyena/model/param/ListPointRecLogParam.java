@@ -42,7 +42,7 @@ public class ListPointRecLogParam extends BaseListParam {
     private List<Long> seqNumList;
 
     @ApiModelProperty(value = "积分记录ID")
-    private long recId;
+    private List<Long> recIdList;
 
     @ApiModelProperty(value = "变更的订单号")
     private List<String> orderNoList;

@@ -45,9 +45,9 @@ public class TestPointExpireStrategy extends TestPointStrategyBase {
     @Test
     public void test_expirePoint() throws InterruptedException {
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(super.uid).setStart(0L).setSize(1);
+        param.setUid(super.uid).setType(super.getPointType()).setStart(0L).setSize(1);
         Thread.sleep(100L);
-        List<PointRecDto> recList = this.pointRecDs.listPointRec(super.getPointType(), param);
+        List<PointRecDto> recList = this.pointRecDs.listPointRec(param);
         PointRecDto rec = recList.get(0);
 
         long number = rec.getAvailable();

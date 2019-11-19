@@ -95,8 +95,11 @@
                 #{seqNum}
             </foreach>
         </if>
-        <if test="param.recId &gt; 0">
-            and log.recId = #{param.recId}
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.recIdList )">
+            <foreach item="recId" collection="param.recIdList"
+                     open="and log.recId in (" separator="," close=") ">
+                #{recId}
+            </foreach>
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}
@@ -154,8 +157,11 @@
                 #{seqNum}
             </foreach>
         </if>
-        <if test="param.recId &gt; 0">
-            and log.recId = #{param.recId}
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.recIdList )">
+            <foreach item="recId" collection="param.recIdList"
+                     open="and log.recId in (" separator="," close=") ">
+                #{recId}
+            </foreach>
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}

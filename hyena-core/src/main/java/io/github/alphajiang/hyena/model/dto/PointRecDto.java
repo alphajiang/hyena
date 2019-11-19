@@ -18,17 +18,20 @@
 package io.github.alphajiang.hyena.model.dto;
 
 import io.github.alphajiang.hyena.model.po.PointRecPo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
+import java.util.List;
+
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class PointRecDto extends PointRecPo {
     private String uid;
 
+    private List<PointRecLogDto> recLogs;
 
-    public String getUid() {
-        return uid;
-    }
-
-    public PointRecDto setUid(String uid) {
-        this.uid = uid;
-        return this;
-    }
 }

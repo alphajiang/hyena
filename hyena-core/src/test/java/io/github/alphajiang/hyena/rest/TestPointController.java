@@ -158,9 +158,11 @@ public class TestPointController extends HyenaTestBase {
     @Test
     public void test_listPointRecord() throws Exception {
         Thread.sleep(100L);
-        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPointRecord")
-                .param("type", super.getPointType())
-                .param("tag", super.getTag());
+        ListPointRecParam param = new ListPointRecParam();
+        param.setType(super.getPointType());
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointRecord")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
@@ -174,10 +176,11 @@ public class TestPointController extends HyenaTestBase {
 
     @Test
     public void test_listPointRecordLog() throws Exception {
-
-        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/listPointRecordLog")
-                .param("type", super.getPointType())
-                .param("tag", super.getTag());
+        ListPointRecLogParam param = new ListPointRecLogParam();
+        param.setType(super.getPointType());
+        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointRecordLog")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         logger.info("response = {}", resBody);
@@ -389,7 +392,7 @@ public class TestPointController extends HyenaTestBase {
         ListPointRecParam listParam = new ListPointRecParam();
         listParam.setFrozen(false).setUid(super.getUid()).setType(super.getPointType());
         Thread.sleep(100L);
-        List<PointRecDto> recList = this.pointRecDs.listPointRec(super.getPointType(), listParam);
+        List<PointRecDto> recList = this.pointRecDs.listPointRec(listParam);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(recList));
         PointRecDto rec = recList.iterator().next();
 

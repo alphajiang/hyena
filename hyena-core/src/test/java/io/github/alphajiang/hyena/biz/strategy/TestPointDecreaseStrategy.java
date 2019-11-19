@@ -109,7 +109,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         // verify point record
         ListPointRecParam listPointRecParam = new ListPointRecParam();
         listPointRecParam.setUid(this.uid).setType(super.getPointType());
-        var pointRecList = pointRecDs.listPointRec(super.getPointType(), listPointRecParam);
+        var pointRecList = pointRecDs.listPointRec(listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
         Assertions.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
@@ -132,7 +132,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         var listPointRecLogParam = new ListPointRecLogParam();
         SortParam pointRecLogSortParam = new SortParam();
         pointRecLogSortParam.setColumns(List.of("log.id")).setOrder(SortOrder.desc);
-        listPointRecLogParam.setRecId(pointRec.getId())
+        listPointRecLogParam.setRecIdList(List.of(pointRec.getId()))
                 .setSorts(List.of(pointRecLogSortParam));
         var pointRecLogList = pointRecLogDs.listPointRecLog(super.getPointType(), listPointRecLogParam);
         log.info("pointRecLogList = {}", pointRecLogList);
