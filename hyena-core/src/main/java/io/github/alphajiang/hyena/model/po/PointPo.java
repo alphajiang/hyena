@@ -38,7 +38,7 @@ public class PointPo extends BasePo {
     private Long frozen;
     private Long refund;
     private Long expire;
-    @ApiModelProperty("实际成本(不含冻结部分)")
+    @ApiModelProperty("实际成本(含冻结部分)")
     private Long cost;
     @ApiModelProperty("冻结的成本")
     private Long frozenCost;
