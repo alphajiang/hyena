@@ -92,7 +92,7 @@ public class PointFlowService {
     public void closeFreezeOrderRec(String type, List<FreezeOrderRecPo> foList) {
         foList.stream().forEach(o -> {
             FreezeOrderRecDsQueue.FreezeOrderRec item = new FreezeOrderRecDsQueue.FreezeOrderRec();
-            item.setFreezeOrderRec(o).setInsert(true).setType(type);
+            item.setFreezeOrderRec(o).setInsert(false).setType(type);
             this.freezeOrderRecDsQueue.offer(item);
         });
     }

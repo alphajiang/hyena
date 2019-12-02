@@ -81,6 +81,12 @@
         from `${pointTableName}_rec` as rec
         left join `${pointTableName}` as p on rec.pid = p.id
         where 1=1
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.recIdList )">
+            <foreach item="recId" collection="param.recIdList"
+                     open="and rec.id in (" separator="," close=")">
+                #{recId}
+            </foreach>
+        </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
         </if>
@@ -148,6 +154,12 @@
         from `${pointTableName}_rec` as rec
         left join `${pointTableName}` as p on rec.pid = p.id
         where 1=1
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.recIdList )">
+            <foreach item="recId" collection="param.recIdList"
+                     open="and rec.id in (" separator="," close=")">
+                #{recId}
+            </foreach>
+        </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
         </if>

@@ -32,6 +32,8 @@ import java.util.List;
 @ToString(callSuper = true)
 public class ListPointRecParam extends BaseListParam {
 
+    @ApiModelProperty(value = "积分记录ID")
+    private List<Long> recIdList;
 
     @ApiModelProperty(value = "用户ID")
     private String uid;

@@ -23,7 +23,7 @@ ext {
 
 allprojects {
     group = 'io.github.alphajiang'
-    version = '0.0.18.20191120-SNAPSHOT'
+    version = '0.0.18.20191126-SNAPSHOT'
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'jacoco'

@@ -125,7 +125,7 @@ public class PointController {
     @PostMapping(value = "/listPointRecord", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ListResponse<PointRecDto> listPointRecord(HttpServletRequest request,
                                                      @RequestBody ListPointRecParam param) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(request, false) + "param = {}", param);
         if (CollectionUtils.isEmpty(param.getSorts())) {
             param.setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)));
         }
@@ -139,7 +139,7 @@ public class PointController {
     public ListResponse<PointRecLogDto> listPointRecordLog(
             HttpServletRequest request,
             @RequestBody ListPointRecLogParam param) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(request, false) + "param = {}", param);
 
         //ListPointRecLogParam param = new ListPointRecLogParam();
         //param.setUid(uid).setRecId(recId).setTag(tag);

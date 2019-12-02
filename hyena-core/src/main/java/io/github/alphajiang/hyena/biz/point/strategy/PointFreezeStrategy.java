@@ -160,7 +160,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
                 recList4Update.add(calcResult.getRec4Update());
                 deltaCost += calcResult.getDeltaCost();
                 FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
-                        rec, usage.getOrderType(), usage.getOrderNo(), delta, deltaCost);
+                        rec, usage.getOrderType(), usage.getOrderNo(), delta, calcResult.getDeltaCost());
                 forList.add(fo);
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
@@ -170,7 +170,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
                 recList4Update.add(calcResult.getRec4Update());
                 deltaCost += calcResult.getDeltaCost();
                 FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
-                        rec, usage.getOrderType(), usage.getOrderNo(), gap, deltaCost);
+                        rec, usage.getOrderType(), usage.getOrderNo(), gap, calcResult.getDeltaCost());
                 forList.add(fo);
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
                 recLogs.add(recLog);
