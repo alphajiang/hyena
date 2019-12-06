@@ -76,6 +76,7 @@
 
     <select id="listPointRecLog" resultType="io.github.alphajiang.hyena.model.dto.PointRecLogDto">
         select log.*, p.uid as uid, rec.total as total,
+        rec.`orderNo` as recOrigOrderNo,
         pLog.orderNo as orderNo
         from `${pointTableName}_rec_log` as log
         left join `${pointTableName}_rec` as rec on rec.id = log.recId
