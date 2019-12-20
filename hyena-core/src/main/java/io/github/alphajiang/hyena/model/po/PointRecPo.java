@@ -26,6 +26,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -36,21 +37,21 @@ public class PointRecPo extends BasePo {
 
     private long pid;
     private long seqNum;
-    private Long total;
-    private Long available;
-    private Long used;
-    private Long frozen;
-    private Long refund;
-    private Long cancelled;
-    private Long expire;
+    private BigDecimal total;
+    private BigDecimal available;
+    private BigDecimal used;
+    private BigDecimal frozen;
+    private BigDecimal refund;
+    private BigDecimal cancelled;
+    private BigDecimal expire;
     @ApiModelProperty("总成本")
-    private Long totalCost;
+    private BigDecimal totalCost;
     @ApiModelProperty("冻结的成本")
-    private Long frozenCost;
+    private BigDecimal frozenCost;
     @ApiModelProperty("已消耗的成本")
-    private Long usedCost;
+    private BigDecimal usedCost;
     @ApiModelProperty("已退款的成本")
-    private Long refundCost;
+    private BigDecimal refundCost;
     private String tag;
     private String orderNo;
 

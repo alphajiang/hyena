@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -72,10 +73,10 @@ public class TestPointRecDs extends HyenaTestBase {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.DATE, 1);
         Thread.sleep(100L);
-        long increased = this.pointRecDs.getIncreasedPoint(super.getPointType(),
+        BigDecimal increased = this.pointRecDs.getIncreasedPoint(super.getPointType(),
                 super.getUid(), start.getTime(), end.getTime());
         logger.info("increased = {}", increased);
-        Assertions.assertEquals(super.getUserPoint().getPoint().longValue(), increased);
+        Assertions.assertEquals(super.getUserPoint().getPoint() , increased);
     }
 
     @Test
@@ -86,17 +87,17 @@ public class TestPointRecDs extends HyenaTestBase {
 
             rec.setPid(i + 1)
                     .setSeqNum(45L)
-                    .setTotal(999L)
-                    .setTotalCost(998L)
-                    .setAvailable(111L)
-                    .setUsed(222L)
-                    .setFrozen(333L)
-                    .setExpire(444L)
-                    .setRefund(555L)
-                    .setCancelled(666L)
-                    .setFrozenCost(777L)
-                    .setUsedCost(888L)
-                    .setRefundCost(999L)
+                    .setTotal(BigDecimal.valueOf(999L))
+                    .setTotalCost(BigDecimal.valueOf(998L))
+                    .setAvailable(BigDecimal.valueOf(111L))
+                    .setUsed(BigDecimal.valueOf(222L))
+                    .setFrozen(BigDecimal.valueOf(333L))
+                    .setExpire(BigDecimal.valueOf(444L))
+                    .setRefund(BigDecimal.valueOf(555L))
+                    .setCancelled(BigDecimal.valueOf(666L))
+                    .setFrozenCost(BigDecimal.valueOf(777L))
+                    .setUsedCost(BigDecimal.valueOf(888L))
+                    .setRefundCost(BigDecimal.valueOf(999L))
                     .setExtra("abcd1234")
                     .setIssueTime(new Date())
                     .setTag("ddddd")
@@ -118,15 +119,15 @@ public class TestPointRecDs extends HyenaTestBase {
             PointRecPo rec = new PointRecPo();
             if (i % 2 == 1) {
                 rec.setId(i + 1);
-                rec.setAvailable(111L)
-                        .setUsed(222L)
-                        .setFrozen(333L)
-                        .setExpire(444L)
-                        .setRefund(555L)
-                        .setCancelled(666L)
-                        .setFrozenCost(777L)
-                        .setUsedCost(888L)
-                        .setRefundCost(999L)
+                rec.setAvailable(BigDecimal.valueOf(111L))
+                        .setUsed(BigDecimal.valueOf(222L))
+                        .setFrozen(BigDecimal.valueOf(333L))
+                        .setExpire(BigDecimal.valueOf(444L))
+                        .setRefund(BigDecimal.valueOf(555L))
+                        .setCancelled(BigDecimal.valueOf(666L))
+                        .setFrozenCost(BigDecimal.valueOf(777L))
+                        .setUsedCost(BigDecimal.valueOf(888L))
+                        .setRefundCost(BigDecimal.valueOf(999L))
                         .setExtra("abcd1234")
                         .setIssueTime(new Date())
                         .setEnable(false);

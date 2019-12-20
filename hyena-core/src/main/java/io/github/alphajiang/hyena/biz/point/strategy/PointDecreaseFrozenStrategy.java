@@ -28,6 +28,7 @@ import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +72,8 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         log.info("decrease frozen. usage = {}", usage);
         PointPo ret = null;
 
-        if (usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L) {
+        if (usage.getUnfreezePoint() != null
+                && usage.getUnfreezePoint().compareTo(DecimalUtils.ZERO) > 0) {
             PointUsage usage4Unfreeze = new PointUsage();
             BeanUtils.copyProperties(usage, usage4Unfreeze);
             usage4Unfreeze.setPoint(usage.getUnfreezePoint());

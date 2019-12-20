@@ -25,6 +25,7 @@ import io.github.alphajiang.hyena.model.param.ListPointParam;
 import io.github.alphajiang.hyena.model.param.SortParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.SortOrder;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +47,7 @@ public class TestPointDs extends HyenaTestBase {
     public void init() {
         super.init();
         PointPo point = new PointPo();
-        point.setUid("gewgewgew").setName("ut tom").setPoint(998876L);
+        point.setUid("gewgewgew").setName("ut tom").setPoint(BigDecimal.valueOf(998876L));
         this.pointDs.addPoint(super.getPointType(), point);
     }
 
@@ -57,14 +59,14 @@ public class TestPointDs extends HyenaTestBase {
             p.setSeqNum(i + 1).setId(i + 1);
             if (i % 2 == 0) {
                 p.setName("bwlegjaalgejg")
-                        .setPoint(123L)
-                        .setAvailable(456L)
-                        .setUsed(3423L)
-                        .setFrozen(3234L)
-                        .setRefund(323L)
-                        .setExpire(111L)
-                        .setCost(222L)
-                        .setFrozenCost(333L)
+                        .setPoint(BigDecimal.valueOf(123L))
+                        .setAvailable(BigDecimal.valueOf(456L))
+                        .setUsed(BigDecimal.valueOf(3423L))
+                        .setFrozen(BigDecimal.valueOf(3234L))
+                        .setRefund(BigDecimal.valueOf(323L))
+                        .setExpire(BigDecimal.valueOf(111L))
+                        .setCost(BigDecimal.valueOf(222L))
+                        .setFrozenCost(BigDecimal.valueOf(333L))
                         .setEnable(false);
             }
             list.add(p);
@@ -118,9 +120,15 @@ public class TestPointDs extends HyenaTestBase {
     public void test_update() {
         PointPo point = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), true);
         point.setSeqNum(point.getSeqNum() + 1).setName("测试改个名字")
-                .setPoint(111L).setAvailable(222L).setUsed(333L)
-                .setFrozen(444L).setRefund(555L).setExpire(666L)
-                .setCost(777L).setFrozenCost(888L).setEnable(false);
+                .setPoint(BigDecimal.valueOf(111L).setScale(DecimalUtils.SCALE_2))
+                .setAvailable(BigDecimal.valueOf(222L).setScale(DecimalUtils.SCALE_2))
+                .setUsed(BigDecimal.valueOf(333L).setScale(DecimalUtils.SCALE_2))
+                .setFrozen(BigDecimal.valueOf(444L).setScale(DecimalUtils.SCALE_2))
+                .setRefund(BigDecimal.valueOf(555L).setScale(DecimalUtils.SCALE_2))
+                .setExpire(BigDecimal.valueOf(666L).setScale(DecimalUtils.SCALE_2))
+                .setCost(BigDecimal.valueOf(777L).setScale(DecimalUtils.SCALE_2))
+                .setFrozenCost(BigDecimal.valueOf(888L).setScale(DecimalUtils.SCALE_2))
+                .setEnable(false);
         this.pointDs.update(super.getPointType(), point);
 
         PointPo result = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), false);

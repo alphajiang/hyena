@@ -34,6 +34,7 @@ import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -43,6 +44,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 
@@ -88,7 +91,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         try (PointWrapper pw = super.preProcess(usage, true, false)) {
             if (pw.getPointCache().getPoint() == null) {
                 this.addPoint(usage, pw.getPointCache());
-            } else if (usage.getPoint() > 0L) {
+            } else if (DecimalUtils.gt(usage.getPoint(), DecimalUtils.ZERO)) {
                 this.updatePointCache(usage, pw.getPointCache());
             } else {
                 log.info("do nothing... usage = {}", usage);
@@ -107,18 +110,20 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     private void addPoint(PointUsage usage, PointCache pc) {
         var point2Update = new PointPo();
         point2Update.setSeqNum(1L)
-                .setPoint(usage.getPoint())
-                .setAvailable(usage.getPoint())
+                .setPoint(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
+                .setAvailable(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
                 .setUid(usage.getUid())
-                .setUsed(0L)
-                .setFrozen(0L)
-                .setRefund(0L)
-                .setExpire(0L)
-                .setFrozenCost(0L)
+                .setUsed(DecimalUtils.ZERO)
+                .setFrozen(DecimalUtils.ZERO)
+                .setRefund(DecimalUtils.ZERO)
+                .setExpire(DecimalUtils.ZERO)
+                .setFrozenCost(DecimalUtils.ZERO)
                 .setEnable(true)
                 .setCreateTime(new Date())
                 .setUpdateTime(new Date());
-        long cost = usage.getCost() != null && usage.getCost() > 0L ? usage.getCost() : 0L;
+        BigDecimal cost = usage.getCost() != null && DecimalUtils.gt(usage.getCost(), DecimalUtils.ZERO)
+                ? usage.getCost().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP)
+                : DecimalUtils.ZERO;
         point2Update.setCost(cost);
 
         if (StringUtils.isNotBlank(usage.getName())) {
@@ -127,7 +132,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
 
         this.pointDs.addPoint(usage.getType(), point2Update);
 
-        if (usage.getPoint() > 0L) {    // <= 0 表示仅创建帐号
+        if (DecimalUtils.gt(usage.getPoint(), DecimalUtils.ZERO)) {    // <= 0 表示仅创建帐号
             PointRecPo rec = this.pointRecDs.addPointRec(usage, point2Update.getId(), point2Update.getSeqNum());
 
             PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage, point2Update);
@@ -146,10 +151,11 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         PointPo point = pc.getPoint();
         var point2Update = new PointPo();
         point.setSeqNum(point.getSeqNum() + 1L)
-                .setPoint(point.getPoint() + usage.getPoint())
-                .setAvailable(point.getAvailable() + usage.getPoint());
-        long cost = usage.getCost() != null && usage.getCost() > 0L ? usage.getCost() : 0L;
-        point.setCost(point.getCost() + cost);
+                .setPoint(point.getPoint().add(usage.getPoint()).setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
+                .setAvailable(point.getAvailable().add(usage.getPoint()).setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP));
+        BigDecimal cost = usage.getCost() != null && DecimalUtils.gt(usage.getCost(), DecimalUtils.ZERO)
+                ? usage.getCost() : DecimalUtils.ZERO;
+        point.setCost(point.getCost().add(cost).setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP));
         if (StringUtils.isNotBlank(usage.getName())) {
             point.setName(usage.getName());
         }
@@ -175,13 +181,13 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         //pc.setPoint(this.pointDs.getPointVo(usage.getType(), point2Update.getId(), null));
         pc.getPoint().getRecList().add(pointRec);
 
-        if (usage.getPoint() > point.getPoint()) {
+        if (DecimalUtils.gt(usage.getPoint(), point.getPoint())) {
             // 之前有欠款 TODO: 待验证
-            long number = usage.getPoint() - point.getPoint();
+            BigDecimal number = usage.getPoint().subtract(point.getPoint());
             PointRecPo rec4Update = new PointRecPo();
             rec4Update.setPid(pointRec.getPid())
                     .setSeqNum(pointRec.getSeqNum())
-                    .setAvailable(pointRec.getAvailable() - number)
+                    .setAvailable(pointRec.getAvailable().subtract(number))
                     .setUsed(number);
             //this.pointRecDs.updatePointRec(usage.getType(), pointRec);
             this.pointFlowService.updatePointRec(usage.getType(), List.of(rec4Update));

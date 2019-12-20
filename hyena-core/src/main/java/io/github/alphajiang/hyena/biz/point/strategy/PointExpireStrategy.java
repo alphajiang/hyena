@@ -32,6 +32,7 @@ import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,14 +88,14 @@ public class PointExpireStrategy extends AbstractPointStrategy {
         List<PointRecLogDto> recLogList = new ArrayList<>();
 
         pointCache.getPoint().getRecList().stream()
-                .filter(rec -> rec.getFrozen() < 1L)
+                .filter(rec -> DecimalUtils.lte(rec.getFrozen(), DecimalUtils.ZERO))
                 .forEach(rec -> {
-                    long delta = rec.getAvailable();
-                    long deltaCost = rec.getTotalCost() - rec.getUsedCost() - rec.getFrozenCost();
+                    BigDecimal delta = rec.getAvailable();
+                    BigDecimal deltaCost = rec.getTotalCost().subtract(rec.getUsedCost()).subtract(rec.getFrozenCost());
                     curPoint.setSeqNum(curPoint.getSeqNum() + 1)
-                            .setAvailable(curPoint.getAvailable() - rec.getAvailable())
-                            .setPoint(curPoint.getPoint() - rec.getAvailable())
-                            .setExpire(curPoint.getExpire() + rec.getAvailable());
+                            .setAvailable(curPoint.getAvailable().subtract(rec.getAvailable()))
+                            .setPoint(curPoint.getPoint().subtract(rec.getAvailable()))
+                            .setExpire(curPoint.getExpire().add(rec.getAvailable()));
                     recList4Update.add(pointRecDs.expirePointRec(rec));
                     PointLogPo pl = this.pointBuilder.buildPointLog(PointOpType.EXPIRE, usage, curPoint);
 

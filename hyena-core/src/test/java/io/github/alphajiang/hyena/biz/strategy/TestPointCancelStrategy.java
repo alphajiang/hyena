@@ -28,11 +28,13 @@ import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.PointOpType;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -52,29 +54,29 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
     public void test_cancelPoint_byRecId() throws InterruptedException {
         log.info(">> test start");
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(super.uid).setType(super.getPointType()).setStart(0L).setSize(1);
+        param.setUid(super.getUid()).setType(super.getPointType()).setStart(0L).setSize(1);
         List<PointRecDto> recList = this.pointRecDs.listPointRec(param);
         PointRecDto rec = recList.get(0);
         log.info("rec = {}", rec);
-        long number = rec.getAvailable();
-        long resultAvailable = this.point.getPoint() - number;
+        BigDecimal number = rec.getAvailable();
+        BigDecimal resultAvailable = this.point.getPoint().subtract(number);
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setRecId(rec.getId())
-                .setUid(this.uid).setPoint(number).setNote("test_cancelPoint_byRecId");
+                .setUid(super.getUid()).setPoint(number).setNote("test_cancelPoint_byRecId");
         PointPo result = this.pointCancelStrategy.process(usage);
         log.info("result = {}", result);
-        // Assertions.assertEquals(number, result.getPoint().longValue());
-        Assertions.assertEquals(resultAvailable, result.getAvailable().longValue());
-        Assertions.assertEquals(0L, result.getUsed().longValue());
-        Assertions.assertEquals(0L, result.getFrozen().longValue());
-        Assertions.assertEquals(0L, result.getExpire().longValue());
+        // Assertions.assertEquals(number, result.getPoint() );
+        Assertions.assertEquals(resultAvailable, result.getAvailable());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getUsed());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getFrozen());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getExpire());
 
         Thread.sleep(100);
         PointRecPo resultRec = this.pointRecDs.getById(super.getPointType(), rec.getId(), false);
         log.info("resultRec = {}", resultRec);
         Assertions.assertFalse(resultRec.getEnable());
-        Assertions.assertTrue(resultRec.getAvailable().longValue() == 0L);
-        Assertions.assertTrue(resultRec.getCancelled().longValue() == number);
+        Assertions.assertTrue(resultRec.getAvailable()  == DecimalUtils.ZERO);
+        Assertions.assertTrue(resultRec.getCancelled() == number);
         log.info("<< test end");
     }
 
@@ -82,29 +84,29 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
     public void test_cancelPoint_nonRecId() throws InterruptedException {
         log.info(">> test start");
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(super.uid).setType(super.getPointType()).setStart(0L).setSize(1);
-        List<PointRecDto> recList = this.pointRecDs.listPointRec( param);
+        param.setUid(super.getUid()).setType(super.getPointType()).setStart(0L).setSize(1);
+        List<PointRecDto> recList = this.pointRecDs.listPointRec(param);
         PointRecDto rec = recList.get(0);
 
-        long number = rec.getAvailable();
-        long resultAvailable = this.point.getPoint() - number;
+        BigDecimal number = rec.getAvailable();
+        BigDecimal resultAvailable = this.point.getPoint().subtract(number);
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType())
-                .setUid(this.uid).setPoint(number).setNote("test_cancelPoint");
+                .setUid(super.getUid()).setPoint(number).setNote("test_cancelPoint");
         PointPo result = this.pointCancelStrategy.process(usage);
         log.info("result = {}", result);
-        Assertions.assertEquals(resultAvailable, result.getPoint().longValue());
-        Assertions.assertEquals(resultAvailable, result.getAvailable().longValue());
-        Assertions.assertEquals(0L, result.getUsed().longValue());
-        Assertions.assertEquals(0L, result.getFrozen().longValue());
-        Assertions.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(resultAvailable, result.getPoint());
+        Assertions.assertEquals(resultAvailable, result.getAvailable());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getUsed());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getFrozen());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getExpire());
 
         Thread.sleep(100L);
         PointRecPo resultRec = this.pointRecDs.getById(super.getPointType(), rec.getId(), false);
         log.info("resultRec = {}", resultRec);
         //Assertions.assertFalse(resultRec.getEnable());
-        Assertions.assertTrue(resultRec.getAvailable().longValue() == 0L);
-        Assertions.assertTrue(resultRec.getCancelled().longValue() == number);
+        Assertions.assertTrue(resultRec.getAvailable()  == DecimalUtils.ZERO);
+        Assertions.assertTrue(resultRec.getCancelled() == number);
 
         ListPointLogParam listPointLogParam = new ListPointLogParam();
         listPointLogParam.setPid(result.getId()).setSeqNum(result.getSeqNum()).setType(super.getPointType());
@@ -112,12 +114,12 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
         Assertions.assertTrue(pointLogs.size() == 1);
         PointLogDto pointLog = pointLogs.get(0);
         log.info("pointLog = {}", pointLog);
-        Assertions.assertEquals(number, pointLog.getDelta().longValue());
+        Assertions.assertEquals(number, pointLog.getDelta() );
         Assertions.assertEquals(PointOpType.CANCEL.code(), pointLog.getType().intValue());
-        Assertions.assertEquals(0L, pointLog.getPoint().longValue());
-        Assertions.assertEquals(0L, pointLog.getAvailable().longValue());
-        Assertions.assertEquals(0L, pointLog.getUsed().longValue());
-        Assertions.assertEquals(0L, pointLog.getFrozen().longValue());
+        Assertions.assertEquals(DecimalUtils.ZERO, pointLog.getPoint());
+        Assertions.assertEquals(DecimalUtils.ZERO, pointLog.getAvailable());
+        Assertions.assertEquals(DecimalUtils.ZERO, pointLog.getUsed());
+        Assertions.assertEquals(DecimalUtils.ZERO, pointLog.getFrozen());
         log.info("<< test end");
     }
 }

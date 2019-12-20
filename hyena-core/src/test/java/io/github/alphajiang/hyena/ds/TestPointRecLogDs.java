@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,13 +42,13 @@ public class TestPointRecLogDs extends HyenaTestBase {
     public void test_batchInsert() {
         List<PointRecLogPo> logs = new ArrayList<>();
         PointRecLogPo log1 = new PointRecLogPo();
-        log1.setUsed(123L);
+        log1.setUsed(BigDecimal.valueOf(123L));
         logs.add(log1);
         this.pointRecLogDs.batchInsert(super.getPointType(), logs);
 
 
         PointRecLogPo log2 = new PointRecLogPo();
-        log2.setUsed(456L);
+        log2.setUsed(BigDecimal.valueOf(456L));
         logs.add(log2);
         this.pointRecLogDs.batchInsert(super.getPointType(), logs);
     }
@@ -55,7 +56,7 @@ public class TestPointRecLogDs extends HyenaTestBase {
     @Test
     public void test_addPointRecLog() {
         PointRecLogPo log1 = new PointRecLogPo();
-        log1.setUsed(111L);
+        log1.setUsed(BigDecimal.valueOf(111L));
 
         this.pointRecLogDs.addPointRecLog(super.getPointType(), log1);
     }

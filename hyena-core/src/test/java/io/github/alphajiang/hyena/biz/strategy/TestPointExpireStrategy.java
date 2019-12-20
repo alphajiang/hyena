@@ -24,12 +24,14 @@ import io.github.alphajiang.hyena.model.dto.PointRecDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class TestPointExpireStrategy extends TestPointStrategyBase {
@@ -45,29 +47,29 @@ public class TestPointExpireStrategy extends TestPointStrategyBase {
     @Test
     public void test_expirePoint() throws InterruptedException {
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(super.uid).setType(super.getPointType()).setStart(0L).setSize(1);
+        param.setUid(super.getUid()).setType(super.getPointType()).setStart(0L).setSize(1);
         Thread.sleep(100L);
         List<PointRecDto> recList = this.pointRecDs.listPointRec(param);
         PointRecDto rec = recList.get(0);
 
-        long number = rec.getAvailable();
-        long resultAvailable = this.point.getPoint() - number;
+        BigDecimal number = rec.getAvailable();
+        BigDecimal resultAvailable = this.point.getPoint().subtract(number);
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setRecId(rec.getId())
-                .setUid(this.uid).setPoint(number).setNote("test_expirePoint");
+                .setUid(super.getUid()).setPoint(number).setNote("test_expirePoint");
         PointPo result = this.pointExpireStrategy.process(usage);
         logger.info("result = {}", result);
-        Assertions.assertEquals(this.point.getPoint().longValue() - number, result.getPoint().longValue());
-        Assertions.assertEquals(resultAvailable, result.getAvailable().longValue());
-        Assertions.assertEquals(0L, result.getUsed().longValue());
-        Assertions.assertEquals(0L, result.getFrozen().longValue());
-        Assertions.assertEquals(number, result.getExpire().longValue());
+        Assertions.assertEquals(this.point.getPoint().subtract(number), result.getPoint());
+        Assertions.assertEquals(resultAvailable, result.getAvailable());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getUsed());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getFrozen());
+        Assertions.assertEquals(number, result.getExpire());
 
         Thread.sleep(100L);
         PointRecPo resultRec = this.pointRecDs.getById(super.getPointType(), rec.getId(), false);
         logger.info("resultRec = {}", resultRec);
         Assertions.assertFalse(resultRec.getEnable());
         Assertions.assertTrue(resultRec.getAvailable().longValue() == 0L);
-        Assertions.assertTrue(resultRec.getExpire().longValue() == number);
+        Assertions.assertTrue(resultRec.getExpire() == number);
     }
 }

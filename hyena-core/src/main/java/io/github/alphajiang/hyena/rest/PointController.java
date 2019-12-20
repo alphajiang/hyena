@@ -51,6 +51,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
@@ -299,7 +300,7 @@ public class PointController {
 
     @ApiOperation(value = "获取时间段内总共增加的积分数量")
     @GetMapping(value = "/getIncreasedPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ObjectResponse<Long> getIncreasedPoint(
+    public ObjectResponse<BigDecimal> getIncreasedPoint(
             HttpServletRequest request,
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
             @ApiParam(value = "用户ID") @RequestParam(required = false) String uid,
@@ -311,7 +312,7 @@ public class PointController {
             Calendar calEnd = DateUtils.fromYyyyMmDdHhMmSs(strEnd);
             var ret = this.pointRecDs.getIncreasedPoint(type, uid, calStart.getTime(), calEnd.getTime());
 
-            ObjectResponse<Long> res = new ObjectResponse<>(ret);
+            ObjectResponse<BigDecimal> res = new ObjectResponse<>(ret);
             logger.info(LoggerHelper.formatLeaveLog(request) + " ret = {}", ret);
             return res;
         } catch (ParseException e) {

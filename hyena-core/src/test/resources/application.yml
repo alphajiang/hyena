@@ -19,9 +19,9 @@ logging:
   level:
     io.github.alphajiang.hyena: 'DEBUG'
     org.springframework: 'INFO'
-    org.springframework.transaction: DEBUG
-    org.springframework.jdbc: DEBUG
-    com.zaxxer.hikari: INFO
+    org.springframework.transaction: WARN
+    org.springframework.jdbc: WARN
+    com.zaxxer.hikari: WARN
 
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] - %logger{36}.%M\\(%line\\) - %msg%n"

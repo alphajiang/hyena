@@ -37,12 +37,14 @@ import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
 import io.github.alphajiang.hyena.model.vo.PointVo;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -82,14 +84,14 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
     @Override
     public PointOpResult processPoint(PointUsage usage, PointCache pointCache) {
         PointVo curPoint = pointCache.getPoint();
-        if (curPoint.getAvailable() < usage.getPoint()) {
+        if (DecimalUtils.lt(curPoint.getAvailable(), usage.getPoint())) {
             log.warn("no enough available point. usage = {}, curPoint = {}", usage, curPoint);
             throw new HyenaNoPointException("no enough available point", Level.WARN);
         }
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1)
-                .setAvailable(curPoint.getAvailable() - usage.getPoint())
-                .setFrozen(curPoint.getFrozen() + usage.getPoint());
+                .setAvailable(curPoint.getAvailable().subtract(usage.getPoint()))
+                .setFrozen(curPoint.getFrozen().add(usage.getPoint()));
         PointPo point2Update = new PointPo();
         point2Update.setAvailable(curPoint.getAvailable())
                 .setFrozen(curPoint.getFrozen()).setSeqNum(curPoint.getSeqNum())
@@ -97,25 +99,25 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
 
 
         PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.FREEZE, usage, curPoint);
-        long gap = usage.getPoint();
-        long cost = 0L;
+        BigDecimal gap = usage.getPoint();
+        BigDecimal cost = DecimalUtils.ZERO;
         List<PointRecLogDto> recLogs = new ArrayList<>();
 
 
         LoopResult recLogsRet = this.freezePointLoop(usage, pointCache,
                 pointLog, gap);
-        gap = gap - recLogsRet.getDelta();
-        cost = cost + recLogsRet.getDeltaCost();
+        gap = gap.subtract(recLogsRet.getDelta());
+        cost = cost.add(recLogsRet.getDeltaCost());
         recLogs.addAll(recLogsRet.getRecLogs());
         log.debug("gap = {}", gap);
 
 
-        if (gap != 0L) {
+        if (gap.compareTo(DecimalUtils.ZERO) != 0) {
             log.warn("no enough available point! gap = {}", gap);
         }
-        if (cost > 0L) {
-            pointLog.setDeltaCost(cost).setFrozenCost(pointLog.getFrozenCost() + cost);
-            curPoint.setFrozenCost(curPoint.getFrozenCost() + cost);
+        if (DecimalUtils.gt(cost, DecimalUtils.ZERO)) {
+            pointLog.setDeltaCost(cost).setFrozenCost(pointLog.getFrozenCost().add(cost));
+            curPoint.setFrozenCost(curPoint.getFrozenCost().add(cost));
             point2Update.setFrozenCost(curPoint.getFrozenCost());
         }
 
@@ -136,39 +138,39 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
 
 
     private LoopResult freezePointLoop(PointUsage usage, PointCache pointCache,
-                                       PointLogPo pointLog, long expected) {
+                                       PointLogPo pointLog, BigDecimal expected) {
         log.info("freeze. type = {}, uid = {}, expected = {}",
                 usage.getType(), pointCache.getPoint().getUid(), expected);
 
         LoopResult result = new LoopResult();
-        long sum = 0L;
-        long deltaCost = 0L;
+        BigDecimal sum = DecimalUtils.ZERO;
+        BigDecimal deltaCost = DecimalUtils.ZERO;
         List<PointRecPo> recList4Update = new ArrayList<>();
         List<PointRecLogDto> recLogs = new ArrayList<>();
         List<FreezeOrderRecPo> forList = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
-            long gap = expected - sum;
-            if (gap < 1L) {
+            BigDecimal gap = expected.subtract(sum);
+            if (DecimalUtils.lte(gap, DecimalUtils.ZERO)) {
                 log.warn("gap = {} !!!", gap);
                 break;
-            } else if (rec.getAvailable() < 1L) {
+            } else if (DecimalUtils.lte(rec.getAvailable(), DecimalUtils.ZERO)) {
                 // do nothing
-            } else if (rec.getAvailable() < gap) {
-                sum += rec.getAvailable();
-                long delta = rec.getAvailable();
+            } else if (DecimalUtils.lt(rec.getAvailable(), gap)) {
+                sum = sum.add(rec.getAvailable());
+                BigDecimal delta = rec.getAvailable();
                 PointRecCalcResult calcResult = this.pointRecCalculator.freezePoint(rec, delta);
                 recList4Update.add(calcResult.getRec4Update());
-                deltaCost += calcResult.getDeltaCost();
+                deltaCost = deltaCost.add(calcResult.getDeltaCost());
                 FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
                         rec, usage.getOrderType(), usage.getOrderNo(), delta, calcResult.getDeltaCost());
                 forList.add(fo);
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
             } else {
-                sum += gap;
+                sum = sum.add(gap);
                 PointRecCalcResult calcResult = this.pointRecCalculator.freezePoint(rec, gap);
                 recList4Update.add(calcResult.getRec4Update());
-                deltaCost += calcResult.getDeltaCost();
+                deltaCost = deltaCost.add(calcResult.getDeltaCost());
                 FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
                         rec, usage.getOrderType(), usage.getOrderNo(), gap, calcResult.getDeltaCost());
                 forList.add(fo);

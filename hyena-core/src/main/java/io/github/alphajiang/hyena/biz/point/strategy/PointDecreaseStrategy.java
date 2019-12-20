@@ -36,6 +36,7 @@ import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
@@ -43,6 +44,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -95,9 +97,9 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         }
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1)
-                .setPoint(curPoint.getPoint() - usage.getPoint())
-                .setAvailable(curPoint.getAvailable() - usage.getPoint())
-                .setUsed(curPoint.getUsed() + usage.getPoint());
+                .setPoint(curPoint.getPoint().subtract(usage.getPoint()))
+                .setAvailable(curPoint.getAvailable().subtract(usage.getPoint()))
+                .setUsed(curPoint.getUsed().add(usage.getPoint()));
         var point2Update = new PointPo();
         point2Update.setPoint(curPoint.getPoint())
                 .setAvailable(curPoint.getAvailable())
@@ -106,21 +108,21 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
 
         PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.DECREASE, usage, curPoint);
 
-        long gap = usage.getPoint();
-        long cost = 0L;
+        BigDecimal gap = usage.getPoint();
+        BigDecimal cost = DecimalUtils.ZERO;
         List<PointRecLogDto> recLogs = new ArrayList<>();
 
         var recLogsRet = this.decreasePointLoop(usage.getType(),
                 pointCache,
                 pointLog, gap, usage.getRecId());
-        gap = gap - recLogsRet.getDelta();
-        cost = cost + recLogsRet.getDeltaCost();
+        gap = gap.subtract(recLogsRet.getDelta());
+        cost = cost.add(recLogsRet.getDeltaCost());
         recLogs.addAll(recLogsRet.getRecLogs());
         log.debug("gap = {}", gap);
 
-        if (cost > 0L) {
-            pointLog.setDeltaCost(cost).setCost(pointLog.getCost() - cost);
-            curPoint.setCost(curPoint.getCost() - cost);
+        if (DecimalUtils.gt(cost, DecimalUtils.ZERO)) {
+            pointLog.setDeltaCost(cost).setCost(pointLog.getCost().subtract(cost));
+            curPoint.setCost(curPoint.getCost().subtract(cost));
             point2Update.setCost(curPoint.getCost());
         }
 
@@ -137,38 +139,38 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
     }
 
     private LoopResult decreasePointLoop(String type, PointCache pointCache,
-                                         PointLogPo pointLog, long expected, Long recId) {
+                                         PointLogPo pointLog, BigDecimal expected, Long recId) {
         log.info("decrease. type = {}, uid = {}, expected = {}, recId = {}",
                 type, pointCache.getPoint().getUid(), expected, recId);
 
         LoopResult result = new LoopResult();
-        long sum = 0L;
-        long deltaCost = 0L;
+        BigDecimal sum = DecimalUtils.ZERO;
+        BigDecimal deltaCost = DecimalUtils.ZERO;
         List<PointRecPo> recList4Update = new ArrayList<>();
         List<PointRecLogDto> recLogs = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
             if (recId != null && recId > 0L && !recId.equals(rec.getId())) {
                 continue;
             }
-            long gap = expected - sum;
-            if (gap < 1L) {
+            BigDecimal gap = expected.subtract(sum);
+            if (DecimalUtils.lte(gap, DecimalUtils.ZERO)) {
                 log.warn("gap = {} !!!", gap);
                 break;
-            } else if (rec.getAvailable() < 1L) {
+            } else if (DecimalUtils.lte(rec.getAvailable(), DecimalUtils.ZERO)) {
                 // do nothing
-            } else if (rec.getAvailable() < gap) {
-                sum += rec.getAvailable();
-                long delta = rec.getAvailable();
+            } else if (DecimalUtils.lt(rec.getAvailable(), gap)) {
+                sum = sum.add(rec.getAvailable());
+                BigDecimal delta = rec.getAvailable();
                 PointRecCalcResult calcResult = this.pointRecCalculator.decreasePoint(rec, delta);
                 recList4Update.add(calcResult.getRec4Update());
-                deltaCost += calcResult.getDeltaCost();
+                deltaCost = deltaCost.add(calcResult.getDeltaCost());
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
             } else {
-                sum += gap;
+                sum = sum.add(gap);
                 PointRecCalcResult calcResult = this.pointRecCalculator.decreasePoint(rec, gap);
                 recList4Update.add(calcResult.getRec4Update());
-                deltaCost += calcResult.getDeltaCost();
+                deltaCost = deltaCost.add(calcResult.getDeltaCost());
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
                 recLogs.add(recLog);
                 break;
@@ -188,7 +190,7 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
                 .filter(rec -> rec.getId().equals(usage.getRecId())).findFirst();
         if (filter.isPresent()) {
             PointRecPo rec = filter.get();
-            if (rec.getAvailable() >= usage.getPoint()) {
+            if (DecimalUtils.gte(rec.getAvailable(), usage.getPoint())) {
                 return true;
             } else {
                 log.warn("块内余额不足. rec = {}, usage = {}", rec, usage);

@@ -24,6 +24,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
@@ -41,8 +43,8 @@ public class PointOpParam extends BaseObject {
     @ApiModelProperty(value = "显示名称", example = "Tom")
     private String name;
 
-    @ApiModelProperty(value = "积分数量", example = "1000")
-    private long point;
+    @ApiModelProperty(value = "积分数量", example = "10.00")
+    private BigDecimal point;
 
 
     @ApiModelProperty(value = "标签", example = "")

@@ -20,6 +20,7 @@ import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +80,8 @@ public class PointRefundStrategy extends AbstractPointStrategy {
         try (PointWrapper pw = preProcess(usage, true, true)) {
             PointCache p = pw.getPointCache();
 
-            if (usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L) {
+            if (usage.getUnfreezePoint() != null
+                    && DecimalUtils.gt(usage.getUnfreezePoint(), DecimalUtils.ZERO)) {
                 List<FreezeOrderRecPo> forList = this.freezeOrderRecDs.getFreezeOrderRecList(usage.getType(),
                         p.getPoint().getId(),
                         usage.getOrderType(), usage.getOrderNo());
@@ -109,8 +112,8 @@ public class PointRefundStrategy extends AbstractPointStrategy {
         //PointPo curPoint = this.pointDs.getCusPoint(usage.getType(), usage.getUid(), true);
         HyenaAssert.notNull(usage.getCost(), "invalid parameter: cost");
         PointPo curPoint = pointCache.getPoint();
-        long availableCost = curPoint.getCost().longValue() - curPoint.getFrozenCost().longValue();
-        HyenaAssert.isTrue(availableCost >= usage.getCost(),
+        BigDecimal availableCost = curPoint.getCost().subtract(curPoint.getFrozenCost());
+        HyenaAssert.isTrue(DecimalUtils.gte(availableCost, usage.getCost()),
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                 "no enough available cost");
 
@@ -124,10 +127,10 @@ public class PointRefundStrategy extends AbstractPointStrategy {
         PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.REFUND, usage, curPoint);
         var recLogsRet = this.loop(usage.getType(), pointCache, pointLog, usage.getCost());
 
-        curPoint.setPoint(curPoint.getPoint() - recLogsRet.getDelta())
-                .setAvailable(curPoint.getAvailable() - recLogsRet.getDelta())
-                .setRefund(curPoint.getRefund() + recLogsRet.getDelta())
-                .setCost(curPoint.getCost() - recLogsRet.getDeltaCost());
+        curPoint.setPoint(curPoint.getPoint().subtract(recLogsRet.getDelta()))
+                .setAvailable(curPoint.getAvailable().subtract(recLogsRet.getDelta()))
+                .setRefund(curPoint.getRefund().add(recLogsRet.getDelta()))
+                .setCost(curPoint.getCost().subtract(recLogsRet.getDeltaCost()));
         point2Update.setPoint(curPoint.getPoint())
                 .setAvailable(curPoint.getAvailable())
                 .setRefund(curPoint.getRefund())
@@ -155,8 +158,8 @@ public class PointRefundStrategy extends AbstractPointStrategy {
         log.info(">> pointCache = {}", pointCache);
 
         PointPo curPoint = pointCache.getPoint();
-        long availableCost = curPoint.getCost().longValue() - curPoint.getFrozenCost().longValue();
-        HyenaAssert.isTrue(availableCost >= usage.getPoint(),
+        BigDecimal availableCost = curPoint.getCost().subtract(curPoint.getFrozenCost());
+        HyenaAssert.isTrue(DecimalUtils.gte(availableCost, usage.getPoint()),
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                 "no enough available cost");
 
@@ -171,10 +174,10 @@ public class PointRefundStrategy extends AbstractPointStrategy {
         LoopResult recLogsRet = this.refundLoop(usage, pointCache, pointLog, forList);
 
 
-        curPoint.setPoint(curPoint.getPoint() - recLogsRet.getDelta())
-                .setAvailable(curPoint.getAvailable() - recLogsRet.getDelta())
-                .setRefund(curPoint.getRefund() + recLogsRet.getDelta())
-                .setCost(curPoint.getCost() - recLogsRet.getDeltaCost());
+        curPoint.setPoint(curPoint.getPoint().subtract(recLogsRet.getDelta()))
+                .setAvailable(curPoint.getAvailable().subtract(recLogsRet.getDelta()))
+                .setRefund(curPoint.getRefund().add(recLogsRet.getDelta()))
+                .setCost(curPoint.getCost().subtract(recLogsRet.getDeltaCost()));
         point2Update.setPoint(curPoint.getPoint())
                 .setAvailable(curPoint.getAvailable())
                 .setRefund(curPoint.getRefund())
@@ -199,39 +202,39 @@ public class PointRefundStrategy extends AbstractPointStrategy {
 
 
     private LoopResult loop(String type, PointCache pointCache,
-                            PointLogPo pointLog, long expected) {
+                            PointLogPo pointLog, BigDecimal expected) {
         log.info("refund cost. type = {}, uid = {}, expected = {}", type, pointCache.getPoint().getUid(), expected);
 
         LoopResult result = new LoopResult();
-        long sum = 0L;
-        long sumPoint = 0L;
-        long cost = 0L;
+        BigDecimal sum = DecimalUtils.ZERO;
+        BigDecimal sumPoint = DecimalUtils.ZERO;
+        BigDecimal cost = DecimalUtils.ZERO;
         List<PointRecPo> recList4Update = new ArrayList<>();
         List<PointRecLogDto> recLogs = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
-            long gap = expected - sum;
-            long availableCost = this.costCalculator.getAvailableCost(rec);
-            if (gap < 1L) {
+            BigDecimal gap = expected.subtract(sum);
+            BigDecimal availableCost = this.costCalculator.getAvailableCost(rec);
+            if (DecimalUtils.lte(gap, DecimalUtils.ZERO)) {
                 log.warn("gap = {} !!!", gap);
                 break;
-            } else if (availableCost < 1L) {
+            } else if (DecimalUtils.lte(availableCost, DecimalUtils.ZERO)) {
                 // do nothing
-            } else if (availableCost < gap) {
-                sum += availableCost;
-                long deltaCost = availableCost;
-                long delta = this.costCalculator.accountPoint(rec, deltaCost);
-                sumPoint += delta;
-                cost += deltaCost;
+            } else if (DecimalUtils.lt(availableCost, gap)) {
+                sum = sum.add(availableCost);
+                BigDecimal deltaCost = availableCost;
+                BigDecimal delta = this.costCalculator.accountPoint(rec, deltaCost);
+                sumPoint = sumPoint.add(delta);
+                cost = cost.add(deltaCost);
                 var rec4Update = this.pointRecCalculator.refundPoint(rec, delta, deltaCost);
                 recList4Update.add(rec4Update);
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, deltaCost);
                 recLogs.add(recLog);
             } else {
-                sum += gap;
-                long deltaCost = gap;
-                long delta = this.costCalculator.accountPoint(rec, deltaCost);
-                sumPoint += delta;
-                cost += deltaCost;
+                sum = sum.add(gap);
+                BigDecimal deltaCost = gap;
+                BigDecimal delta = this.costCalculator.accountPoint(rec, deltaCost);
+                sumPoint = sumPoint.add(delta);
+                cost = cost.add(deltaCost);
                 var rec4Update = this.pointRecCalculator.refundPoint(rec, delta, deltaCost);
                 recList4Update.add(rec4Update);
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, deltaCost);
@@ -261,8 +264,8 @@ public class PointRefundStrategy extends AbstractPointStrategy {
         forList.stream().forEach(fo -> {
             if (forMap.containsKey(fo.getRecId())) {
                 FreezeOrderRecPo l = forMap.get(fo.getRecId());
-                l.setFrozen(l.getFrozen() + fo.getFrozen())
-                        .setFrozenCost(l.getFrozenCost() + fo.getFrozenCost());
+                l.setFrozen(l.getFrozen().add(fo.getFrozen()))
+                        .setFrozenCost(l.getFrozenCost().add(fo.getFrozenCost()));
             } else {
                 FreezeOrderRecPo l = new FreezeOrderRecPo();
                 BeanUtils.copyProperties(fo, l);
@@ -281,8 +284,14 @@ public class PointRefundStrategy extends AbstractPointStrategy {
                         recLogs.add(recLog);
                     });
         });
-        long delta = forList.stream().mapToLong(FreezeOrderRecPo::getFrozen).sum();
-        long deltaCost = forList.stream().mapToLong(FreezeOrderRecPo::getFrozenCost).sum();
+        BigDecimal delta = DecimalUtils.ZERO;
+        BigDecimal deltaCost = DecimalUtils.ZERO;
+        for (var fr : forList) {
+            delta = delta.add(fr.getFrozen());
+            deltaCost = deltaCost.add(fr.getFrozenCost());
+        }
+        //        long delta = forList.stream().mapToLong(FreezeOrderRecPo::getFrozen).sum();
+//        long deltaCost = forList.stream().mapToLong(FreezeOrderRecPo::getFrozenCost).sum();
         LoopResult result = new LoopResult();
 
         result.setDelta(delta)

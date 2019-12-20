@@ -23,12 +23,14 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class PointDecreaseFrozenParam extends PointUnfreezeParam {
 
-    @ApiModelProperty(value = "解冻积分数量", example = "1000")
-    private Long unfreezePoint;
+    @ApiModelProperty(value = "解冻积分数量", example = "10.00")
+    private BigDecimal unfreezePoint;
 }

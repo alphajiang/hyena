@@ -24,6 +24,7 @@ import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.dto.PointRecDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -65,7 +66,7 @@ public class ExpirePointTask {
         List<PointRecDto> pointRecList = this.pointRecDs.listPointRec(param);
 
         pointRecList.stream()
-                .filter(rec -> rec.getAvailable() > 0L)
+                .filter(rec -> rec.getAvailable().compareTo(DecimalUtils.ZERO) > 0)
                 .forEach(rec -> {
                     try {
                         PointUsage usage = new PointUsage();

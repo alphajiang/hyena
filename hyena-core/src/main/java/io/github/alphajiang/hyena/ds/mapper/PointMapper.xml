@@ -24,14 +24,22 @@
         <result column="id" property="id"/>
         <result column="uid" property="uid"/>
         <result column="name" property="name"/>
-        <result column="point" property="point"/>
-        <result column="available" property="available"/>
-        <result column="used" property="used"/>
-        <result column="frozen" property="frozen"/>
-        <result column="refund" property="refund"/>
-        <result column="expire" property="expire"/>
-        <result column="cost" property="cost"/>
-        <result column="frozenCost" property="frozenCost"/>
+        <result column="point" property="point"
+                typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+        <result column="available" property="available"
+                typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+        <result column="used" property="used"
+                typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+        <result column="frozen" property="frozen"
+                typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+        <result column="refund" property="refund"
+                typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+        <result column="expire" property="expire"
+                typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+        <result column="cost" property="cost"
+                typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+        <result column="frozenCost" property="frozenCost"
+                typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
         <result column="seqNum" property="seqNum"/>
         <result column="enable" property="enable"/>
         <result column="createTime" property="createTime"/>
@@ -41,17 +49,28 @@
             <result column="rec_id" property="id"/>
             <result column="rec_pid" property="pid"/>
             <result column="rec_seqNum" property="seqNum"/>
-            <result column="rec_total" property="total"/>
-            <result column="rec_available" property="available"/>
-            <result column="rec_used" property="used"/>
-            <result column="rec_frozen" property="frozen"/>
-            <result column="rec_refund" property="refund"/>
-            <result column="rec_cancelled" property="cancelled"/>
-            <result column="rec_expire" property="expire"/>
-            <result column="rec_totalCost" property="totalCost"/>
-            <result column="rec_frozenCost" property="frozenCost"/>
-            <result column="rec_usedCost" property="usedCost"/>
-            <result column="rec_refundCost" property="refundCost"/>
+            <result column="rec_total" property="total"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+            <result column="rec_available" property="available"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+            <result column="rec_used" property="used"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+            <result column="rec_frozen" property="frozen"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+            <result column="rec_refund" property="refund"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+            <result column="rec_cancelled" property="cancelled"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+            <result column="rec_expire" property="expire"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+            <result column="rec_totalCost" property="totalCost"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+            <result column="rec_frozenCost" property="frozenCost"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+            <result column="rec_usedCost" property="usedCost"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
+            <result column="rec_refundCost" property="refundCost"
+                    typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
             <result column="rec_tag" property="tag"/>
             <result column="rec_orderNo" property="orderNo"/>
             <result column="rec_sourceType" property="sourceType"/>
@@ -98,10 +117,15 @@
 
     <insert id="addPoint" useGeneratedKeys="true" keyProperty="point.id">
         insert into `${tableName}` (
-        `uid`, `name`, `point`, `available`, `cost`,
+        `uid`, `name`, `point`, `available`, `cost`,`frozen`,`used`,
+        `refund`,`expire`,
+        `frozenCost`,
         seqNum
         ) values(
         #{point.uid}, #{point.name}, #{point.point}, #{point.point}, #{point.cost},
+        #{point.frozen}, #{point.used},
+        #{point.refund}, #{point.expire},
+        #{point.frozenCost},
         #{point.seqNum} )
     </insert>
 

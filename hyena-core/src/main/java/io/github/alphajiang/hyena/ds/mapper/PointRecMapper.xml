@@ -35,6 +35,12 @@
         `total` = #{rec.total},
         `available` = #{rec.available},
         `totalCost` = #{rec.totalCost},
+        `used` = #{rec.used},
+        `frozen` = #{rec.frozen},
+        `refund` = #{rec.refund},
+        `cancelled` = #{rec.cancelled},
+        `expire` = #{rec.expire},
+        `frozenCost` = #{rec.frozenCost},
         `usedCost` = #{rec.usedCost},
         `refundCost` = #{rec.refundCost},
         <if test="rec.tag != null">
@@ -251,7 +257,7 @@
     </update>
 
 
-    <select id="getIncreasedPoint" resultType="java.lang.Long">
+    <select id="getIncreasedPoint" resultType="java.math.BigDecimal">
         select sum(rec.total)
         from `${pointTableName}_rec` as rec
         left join `${pointTableName}` as p on rec.pid = p.id

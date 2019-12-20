@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
+
 public class TestPointUsageFacade extends HyenaTestBase {
     private final Logger logger = LoggerFactory.getLogger(TestPointUsageFacade.class);
 
@@ -37,7 +39,8 @@ public class TestPointUsageFacade extends HyenaTestBase {
     @Test
     public void test_increase() {
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid("test_increase").setPoint(99887L);
+        usage.setType(super.getPointType()).setUid("test_increase")
+                .setPoint(BigDecimal.valueOf(99887L));
         PointPo ret = this.pointUsageFacade.increase(usage);
         logger.info("point = {}", ret);
         Assertions.assertNotNull(ret);

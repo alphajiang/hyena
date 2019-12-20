@@ -20,11 +20,14 @@ package io.github.alphajiang.hyena.biz.strategy;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.math.BigDecimal;
 
 public class TestPointIncreaseStrategy extends TestPointStrategyBase {
     private final Logger logger = LoggerFactory.getLogger(TestPointIncreaseStrategy.class);
@@ -35,16 +38,16 @@ public class TestPointIncreaseStrategy extends TestPointStrategyBase {
 
     @Test
     public void test_increasePoint_twice() {
-        long number = 123L;
-        long resultNumber = this.point.getPoint() + number;
+        BigDecimal number = BigDecimal.valueOf(123L).setScale(DecimalUtils.SCALE_2);
+        BigDecimal resultNumber = this.point.getPoint().add(number);
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number);
+        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number);
         PointPo result = this.pointIncreaseStrategy.process(usage);
         logger.info("result = {}", result);
-        Assertions.assertEquals(resultNumber, result.getPoint().longValue());
-        Assertions.assertEquals(resultNumber, result.getAvailable().longValue());
-        Assertions.assertEquals(0L, result.getUsed().longValue());
-        Assertions.assertEquals(0L, result.getFrozen().longValue());
-        Assertions.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(resultNumber, result.getPoint());
+        Assertions.assertEquals(resultNumber, result.getAvailable());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getUsed());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getFrozen());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getExpire());
     }
 }

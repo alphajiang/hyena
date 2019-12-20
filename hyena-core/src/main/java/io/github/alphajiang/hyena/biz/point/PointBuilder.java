@@ -23,10 +23,12 @@ import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.PointOpType;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Service
@@ -57,7 +59,7 @@ public class PointBuilder {
         if (usage.getCost() != null) {
             pointLog.setDeltaCost(usage.getCost());
         } else {
-            pointLog.setDeltaCost(0L);
+            pointLog.setDeltaCost(DecimalUtils.ZERO);
         }
         if (pointLog.getOrderNo() == null) {
             pointLog.setOrderNo("");
@@ -77,19 +79,19 @@ public class PointBuilder {
 
 
     public PointRecLogDto buildRecLog(PointRecPo rec, PointLogPo pointLog,
-                                      long delta, long deltaCost) {
+                                      BigDecimal delta, BigDecimal deltaCost) {
         PointRecLogDto recLog = new PointRecLogDto();
         recLog.setRecOrigOrderNo(rec.getOrderNo())
                 .setPid(rec.getPid()).setSeqNum(pointLog.getSeqNum())
                 .setRecId(rec.getId()).setType(pointLog.getType())
                 .setDelta(delta).setDeltaCost(deltaCost);
-        recLog.setAvailable(rec.getAvailable() == null ? 0L : rec.getAvailable());
-        recLog.setUsed(rec.getUsed() == null ? 0L : rec.getUsed());
-        recLog.setFrozen(rec.getFrozen() == null ? 0L : rec.getFrozen());
-        recLog.setRefund(rec.getRefund() == null ? 0L : rec.getRefund());
-        recLog.setCancelled(rec.getCancelled() == null ? 0L : rec.getCancelled());
-        recLog.setExpire(rec.getExpire() == null ? 0L : rec.getExpire());
-        recLog.setCost(rec.getTotalCost() - rec.getUsedCost());
+        recLog.setAvailable(rec.getAvailable() == null ? DecimalUtils.ZERO : rec.getAvailable());
+        recLog.setUsed(rec.getUsed() == null ? DecimalUtils.ZERO : rec.getUsed());
+        recLog.setFrozen(rec.getFrozen() == null ? DecimalUtils.ZERO : rec.getFrozen());
+        recLog.setRefund(rec.getRefund() == null ? DecimalUtils.ZERO : rec.getRefund());
+        recLog.setCancelled(rec.getCancelled() == null ? DecimalUtils.ZERO : rec.getCancelled());
+        recLog.setExpire(rec.getExpire() == null ? DecimalUtils.ZERO : rec.getExpire());
+        recLog.setCost(rec.getTotalCost() .subtract(rec.getUsedCost()));
         recLog.setFrozenCost(rec.getFrozenCost());
         recLog.setUsedCost(rec.getUsedCost());
         recLog.setRefundCost(rec.getRefundCost());
@@ -101,7 +103,7 @@ public class PointBuilder {
 
     public FreezeOrderRecPo buildFreezeOrderRec(@NonNull PointPo point, @NonNull PointRecPo rec,
                                                 Integer orderType,
-                                                String orderNo, long frozen, long frozenCost) {
+                                                String orderNo, BigDecimal frozen, BigDecimal frozenCost) {
         FreezeOrderRecPo fo = new FreezeOrderRecPo();
         fo.setPid(point.getId())
                 .setUid(point.getUid())

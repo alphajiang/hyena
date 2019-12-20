@@ -23,12 +23,14 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class PointFreezeParam extends PointOpParam {
 
-    @ApiModelProperty(value = "实际成本, 按成本冻结时传递", example = "0")
-    private Long cost;
+    @ApiModelProperty(value = "实际成本, 按成本冻结时传递", example = "1.00")
+    private BigDecimal cost;
 }

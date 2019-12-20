@@ -40,6 +40,7 @@ import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,18 +95,18 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
     public PointOpResult processPoint(PointUsage usage, PointCache pointCache) {
         PointPo curPoint = pointCache.getPoint();
 
-        if (curPoint.getFrozen() < usage.getPoint()) {
+        if (curPoint.getFrozen().compareTo(usage.getPoint()) < 0) {
             log.warn("no enough frozen point. usage = {}, curPoint = {}", usage, curPoint);
             throw new HyenaNoPointException("no enough frozen point", Level.WARN);
         }
-        HyenaAssert.isTrue(curPoint.getFrozen().longValue() >= usage.getPoint(),
+        HyenaAssert.isTrue(curPoint.getFrozen().compareTo(usage.getPoint()) >= 0,
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                 "no enough frozen point");
 
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1)
-                .setAvailable(curPoint.getAvailable() + usage.getPoint())
-                .setFrozen(curPoint.getFrozen() - usage.getPoint());
+                .setAvailable(curPoint.getAvailable().add(usage.getPoint()))
+                .setFrozen(curPoint.getFrozen().subtract(usage.getPoint()));
 
         var point2Update = new PointPo();
         point2Update.setAvailable(curPoint.getAvailable())
@@ -124,10 +126,10 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
                     pointCache, pointLog, usage.getPoint());
         }
 
-        if (recLogsRet.getDeltaCost() > 0L) {
+        if (recLogsRet.getDeltaCost().compareTo(DecimalUtils.ZERO) > 0) {
             pointLog.setDeltaCost(recLogsRet.getDeltaCost())
-                    .setFrozenCost(pointLog.getFrozenCost() - recLogsRet.getDeltaCost());
-            curPoint.setFrozenCost(curPoint.getFrozenCost() - recLogsRet.getDeltaCost());
+                    .setFrozenCost(pointLog.getFrozenCost().subtract(recLogsRet.getDeltaCost()));
+            curPoint.setFrozenCost(curPoint.getFrozenCost().subtract(recLogsRet.getDeltaCost()));
             point2Update.setFrozenCost(curPoint.getFrozenCost());
         }
 
@@ -147,37 +149,37 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
 
 
     private LoopResult unfreezePointLoop(PointUsage usage, PointCache pointCache,
-                                         PointLogPo pointLog, long expected) {
+                                         PointLogPo pointLog, BigDecimal expected) {
         log.info("unfreeze. type = {}, uid = {}, expected = {}",
                 usage.getType(), pointCache.getPoint().getUid(), expected);
         //List<PointRecPo> recList = pointCache.getPoint().getRecList();
         LoopResult result = new LoopResult();
-        long sum = 0L;
-        long deltaCost = 0L;
+        BigDecimal sum = DecimalUtils.ZERO;
+        BigDecimal deltaCost = DecimalUtils.ZERO;
 
         List<PointRecPo> recList4Update = new ArrayList<>();
         List<PointRecLogDto> recLogs = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
-            long gap = expected - sum;
-            if (gap < 1L) {
+            BigDecimal gap = expected.subtract(sum);
+            if (gap.compareTo(DecimalUtils.ZERO) < 1) {
                 log.warn("gap = {} !!!", gap);
                 break;
-            } else if (rec.getFrozen() < 1L) {
+            } else if (rec.getFrozen().compareTo(DecimalUtils.ZERO) < 1) {
                 // do nothing
-            } else if (rec.getFrozen() < gap) {
-                sum += rec.getFrozen();
-                long delta = rec.getFrozen();
+            } else if (rec.getFrozen().compareTo(gap) < 1) {
+                sum = sum.add(rec.getFrozen());
+                BigDecimal delta = rec.getFrozen();
 
                 PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, delta, null);
                 recList4Update.add(calcResult.getRec4Update());
-                deltaCost += calcResult.getDeltaCost();
+                deltaCost = deltaCost.add(calcResult.getDeltaCost());
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
             } else {
-                sum += gap;
+                sum = sum.add(gap);
                 PointRecCalcResult calcResult = this.pointRecCalculator.unfreezePoint(rec, gap, null);
                 recList4Update.add(calcResult.getRec4Update());
-                deltaCost += calcResult.getDeltaCost();
+                deltaCost = deltaCost.add(calcResult.getDeltaCost());
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
                 recLogs.add(recLog);
                 break;
@@ -202,8 +204,10 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
         List<FreezeOrderRecPo> forList = this.freezeOrderRecDs.getFreezeOrderRecList(usage.getType(),
                 pointCache.getPoint().getId(),
                 usage.getOrderType(), usage.getOrderNo());
-        long frozen = forList.stream().mapToLong(FreezeOrderRecPo::getFrozen).sum();
-        if (frozen != usage.getPoint()) {
+        BigDecimal frozen = forList.stream().map(FreezeOrderRecPo::getFrozen)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        //long frozen = forList.stream().mapToLong(FreezeOrderRecPo::getFrozen).sum();
+        if (frozen.compareTo(usage.getPoint()) != 0) {
             log.warn("frozen number mis-match. type = {}, uid = {}, usage.frozen = {}, actual frozen = {}",
                     usage.getType(), usage.getUid(), usage.getPoint(), frozen);
             throw new HyenaNoPointException("frozen number mis-match", Level.WARN);
@@ -218,8 +222,8 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
         forList.stream().forEach(fo -> {
             if (forMap.containsKey(fo.getRecId())) {
                 FreezeOrderRecPo l = forMap.get(fo.getRecId());
-                l.setFrozen(l.getFrozen() + fo.getFrozen())
-                        .setFrozenCost(l.getFrozenCost() + fo.getFrozenCost());
+                l.setFrozen(l.getFrozen().add(fo.getFrozen()))
+                        .setFrozenCost(l.getFrozenCost().add(fo.getFrozenCost()));
             } else {
                 FreezeOrderRecPo l = new FreezeOrderRecPo();
                 BeanUtils.copyProperties(fo, l);
@@ -250,8 +254,12 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
 //                    });
 //        });
 
-        long delta = forList.stream().mapToLong(FreezeOrderRecPo::getFrozen).sum();
-        long deltaCost = forList.stream().mapToLong(FreezeOrderRecPo::getFrozenCost).sum();
+        BigDecimal delta = DecimalUtils.ZERO;
+        BigDecimal deltaCost = DecimalUtils.ZERO;
+        for (var fr : forList) {
+            delta = delta.add(fr.getFrozen());
+            deltaCost = deltaCost.add(fr.getFrozenCost());
+        }
 
         LoopResult result = new LoopResult();
 

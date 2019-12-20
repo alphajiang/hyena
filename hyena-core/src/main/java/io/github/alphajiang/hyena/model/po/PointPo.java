@@ -24,6 +24,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 @Data
 @Accessors(chain = true)
 @ToString(callSuper = true)
@@ -32,16 +34,16 @@ public class PointPo extends BasePo {
 
     private String uid;
     private String name;
-    private Long point;
-    private Long available;
-    private Long used;
-    private Long frozen;
-    private Long refund;
-    private Long expire;
+    private BigDecimal point;
+    private BigDecimal available;
+    private BigDecimal used;
+    private BigDecimal frozen;
+    private BigDecimal refund;
+    private BigDecimal expire;
     @ApiModelProperty("实际成本(含冻结部分)")
-    private Long cost;
+    private BigDecimal cost;
     @ApiModelProperty("冻结的成本")
-    private Long frozenCost;
+    private BigDecimal frozenCost;
     private Long seqNum;
 
 }

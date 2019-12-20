@@ -19,16 +19,25 @@ package io.github.alphajiang.hyena.model.param;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.springframework.lang.Nullable;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class PointIncreaseParam extends PointOpParam {
 
 
     @Nullable
-    @ApiModelProperty(value = "实际成本", example = "0")
-    private Long cost;
+    @ApiModelProperty(value = "实际成本", example = "1.00")
+    private BigDecimal cost;
 
     @Nullable
     @ApiModelProperty(value = "获取积分时间", example = "2005-12-25 15:34:46")
@@ -41,31 +50,31 @@ public class PointIncreaseParam extends PointOpParam {
     private Date expireTime;
 
 
-    @Nullable
-    public Long getCost() {
-        return cost;
-    }
-
-    public void setCost(@Nullable Long cost) {
-        this.cost = cost;
-    }
-
-    @Nullable
-    public Date getIssueTime() {
-        return issueTime;
-    }
-
-    public PointIncreaseParam setIssueTime(@Nullable Date issueTime) {
-        this.issueTime = issueTime;
-        return this;
-    }
-
-    @Nullable
-    public Date getExpireTime() {
-        return expireTime;
-    }
-
-    public void setExpireTime(@Nullable Date expireTime) {
-        this.expireTime = expireTime;
-    }
+//    @Nullable
+//    public Long getCost() {
+//        return cost;
+//    }
+//
+//    public void setCost(@Nullable Long cost) {
+//        this.cost = cost;
+//    }
+//
+//    @Nullable
+//    public Date getIssueTime() {
+//        return issueTime;
+//    }
+//
+//    public PointIncreaseParam setIssueTime(@Nullable Date issueTime) {
+//        this.issueTime = issueTime;
+//        return this;
+//    }
+//
+//    @Nullable
+//    public Date getExpireTime() {
+//        return expireTime;
+//    }
+//
+//    public void setExpireTime(@Nullable Date expireTime) {
+//        this.expireTime = expireTime;
+//    }
 }

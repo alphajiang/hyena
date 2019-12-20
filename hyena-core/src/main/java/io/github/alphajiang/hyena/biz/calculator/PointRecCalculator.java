@@ -20,10 +20,13 @@ package io.github.alphajiang.hyena.biz.calculator;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Slf4j
 @Service
@@ -32,27 +35,27 @@ public class PointRecCalculator {
     @Autowired
     private CostCalculator costCalculator;
 
-    public PointRecCalcResult freezePoint(PointRecPo rec, long delta) {
+    public PointRecCalcResult freezePoint(PointRecPo rec, BigDecimal delta) {
         PointRecPo rec4Update = new PointRecPo();
         rec4Update.setId(rec.getId());
-        long deltaCost;
-        if (rec.getAvailable() < delta) {
+        BigDecimal deltaCost;
+        if (DecimalUtils.lt(rec.getAvailable(), delta)) {
             log.warn("no enough available point. rec = {}, delta = {}", rec, delta);
             throw new HyenaNoPointException("no enough available point", Level.WARN);
         }
-        if (rec.getAvailable() > delta) {
-            long available = rec.getAvailable() - delta;
-            long frozen = rec.getFrozen() + delta;
+        if (DecimalUtils.gt(rec.getAvailable(), delta)) {
+            BigDecimal available = rec.getAvailable().subtract(delta);
+            BigDecimal frozen = rec.getFrozen().add(delta);
             deltaCost = this.costCalculator.accountCost(rec, delta);
             rec.setAvailable(available)
                     .setFrozen(frozen)
-                    .setFrozenCost(rec.getFrozenCost() + deltaCost);
+                    .setFrozenCost(rec.getFrozenCost().add(deltaCost));
         } else {
-            long frozen = rec.getFrozen() + rec.getAvailable();
+            BigDecimal frozen = rec.getFrozen().add(rec.getAvailable());
             deltaCost = costCalculator.getAvailableCost(rec);
-            rec.setAvailable(0L)
+            rec.setAvailable(DecimalUtils.ZERO)
                     .setFrozen(frozen)
-                    .setFrozenCost(rec.getFrozenCost() + deltaCost);
+                    .setFrozenCost(rec.getFrozenCost().add(deltaCost));
         }
         rec4Update.setAvailable(rec.getAvailable())
                 .setFrozen(rec.getFrozen())
@@ -61,29 +64,29 @@ public class PointRecCalculator {
     }
 
 
-    public PointRecCalcResult unfreezePoint(PointRecPo rec, long delta, Long deltaCost) {
+    public PointRecCalcResult unfreezePoint(PointRecPo rec, BigDecimal delta, BigDecimal deltaCost) {
         PointRecPo rec4Update = new PointRecPo();
         rec4Update.setId(rec.getId());
 
 
-        if (rec.getFrozen() < delta) {
+        if (DecimalUtils.lt(rec.getFrozen(), delta)) {
             log.warn("no enough frozen point. rec = {}, delta = {}", rec, delta);
             throw new HyenaNoPointException("no enough frozen point", Level.WARN);
-        } else if (rec.getFrozen() > delta) {
-            long frozen = rec.getFrozen() - delta;
-            long available = rec.getAvailable() + delta;
-            if(deltaCost == null) {
+        } else if (DecimalUtils.gt(rec.getFrozen(), delta)) {
+            BigDecimal frozen = rec.getFrozen().subtract(delta);
+            BigDecimal available = rec.getAvailable().add(delta);
+            if (deltaCost == null) {
                 deltaCost = this.costCalculator.accountCost4Unfreeze(rec, delta);
             }
             rec.setAvailable(available).setFrozen(frozen)
-                    .setFrozenCost(rec.getFrozenCost() - deltaCost);
+                    .setFrozenCost(rec.getFrozenCost().subtract(deltaCost));
         } else {
-            long available = rec.getAvailable() + rec.getFrozen();
-            if(deltaCost == null) {
+            BigDecimal available = rec.getAvailable().add(rec.getFrozen());
+            if (deltaCost == null) {
                 deltaCost = rec.getFrozenCost();
             }
-            rec.setFrozen(0L).setAvailable(available)
-                    .setFrozenCost(0L);
+            rec.setFrozen(DecimalUtils.ZERO).setAvailable(available)
+                    .setFrozenCost(DecimalUtils.ZERO);
         }
         rec4Update.setFrozen(rec.getFrozen())
                 .setAvailable(rec.getAvailable())
@@ -91,21 +94,21 @@ public class PointRecCalculator {
         return new PointRecCalcResult(rec4Update, deltaCost);
     }
 
-    public PointRecCalcResult decreasePoint(PointRecPo rec, long delta) {
-        long deltaCost;
-        if (rec.getAvailable() < delta) {
+    public PointRecCalcResult decreasePoint(PointRecPo rec, BigDecimal delta) {
+        BigDecimal deltaCost;
+        if (DecimalUtils.lt(rec.getAvailable(), delta)) {
             log.warn("no enough available point. rec = {}, delta = {}", rec, delta);
             throw new HyenaNoPointException("no enough available point", Level.WARN);
-        } else if (rec.getAvailable() > delta) {
-            long available = rec.getAvailable() - delta;
-            long used = rec.getUsed() + delta;
+        } else if (DecimalUtils.gt(rec.getAvailable(), delta)) {
+            BigDecimal available = rec.getAvailable().subtract(delta);
+            BigDecimal used = rec.getUsed().add(delta);
             deltaCost = this.costCalculator.accountCost(rec, delta);
-            rec.setAvailable(available).setUsed(used).setUsedCost(rec.getUsedCost() + deltaCost);
+            rec.setAvailable(available).setUsed(used).setUsedCost(rec.getUsedCost().add(deltaCost));
         } else {
-            long used = rec.getUsed() + rec.getAvailable();
+            BigDecimal used = rec.getUsed().add(rec.getAvailable());
             deltaCost = this.costCalculator.accountCost(rec, delta);
-            rec.setAvailable(0L).setUsed(used).setUsedCost(rec.getUsedCost() + deltaCost);
-            if (rec.getFrozen() < 1L) {
+            rec.setAvailable(DecimalUtils.ZERO).setUsed(used).setUsedCost(rec.getUsedCost().add(deltaCost));
+            if (DecimalUtils.lte(rec.getFrozen(), DecimalUtils.ZERO)) {
                 rec.setEnable(false);
             }
         }
@@ -119,11 +122,12 @@ public class PointRecCalculator {
     }
 
 
-    public PointRecPo refundPoint(PointRecPo rec, long delta, long cost) {
-        rec.setAvailable(rec.getAvailable() - delta)
-                .setRefund(rec.getRefund() + delta)
-                .setRefundCost(rec.getRefundCost() + cost);
-        if (rec.getAvailable() < 1L && rec.getFrozen() < 1L) {
+    public PointRecPo refundPoint(PointRecPo rec, BigDecimal delta, BigDecimal cost) {
+        rec.setAvailable(rec.getAvailable().subtract(delta))
+                .setRefund(rec.getRefund().add(delta))
+                .setRefundCost(rec.getRefundCost().add(cost));
+        if (DecimalUtils.lte(rec.getAvailable(), DecimalUtils.ZERO)
+                && DecimalUtils.lte(rec.getFrozen(), DecimalUtils.ZERO)) {
             rec.setEnable(false);
         }
 
@@ -137,24 +141,24 @@ public class PointRecCalculator {
     }
 
 
-    public PointRecCalcResult cancelPoint(PointRecPo rec, long delta) {
-        long deltaCost;
-        if (rec.getAvailable() < delta) {
+    public PointRecCalcResult cancelPoint(PointRecPo rec, BigDecimal delta) {
+        BigDecimal deltaCost;
+        if (DecimalUtils.lt(rec.getAvailable(), delta)) {
             log.warn("no enough available point. rec = {}, delta = {}", rec, delta);
             throw new HyenaNoPointException("no enough available point", Level.WARN);
-        } else if (rec.getAvailable() > delta) {
-            long available = rec.getAvailable() - delta;
-            long canceled = rec.getCancelled() + delta;
+        } else if (DecimalUtils.gt(rec.getAvailable(), delta)) {
+            BigDecimal available = rec.getAvailable().subtract(delta);
+            BigDecimal canceled = rec.getCancelled().add(delta);
             deltaCost = this.costCalculator.accountCost(rec, delta);
             rec.setAvailable(available).setCancelled(canceled)
-                    .setUsedCost(rec.getUsedCost() + deltaCost);
+                    .setUsedCost(rec.getUsedCost().add(deltaCost));
 
         } else {
-            long canceled = rec.getCancelled() + rec.getAvailable();
+            BigDecimal canceled = rec.getCancelled().add(rec.getAvailable());
             deltaCost = this.costCalculator.accountCost(rec, delta);
-            rec.setAvailable(0L).setCancelled(canceled)
-                    .setUsedCost(rec.getUsedCost() + deltaCost);
-            if (rec.getFrozen() < 1L) {
+            rec.setAvailable(DecimalUtils.ZERO).setCancelled(canceled)
+                    .setUsedCost(rec.getUsedCost().add(deltaCost));
+            if (DecimalUtils.lte(rec.getFrozen(), DecimalUtils.ZERO)) {
                 rec.setEnable(false);
             }
         }

@@ -32,6 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class TestPointLogDs extends HyenaTestBase {
@@ -74,7 +75,7 @@ public class TestPointLogDs extends HyenaTestBase {
 
     private PointLogPo buildPointLog(long seq) {
         PointUsage usage = new PointUsage();
-        usage.setPoint(1000L);
+        usage.setPoint(BigDecimal.valueOf(1000L));
         PointPo point = super.getUserPoint();
         point.setSeqNum(seq);
         return this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage, point);

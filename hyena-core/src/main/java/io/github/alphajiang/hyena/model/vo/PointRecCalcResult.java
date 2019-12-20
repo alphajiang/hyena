@@ -21,9 +21,11 @@ import io.github.alphajiang.hyena.model.po.PointRecPo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 public class PointRecCalcResult {
     private PointRecPo rec4Update;
-    private Long deltaCost;
+    private BigDecimal deltaCost;
 }

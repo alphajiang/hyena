@@ -23,6 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -33,9 +34,9 @@ public class PointUsage extends BaseObject {
     private String type;
     private String uid;
     private String name;
-    private long point;
-    private Long unfreezePoint; // 消费积分时同时解冻的积分数量
-    private Long cost;
+    private BigDecimal point;
+    private BigDecimal unfreezePoint; // 消费积分时同时解冻的积分数量
+    private BigDecimal cost;
     private Boolean unfreezeByOrderNo;
     private Long recId; // 积分记录的ID
     private String tag;

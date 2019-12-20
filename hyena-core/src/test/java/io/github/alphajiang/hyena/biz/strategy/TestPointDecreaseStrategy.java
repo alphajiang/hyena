@@ -29,6 +29,7 @@ import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,26 +61,26 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
     @Test
     public void test_decreasePoint() throws InterruptedException {
         log.info(">> test start");
-        long number = 80L;
-        long resultNumber = this.point.getPoint() - number;
+        BigDecimal number = BigDecimal.valueOf(80L).setScale(DecimalUtils.SCALE_2);
+        BigDecimal resultNumber = this.point.getPoint().subtract(number);
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number)
+        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number)
                 .setOrderNo(UUID.randomUUID().toString()).setTag(USAGE_TAG)
                 .setSourceType(DECREASE_SOURCE_TYPE).setOrderType(DECREASE_ORDER_TYPE)
                 .setPayType(DECREASE_PAY_TYPE)
                 .setNote("test_decreasePoint");
         PointPo result = this.pointDecreaseStrategy.process(usage);
         log.info("result = {}", result);
-        Assertions.assertEquals(resultNumber, result.getPoint().longValue());
-        Assertions.assertEquals(resultNumber, result.getAvailable().longValue());
-        Assertions.assertEquals(number, result.getUsed().longValue());
-        Assertions.assertEquals(0L, result.getFrozen().longValue());
-        Assertions.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(resultNumber, result.getPoint());
+        Assertions.assertEquals(resultNumber, result.getAvailable());
+        Assertions.assertEquals(number, result.getUsed());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getFrozen());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getExpire());
         Thread.sleep(200L);
 
         // verify point log
         ListPointLogParam listPointLogParam = new ListPointLogParam();
-        listPointLogParam.setUid(this.uid).setSeqNum(result.getSeqNum())
+        listPointLogParam.setUid(super.getUid()).setSeqNum(result.getSeqNum())
                 .setSourceTypes(List.of(DECREASE_SOURCE_TYPE))
                 .setOrderTypes(List.of(DECREASE_ORDER_TYPE))
                 .setPayTypes(List.of(DECREASE_PAY_TYPE))
@@ -88,15 +90,15 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPoingLog = new PointLogDto();
-        expectPoingLog.setUid(this.uid).setType(PointOpType.DECREASE.code())
+        expectPoingLog.setUid(super.getUid()).setType(PointOpType.DECREASE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(number)
-                .setDeltaCost(number/2)
+                .setDeltaCost(number.divide(BigDecimal.valueOf(2)))
                 .setPoint(result.getPoint()).setAvailable(result.getAvailable())
                 .setUsed(result.getUsed()).setFrozen(result.getFrozen())
                 .setExpire(result.getExpire())
-                .setRefund(0L)
-                .setCost(INCREASE_COST_1 - number/2)
-                .setFrozenCost(0L)
+                .setRefund(DecimalUtils.ZERO)
+                .setCost(INCREASE_COST_1.subtract(number.divide(BigDecimal.valueOf(2))))
+                .setFrozenCost(DecimalUtils.ZERO)
                 .setTag(usage.getTag())
                 .setOrderNo(usage.getOrderNo())
                 .setSourceType(DECREASE_SOURCE_TYPE)
@@ -108,19 +110,20 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
 
         // verify point record
         ListPointRecParam listPointRecParam = new ListPointRecParam();
-        listPointRecParam.setUid(this.uid).setType(super.getPointType());
+        listPointRecParam.setUid(super.getUid()).setType(super.getPointType());
         var pointRecList = pointRecDs.listPointRec(listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
         Assertions.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
-                .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1 - number)
-                .setUsed(number).setFrozen(0L).setExpire(0L).setCancelled(0L)
+                .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1.subtract(number))
+                .setUsed(number).setFrozen(DecimalUtils.ZERO)
+                .setExpire(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO)
                 .setTotalCost(super.INCREASE_COST_1)
-                .setFrozenCost(0L)
-                .setUsedCost(number / 2)
-                .setRefundCost(0L)
+                .setFrozenCost(DecimalUtils.ZERO)
+                .setUsedCost(number.divide(BigDecimal.valueOf(2)))
+                .setRefundCost(DecimalUtils.ZERO)
                 .setTag(super.INCREASE_TAG_1)
                 .setOrderNo(super.INCREASE_ORDER_NO_1)
                 .setSourceType(INCREASE_SOURCE_TYPE)
@@ -144,11 +147,11 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
                 .setType(PointOpType.DECREASE.code()).setDelta(number)
                 .setAvailable(pointRec.getAvailable())
                 .setUsed(pointRec.getUsed())
-                .setFrozen(0L).setCancelled(0L).setExpire(0L)
-                .setCost(super.INCREASE_COST_1 - number / 2)
-                .setFrozenCost(0L)
-                .setUsedCost(number / 2)
-                .setRefundCost(0L)
+                .setFrozen(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO).setExpire(DecimalUtils.ZERO)
+                .setCost(super.INCREASE_COST_1.subtract(number.divide(BigDecimal.valueOf(2))))
+                .setFrozenCost(DecimalUtils.ZERO)
+                .setUsedCost(number.divide(BigDecimal.valueOf(2)))
+                .setRefundCost(DecimalUtils.ZERO)
                 .setSourceType(DECREASE_SOURCE_TYPE)
                 .setOrderType(DECREASE_ORDER_TYPE)
                 .setPayType(DECREASE_PAY_TYPE)
@@ -163,23 +166,24 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         log.info(">> test start");
 
         PointUsage increaseUsage = new PointUsage();
-        increaseUsage.setType(super.getPointType()).setUid(this.uid).setPoint(555L).setNote("test_decreasePoint2");
+        increaseUsage.setType(super.getPointType()).setUid(super.getUid())
+                .setPoint(BigDecimal.valueOf(555L)).setNote("test_decreasePoint2");
         var resultPoint = this.pointIncreaseStrategy.process(increaseUsage);
         BeanUtils.copyProperties(resultPoint, super.point);
 
-        long number = 123L;
-        long resultNumber = this.point.getPoint() - number;
+        BigDecimal number = BigDecimal.valueOf(123L).setScale(DecimalUtils.SCALE_2);
+        BigDecimal resultNumber = this.point.getPoint().subtract(number);
 
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number).setNote("test_decreasePoint2");
+        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number).setNote("test_decreasePoint2");
 
         PointPo result = this.pointDecreaseStrategy.process(usage);
         log.info("result = {}", result);
-        Assertions.assertEquals(resultNumber, result.getPoint().longValue());
-        Assertions.assertEquals(resultNumber, result.getAvailable().longValue());
-        Assertions.assertEquals(number, result.getUsed().longValue());
-        Assertions.assertEquals(0L, result.getFrozen().longValue());
-        Assertions.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(resultNumber, result.getPoint());
+        Assertions.assertEquals(resultNumber, result.getAvailable());
+        Assertions.assertEquals(number, result.getUsed());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getFrozen());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getExpire());
         log.info("<< test end");
     }
 
@@ -187,10 +191,10 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
     public void test_decreasePoint_not_enough() {
         log.info(">> test start");
         PointUsage usage = new PointUsage();
-        long number = 9999999L;
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number).setNote("test_decreasePoint_not_enough");
+        BigDecimal number = BigDecimal.valueOf(9999999L);
+        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number).setNote("test_decreasePoint_not_enough");
         PointPo result = this.pointDecreaseStrategy.process(usage);
-        Assertions.assertTrue(result.getAvailable() < 0L);
+        Assertions.assertTrue(DecimalUtils.lt(result.getAvailable(), DecimalUtils.ZERO));
         //Assert.fail();
         log.info("<< test end");
     }

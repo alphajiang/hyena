@@ -29,6 +29,7 @@ import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointVo;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -37,6 +38,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -92,11 +94,12 @@ abstract class AbstractPointStrategy implements PointStrategy {
 
         } else if ((getType() == CalcType.FREEZE_COST || getType() == CalcType.REFUND)
                 && usage.getCost() != null) {
-            if (usage.getCost() < 1L) {
+            if (usage.getCost().compareTo(DecimalUtils.ZERO) <= 0) {
                 throw new HyenaParameterException("invalid parameter cost");
             }
         } else {
-            HyenaAssert.isTrue(usage.getPoint() > 0L, HyenaConstants.RES_CODE_PARAMETER_ERROR,
+            HyenaAssert.isTrue(usage.getPoint().compareTo(DecimalUtils.ZERO) > 0,
+                    HyenaConstants.RES_CODE_PARAMETER_ERROR,
                     "invalid parameter, 'point' must great than 0");
         }
         this.cusPointTableDs.getOrCreateTable(usage.getType());
@@ -118,8 +121,8 @@ abstract class AbstractPointStrategy implements PointStrategy {
     @Data
     @Accessors(chain = true)
     public static class LoopResult {
-        private long delta;
-        private long deltaCost;
+        private BigDecimal delta;
+        private BigDecimal deltaCost;
         private List<PointRecPo> recList4Update;
         private List<PointRecLogDto> recLogs;
         private List<FreezeOrderRecPo> forList;

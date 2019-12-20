@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -53,7 +54,7 @@ public class TestFreezeOrderRecDs extends HyenaTestBase {
             PointRecPo rec = new PointRecPo();
             rec.setId(i + 1);
             FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(super.getUserPoint(),
-                    rec, null, orderNo, i + 1, i);
+                    rec, null, orderNo, BigDecimal.valueOf(i + 1), BigDecimal.valueOf(i));
             foList.add(fo);
         }
         this.freezeOrderRecDs.batchInsert(super.getPointType(), foList);

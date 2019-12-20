@@ -18,9 +18,12 @@
 package io.github.alphajiang.hyena.biz.calculator;
 
 import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
 
 public class TestCostCalculator {
 
@@ -35,13 +38,15 @@ public class TestCostCalculator {
     @Test
     public void test_getAvailableCost() {
         PointRecPo rec = new PointRecPo();
-        rec.setTotalCost(0L);
-        long result = this.calculator.getAvailableCost(rec);
-        Assertions.assertEquals(0L, result);
+        rec.setTotalCost(DecimalUtils.ZERO);
+        BigDecimal result = this.calculator.getAvailableCost(rec);
+        Assertions.assertEquals(DecimalUtils.ZERO, result);
 
-        rec.setTotalCost(100L).setFrozenCost(5L).setUsedCost(6L)
-                .setRefundCost(7L);
-        long expect = 100L - 5L - 6L - 7L;
+        rec.setTotalCost(BigDecimal.valueOf(100L))
+                .setFrozenCost(BigDecimal.valueOf(5L))
+                .setUsedCost(BigDecimal.valueOf(6L))
+                .setRefundCost(BigDecimal.valueOf(7L));
+        BigDecimal expect = BigDecimal.valueOf(100L - 5L - 6L - 7L);
         result = this.calculator.getAvailableCost(rec);
         Assertions.assertEquals(expect, result);
     }
@@ -49,18 +54,23 @@ public class TestCostCalculator {
     @Test
     public void test_accountPoint() {
         PointRecPo rec = new PointRecPo();
-        long cost = 45;
-        rec.setAvailable(0L);
-        long result = this.calculator.accountPoint(rec, cost);
-        Assertions.assertEquals(0L, result);
+        BigDecimal cost = BigDecimal.valueOf(45).setScale(DecimalUtils.SCALE_2);
+        rec.setAvailable(DecimalUtils.ZERO);
+        BigDecimal result = this.calculator.accountPoint(rec, cost);
+        Assertions.assertEquals(DecimalUtils.ZERO, result);
 
-        rec.setTotalCost(100L).setUsedCost(80L).setFrozenCost(0L).setRefundCost(0L);
+        rec.setTotalCost(BigDecimal.valueOf(100L).setScale(DecimalUtils.SCALE_2))
+                .setUsedCost(BigDecimal.valueOf(80L).setScale(DecimalUtils.SCALE_2))
+                .setFrozenCost(DecimalUtils.ZERO)
+                .setRefundCost(DecimalUtils.ZERO);
         result = this.calculator.accountPoint(rec, cost);
-        Assertions.assertEquals(0L, result);
+        Assertions.assertEquals(DecimalUtils.ZERO, result);
 
-        rec.setTotal(200L).setTotalCost(100L).setUsedCost(50L)
-                .setFrozenCost(0L).setRefundCost(0L);
-        long expect = 90L;  //  45 / 100 * 200
+        rec.setTotal(BigDecimal.valueOf(200L).setScale(DecimalUtils.SCALE_2))
+                .setTotalCost(BigDecimal.valueOf(100L).setScale(DecimalUtils.SCALE_2))
+                .setUsedCost(BigDecimal.valueOf(50L).setScale(DecimalUtils.SCALE_2))
+                .setFrozenCost(DecimalUtils.ZERO).setRefundCost(DecimalUtils.ZERO);
+        BigDecimal expect = BigDecimal.valueOf(90L).setScale(DecimalUtils.SCALE_2);  //  45 / 100 * 200
         result = this.calculator.accountPoint(rec, cost);
         Assertions.assertEquals(expect, result);
     }
@@ -69,21 +79,26 @@ public class TestCostCalculator {
     @Test
     public void test_accountCost() {
         PointRecPo rec = new PointRecPo();
-        long delta = 45;
+        BigDecimal delta = BigDecimal.valueOf(45).setScale(DecimalUtils.SCALE_2);
 
-        rec.setTotalCost(0L);
-        long result = this.calculator.accountCost(rec, delta);
-        Assertions.assertEquals(0L, result);
+        rec.setTotalCost(DecimalUtils.ZERO);
+        BigDecimal result = this.calculator.accountCost(rec, delta);
+        Assertions.assertEquals(DecimalUtils.ZERO, result);
 
-        rec.setAvailable(45L).setTotalCost(100L).setUsedCost(40L).setFrozenCost(0L).setRefundCost(0L);
-        long expect = 60L;  // 100 - 40
+        rec.setAvailable(BigDecimal.valueOf(45L).setScale(DecimalUtils.SCALE_2))
+                .setTotalCost(BigDecimal.valueOf(100L).setScale(DecimalUtils.SCALE_2))
+                .setUsedCost(BigDecimal.valueOf(40L).setScale(DecimalUtils.SCALE_2))
+                .setFrozenCost(DecimalUtils.ZERO).setRefundCost(DecimalUtils.ZERO);
+        BigDecimal expect = BigDecimal.valueOf(60L).setScale(DecimalUtils.SCALE_2);  // 100 - 40
         result = this.calculator.accountCost(rec, delta);
         Assertions.assertEquals(expect, result);
 
-        rec.setTotal(200L).setAvailable(55L)
-                .setTotalCost(100L).setUsedCost(40L)
-                .setFrozenCost(0L).setRefundCost(0L);
-        expect = 22L;  // 45 / 200 * 100
+        rec.setTotal(BigDecimal.valueOf(200L).setScale(DecimalUtils.SCALE_2).setScale(DecimalUtils.SCALE_2))
+                .setAvailable(BigDecimal.valueOf(55L).setScale(DecimalUtils.SCALE_2))
+                .setTotalCost(BigDecimal.valueOf(100L).setScale(DecimalUtils.SCALE_2))
+                .setUsedCost(BigDecimal.valueOf(40L).setScale(DecimalUtils.SCALE_2))
+                .setFrozenCost(DecimalUtils.ZERO).setRefundCost(DecimalUtils.ZERO);
+        expect = BigDecimal.valueOf(22.5).setScale(DecimalUtils.SCALE_2);  // 45 / 200 * 100
         result = this.calculator.accountCost(rec, delta);
         Assertions.assertEquals(expect, result);
     }
@@ -92,21 +107,27 @@ public class TestCostCalculator {
     @Test
     public void test_accountCost4Unfreeze() {
         PointRecPo rec = new PointRecPo();
-        long delta = 45;
+        BigDecimal delta = BigDecimal.valueOf(45).setScale(DecimalUtils.SCALE_2);
 
-        rec.setTotalCost(0L);
-        long result = this.calculator.accountCost4Unfreeze(rec, delta);
-        Assertions.assertEquals(0L, result);
+        rec.setTotalCost(DecimalUtils.ZERO);
+        BigDecimal result = this.calculator.accountCost4Unfreeze(rec, delta);
+        Assertions.assertEquals(DecimalUtils.ZERO, result);
 
-        rec.setFrozen(45L).setTotalCost(100L).setUsedCost(30L).setFrozenCost(70L).setRefundCost(0L);
-        long expect = 70L;  //
+        rec.setFrozen(BigDecimal.valueOf(45L).setScale(DecimalUtils.SCALE_2))
+                .setTotalCost(BigDecimal.valueOf(100L).setScale(DecimalUtils.SCALE_2))
+                .setUsedCost(BigDecimal.valueOf(30L).setScale(DecimalUtils.SCALE_2))
+                .setFrozenCost(BigDecimal.valueOf(70L).setScale(DecimalUtils.SCALE_2))
+                .setRefundCost(DecimalUtils.ZERO);
+        BigDecimal expect = BigDecimal.valueOf(70L).setScale(DecimalUtils.SCALE_2);  //
         result = this.calculator.accountCost4Unfreeze(rec, delta);
         Assertions.assertEquals(expect, result);
 
-        rec.setTotal(200L).setFrozen(55L)
-                .setTotalCost(100L).setUsedCost(40L)
-                .setFrozenCost(0L).setRefundCost(0L);
-        expect = 22L;  // 45 / 200 * 100
+        rec.setTotal(BigDecimal.valueOf(200L).setScale(DecimalUtils.SCALE_2))
+                .setFrozen(BigDecimal.valueOf(55L).setScale(DecimalUtils.SCALE_2))
+                .setTotalCost(BigDecimal.valueOf(100L).setScale(DecimalUtils.SCALE_2))
+                .setUsedCost(BigDecimal.valueOf(40L).setScale(DecimalUtils.SCALE_2))
+                .setFrozenCost(DecimalUtils.ZERO).setRefundCost(DecimalUtils.ZERO);
+        expect = BigDecimal.valueOf(22.5).setScale(DecimalUtils.SCALE_2);  // 45 / 200 * 100
         result = this.calculator.accountCost4Unfreeze(rec, delta);
         Assertions.assertEquals(expect, result);
     }

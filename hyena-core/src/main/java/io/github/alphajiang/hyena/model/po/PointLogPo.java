@@ -28,6 +28,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
@@ -37,19 +39,19 @@ public class PointLogPo extends BasePo {
     private long pid;
     private String uid;
     private long seqNum;
-    private Long delta;
+    private BigDecimal delta;
     @ApiModelProperty("变动部分的实际成本")
-    private Long deltaCost;
-    private Long point;
-    private Long available;
-    private Long used;
-    private Long frozen;
-    private Long refund;
-    private Long expire;
+    private BigDecimal deltaCost;
+    private BigDecimal point;
+    private BigDecimal available;
+    private BigDecimal used;
+    private BigDecimal frozen;
+    private BigDecimal refund;
+    private BigDecimal expire;
     @ApiModelProperty("变动后,实际成本")
-    private Long cost;
+    private BigDecimal cost;
     @ApiModelProperty("变动后,冻结的成本")
-    private Long frozenCost;
+    private BigDecimal frozenCost;
     /**
      * PointStatus
      */

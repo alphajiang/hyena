@@ -25,12 +25,14 @@ import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Slf4j
@@ -47,14 +49,14 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
     protected final int DECREASE_ORDER_TYPE = 64;
     protected final int DECREASE_PAY_TYPE = 65;
 
-    protected final long INCREASE_POINT_1 = 100L;
-    protected final long INCREASE_COST_1 = 50L;
+    protected final BigDecimal INCREASE_POINT_1 = BigDecimal.valueOf(100).setScale(DecimalUtils.SCALE_2);
+    protected final BigDecimal INCREASE_COST_1 = BigDecimal.valueOf(50).setScale(DecimalUtils.SCALE_2);
     protected final String INCREASE_TAG_1 = "TAG_" + UUID.randomUUID().toString();
     protected final String INCREASE_ORDER_NO_1 = "ORDER_NO_" + UUID.randomUUID().toString();
 
 
-    protected final long INCREASE_POINT_2 = 200L;
-    protected final long INCREASE_COST_2 = 100L;
+    protected final BigDecimal INCREASE_POINT_2 = BigDecimal.valueOf(200).setScale(DecimalUtils.SCALE_2);
+    protected final BigDecimal INCREASE_COST_2 = BigDecimal.valueOf(100).setScale(DecimalUtils.SCALE_2);
     protected final String INCREASE_TAG_2 = "TAG_" + UUID.randomUUID().toString();
     protected final String INCREASE_ORDER_NO_2 = "ORDER_NO_" + UUID.randomUUID().toString();
 
@@ -86,6 +88,10 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
         increase1();
     }
 
+    @Override
+    public String getUid() {
+        return this.uid;
+    }
 
     public void increase1() {
         PointUsage usage = new PointUsage();
@@ -98,11 +104,11 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
         this.point = new PointPo();
         BeanUtils.copyProperties(resultPoint, this.point);
         log.info("point = {}", point);
-        Assertions.assertEquals(INCREASE_POINT_1, point.getPoint().longValue());
-        Assertions.assertEquals(INCREASE_POINT_1, point.getAvailable().longValue());
-        Assertions.assertEquals(0L, point.getUsed().longValue());
-        Assertions.assertEquals(0L, point.getFrozen().longValue());
-        Assertions.assertEquals(0L, point.getExpire().longValue());
+        Assertions.assertEquals(INCREASE_POINT_1, point.getPoint());
+        Assertions.assertEquals(INCREASE_POINT_1, point.getAvailable());
+        Assertions.assertEquals(DecimalUtils.ZERO, point.getUsed());
+        Assertions.assertEquals(DecimalUtils.ZERO, point.getFrozen());
+        Assertions.assertEquals(DecimalUtils.ZERO, point.getExpire());
         Assertions.assertEquals(true, point.getEnable().booleanValue());
         seqNumIncrease1 = this.point.getSeqNum();
         try {
@@ -121,11 +127,11 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
                 .setOrderNo(INCREASE_ORDER_NO_2);
         var result = this.pointIncreaseStrategy.process(usage);
         log.info("result = {}", result);
-        Assertions.assertEquals(INCREASE_POINT_2 + beforeIncrease.getPoint(), result.getPoint().longValue());
-        Assertions.assertEquals(INCREASE_POINT_2 + beforeIncrease.getPoint(), result.getAvailable().longValue());
-        Assertions.assertEquals(beforeIncrease.getUsed().longValue(), result.getUsed().longValue());
-        Assertions.assertEquals(beforeIncrease.getFrozen().longValue(), result.getFrozen().longValue());
-        Assertions.assertEquals(beforeIncrease.getExpire().longValue(), result.getExpire().longValue());
+        Assertions.assertEquals(INCREASE_POINT_2.add(beforeIncrease.getPoint()), result.getPoint());
+        Assertions.assertEquals(INCREASE_POINT_2.add(beforeIncrease.getPoint()), result.getAvailable());
+        Assertions.assertEquals(beforeIncrease.getUsed(), result.getUsed());
+        Assertions.assertEquals(beforeIncrease.getFrozen(), result.getFrozen());
+        Assertions.assertEquals(beforeIncrease.getExpire(), result.getExpire());
         Assertions.assertEquals(true, result.getEnable().booleanValue());
         this.seqNumIncrease2 = result.getSeqNum();
         try {

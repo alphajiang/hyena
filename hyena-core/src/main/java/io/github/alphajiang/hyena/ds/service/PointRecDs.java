@@ -25,6 +25,7 @@ import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -114,15 +116,15 @@ public class PointRecDs {
         rec.setPid(pid).setSeqNum(seqNum)
                 .setTotal(param.getPoint())
                 .setAvailable(param.getPoint())
-                .setFrozen(0L)
-                .setUsed(0L)
-                .setRefundCost(0L)
-                .setFrozenCost(0L)
-                .setUsedCost(0L)
-                .setRefund(0L)
-                .setRefundCost(0L)
-                .setCancelled(0L)
-                .setExpire(0L)
+                .setFrozen(DecimalUtils.ZERO)
+                .setUsed(DecimalUtils.ZERO)
+                .setRefundCost(DecimalUtils.ZERO)
+                .setFrozenCost(DecimalUtils.ZERO)
+                .setUsedCost(DecimalUtils.ZERO)
+                .setRefund(DecimalUtils.ZERO)
+                .setRefundCost(DecimalUtils.ZERO)
+                .setCancelled(DecimalUtils.ZERO)
+                .setExpire(DecimalUtils.ZERO)
                 .setEnable(true)
                 .setCreateTime(new Date())
                 .setUpdateTime(new Date());
@@ -131,10 +133,10 @@ public class PointRecDs {
         } else {
             rec.setOrderNo(param.getOrderNo());
         }
-        if (param.getCost() != null && param.getCost() > 0L) {
+        if (param.getCost() != null && param.getCost().compareTo(DecimalUtils.ZERO) > 0) {
             rec.setTotalCost(param.getCost());
         } else {
-            rec.setTotalCost(0L);
+            rec.setTotalCost(DecimalUtils.ZERO);
         }
         if (param.getTag() == null) {
             rec.setTag("");
@@ -206,15 +208,16 @@ public class PointRecDs {
 
     @Transactional
     public PointRecPo expirePointRec(PointRecPo rec) {
-        long available = rec.getAvailable();
-        rec.setAvailable(0L).setExpire(available).setEnable(false);
+        BigDecimal available = rec.getAvailable();
+        rec.setAvailable(DecimalUtils.ZERO).setExpire(available).setEnable(false);
         return rec;
     }
 
 
     @Transactional
     public void updatePointRec(String type, PointRecPo rec) {
-        if (rec.getAvailable() == 0L && rec.getFrozen() == 0L) {
+        if (rec.getAvailable().compareTo(DecimalUtils.ZERO)  == 0
+                && rec.getFrozen().compareTo(DecimalUtils.ZERO) == 0) {
             // totally used
             rec.setEnable(false);
         }
@@ -232,10 +235,10 @@ public class PointRecDs {
      * @param end   结束时间
      * @return 返回增长的积分数量
      */
-    public long getIncreasedPoint(String type, String uid, Date start, Date end) {
+    public BigDecimal getIncreasedPoint(String type, String uid, Date start, Date end) {
         String pointTableName = TableNameHelper.getPointTableName(type);
-        Long ret = this.pointRecMapper.getIncreasedPoint(pointTableName, uid, start, end);
-        return ret == null ? 0L : ret;
+        BigDecimal ret = this.pointRecMapper.getIncreasedPoint(pointTableName, uid, start, end);
+        return ret == null ? DecimalUtils.ZERO : ret;
     }
 
 

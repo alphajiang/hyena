@@ -26,6 +26,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -34,11 +35,11 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class PointOpResult extends PointPo {
 
-    @ApiModelProperty("变更的积分")
-    private Long opPoint;
+    @ApiModelProperty(value = "变更的积分", example = "100.00")
+    private BigDecimal opPoint;
 
-    @ApiModelProperty("变更的成本")
-    private Long opCost;
+    @ApiModelProperty(value = "变更的成本", example = "10.00")
+    private BigDecimal opCost;
 
     @ApiModelProperty("积分块变更明细")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

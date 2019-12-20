@@ -29,12 +29,14 @@ import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,27 +59,27 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
     @Test
     public void test_freezePoint() throws InterruptedException {
         log.info(">> test start");
-        long number = 80L;
-        long resultAvailable = this.point.getPoint() - number;
+        BigDecimal number = BigDecimal.valueOf(80L).setScale(DecimalUtils.SCALE_2);
+        BigDecimal resultAvailable = this.point.getPoint().subtract(number);
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number)
+        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number)
                 .setOrderNo(UUID.randomUUID().toString()).setTag(USAGE_TAG)
                 .setSourceType(FREEZE_SOURCE_TYPE).setOrderType(FREEZE_ORDER_TYPE)
                 .setPayType(FREEZE_PAY_TYPE)
                 .setNote("test_freezePoint");
         PointPo result = this.pointFreezeStrategy.process(usage);
         log.info("result = {}", result);
-        Assertions.assertEquals(this.point.getPoint().longValue(), result.getPoint().longValue());
-        Assertions.assertEquals(resultAvailable, result.getAvailable().longValue());
-        Assertions.assertEquals(0L, result.getUsed().longValue());
-        Assertions.assertEquals(number, result.getFrozen().longValue());
-        Assertions.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(this.point.getPoint() , result.getPoint() );
+        Assertions.assertEquals(resultAvailable, result.getAvailable() );
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getUsed() );
+        Assertions.assertEquals(number, result.getFrozen() );
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getExpire() );
 
         Thread.sleep(200L);
 
         // verify point log
         ListPointLogParam listPointLogParam = new ListPointLogParam();
-        listPointLogParam.setUid(this.uid).setSeqNum(result.getSeqNum())
+        listPointLogParam.setUid(super.getUid()).setSeqNum(result.getSeqNum())
                 .setSourceTypes(List.of(FREEZE_SOURCE_TYPE))
                 .setOrderTypes(List.of(FREEZE_ORDER_TYPE))
                 .setPayTypes(List.of(FREEZE_PAY_TYPE))
@@ -87,15 +89,15 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPoingLog = new PointLogDto();
-        expectPoingLog.setUid(this.uid).setType(PointOpType.FREEZE.code())
+        expectPoingLog.setUid(super.getUid()).setType(PointOpType.FREEZE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(number)
-                .setDeltaCost(number / 2)
-                .setPoint(super.point.getPoint()).setAvailable(INCREASE_POINT_1 - number)
-                .setUsed(0L).setFrozen(number)
-                .setExpire(0L)
-                .setRefund(0L)
+                .setDeltaCost(number.divide(BigDecimal.valueOf(2)))
+                .setPoint(super.point.getPoint()).setAvailable(INCREASE_POINT_1.subtract(number))
+                .setUsed(DecimalUtils.ZERO).setFrozen(number)
+                .setExpire(DecimalUtils.ZERO)
+                .setRefund(DecimalUtils.ZERO)
                 .setCost(INCREASE_COST_1)
-                .setFrozenCost(number / 2)
+                .setFrozenCost(number.divide(BigDecimal.valueOf(2)))
                 .setTag(usage.getTag())
                 .setOrderNo(usage.getOrderNo())
                 .setSourceType(FREEZE_SOURCE_TYPE)
@@ -107,19 +109,20 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
 
         // verify point record
         ListPointRecParam listPointRecParam = new ListPointRecParam();
-        listPointRecParam.setUid(this.uid).setType(super.getPointType());
+        listPointRecParam.setUid(super.getUid()).setType(super.getPointType());
         var pointRecList = pointRecDs.listPointRec(listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
         Assertions.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
-                .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1 - number)
-                .setUsed(0L).setFrozen(number).setExpire(0L).setCancelled(0L)
+                .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1.subtract(number))
+                .setUsed(DecimalUtils.ZERO).setFrozen(number)
+                .setExpire(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO)
                 .setTotalCost(super.INCREASE_COST_1)
-                .setFrozenCost(number / 2)
-                .setUsedCost(0L)
-                .setRefundCost(0L)
+                .setFrozenCost(number.divide(BigDecimal.valueOf(2)))
+                .setUsedCost(DecimalUtils.ZERO)
+                .setRefundCost(DecimalUtils.ZERO)
                 .setTag(super.INCREASE_TAG_1)
                 .setOrderNo(super.INCREASE_ORDER_NO_1)
                 .setSourceType(super.INCREASE_SOURCE_TYPE)
@@ -141,13 +144,13 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         expectPointRecLog.setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
                 .setType(PointOpType.FREEZE.code()).setDelta(number)
-                .setAvailable(INCREASE_POINT_1 - number)
-                .setUsed(0L)
-                .setFrozen(number).setCancelled(0L).setExpire(0L)
+                .setAvailable(INCREASE_POINT_1.subtract(number))
+                .setUsed(DecimalUtils.ZERO)
+                .setFrozen(number).setCancelled(DecimalUtils.ZERO).setExpire(DecimalUtils.ZERO)
                 .setCost(super.INCREASE_COST_1)
-                .setFrozenCost(number / 2)
-                .setUsedCost(0L)
-                .setRefundCost(0L)
+                .setFrozenCost(number.divide(BigDecimal.valueOf(2)))
+                .setUsedCost(DecimalUtils.ZERO)
+                .setRefundCost(DecimalUtils.ZERO)
                 .setSourceType(FREEZE_SOURCE_TYPE)
                 .setOrderType(FREEZE_ORDER_TYPE)
                 .setPayType(FREEZE_PAY_TYPE)
@@ -166,29 +169,29 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
     @Test
     public void test_freezePoint_2rec() throws InterruptedException {
         log.info(">> test start");
-        long number = 180L;
+        BigDecimal number = BigDecimal.valueOf(180L).setScale(DecimalUtils.SCALE_2);
         var point = super.increase2(super.point);
 
-        long resultAvailable = point.getPoint() - number;
+        BigDecimal resultAvailable = point.getPoint().subtract(number);
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(number)
+        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number)
                 .setOrderNo(UUID.randomUUID().toString()).setTag(USAGE_TAG)
                 .setSourceType(FREEZE_SOURCE_TYPE).setOrderType(FREEZE_ORDER_TYPE)
                 .setPayType(FREEZE_PAY_TYPE)
                 .setNote("test_freezePoint");
         PointPo result = this.pointFreezeStrategy.process(usage);
         log.info("result = {}", result);
-        Assertions.assertEquals(point.getPoint().longValue(), result.getPoint().longValue());
-        Assertions.assertEquals(resultAvailable, result.getAvailable().longValue());
-        Assertions.assertEquals(0L, result.getUsed().longValue());
-        Assertions.assertEquals(number, result.getFrozen().longValue());
-        Assertions.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(point.getPoint(), result.getPoint());
+        Assertions.assertEquals(resultAvailable, result.getAvailable());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getUsed());
+        Assertions.assertEquals(number, result.getFrozen() );
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getExpire());
 
         Thread.sleep(200L);
 
         // verify point log
         ListPointLogParam listPointLogParam = new ListPointLogParam();
-        listPointLogParam.setUid(this.uid).setSeqNum(result.getSeqNum())
+        listPointLogParam.setUid(super.getUid()).setSeqNum(result.getSeqNum())
                 .setSourceTypes(List.of(FREEZE_SOURCE_TYPE))
                 .setOrderTypes(List.of(FREEZE_ORDER_TYPE))
                 .setPayTypes(List.of(FREEZE_PAY_TYPE))
@@ -198,16 +201,16 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPoingLog = new PointLogDto();
-        expectPoingLog.setUid(this.uid).setType(PointOpType.FREEZE.code())
+        expectPoingLog.setUid(super.getUid()).setType(PointOpType.FREEZE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(number)
-                .setDeltaCost(number / 2)
-                .setPoint(INCREASE_POINT_1 + INCREASE_POINT_2)
-                .setAvailable(INCREASE_POINT_1 + INCREASE_POINT_2 - number)
-                .setUsed(0L).setFrozen(number)
-                .setExpire(0L)
-                .setRefund(0L)
-                .setCost(INCREASE_COST_1 + INCREASE_COST_2)
-                .setFrozenCost(number / 2)
+                .setDeltaCost(number.divide(BigDecimal.valueOf(2)))
+                .setPoint(INCREASE_POINT_1.add(INCREASE_POINT_2))
+                .setAvailable(INCREASE_POINT_1.add(INCREASE_POINT_2).subtract(number))
+                .setUsed(DecimalUtils.ZERO).setFrozen(number)
+                .setExpire(DecimalUtils.ZERO)
+                .setRefund(DecimalUtils.ZERO)
+                .setCost(INCREASE_COST_1.add(INCREASE_COST_2))
+                .setFrozenCost(number.divide(BigDecimal.valueOf(2)))
                 .setTag(usage.getTag())
                 .setOrderNo(usage.getOrderNo())
                 .setSourceType(FREEZE_SOURCE_TYPE)
@@ -219,7 +222,7 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
 
         // verify point record
         ListPointRecParam listPointRecParam = new ListPointRecParam();
-        listPointRecParam.setUid(this.uid).setType(super.getPointType())
+        listPointRecParam.setUid(super.getUid()).setType(super.getPointType())
                 .setSorts(List.of(SortParam.as("rec.id", SortOrder.asc)));
         var pointRecList = pointRecDs.listPointRec(listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
@@ -227,12 +230,13 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         PointRecPo pointRec1 = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.point.getSeqNum())
-                .setTotal(INCREASE_POINT_1).setAvailable(0L)
-                .setUsed(0L).setFrozen(INCREASE_POINT_1).setExpire(0L).setCancelled(0L)
+                .setTotal(INCREASE_POINT_1).setAvailable(DecimalUtils.ZERO)
+                .setUsed(DecimalUtils.ZERO).setFrozen(INCREASE_POINT_1)
+                .setExpire(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO)
                 .setTotalCost(super.INCREASE_COST_1)
                 .setFrozenCost(super.INCREASE_COST_1)
-                .setUsedCost(0L)
-                .setRefundCost(0L)
+                .setUsedCost(DecimalUtils.ZERO)
+                .setRefundCost(DecimalUtils.ZERO)
                 .setTag(super.INCREASE_TAG_1)
                 .setOrderNo(super.INCREASE_ORDER_NO_1)
                 .setSourceType(super.INCREASE_SOURCE_TYPE)
@@ -243,13 +247,13 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         PointRecPo pointRec2 = pointRecList.get(1);
         var expectPointRec2 = new PointRecPo();
         expectPointRec2.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease2)
-                .setTotal(INCREASE_POINT_2).setAvailable(INCREASE_POINT_1 + INCREASE_POINT_2 - number)
-                .setUsed(0L).setFrozen(number - INCREASE_POINT_1)
-                .setExpire(0L).setCancelled(0L)
+                .setTotal(INCREASE_POINT_2).setAvailable(INCREASE_POINT_1.add(INCREASE_POINT_2).subtract(number))
+                .setUsed(DecimalUtils.ZERO).setFrozen(number.subtract(INCREASE_POINT_1))
+                .setExpire(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO)
                 .setTotalCost(INCREASE_COST_2)
-                .setFrozenCost(40L) // 180 / 2 - 50
-                .setUsedCost(0L)
-                .setRefundCost(0L)
+                .setFrozenCost(BigDecimal.valueOf(40L).setScale(DecimalUtils.SCALE_2)) // 180 / 2 - 50
+                .setUsedCost(DecimalUtils.ZERO)
+                .setRefundCost(DecimalUtils.ZERO)
                 .setTag(INCREASE_TAG_2)
                 .setOrderNo(INCREASE_ORDER_NO_2);
         HyenaTestAssert.assertEquals(expectPointRec2, pointRec2);
@@ -266,13 +270,13 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         expectPointRecLog11.setPid(super.point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec1.getId())
                 .setType(PointOpType.FREEZE.code()).setDelta(INCREASE_POINT_1)
-                .setAvailable(0L)
-                .setUsed(0L)
-                .setFrozen(INCREASE_POINT_1).setCancelled(0L).setExpire(0L)
+                .setAvailable(DecimalUtils.ZERO)
+                .setUsed(DecimalUtils.ZERO)
+                .setFrozen(INCREASE_POINT_1).setCancelled(DecimalUtils.ZERO).setExpire(DecimalUtils.ZERO)
                 .setCost(super.INCREASE_COST_1)
                 .setFrozenCost(INCREASE_COST_1)
-                .setUsedCost(0L)
-                .setRefundCost(0L)
+                .setUsedCost(DecimalUtils.ZERO)
+                .setRefundCost(DecimalUtils.ZERO)
                 .setSourceType(FREEZE_SOURCE_TYPE)
                 .setOrderType(FREEZE_ORDER_TYPE)
                 .setPayType(FREEZE_PAY_TYPE)
@@ -290,14 +294,15 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
         var expectPointRecLog21 = new PointRecLogPo();
         expectPointRecLog21.setPid(point.getId())
                 .setSeqNum(result.getSeqNum()).setRecId(pointRec2.getId())
-                .setType(PointOpType.FREEZE.code()).setDelta(number - INCREASE_POINT_1)
-                .setAvailable(INCREASE_POINT_1 + INCREASE_POINT_2 - number)
-                .setUsed(0L)
-                .setFrozen(number - INCREASE_POINT_1).setCancelled(0L).setExpire(0L)
+                .setType(PointOpType.FREEZE.code()).setDelta(number.subtract(INCREASE_POINT_1))
+                .setAvailable(INCREASE_POINT_1.add(INCREASE_POINT_2).subtract(number))
+                .setUsed(DecimalUtils.ZERO)
+                .setFrozen(number.subtract(INCREASE_POINT_1))
+                .setCancelled(DecimalUtils.ZERO).setExpire(DecimalUtils.ZERO)
                 .setCost(INCREASE_COST_2)
-                .setFrozenCost(40L) // 180 / 2 - 50
-                .setUsedCost(0L)
-                .setRefundCost(0L)
+                .setFrozenCost(BigDecimal.valueOf(40L).setScale(DecimalUtils.SCALE_2)) // 180 / 2 - 50
+                .setUsedCost(DecimalUtils.ZERO)
+                .setRefundCost(DecimalUtils.ZERO)
                 .setSourceType(FREEZE_SOURCE_TYPE)
                 .setOrderType(FREEZE_ORDER_TYPE)
                 .setPayType(FREEZE_PAY_TYPE)

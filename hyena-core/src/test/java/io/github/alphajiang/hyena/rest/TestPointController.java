@@ -48,6 +48,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -198,7 +199,7 @@ public class TestPointController extends HyenaTestBase {
         PointIncreaseParam param = new PointIncreaseParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
-        param.setPoint(9876L);
+        param.setPoint(BigDecimal.valueOf(9876L));
         param.setSeq("gewgewglekjwklehjoipvnbldsalkdjglajd");
         param.setSourceType(1).setOrderType(2).setPayType(3);
         Map<String, Object> extra = new HashMap<>();
@@ -257,7 +258,7 @@ public class TestPointController extends HyenaTestBase {
         PointOpParam param = new PointOpParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
-        param.setPoint(1L);
+        param.setPoint(BigDecimal.valueOf(1L));
         RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decrease")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(JsonUtils.toJsonString(param));
@@ -276,7 +277,7 @@ public class TestPointController extends HyenaTestBase {
         PointFreezeParam param = new PointFreezeParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
-        param.setPoint(1L);
+        param.setPoint(BigDecimal.valueOf(1L));
         RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/freeze")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(JsonUtils.toJsonString(param));
@@ -293,13 +294,13 @@ public class TestPointController extends HyenaTestBase {
     @Test
     public void test_decreaseFrozen() throws Exception {
         PointUsage freeze = new PointUsage();
-        freeze.setPoint(9L).setType(super.getPointType()).setUid(super.getUid());
+        freeze.setPoint(BigDecimal.valueOf(9L)).setType(super.getPointType()).setUid(super.getUid());
         this.pointUsageFacade.freeze(freeze);
 
         PointOpParam param = new PointOpParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
-        param.setPoint(9L);
+        param.setPoint(BigDecimal.valueOf(9L));
         RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decreaseFrozen")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(JsonUtils.toJsonString(param));
@@ -319,14 +320,14 @@ public class TestPointController extends HyenaTestBase {
     @Test
     public void test_decreaseFrozen_unfreeze() throws Exception {
         PointUsage freeze = new PointUsage();
-        freeze.setPoint(14L).setType(super.getPointType()).setUid(super.getUid());
+        freeze.setPoint(BigDecimal.valueOf(14L)).setType(super.getPointType()).setUid(super.getUid());
         this.pointUsageFacade.freeze(freeze);
 
         PointDecreaseFrozenParam param = new PointDecreaseFrozenParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
-        param.setUnfreezePoint(5L); // 要做解冻的部分
-        param.setPoint(9L); // 要消费的部分
+        param.setUnfreezePoint(BigDecimal.valueOf(5L)); // 要做解冻的部分
+        param.setPoint(BigDecimal.valueOf(9L)); // 要消费的部分
         RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decreaseFrozen")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(JsonUtils.toJsonString(param));
@@ -344,13 +345,13 @@ public class TestPointController extends HyenaTestBase {
     @Test
     public void test_unfreeze() throws Exception {
         PointUsage freeze = new PointUsage();
-        freeze.setPoint(9L).setType(super.getPointType()).setUid(super.getUid());
+        freeze.setPoint(BigDecimal.valueOf(9L)).setType(super.getPointType()).setUid(super.getUid());
         this.pointUsageFacade.freeze(freeze);
 
         PointUnfreezeParam param = new PointUnfreezeParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
-        param.setPoint(9L);
+        param.setPoint(BigDecimal.valueOf(9L));
         RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/unfreeze")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(JsonUtils.toJsonString(param));
@@ -370,8 +371,8 @@ public class TestPointController extends HyenaTestBase {
         PointRefundParam param = new PointRefundParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
-        param.setCost(5L); // 退款部分的成本
-        param.setPoint(10L); // 退款的部分
+        param.setCost(BigDecimal.valueOf(5L)); // 退款部分的成本
+        param.setPoint(BigDecimal.valueOf(10L)); // 退款的部分
         RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/refund")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(JsonUtils.toJsonString(param));
@@ -436,6 +437,6 @@ public class TestPointController extends HyenaTestBase {
         });
         Long result = res.getData();
         Assertions.assertNotNull(result);
-        Assertions.assertTrue(result.longValue() > 0L);
+        Assertions.assertTrue(result  > 0L);
     }
 }

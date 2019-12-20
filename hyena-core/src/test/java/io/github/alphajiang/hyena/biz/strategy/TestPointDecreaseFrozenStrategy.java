@@ -29,12 +29,14 @@ import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -61,22 +63,22 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         log.info(">> test start");
 
         log.info("point = {}", this.point);
-        long freezeNum = 80;
-        long useNumber = 70L;
-        long expectPoint = 30L;
-        long expectAvailable = 30L;
-        long expectFrozen = 0L;
+        BigDecimal freezeNum = BigDecimal.valueOf(80).setScale(DecimalUtils.SCALE_2);
+        BigDecimal useNumber = BigDecimal.valueOf(70L).setScale(DecimalUtils.SCALE_2);
+        BigDecimal expectPoint = BigDecimal.valueOf(30L).setScale(DecimalUtils.SCALE_2);
+        BigDecimal expectAvailable = BigDecimal.valueOf(30L).setScale(DecimalUtils.SCALE_2);
+        BigDecimal expectFrozen = DecimalUtils.ZERO;
 
 
         // 先冻结
         PointUsage freezeUsage = new PointUsage();
-        freezeUsage.setType(super.getPointType()).setUid(this.uid).setPoint(freezeNum)
+        freezeUsage.setType(super.getPointType()).setUid(super.getUid()).setPoint(freezeNum)
                 .setNote("test_decreasePointUnfreeze");
         PointPo retPoint = this.pointFreezeStrategy.process(freezeUsage);
         log.info("point = {}", retPoint);
 
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(this.uid).setPoint(useNumber)
+        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(useNumber)
                 .setUnfreezePoint(freezeNum)
                 .setSourceType(DECREASE_SOURCE_TYPE)
                 .setOrderType(DECREASE_ORDER_TYPE)
@@ -85,16 +87,16 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         PointPo result = this.pointDecreaseFrozenStrategy.process(usage);
         log.info("result = {}", result);
         Thread.sleep(200L);
-        Assertions.assertEquals(expectPoint, result.getPoint().longValue());
-        Assertions.assertEquals(expectAvailable, result.getAvailable().longValue());
-        Assertions.assertEquals(useNumber, result.getUsed().longValue());
-        Assertions.assertEquals(expectFrozen, result.getFrozen().longValue());
-        Assertions.assertEquals(0L, result.getExpire().longValue());
+        Assertions.assertEquals(expectPoint, result.getPoint());
+        Assertions.assertEquals(expectAvailable, result.getAvailable());
+        Assertions.assertEquals(useNumber, result.getUsed());
+        Assertions.assertEquals(expectFrozen, result.getFrozen());
+        Assertions.assertEquals(DecimalUtils.ZERO, result.getExpire());
 
 
         // verify point log
         ListPointLogParam listPointLogParam = new ListPointLogParam();
-        listPointLogParam.setUid(this.uid).setSeqNum(result.getSeqNum() - 1)
+        listPointLogParam.setUid(super.getUid()).setSeqNum(result.getSeqNum() - 1)
                 .setSourceTypes(List.of(DECREASE_SOURCE_TYPE))
                 .setOrderTypes(List.of(DECREASE_ORDER_TYPE))
                 .setPayTypes(List.of(DECREASE_PAY_TYPE))
@@ -105,15 +107,15 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         Assertions.assertEquals(1, pointLogs.size());
         var pointLogUnfreeze = pointLogs.get(0);
         var expectPoingLogUnfreeze = new PointLogDto();
-        expectPoingLogUnfreeze.setUid(this.uid).setType(PointOpType.UNFREEZE.code())
+        expectPoingLogUnfreeze.setUid(super.getUid()).setType(PointOpType.UNFREEZE.code())
                 .setSeqNum(result.getSeqNum() - 1).setDelta(freezeNum)
-                .setDeltaCost(freezeNum / 2)
+                .setDeltaCost(freezeNum.divide(BigDecimal.valueOf(2)))
                 .setPoint(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1)
-                .setUsed(0L).setFrozen(0L)
-                .setExpire(0L)
-                .setRefund(0L)
+                .setUsed(DecimalUtils.ZERO).setFrozen(DecimalUtils.ZERO)
+                .setExpire(DecimalUtils.ZERO)
+                .setRefund(DecimalUtils.ZERO)
                 .setCost(INCREASE_COST_1)
-                .setFrozenCost(0L)
+                .setFrozenCost(DecimalUtils.ZERO)
                 .setTag(usage.getTag())
                 .setOrderNo(usage.getOrderNo())
                 .setSourceType(DECREASE_SOURCE_TYPE)
@@ -124,7 +126,7 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         HyenaTestAssert.assertEquals(expectPoingLogUnfreeze, pointLogUnfreeze);
 
         listPointLogParam = new ListPointLogParam();
-        listPointLogParam.setUid(this.uid).setSeqNum(result.getSeqNum())
+        listPointLogParam.setUid(super.getUid()).setSeqNum(result.getSeqNum())
                 .setSourceTypes(List.of(DECREASE_SOURCE_TYPE))
                 .setOrderTypes(List.of(DECREASE_ORDER_TYPE))
                 .setPayTypes(List.of(DECREASE_PAY_TYPE))
@@ -134,15 +136,15 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         log.info("pointLogs = {}", pointLogs);
         var pointLogDecrease = pointLogs.get(0);
         var expectPoingLogDecrease = new PointLogDto();
-        expectPoingLogDecrease.setUid(this.uid).setType(PointOpType.DECREASE.code())
+        expectPoingLogDecrease.setUid(super.getUid()).setType(PointOpType.DECREASE.code())
                 .setSeqNum(result.getSeqNum()).setDelta(useNumber)
-                .setDeltaCost(useNumber / 2)
+                .setDeltaCost(useNumber.divide(BigDecimal.valueOf(2)))
                 .setPoint(result.getPoint()).setAvailable(result.getAvailable())
                 .setUsed(result.getUsed()).setFrozen(result.getFrozen())
                 .setExpire(result.getExpire())
-                .setRefund(0L)
-                .setCost(INCREASE_COST_1 - useNumber / 2)
-                .setFrozenCost(0L)
+                .setRefund(DecimalUtils.ZERO)
+                .setCost(INCREASE_COST_1.subtract(useNumber.divide(BigDecimal.valueOf(2))))
+                .setFrozenCost(DecimalUtils.ZERO)
                 .setTag(usage.getTag())
                 .setOrderNo(usage.getOrderNo())
                 .setSourceType(DECREASE_SOURCE_TYPE)
@@ -154,19 +156,20 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
 
         // verify point record
         ListPointRecParam listPointRecParam = new ListPointRecParam();
-        listPointRecParam.setUid(this.uid).setType(super.getPointType());
+        listPointRecParam.setUid(super.getUid()).setType(super.getPointType());
         var pointRecList = pointRecDs.listPointRec(listPointRecParam);
         log.info("pointRecList = {}", pointRecList);
         Assertions.assertEquals(1, pointRecList.size());
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
-                .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1 - useNumber)
-                .setUsed(useNumber).setFrozen(0L).setExpire(0L).setCancelled(0L)
+                .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1.subtract(useNumber))
+                .setUsed(useNumber).setFrozen(DecimalUtils.ZERO)
+                .setExpire(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO)
                 .setTotalCost(super.INCREASE_COST_1)
-                .setFrozenCost(0L)
-                .setUsedCost(useNumber / 2)
-                .setRefundCost(0L)
+                .setFrozenCost(DecimalUtils.ZERO)
+                .setUsedCost(useNumber.divide(BigDecimal.valueOf(2)))
+                .setRefundCost(DecimalUtils.ZERO)
                 .setTag(super.INCREASE_TAG_1)
                 .setOrderNo(super.INCREASE_ORDER_NO_1)
                 .setSourceType(INCREASE_SOURCE_TYPE)
@@ -190,11 +193,11 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
                 .setType(PointOpType.DECREASE.code()).setDelta(useNumber)
                 .setAvailable(expectAvailable)
                 .setUsed(useNumber)
-                .setFrozen(0L).setCancelled(0L).setExpire(0L)
-                .setCost(super.INCREASE_COST_1 - useNumber / 2)
-                .setFrozenCost(0L)
-                .setUsedCost(useNumber / 2)
-                .setRefundCost(0L)
+                .setFrozen(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO).setExpire(DecimalUtils.ZERO)
+                .setCost(super.INCREASE_COST_1.subtract(useNumber.divide(BigDecimal.valueOf(2))))
+                .setFrozenCost(DecimalUtils.ZERO)
+                .setUsedCost(useNumber.divide(BigDecimal.valueOf(2)))
+                .setRefundCost(DecimalUtils.ZERO)
                 .setSourceType(DECREASE_SOURCE_TYPE)
                 .setOrderType(DECREASE_ORDER_TYPE)
                 .setPayType(DECREASE_PAY_TYPE)
@@ -208,12 +211,12 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
                 .setSeqNum(result.getSeqNum() - 1).setRecId(pointRec.getId())
                 .setType(PointOpType.UNFREEZE.code()).setDelta(freezeNum)
                 .setAvailable(INCREASE_POINT_1)
-                .setUsed(0L)
-                .setFrozen(0L).setCancelled(0L).setExpire(0L)
+                .setUsed(DecimalUtils.ZERO)
+                .setFrozen(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO).setExpire(DecimalUtils.ZERO)
                 .setCost(super.INCREASE_COST_1)
-                .setFrozenCost(0L)
-                .setUsedCost(0L)
-                .setRefundCost(0L)
+                .setFrozenCost(DecimalUtils.ZERO)
+                .setUsedCost(DecimalUtils.ZERO)
+                .setRefundCost(DecimalUtils.ZERO)
                 .setSourceType(DECREASE_SOURCE_TYPE)
                 .setOrderType(DECREASE_ORDER_TYPE)
                 .setPayType(DECREASE_PAY_TYPE)

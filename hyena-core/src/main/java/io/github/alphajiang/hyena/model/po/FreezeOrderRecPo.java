@@ -23,6 +23,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
@@ -33,7 +35,7 @@ public class FreezeOrderRecPo extends BasePo {
     private long recId;
     private long seqNum;
     private int orderType;
-    private long frozen;
-    private long frozenCost;
+    private BigDecimal frozen;
+    private BigDecimal frozenCost;
     private String orderNo;
 }

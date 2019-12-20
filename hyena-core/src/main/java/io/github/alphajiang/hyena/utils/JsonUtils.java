@@ -17,11 +17,11 @@
 
 package io.github.alphajiang.hyena.utils;
 
-import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +33,7 @@ public class JsonUtils {
     public static <T> T fromJson(String jsonString, Class<T> clazz) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
         try {
             return mapper.readValue(jsonString, clazz);
         } catch (IOException e) {
@@ -45,6 +46,7 @@ public class JsonUtils {
     public static <T> T fromJson(String json, TypeReference<T> typereference) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
         try {
             return mapper.readValue(json, typereference);
         } catch (IOException e) {
