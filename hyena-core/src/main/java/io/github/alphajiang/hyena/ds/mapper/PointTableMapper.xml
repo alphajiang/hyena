@@ -27,6 +27,7 @@
         create table if not exists ${pointTableName} (
             id bigint(20) not null auto_increment primary key,
             `uid` varchar(128) not null,
+            `subUid` varchar(128) not null default '',
             `name` varchar(256) not null default '',
             `point` decimal(20,2) not null default 0,
             `available` decimal(20,2) not null default 0,
@@ -44,11 +45,11 @@
     </update>
 
     <update id="createPointTableIndex" flushCache="true">
-        CREATE UNIQUE INDEX ${pointTableName}_uid USING HASH ON ${pointTableName}(`uid`)
+        CREATE UNIQUE INDEX ${pointTableName}_uid_subUid USING HASH ON ${pointTableName}(`uid`, `subUid`)
     </update>
 
     <update id="createPointTableIndexH2" flushCache="true">
-        CREATE UNIQUE hash INDEX if not exists ${pointTableName}_uid ON ${pointTableName}(`uid`)
+        CREATE UNIQUE hash INDEX if not exists ${pointTableName}_uid_subUid ON ${pointTableName}(`uid`, `subUid`)
     </update>
 
     <update id="createPointLogTable" flushCache="true">
@@ -56,6 +57,7 @@
         id bigint(20) not null auto_increment primary key,
         `pid` bigint(20) not null,
         `uid` varchar(128) not null,
+        `subUid` varchar(128) not null default '',
         `seqNum` bigint(20) not null default 0,
         `type` tinyint not null default 0 comment '1: increase; 2: decrease; 3: freeze; 4: unfreeze; 5: expire; 6: cancel; 7: refund; 8: costFreeze; 9: costUnfreeze;',
         `delta` decimal(20,2) not null default 0,
@@ -174,6 +176,7 @@
         id bigint(20) not null auto_increment primary key,
         `pid` bigint(20) not null,
         `uid` varchar(128) not null,
+        `subUid` varchar(128) not null default '',
         `recId` bigint(20) not null,
         `seqNum` bigint(20) not null default 0,
         orderType int not null,

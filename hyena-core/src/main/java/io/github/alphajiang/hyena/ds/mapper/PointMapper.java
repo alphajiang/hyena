@@ -37,6 +37,7 @@ public interface PointMapper {
 
     PointPo getCusPointByUid(@Param(value = "tableName") String tableName,
                              @Param(value = "uid") String uid,
+                             @Param(value = "subUid") String subUid,
                              @Param(value = "lock") boolean lock);
 
 
@@ -48,7 +49,8 @@ public interface PointMapper {
                     @Param(value = "param") ListPointParam param);
 
     int disableAccount(@Param(value = "tableName") String tableName,
-                       @Param(value = "uid") String uid);
+                       @Param(value = "uid") String uid,
+                       @Param(value = "subUid") String subUid);
 
     int updateCusPoint(@Param(value = "tableName") String tableName,
                        @Param(value = "p") PointPo point);
@@ -58,5 +60,6 @@ public interface PointMapper {
 
     PointVo getPointVo(@Param(value = "pointTableName") String pointTableName,
                        @Param(value = "pid") Long pid,
-                       @Param(value = "uid") String uid);
+                       @Param(value = "uid") String uid,
+                       @Param(value = "subUid") String subUid);
 }

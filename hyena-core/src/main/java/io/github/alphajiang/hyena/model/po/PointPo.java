@@ -33,6 +33,7 @@ import java.math.BigDecimal;
 public class PointPo extends BasePo {
 
     private String uid;
+    private String subUid;
     private String name;
     private BigDecimal point;
     private BigDecimal available;

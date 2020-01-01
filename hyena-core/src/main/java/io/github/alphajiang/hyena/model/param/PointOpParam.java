@@ -40,6 +40,9 @@ public class PointOpParam extends BaseObject {
     @ApiModelProperty(value = "用户ID", example = "customer_abc123")
     private String uid;
 
+    @ApiModelProperty(value = "用户二级ID", example = "customer_abc123")
+    private String subUid;
+
     @ApiModelProperty(value = "显示名称", example = "Tom")
     private String name;
 

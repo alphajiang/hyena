@@ -56,6 +56,7 @@ public abstract class HyenaTestBase {
     private String tag;
 
     private String uid;
+    private String subUid;
 
     private Integer sourceType = 1;
     private Integer orderType = 11;
@@ -69,13 +70,15 @@ public abstract class HyenaTestBase {
         String random = UUID.randomUUID().toString().replace("-", "");
         this.pointType = random.substring(0, 6);
         this.uid = random.substring(7, 12);
+        this.subUid = random.substring(3,7);
         this.tag = random.substring(13, 16);
         Map<String, Object> extra = new HashMap<>();
         extra.put("aaa", "bbbb");
         extra.put("ccc", 123L);
         this.initialPointUsage = new PointUsage();
         this.initialPointUsage.setType(this.pointType).setTag(tag)
-                .setUid(this.uid).setPoint(BigDecimal.valueOf( 100L).setScale(DecimalUtils.SCALE_2))
+                .setUid(this.uid).setSubUid(this.subUid)
+                .setPoint(BigDecimal.valueOf( 100L).setScale(DecimalUtils.SCALE_2))
                 .setCost(BigDecimal.valueOf(50L).setScale(DecimalUtils.SCALE_2))
                 .setSourceType(sourceType).setOrderType(orderType).setPayType(payType)
                 .setExtra(JsonUtils.toJsonString(extra));
@@ -98,6 +101,10 @@ public abstract class HyenaTestBase {
 
     public String getUid() {
         return this.uid;
+    }
+
+    public String getSubUid() {
+        return this.subUid;
     }
 
     public PointUsage getInitialPointUsage() {

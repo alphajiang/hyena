@@ -96,6 +96,9 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
         </if>
+        <if test="param.subUid != null">
+            and p.subUid = #{param.subUid}
+        </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}
         </if>
@@ -168,6 +171,9 @@
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
+        </if>
+        <if test="param.subUid != null">
+            and p.subUid = #{param.subUid}
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and rec.tag = #{param.tag}

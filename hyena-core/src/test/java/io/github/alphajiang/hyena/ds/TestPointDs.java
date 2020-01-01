@@ -98,11 +98,11 @@ public class TestPointDs extends HyenaTestBase {
 
     @Test
     public void test_getPointVo() {
-        var result = this.pointDs.getPointVo(super.getPointType(), null, super.getUid());
+        var result = this.pointDs.getPointVo(super.getPointType(), null, super.getUid(), super.getSubUid());
         log.info("result = {}", result);
         Assertions.assertNotNull(result);
 
-        result = this.pointDs.getPointVo(super.getPointType(), super.getUserPoint().getId(), null);
+        result = this.pointDs.getPointVo(super.getPointType(), super.getUserPoint().getId(), null, null);
         log.info("result = {}", result);
         Assertions.assertNotNull(result);
     }
@@ -110,7 +110,7 @@ public class TestPointDs extends HyenaTestBase {
     @Test
     public void test_getPointVo_no_pid_or_uid() {
         Assertions.assertThrows(HyenaParameterException.class, () -> {
-            this.pointDs.getPointVo(super.getPointType(), null, null);
+            this.pointDs.getPointVo(super.getPointType(), null, null, null);
             Assertions.fail();
         });
     }
@@ -118,7 +118,7 @@ public class TestPointDs extends HyenaTestBase {
 
     @Test
     public void test_update() {
-        PointPo point = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), true);
+        PointPo point = this.pointDs.getCusPoint(super.getPointType(), super.getUid(),  super.getSubUid(),true);
         point.setSeqNum(point.getSeqNum() + 1).setName("测试改个名字")
                 .setPoint(BigDecimal.valueOf(111L).setScale(DecimalUtils.SCALE_2))
                 .setAvailable(BigDecimal.valueOf(222L).setScale(DecimalUtils.SCALE_2))
@@ -131,16 +131,16 @@ public class TestPointDs extends HyenaTestBase {
                 .setEnable(false);
         this.pointDs.update(super.getPointType(), point);
 
-        PointPo result = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), false);
+        PointPo result = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), super.getSubUid(),false);
         HyenaTestAssert.assertEquals(point, result);
     }
 
 
     @Test
     public void test_disableAccount() {
-        this.pointDs.disableAccount(super.getPointType(), super.getUid());
+        this.pointDs.disableAccount(super.getPointType(), super.getUid(), super.getSubUid());
 
-        PointPo result = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), false);
+        PointPo result = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), super.getSubUid(),false);
         Assertions.assertFalse(result.getEnable());
     }
 }

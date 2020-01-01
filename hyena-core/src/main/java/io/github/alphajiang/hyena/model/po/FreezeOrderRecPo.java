@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 public class FreezeOrderRecPo extends BasePo {
     private long pid;
     private String uid;
+    private String subUid;
     private long recId;
     private long seqNum;
     private int orderType;

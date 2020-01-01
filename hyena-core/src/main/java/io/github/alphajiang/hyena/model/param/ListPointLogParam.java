@@ -32,6 +32,9 @@ public class ListPointLogParam extends BaseListParam {
     @ApiModelProperty(value = "用户ID")
     private String uid;
 
+    @ApiModelProperty(value = "用户二级ID")
+    private String subUid;
+
     @ApiModelProperty(value = "积分记录ID")
     private long pid;
 
@@ -44,6 +47,9 @@ public class ListPointLogParam extends BaseListParam {
 
     @ApiModelProperty(value = "订单号")
     private String orderNo;
+
+    @ApiModelProperty(value = "创建时间过滤器")
+    private TimeFilter createTimeFilter;
 
     // PointStatus
 

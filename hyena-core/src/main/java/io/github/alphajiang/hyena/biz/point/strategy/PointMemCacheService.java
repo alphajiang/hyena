@@ -46,14 +46,14 @@ public class PointMemCacheService {
     private PointDs pointDs;
 
 
-    public PointWrapper getPoint(String type, String uid, boolean lock) {
-        PointWrapper result = new PointWrapper(this.getPointX(type, uid));
+    public PointWrapper getPoint(String type, String uid, String subUid, boolean lock) {
+        PointWrapper result = new PointWrapper(this.getPointX(type, uid, subUid));
 
         if (lock) {
             result.getPointCache().lock();
         }
         if (result.getPointCache().getPoint() == null) {
-            PointVo p = this.pointDs.getPointVo(type, null, uid);
+            PointVo p = this.pointDs.getPointVo(type, null, uid, subUid);
             if (p != null && p.getRecList() != null) {
                 p.setRecList(p.getRecList().stream().sorted(Comparator.comparingLong(PointRecPo::getId)).collect(Collectors.toList()));
             }
@@ -62,21 +62,25 @@ public class PointMemCacheService {
         return result;
     }
 
-    public synchronized void removePoint(String type, String uid) {
+    public synchronized void removePoint(String type, String uid, String subUid) {
         try {
-            String key = this.formatKey(type, uid);
+            String key = this.formatKey(type, uid, subUid);
             map.remove(key);
         } catch (Exception e) {
             log.error("can't remove point. type = {}, uid = {}", type, uid);
         }
     }
 
-    private String formatKey(String type, String uid) {
-        return type + "-" + uid;
+    private String formatKey(String type, String uid, String subUid) {
+        if(subUid == null) {
+            return type + "-" + uid;
+        }else {
+            return type + "-" + uid + "-" + subUid;
+        }
     }
 
-    private synchronized PointCache getPointX(String type, String uid) {
-        String key = this.formatKey(type, uid);
+    private synchronized PointCache getPointX(String type, String uid, String subUid) {
+        String key = this.formatKey(type, uid, subUid);
         PointCache p = map.get(key);
         if (p == null) {
             p = new PointCache();

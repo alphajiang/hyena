@@ -25,6 +25,7 @@ public class PointUsageBuilder {
     public static PointUsage fromPointOpParam(PointOpParam param) {
         PointUsage usage = new PointUsage();
         usage.setType(param.getType()).setUid(param.getUid())
+
                 .setName(param.getName())
                 .setPoint(param.getPoint())
                 .setTag(param.getTag())
@@ -34,6 +35,11 @@ public class PointUsageBuilder {
                 .setPayType(param.getPayType())
                 .setExtra(JsonUtils.toJsonString(param.getExtra()))
                 .setNote(param.getNote());
+        if(param.getSubUid() == null) {
+            usage.setSubUid("");
+        }else {
+            usage.setSubUid(param.getSubUid());
+        }
         return usage;
     }
 
@@ -51,6 +57,11 @@ public class PointUsageBuilder {
                 .setPayType(param.getPayType())
                 .setExtra(JsonUtils.toJsonString(param.getExtra()))
                 .setNote(param.getNote()).setExpireTime(param.getExpireTime());
+        if (param.getSubUid() == null) {
+            usage.setSubUid("");
+        } else {
+            usage.setSubUid(param.getSubUid());
+        }
         return usage;
     }
 

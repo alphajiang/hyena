@@ -106,7 +106,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
         //logger.debug("tableName = {}", tableName);
 
         if (fetchPoint) {
-            PointWrapper pw = this.pointMemCacheService.getPoint(usage.getType(), usage.getUid(), true);
+            PointWrapper pw = this.pointMemCacheService.getPoint(usage.getType(), usage.getUid(),  usage.getSubUid(),true);
             if (mustExist && pw.getPointCache().getPoint() == null) {
                 pw.close();
                 throw new HyenaParameterException("account not exist");

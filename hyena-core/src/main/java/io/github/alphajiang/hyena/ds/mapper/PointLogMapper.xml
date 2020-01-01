@@ -4,7 +4,7 @@
 
     <insert id="addPointLog" useGeneratedKeys="true" keyProperty="pointLog.id" keyColumn="id">
         insert into `${pointTableName}_log` (
-        `pid`, `uid`, `seqNum`, `type`,
+        `pid`, `uid`, `subUid`, `seqNum`, `type`,
         `delta`, `deltaCost`, `point`, `available`,
         `used`, `frozen`, `refund`, `expire`,
         `cost`, `frozenCost`,
@@ -23,7 +23,7 @@
         </if>
         `extra`, `note`
         ) values(
-        #{pointLog.pid}, #{pointLog.uid}, #{pointLog.seqNum}, #{pointLog.type},
+        #{pointLog.pid}, #{pointLog.uid}, #{pointLog.subUid}, #{pointLog.seqNum}, #{pointLog.type},
         #{pointLog.delta}, #{pointLog.deltaCost}, #{pointLog.point}, #{pointLog.available},
         #{pointLog.used}, #{pointLog.frozen}, #{pointLog.refund}, #{pointLog.expire},
         #{pointLog.cost}, #{pointLog.frozenCost},
@@ -45,7 +45,7 @@
 
     <insert id="batchInsert">
         insert into `${pointTableName}_log` (
-        `pid`, `uid`, `seqNum`, `type`,
+        `pid`, `uid`, `subUid`, `seqNum`, `type`,
         `delta`, `deltaCost`, `point`, `available`,
         `used`, `frozen`, `refund`, `expire`,
         `cost`, `frozenCost`,
@@ -57,7 +57,7 @@
         `extra`, `note`
         )
         <foreach item="pointLog" collection="pointLogList" open="values(" close=")" separator="),(">
-            #{pointLog.pid}, #{pointLog.uid}, #{pointLog.seqNum}, #{pointLog.type},
+            #{pointLog.pid}, #{pointLog.uid}, #{pointLog.subUid}, #{pointLog.seqNum}, #{pointLog.type},
             #{pointLog.delta}, #{pointLog.deltaCost}, #{pointLog.point}, #{pointLog.available},
             #{pointLog.used}, #{pointLog.frozen}, #{pointLog.refund}, #{pointLog.expire},
             #{pointLog.cost}, #{pointLog.frozenCost},
@@ -70,6 +70,77 @@
         </foreach>
     </insert>
 
+    <select id="listPointLogBi" resultType="io.github.alphajiang.hyena.model.vo.PointLogBi">
+        select log.`type` as logType,
+        sum(log.delta) as delta,
+        sum(log.deltaCost) as deltaCost
+        from `${pointTableName}_log` as log
+
+        where 1=1
+        <if test="param.pid &gt; 0">
+            and log.pid = #{param.pid}
+        </if>
+        <if test="param.seqNum &gt; 0">
+            and log.seqNum = #{param.seqNum}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
+            and log.uid = #{param.uid}
+        </if>
+        <if test="param.subUid != null">
+            and log.subUid = #{param.subUid}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
+            and log.tag = #{param.tag}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.orderNo )">
+            and log.orderNo = #{param.orderNo}
+        </if>
+        <if test="param.createTimeFilter != null and param.createTimeFilter.startTime != null">
+            <![CDATA[ and log.createTime >= #{param.createTimeFilter.startTime} ]]>
+        </if>
+        <if test="param.createTimeFilter != null and param.createTimeFilter.endTime != null">
+            <![CDATA[ and log.createTime < #{param.createTimeFilter.endTime} ]]>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.logTypes )">
+            and log.`type` in
+            <foreach item="logType" collection="param.logTypes"
+                     open="(" separator="," close=")">
+                #{logType}
+            </foreach>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.sourceTypes )">
+            and log.`sourceType` in
+            <foreach item="sourceType" collection="param.sourceTypes"
+                     open="(" separator="," close=")">
+                #{sourceType}
+            </foreach>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.orderTypes )">
+            and log.`orderType` in
+            <foreach item="orderType" collection="param.orderTypes"
+                     open="(" separator="," close=")">
+                #{orderType}
+            </foreach>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.payTypes )">
+            and log.`payType` in
+            <foreach item="payType" collection="param.payTypes"
+                     open="(" separator="," close=")">
+                #{payType}
+            </foreach>
+        </if>
+        <if test="param.enable != null">
+            and log.enable = #{param.enable}
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.sk )">
+            <bind name="pattern" value="'%' + param.sk + '%'"/>
+            and (
+            log.tag like #{pattern}
+            or log.orderNo like #{pattern}
+            )
+        </if>
+
+    </select>
 
     <select id="listPointLog" resultType="io.github.alphajiang.hyena.model.dto.PointLogDto">
         select log.*
@@ -85,11 +156,20 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and log.uid = #{param.uid}
         </if>
+        <if test="param.subUid != null">
+            and log.subUid = #{param.subUid}
+        </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and log.tag = #{param.tag}
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.orderNo )">
             and log.orderNo = #{param.orderNo}
+        </if>
+        <if test="param.createTimeFilter != null and param.createTimeFilter.startTime != null">
+            <![CDATA[ and log.createTime >= #{param.createTimeFilter.startTime} ]]>
+        </if>
+        <if test="param.createTimeFilter != null and param.createTimeFilter.endTime != null">
+            <![CDATA[ and log.createTime < #{param.createTimeFilter.endTime} ]]>
         </if>
         <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.logTypes )">
             and log.`type` in
@@ -158,11 +238,20 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and log.uid = #{param.uid}
         </if>
+        <if test="param.subUid != null">
+            and log.subUid = #{param.subUid}
+        </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.tag )">
             and log.tag = #{param.tag}
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.orderNo )">
             and log.orderNo = #{param.orderNo}
+        </if>
+        <if test="param.createTimeFilter != null and param.createTimeFilter.startTime != null">
+            <![CDATA[ and log.createTime >= #{param.createTimeFilter.startTime} ]]>
+        </if>
+        <if test="param.createTimeFilter != null and param.createTimeFilter.endTime != null">
+            <![CDATA[ and log.createTime < #{param.createTimeFilter.endTime} ]]>
         </if>
         <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.logTypes )">
             and log.`type` in

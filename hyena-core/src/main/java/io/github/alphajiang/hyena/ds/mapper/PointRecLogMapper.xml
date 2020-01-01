@@ -90,6 +90,9 @@
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
         </if>
+        <if test="param.subUid != null">
+            and p.subUid = #{param.subUid}
+        </if>
         <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.seqNumList )">
             <foreach item="seqNum" collection="param.seqNumList"
                      open="and log.seqNum in (" separator="," close=") ">
@@ -151,6 +154,9 @@
         </if>
         <if test="@io.github.alphajiang.hyena.utils.StringUtils@isNotBlank( param.uid )">
             and p.uid = #{param.uid}
+        </if>
+        <if test="param.subUid != null">
+            and p.subUid = #{param.subUid}
         </if>
         <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.seqNumList )">
             <foreach item="seqNum" collection="param.seqNumList"

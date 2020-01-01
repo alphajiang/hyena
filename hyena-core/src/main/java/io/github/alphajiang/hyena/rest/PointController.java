@@ -36,6 +36,7 @@ import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
 import io.github.alphajiang.hyena.model.param.*;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.SortOrder;
+import io.github.alphajiang.hyena.model.vo.PointLogBi;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DateUtils;
@@ -86,9 +87,10 @@ public class PointController {
     public ObjectResponse<PointPo> getPoint(
             HttpServletRequest request,
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @ApiParam(value = "用户ID") @RequestParam String uid) {
+            @ApiParam(value = "用户ID") @RequestParam String uid,
+            @ApiParam(value = "用户二级ID") @RequestParam(required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(request));
-        var ret = this.pointMemCacheService.getPoint(type, uid, false);
+        var ret = this.pointMemCacheService.getPoint(type, uid, subUid, false);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret.getPointCache().getPoint());
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
@@ -118,6 +120,18 @@ public class PointController {
             param.setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
         }
         var res = this.pointLogDs.listPointLog4Page(param);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
+
+    @ApiOperation(value = "获取变更明细统计")
+    @PostMapping(value = "/listPointLogBi", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<PointLogBi> listPointLogBi(
+            HttpServletRequest request,
+            @RequestBody ListPointLogParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
+        var list = this.pointLogDs.listPointLogBi(param);
+        var res = new ListResponse<>(list, list.size());
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;
     }
@@ -326,9 +340,10 @@ public class PointController {
     public BaseResponse disableAccount(
             HttpServletRequest request,
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @ApiParam(value = "用户ID") @RequestParam String uid) {
+            @ApiParam(value = "用户ID") @RequestParam String uid,
+            @ApiParam(value = "用户二级ID") @RequestParam(required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(request));
-        this.pointDs.disableAccount(type, uid);
+        this.pointDs.disableAccount(type, uid, subUid);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return BaseResponse.success();
     }

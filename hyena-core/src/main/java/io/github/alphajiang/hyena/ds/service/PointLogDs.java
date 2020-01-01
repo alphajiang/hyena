@@ -23,6 +23,7 @@ import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
+import io.github.alphajiang.hyena.model.vo.PointLogBi;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
@@ -46,8 +47,6 @@ public class PointLogDs {
     private PointTableDs pointTableDs;
 
 
-
-
     public void addPointLog(@NonNull String type, @NotNull PointLogPo pointLog) {
         String tableName = TableNameHelper.getPointTableName(type);
 
@@ -63,6 +62,9 @@ public class PointLogDs {
     @Transactional
     public ListResponse<PointLogDto> listPointLog4Page(ListPointLogParam param) {
         logger.debug("param = {}", param);
+//        if (param.getCreateTimeFilter() != null && param.getCreateTimeFilter().getEndTime() != null) {
+//            param.getCreateTimeFilter().getEndTime();
+//        }
         var list = this.listPointLog(param);
         var total = this.countPointLog(param);
         var ret = new ListResponse<>(list, total);
@@ -80,5 +82,10 @@ public class PointLogDs {
         String pointTableName = TableNameHelper.getPointTableName(param.getType());
         Long ret = this.pointLogMapper.countPointLog(pointTableName, param);
         return ret == null ? 0L : ret.longValue();
+    }
+
+    public List<PointLogBi> listPointLogBi( ListPointLogParam param){
+        String pointTableName = TableNameHelper.getPointTableName(param.getType());
+        return this.pointLogMapper.listPointLogBi(pointTableName, param);
     }
 }

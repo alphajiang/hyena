@@ -23,6 +23,7 @@
     <resultMap id="pointVoMap" type="io.github.alphajiang.hyena.model.vo.PointVo">
         <result column="id" property="id"/>
         <result column="uid" property="uid"/>
+        <result column="subUid" property="subUid"/>
         <result column="name" property="name"/>
         <result column="point" property="point"
                 typeHandler="org.apache.ibatis.type.BigDecimalTypeHandler"/>
@@ -117,12 +118,14 @@
 
     <insert id="addPoint" useGeneratedKeys="true" keyProperty="point.id">
         insert into `${tableName}` (
-        `uid`, `name`, `point`, `available`, `cost`,`frozen`,`used`,
+        `uid`, `subUid`, `name`,
+        `point`, `available`, `cost`,`frozen`,`used`,
         `refund`,`expire`,
         `frozenCost`,
         seqNum
         ) values(
-        #{point.uid}, #{point.name}, #{point.point}, #{point.point}, #{point.cost},
+        #{point.uid}, #{point.subUid}, #{point.name},
+        #{point.point}, #{point.point}, #{point.cost},
         #{point.frozen}, #{point.used},
         #{point.refund}, #{point.expire},
         #{point.frozenCost},
@@ -142,6 +145,9 @@
         select cp.*
         from `${tableName}` as cp
         where cp.uid = #{uid}
+        <if test="subUid != null">
+            and cp.subUid = #{subUid}
+        </if>
     </select>
 
     <select id="listPoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">
@@ -208,7 +214,11 @@
     <update id="disableAccount">
         update `${tableName}`
         set `enable` = false
-        where uid = #{uid} and `enable` = true
+        where uid = #{uid}
+        <if test="subUid != null">
+            and subUid = #{subUid}
+        </if>
+        and `enable` = true
     </update>
 
     <update id="updateCusPoint">
@@ -299,6 +309,9 @@
         </if>
         <if test="uid != null">
             and p.uid = #{uid}
+        </if>
+        <if test="subUid != null">
+            and p.subUid = #{subUid}
         </if>
     </select>
 </mapper>

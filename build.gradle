@@ -1,6 +1,6 @@
 
 plugins {
-    id 'org.springframework.boot' version '2.1.9.RELEASE'
+    id 'org.springframework.boot' version '2.2.2.RELEASE'
     id 'java'
     id 'jacoco'
     id 'com.github.kt3k.coveralls' version '2.8.2'
@@ -12,8 +12,8 @@ apply plugin: 'eclipse'
 
 
 ext {
-    springBootVersion = "2.1.9.RELEASE"
-    springCloudVersion = "Greenwich.SR3"
+    springBootVersion = "2.2.2.RELEASE"
+    springCloudVersion = "Hoxton.SR1"
     mybatisStarterVersion = '2.1.0'
     swaggerVersion = '2.9.2'
     lombokVersion = '1.18.10'
@@ -23,7 +23,7 @@ ext {
 
 allprojects {
     group = 'io.github.alphajiang'
-    version = '0.0.20'
+    version = '0.0.21.20200101-SNAPSHOT'
     //version = '0.0.19'
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'

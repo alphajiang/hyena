@@ -113,6 +113,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
                 .setPoint(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
                 .setAvailable(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
                 .setUid(usage.getUid())
+                .setSubUid(usage.getSubUid())
                 .setUsed(DecimalUtils.ZERO)
                 .setFrozen(DecimalUtils.ZERO)
                 .setRefund(DecimalUtils.ZERO)
@@ -143,7 +144,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
             pointFlowService.addFlow(usage, pointLog, List.of(recLog));
         }
 
-        pc.setPoint(this.pointDs.getPointVo(usage.getType(), point2Update.getId(), null));
+        pc.setPoint(this.pointDs.getPointVo(usage.getType(), point2Update.getId(), null, null));
     }
 
 

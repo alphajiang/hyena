@@ -38,6 +38,7 @@ public class PointLogPo extends BasePo {
 
     private long pid;
     private String uid;
+    private String subUid;
     private long seqNum;
     private BigDecimal delta;
     @ApiModelProperty("变动部分的实际成本")

@@ -54,9 +54,9 @@ public class PointDs {
 //    private PointRecService pointRecService;
 
 
-    public PointPo getCusPoint(String type, String uid, boolean lock) {
+    public PointPo getCusPoint(String type, String uid, String subUid, boolean lock) {
         String tableName = TableNameHelper.getPointTableName(type);
-        PointPo point = this.pointMapper.getCusPointByUid(tableName, uid, lock);
+        PointPo point = this.pointMapper.getCusPointByUid(tableName, uid, subUid, lock);
         if (lock && point != null) {
             point = this.pointMapper.getCusPoint(tableName, point.getId(), lock);
         }
@@ -64,6 +64,9 @@ public class PointDs {
     }
 
     public boolean addPoint(String type, PointPo point) {
+        if (point.getSubUid() == null) {
+            point.setSubUid("");
+        }
         if (point.getName() == null) {
             point.setName("");
         }
@@ -73,7 +76,7 @@ public class PointDs {
         return ret != null && ret.intValue() > 0;
     }
 
-    @Transactional(propagation=Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void batchUpdate(String type, List<PointPo> pointList) {
         String pointTableName = TableNameHelper.getPointTableName(type);
         this.pointMapper.batchUpdate(pointTableName, pointList);
@@ -98,8 +101,8 @@ public class PointDs {
         return res;
     }
 
-    public void disableAccount(String type, String uid) {
-        this.pointMapper.disableAccount(TableNameHelper.getPointTableName(type), uid);
+    public void disableAccount(String type, String uid, String subUid) {
+        this.pointMapper.disableAccount(TableNameHelper.getPointTableName(type), uid, subUid);
     }
 
     /**
@@ -112,12 +115,12 @@ public class PointDs {
      */
     public PointVo getPointVo(@NonNull String type,
                               Long pid,
-                              String uid) {
+                              String uid, String subUid) {
         if (pid == null && uid == null) {
             throw new HyenaParameterException("invalid parameter");
         }
         String pointTableName = TableNameHelper.getPointTableName(type);
-        return this.pointMapper.getPointVo(pointTableName, pid, uid);
+        return this.pointMapper.getPointVo(pointTableName, pid, uid, subUid);
     }
 
     public boolean update(String type, PointPo point) {

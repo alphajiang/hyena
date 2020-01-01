@@ -33,6 +33,7 @@ import java.util.Date;
 public class PointUsage extends BaseObject {
     private String type;
     private String uid;
+    private String subUid;
     private String name;
     private BigDecimal point;
     private BigDecimal unfreezePoint; // 消费积分时同时解冻的积分数量

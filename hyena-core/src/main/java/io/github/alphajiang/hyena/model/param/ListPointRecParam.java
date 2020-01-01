@@ -38,6 +38,9 @@ public class ListPointRecParam extends BaseListParam {
     @ApiModelProperty(value = "用户ID")
     private String uid;
 
+    @ApiModelProperty(value = "用户二级ID")
+    private String subUid;
+
     @ApiModelProperty(value = "标签")
     private String tag;
 

@@ -5,13 +5,13 @@
 
     <insert id="batchInsert">
         insert into `${pointTableName}_freeze_order_rec` (
-        `pid`, `uid`, `recId`, `seqNum`,
+        `pid`, `uid`, `subUid`, `recId`, `seqNum`,
         `orderType`,
         `frozen`, `frozenCost`,
         `orderNo`
         )
         <foreach item="for" collection="freezeOrderRecList" open="values(" close=")" separator="),(">
-            #{for.pid}, #{for.uid}, #{for.recId}, #{for.seqNum},
+            #{for.pid}, #{for.uid}, #{for.subUid}, #{for.recId}, #{for.seqNum},
             #{for.orderType},
             #{for.frozen}, #{for.frozenCost},
             #{for.orderNo}

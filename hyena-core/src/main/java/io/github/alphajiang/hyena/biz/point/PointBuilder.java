@@ -40,6 +40,7 @@ public class PointBuilder {
         PointLogPo pointLog = new PointLogPo();
         pointLog.setPid(point.getId())
                 .setUid(point.getUid())
+                .setSubUid(point.getSubUid())
                 .setSeqNum(point.getSeqNum())
                 .setDelta(usage.getPoint())
                 .setPoint(point.getPoint())
@@ -107,6 +108,7 @@ public class PointBuilder {
         FreezeOrderRecPo fo = new FreezeOrderRecPo();
         fo.setPid(point.getId())
                 .setUid(point.getUid())
+                .setSubUid(point.getSubUid())
                 .setRecId(rec.getId())
                 .setSeqNum(point.getSeqNum())
                 .setOrderType(orderType == null ? 0 : orderType)
