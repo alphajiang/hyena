@@ -75,7 +75,6 @@
         sum(log.delta) as delta,
         sum(log.deltaCost) as deltaCost
         from `${pointTableName}_log` as log
-
         where 1=1
         <if test="param.pid &gt; 0">
             and log.pid = #{param.pid}
@@ -139,7 +138,7 @@
             or log.orderNo like #{pattern}
             )
         </if>
-
+        group by log.`type`
     </select>
 
     <select id="listPointLog" resultType="io.github.alphajiang.hyena.model.dto.PointLogDto">
