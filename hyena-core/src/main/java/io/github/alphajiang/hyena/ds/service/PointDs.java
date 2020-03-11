@@ -84,6 +84,9 @@ public class PointDs {
 
     public List<PointPo> listPoint(ListPointParam param) {
         logger.debug("param = {}", param);
+        if (param.getSize() == null) {
+            param.setSize(999);
+        }
         String pointTableName = TableNameHelper.getPointTableName(param.getType());
         HyenaAssert.isTrue(pointTableDs.isTableExists(pointTableName), HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "type not exist");

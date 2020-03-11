@@ -39,7 +39,6 @@ public class PointRecLogDs {
     private PointRecLogMapper pointRecLogMapper;
 
 
-
     public void addPointRecLog(String type, PointRecLogPo recLog) {
         String tableName = TableNameHelper.getPointRecLogTableName(type);
         this.pointRecLogMapper.addPointRecLog(tableName, recLog);
@@ -51,7 +50,7 @@ public class PointRecLogDs {
     }
 
     @Transactional
-    public ListResponse<PointRecLogDto> listPointRecLog4Page( ListPointRecLogParam param) {
+    public ListResponse<PointRecLogDto> listPointRecLog4Page(ListPointRecLogParam param) {
         logger.debug("param = {}", param);
         var list = this.listPointRecLog(param.getType(), param);
         var total = this.countPointRecLog(param.getType(), param);
@@ -60,6 +59,9 @@ public class PointRecLogDs {
     }
 
     public List<PointRecLogDto> listPointRecLog(String type, ListPointRecLogParam param) {
+        if (param.getSize() == null) {
+            param.setSize(999);
+        }
         String pointTableName = TableNameHelper.getPointTableName(type);
         return this.pointRecLogMapper.listPointRecLog(pointTableName, param);
     }

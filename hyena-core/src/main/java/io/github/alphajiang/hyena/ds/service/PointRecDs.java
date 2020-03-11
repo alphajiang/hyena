@@ -25,6 +25,7 @@ import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import io.github.alphajiang.hyena.utils.TableNameHelper;
@@ -71,17 +72,22 @@ public class PointRecDs {
 
     @Transactional
     public ListResponse<PointRecDto> listPointRec4Page(ListPointRecParam param) {
+        if (param.getSize() == null) {
+            param.setSize(999);
+        }
         var list = this.listPointRec(param);
         var total = this.countPointRec(param);
         if (Boolean.TRUE.equals(param.getFetchRecLogs())) {
             List<Long> recIds = list.stream().map(PointRecDto::getId).collect(Collectors.toList());
-            ListPointRecLogParam recLogParam = new ListPointRecLogParam();
-            recLogParam.setRecIdList(recIds);
-            List<PointRecLogDto> recLogList = this.pointRecLogDs.listPointRecLog(param.getType(), recLogParam);
-            Map<Long, List<PointRecLogDto>> map = recLogList.stream().collect(Collectors.groupingBy(PointRecLogDto::getRecId, Collectors.toList()));
-            list.stream().forEach(rec -> {
-                rec.setRecLogs(map.get(rec.getId()));
-            });
+            if (CollectionUtils.isNotEmpty(recIds)) {
+                ListPointRecLogParam recLogParam = new ListPointRecLogParam();
+                recLogParam.setRecIdList(recIds);
+                List<PointRecLogDto> recLogList = this.pointRecLogDs.listPointRecLog(param.getType(), recLogParam);
+                Map<Long, List<PointRecLogDto>> map = recLogList.stream().collect(Collectors.groupingBy(PointRecLogDto::getRecId, Collectors.toList()));
+                list.stream().forEach(rec -> {
+                    rec.setRecLogs(map.get(rec.getId()));
+                });
+            }
         }
         var ret = new ListResponse<>(list, total);
         return ret;
@@ -216,7 +222,7 @@ public class PointRecDs {
 
     @Transactional
     public void updatePointRec(String type, PointRecPo rec) {
-        if (rec.getAvailable().compareTo(DecimalUtils.ZERO)  == 0
+        if (rec.getAvailable().compareTo(DecimalUtils.ZERO) == 0
                 && rec.getFrozen().compareTo(DecimalUtils.ZERO) == 0) {
             // totally used
             rec.setEnable(false);

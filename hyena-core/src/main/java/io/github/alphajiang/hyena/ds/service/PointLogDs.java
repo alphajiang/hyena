@@ -65,6 +65,9 @@ public class PointLogDs {
 //        if (param.getCreateTimeFilter() != null && param.getCreateTimeFilter().getEndTime() != null) {
 //            param.getCreateTimeFilter().getEndTime();
 //        }
+        if(param.getSize() == null) {
+            param.setSize(999);
+        }
         var list = this.listPointLog(param);
         var total = this.countPointLog(param);
         var ret = new ListResponse<>(list, total);
