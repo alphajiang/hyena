@@ -51,6 +51,6 @@ public class PointUsage extends BaseObject {
     private Date issueTime;
     private Date expireTime;
 
-
+    private boolean doUpdate = true;
 
 }

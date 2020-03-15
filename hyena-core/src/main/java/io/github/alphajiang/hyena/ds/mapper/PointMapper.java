@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.ds.mapper;
 
+import io.github.alphajiang.hyena.model.param.BaseListParam;
 import io.github.alphajiang.hyena.model.param.ListPointParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.vo.PointVo;
@@ -47,6 +48,11 @@ public interface PointMapper {
 
     long countPoint(@Param(value = "pointTableName") String pointTableName,
                     @Param(value = "param") ListPointParam param);
+
+
+    List<PointPo> listExpirePoint(@Param(value = "pointTableName") String pointTableName,
+                            @Param(value = "param") BaseListParam param);
+
 
     int disableAccount(@Param(value = "tableName") String tableName,
                        @Param(value = "uid") String uid,

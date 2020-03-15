@@ -86,6 +86,11 @@ public class PointUsageFacade {
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
 
+    public PointOpResult freezeByRecId(PointUsage usage) {
+        Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.FREEZE_BY_REC_ID);
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+    }
+
     /**
      * 解冻积分
      *
@@ -122,6 +127,11 @@ public class PointUsageFacade {
         return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
     }
 
+//    @Transactional
+//    public PointOpResult refundFrozen(PointUsage usage) {
+//        Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.REFUND_FROZEN);
+//        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+//    }
 
     @Transactional
     public PointOpResult expire(PointUsage usage) {

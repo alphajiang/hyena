@@ -83,7 +83,8 @@
 
 
     <select id="listPointRec" resultType="io.github.alphajiang.hyena.model.dto.PointRecDto">
-        select rec.*, p.uid as uid
+        select rec.*, p.uid as uid,
+        p.subUid as subUid
         from `${pointTableName}_rec` as rec
         left join `${pointTableName}` as p on rec.pid = p.id
         where 1=1
@@ -254,6 +255,9 @@
         </if>
         <if test="rec.issueTime != null">
             issueTime = #{rec.issueTime},
+        </if>
+        <if test="rec.expireTime != null">
+            expireTime = #{rec.expireTime},
         </if>
         <if test="rec.enable != null">
             `enable` = #{rec.enable},

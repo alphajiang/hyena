@@ -12,6 +12,7 @@ import io.github.alphajiang.hyena.ds.service.FreezeOrderRecDs;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
@@ -20,6 +21,7 @@ import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.extern.slf4j.Slf4j;
@@ -89,11 +91,12 @@ public class PointRefundStrategy extends AbstractPointStrategy {
 
                 PointUsage usage4Unfreeze = new PointUsage();
                 BeanUtils.copyProperties(usage, usage4Unfreeze);
-                usage4Unfreeze.setPoint(usage.getUnfreezePoint());
+                usage4Unfreeze.setPoint(usage.getUnfreezePoint())
+                        .setDoUpdate(false);
 
-                this.pointUnfreezeStrategy.process(usage4Unfreeze);
+                PointOpResult unfreezeRet = this.pointUnfreezeStrategy.process(usage4Unfreeze);
 
-                return this.processPoint(usage, p, forList);
+                return this.processPoint(usage, p, forList, unfreezeRet);
             } else {
                 return this.processPoint(usage, p);
             }
@@ -147,14 +150,17 @@ public class PointRefundStrategy extends AbstractPointStrategy {
         PointOpResult ret = new PointOpResult();
         BeanUtils.copyProperties(curPoint, ret);
         ret.setOpPoint(recLogsRet.getDelta())
-                .setOpCost(recLogsRet.getDeltaCost());
+                .setOpCost(recLogsRet.getDeltaCost())
+                .setLogs(List.of(PointLogDto.build(pointLog)));
         log.info("<< pointCache = {}", pointCache);
         return ret;
 
 
     }
 
-    public PointOpResult processPoint(PointUsage usage, PointCache pointCache, List<FreezeOrderRecPo> forList) {
+    public PointOpResult processPoint(PointUsage usage, PointCache pointCache,
+                                      List<FreezeOrderRecPo> forList,
+                                      PointOpResult unfreezeRet) {
         log.info(">> pointCache = {}", pointCache);
 
         PointPo curPoint = pointCache.getPoint();
@@ -165,7 +171,7 @@ public class PointRefundStrategy extends AbstractPointStrategy {
 
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1);
-        var point2Update = new PointPo();
+        var point2Update = unfreezeRet.getUpdateQ().getPoint();
         point2Update.setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
 
@@ -188,14 +194,25 @@ public class PointRefundStrategy extends AbstractPointStrategy {
                 .setDeltaCost(recLogsRet.getDeltaCost());
 
         pointFlowService.updatePoint(usage.getType(), point2Update);
-        pointFlowService.updatePointRec(usage.getType(), recLogsRet.getRecList4Update());
-        pointFlowService.addFlow(usage, pointLog, recLogsRet.getRecLogs());
+
+        unfreezeRet.getUpdateQ().getRecList().addAll(recLogsRet.getRecList4Update());
+        pointFlowService.updatePointRec(usage.getType(), unfreezeRet.getUpdateQ().getRecList());
+
+        if (CollectionUtils.isNotEmpty(unfreezeRet.getUpdateQ().getFoList())) {
+            pointFlowService.closeFreezeOrderRec(usage.getType(), unfreezeRet.getUpdateQ().getFoList());
+        }
+
+        unfreezeRet.getUpdateQ().getLogs().add(pointLog);
+        unfreezeRet.getUpdateQ().getRecLogs().addAll(recLogsRet.getRecLogs());
+        pointFlowService.addFlow(usage, unfreezeRet.getUpdateQ().getLogs(),
+                unfreezeRet.getUpdateQ().getRecLogs());
         //return pointCache.getPoint();
 
         PointOpResult ret = new PointOpResult();
         BeanUtils.copyProperties(curPoint, ret);
         ret.setOpPoint(recLogsRet.getDelta())
-                .setOpCost(recLogsRet.getDeltaCost());
+                .setOpCost(recLogsRet.getDeltaCost())
+                .setLogs(List.of(PointLogDto.build(pointLog)));
         log.info("<< pointCache = {}", pointCache);
         return ret;
     }

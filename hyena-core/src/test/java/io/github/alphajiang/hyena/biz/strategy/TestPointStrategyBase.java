@@ -86,6 +86,14 @@ public abstract class TestPointStrategyBase extends HyenaTestBase {
         uid = UUID.randomUUID().toString().substring(0, 4);
 
         increase1();
+
+
+        this.tcInit();
+    }
+
+
+    public void tcInit() {
+
     }
 
     @Override

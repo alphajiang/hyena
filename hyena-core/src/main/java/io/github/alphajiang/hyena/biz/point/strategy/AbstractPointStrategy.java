@@ -90,7 +90,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
         //String tableName =
         HyenaAssert.notBlank(usage.getType(), "invalid parameter, 'type' can't blank");
         HyenaAssert.notBlank(usage.getUid(), "invalid parameter, 'uid' can't blank");
-        if (getType() == CalcType.INCREASE) {
+        if (getType() == CalcType.INCREASE || getType() == CalcType.EXPIRE) {
 
         } else if ((getType() == CalcType.FREEZE_COST || getType() == CalcType.REFUND)
                 && usage.getCost() != null) {

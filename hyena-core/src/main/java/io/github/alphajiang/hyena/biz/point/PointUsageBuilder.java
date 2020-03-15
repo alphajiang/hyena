@@ -71,6 +71,12 @@ public class PointUsageBuilder {
         return usage;
     }
 
+    public static PointUsage fromPointFreezeByRecIdParam(PointFreezeByRecIdParam param) {
+        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+        usage.setRecId(param.getRecId());
+        return usage;
+    }
+
     public static PointUsage fromPointUnfreezeParam(PointUnfreezeParam param) {
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         usage.setUnfreezeByOrderNo(param.getUnfreezeByOrderNo());
@@ -94,4 +100,10 @@ public class PointUsageBuilder {
         usage.setCost(param.getCost()).setUnfreezePoint(param.getUnfreezePoint());
         return usage;
     }
+
+//    public static PointUsage fromPointRefundFrozenParam(PointRefundFrozenParam param) {
+//        PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
+//        usage.setRecId(param.getRecId());
+//        return usage;
+//    }
 }

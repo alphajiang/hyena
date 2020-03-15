@@ -30,6 +30,10 @@ public enum CalcType {
 
     REFUND,
 
+    //REFUND_FROZEN,
+
+    FREEZE_BY_REC_ID,   // 按积分块ID来冻结
+
     FREEZE_COST,   // 退款冻结
 
     UNFREEZE_COST,     // 退款解冻

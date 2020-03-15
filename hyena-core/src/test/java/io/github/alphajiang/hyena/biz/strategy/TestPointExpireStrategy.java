@@ -18,12 +18,13 @@
 package io.github.alphajiang.hyena.biz.strategy;
 
 import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.biz.point.strategy.PointMemCacheService;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
-import io.github.alphajiang.hyena.model.dto.PointRecDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.model.vo.PointVo;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.List;
 
 public class TestPointExpireStrategy extends TestPointStrategyBase {
@@ -44,19 +46,38 @@ public class TestPointExpireStrategy extends TestPointStrategyBase {
     @Autowired
     private PointRecDs pointRecDs;
 
+    @Autowired
+    private PointMemCacheService pointMemCacheService;
+
+    private PointRecPo rec;
+
+    @Override
+    public void tcInit() {
+
+        PointVo p = super.pointDs.getPointVo(super.getPointType(), null, super.getUid(), null);
+        rec = p.getRecList().get(0);
+        Calendar calExpire = Calendar.getInstance();
+        calExpire.add(Calendar.HOUR, -1);
+        rec.setExpireTime(calExpire.getTime());
+        this.pointRecDs.updatePointRec(super.getPointType(), rec);
+        this.pointMemCacheService.removePoint(super.getPointType(), super.getUid(), null);
+    }
+
     @Test
     public void test_expirePoint() throws InterruptedException {
         ListPointRecParam param = new ListPointRecParam();
-        param.setUid(super.getUid()).setType(super.getPointType()).setStart(0L).setSize(1);
+        param.setUid(super.getUid())//.setSubUid(super.getSubUid())
+                .setType(super.getPointType()).setStart(0L).setSize(1);
         Thread.sleep(100L);
-        List<PointRecDto> recList = this.pointRecDs.listPointRec(param);
-        PointRecDto rec = recList.get(0);
+        List<PointPo> pointList = this.pointDs.listExpirePoint(param);
+        PointPo point = pointList.get(0);
 
-        BigDecimal number = rec.getAvailable();
+        BigDecimal number = point.getAvailable();
         BigDecimal resultAvailable = this.point.getPoint().subtract(number);
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setRecId(rec.getId())
-                .setUid(super.getUid()).setPoint(number).setNote("test_expirePoint");
+        usage.setType(super.getPointType())//.setRecId(rec.getId())
+                .setUid(super.getUid())//.setSubUid(super.getSubUid())
+                .setPoint(number).setNote("test_expirePoint");
         PointPo result = this.pointExpireStrategy.process(usage);
         logger.info("result = {}", result);
         Assertions.assertEquals(this.point.getPoint().subtract(number), result.getPoint());

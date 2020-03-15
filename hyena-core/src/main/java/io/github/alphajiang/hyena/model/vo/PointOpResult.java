@@ -18,8 +18,12 @@
 package io.github.alphajiang.hyena.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
+import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
+import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,6 +31,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -41,7 +46,24 @@ public class PointOpResult extends PointPo {
     @ApiModelProperty(value = "变更的成本", example = "10.00")
     private BigDecimal opCost;
 
+    @ApiModelProperty("账户变更明细")
+    private List<PointLogDto> logs;
+
     @ApiModelProperty("积分块变更明细")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<PointRecLogDto> recLogList;
+
+    @ApiModelProperty(hidden = true)
+    @JsonInclude(JsonInclude.Include.NON_ABSENT)
+    private UpdateQueue updateQ = new UpdateQueue();
+
+    @Data
+    @Accessors(chain = true)
+    public static class UpdateQueue {
+        private PointPo point = new PointPo();
+        private List<PointLogPo> logs = new ArrayList<>();
+        private List<PointRecPo> recList = new ArrayList<>();
+        private List<FreezeOrderRecPo> foList = new ArrayList<>();
+        private List<PointRecLogDto> recLogs = new ArrayList<>();
+    }
 }

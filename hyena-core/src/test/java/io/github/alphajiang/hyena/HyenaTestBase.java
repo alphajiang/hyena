@@ -95,6 +95,7 @@ public abstract class HyenaTestBase {
 
     }
 
+
     public String getPointType() {
         return this.pointType;
     }

@@ -20,10 +20,11 @@ package io.github.alphajiang.hyena.task;
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
-import io.github.alphajiang.hyena.ds.service.PointRecDs;
+import io.github.alphajiang.hyena.biz.point.strategy.PointMemCacheService;
+import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
-import io.github.alphajiang.hyena.model.dto.PointRecDto;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
+import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,10 @@ public class ExpirePointTask {
     private PointTableDs pointTableDs;
 
     @Autowired
-    private PointRecDs pointRecDs;
+    private PointDs pointDs;
+
+    @Autowired
+    private PointMemCacheService pointMemCacheService;
 
     @Scheduled(fixedRate = 60 * 60 * 1000, initialDelay = 30 * 1000)  // every 1 hour
     public void expirePointTask() {
@@ -62,18 +66,19 @@ public class ExpirePointTask {
     private void expirePointByType(String type) {
 
         ListPointRecParam param = new ListPointRecParam();
-        param.setFrozen(false).setExpireTime(new Date()).setType(type).setEnable(true);
-        List<PointRecDto> pointRecList = this.pointRecDs.listPointRec(param);
+        param.setExpireTime(new Date()).setType(type).setEnable(true);
+        List<PointPo> pointList = this.pointDs.listExpirePoint(param);
 
-        pointRecList.stream()
+        pointList.stream()
                 .filter(rec -> rec.getAvailable().compareTo(DecimalUtils.ZERO) > 0)
                 .forEach(rec -> {
                     try {
                         PointUsage usage = new PointUsage();
 
-                        usage.setUid(rec.getUid()).setPoint(rec.getAvailable())
+                        usage.setUid(rec.getUid()).setSubUid(rec.getSubUid())//.setPoint(rec.getAvailable())
                                 .setType(type).setNote("expire").setRecId(rec.getId());
                         this.pointUsageFacade.expire(usage);
+                        this.pointMemCacheService.removePoint(type, rec.getUid(), rec.getSubUid());
                     } catch (Exception e) {
                         log.error("rec = {}, error = {}", rec, e.getMessage(), e);
                     }

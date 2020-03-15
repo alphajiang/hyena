@@ -59,7 +59,7 @@ import java.util.List;
 
 @RestController
 @Api(value = "积分相关的接口", tags = "积分")
-@RequestMapping("/hyena/point")
+@RequestMapping(value = "/hyena/point", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PointController {
 
     private static final Logger logger = LoggerFactory.getLogger(PointController.class);
@@ -83,7 +83,7 @@ public class PointController {
     private PointMemCacheService pointMemCacheService;
 
     @ApiOperation(value = "获取积分信息")
-    @GetMapping(value = "/getPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = "/getPoint")
     public ObjectResponse<PointPo> getPoint(
             HttpServletRequest request,
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
@@ -98,7 +98,7 @@ public class PointController {
 
 
     @ApiOperation(value = "获取积分列表")
-    @PostMapping(value = "/listPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/listPoint")
     public ListResponse<PointPo> listPoint(HttpServletRequest request,
                                            @RequestBody ListPointParam param) {
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
@@ -111,7 +111,7 @@ public class PointController {
 
 
     @ApiOperation(value = "获取变更明细列表")
-    @PostMapping(value = "/listPointLog", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/listPointLog")
     public ListResponse<PointLogDto> listPointLog(
             HttpServletRequest request,
             @RequestBody ListPointLogParam param) {
@@ -125,7 +125,7 @@ public class PointController {
     }
 
     @ApiOperation(value = "获取变更明细统计")
-    @PostMapping(value = "/listPointLogBi", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/listPointLogBi")
     public ListResponse<PointLogBi> listPointLogBi(
             HttpServletRequest request,
             @RequestBody ListPointLogParam param) {
@@ -137,7 +137,7 @@ public class PointController {
     }
 
     @ApiOperation(value = "获取记录列表")
-    @PostMapping(value = "/listPointRecord", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/listPointRecord")
     public ListResponse<PointRecDto> listPointRecord(HttpServletRequest request,
                                                      @RequestBody ListPointRecParam param) {
         logger.info(LoggerHelper.formatEnterLog(request, false) + "param = {}", param);
@@ -150,7 +150,7 @@ public class PointController {
     }
 
     @ApiOperation(value = "获取记录历史明细列表")
-    @PostMapping(value = "/listPointRecordLog", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/listPointRecordLog")
     public ListResponse<PointRecLogDto> listPointRecordLog(
             HttpServletRequest request,
             @RequestBody ListPointRecLogParam param) {
@@ -173,7 +173,7 @@ public class PointController {
 
     @Idempotent(name = "increase-point")
     @ApiOperation(value = "增加用户积分")
-    @PostMapping(value = "/increase", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/increase")
     public ObjectResponse<PointPo> increasePoint(HttpServletRequest request,
                                                  @RequestBody @NotNull PointIncreaseParam param) {
         long startTime = System.nanoTime();
@@ -188,7 +188,7 @@ public class PointController {
 
     @Idempotent(name = "decrease-point")
     @ApiOperation(value = "消费用户积分")
-    @PostMapping(value = "/decrease", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/decrease")
     public ObjectResponse<PointOpResult> decreasePoint(HttpServletRequest request,
                                                        @RequestBody PointDecreaseParam param) {
         long startTime = System.nanoTime();
@@ -205,7 +205,7 @@ public class PointController {
 
     @Idempotent(name = "decreaseFrozen-point")
     @ApiOperation(value = "消费已冻结的用户积分")
-    @PostMapping(value = "/decreaseFrozen", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/decreaseFrozen")
     public ObjectResponse<PointOpResult> decreaseFrozenPoint(HttpServletRequest request,
                                                              @RequestBody PointDecreaseFrozenParam param) {
         long startTime = System.nanoTime();
@@ -222,7 +222,7 @@ public class PointController {
 
     @Idempotent(name = "freeze-point")
     @ApiOperation(value = "冻结用户积分")
-    @PostMapping(value = "/freeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/freeze")
     public ObjectResponse<PointOpResult> freezePoint(HttpServletRequest request,
                                                      @RequestBody PointOpParam param) {
         long startTime = System.nanoTime();
@@ -238,7 +238,7 @@ public class PointController {
 
     @Idempotent(name = "unfreeze-point")
     @ApiOperation(value = "解冻用户积分")
-    @PostMapping(value = "/unfreeze", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/unfreeze")
     public ObjectResponse<PointOpResult> unfreezePoint(HttpServletRequest request,
                                                        @RequestBody PointUnfreezeParam param) {
         long startTime = System.nanoTime();
@@ -255,7 +255,7 @@ public class PointController {
 
     @Idempotent(name = "cancel-point")
     @ApiOperation(value = "撤销用户积分")
-    @PostMapping(value = "/cancel", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/cancel")
     public ObjectResponse<PointOpResult> cancelPoint(HttpServletRequest request,
                                                      @RequestBody PointCancelParam param) {
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
@@ -268,9 +268,25 @@ public class PointController {
         return res;
     }
 
+    @Idempotent(name = "freeze-by-rec-id")
+    @ApiOperation(value = "按积分块冻结")
+    @PostMapping(value = "/freezeByRecId")
+    public ObjectResponse<PointOpResult> freezeByRecId(HttpServletRequest request,
+                                                    @RequestBody PointFreezeByRecIdParam param) {
+        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
+//        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
+//            throw new HyenaParameterException("invalid parameter: unfreezePoint");
+//        }
+        PointUsage usage = PointUsageBuilder.fromPointFreezeByRecIdParam(param);
+        PointOpResult cusPoint = this.pointUsageFacade.freezeByRecId(usage);
+        ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return res;
+    }
+
     @Idempotent(name = "freeze-cost")
     @ApiOperation(value = "按成本冻结")
-    @PostMapping(value = "/freezeCost", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/freezeCost")
     public ObjectResponse<PointOpResult> freezeCost(HttpServletRequest request,
                                                     @RequestBody PointFreezeParam param) {
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
@@ -286,7 +302,7 @@ public class PointController {
 
     @Idempotent(name = "unfreeze-cost")
     @ApiOperation(value = "按成本解冻")
-    @PostMapping(value = "/unfreezeCost", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/unfreezeCost")
     public ObjectResponse<PointOpResult> unfreezeCost(HttpServletRequest request,
                                                       @RequestBody PointUnfreezeParam param) {
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
@@ -297,9 +313,23 @@ public class PointController {
         return res;
     }
 
+//    @Idempotent(name = "refund-frozen")
+//    @ApiOperation(value = "已冻结积分做退款")
+//    @PostMapping(value = "/refundFrozen")
+//    public ObjectResponse<PointOpResult> refundFrozen(HttpServletRequest request,
+//                                                @RequestBody PointRefundFrozenParam param) {
+//        logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
+//        PointUsage usage = PointUsageBuilder.fromPointRefundFrozenParam(param);
+//        //usage.setUnfreezePoint(param.getUnfreezePoint());
+//        PointOpResult cusPoint = this.pointUsageFacade.refundFrozen(usage);
+//        ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
+//        logger.info(LoggerHelper.formatLeaveLog(request));
+//        return res;
+//    }
+
     @Idempotent(name = "refund")
     @ApiOperation(value = "退款")
-    @PostMapping(value = "/refund", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/refund")
     public ObjectResponse<PointOpResult> refund(HttpServletRequest request,
                                                 @RequestBody PointRefundParam param) {
         logger.info(LoggerHelper.formatEnterLog(request, false) + " param = {}", param);
@@ -311,9 +341,8 @@ public class PointController {
         return res;
     }
 
-
     @ApiOperation(value = "获取时间段内总共增加的积分数量")
-    @GetMapping(value = "/getIncreasedPoint", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = "/getIncreasedPoint")
     public ObjectResponse<BigDecimal> getIncreasedPoint(
             HttpServletRequest request,
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
@@ -336,7 +365,7 @@ public class PointController {
     }
 
     @ApiOperation(value = "禁用帐号")
-    @PostMapping(value = "/disableAccount", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/disableAccount")
     public BaseResponse disableAccount(
             HttpServletRequest request,
             @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,

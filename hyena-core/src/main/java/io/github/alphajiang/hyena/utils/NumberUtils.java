@@ -39,4 +39,11 @@ public class NumberUtils {
     }
 
 
+    public static boolean longEquals(Long va, Long vb) {
+        if (va == null && vb == null) {
+            return true;
+        } else if (va == null || vb == null) {
+            return false;
+        } else return va.longValue() == vb.longValue();
+    }
 }

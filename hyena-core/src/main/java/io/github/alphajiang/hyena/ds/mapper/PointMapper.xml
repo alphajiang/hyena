@@ -211,6 +211,23 @@
         </if>
     </select>
 
+
+    <select id="listExpirePoint" resultType="io.github.alphajiang.hyena.model.po.PointPo">
+        select pt.*
+        from `${pointTableName}` as pt
+        left join `${pointTableName}_rec` as rec on rec.pid = pt.id
+        where rec.expireTime &lt; now() and rec.enable = true
+        group by pt.id
+        <choose>
+            <when test="param.start != null and param.size != null">
+                limit #{param.start},#{param.size}
+            </when>
+            <when test="param.size != null">
+                limit #{param.size}
+            </when>
+        </choose>
+    </select>
+
     <update id="disableAccount">
         update `${tableName}`
         set `enable` = false

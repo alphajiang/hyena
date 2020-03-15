@@ -25,6 +25,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
@@ -34,7 +36,7 @@ public class PointRecLogDto extends PointRecLogPo {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String uid;
 
-    private Long total;
+    private BigDecimal total;
 
 
     @ApiModelProperty("变动记录的订单号")

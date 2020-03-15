@@ -27,6 +27,7 @@ import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
@@ -134,7 +135,8 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         BeanUtils.copyProperties(curPoint, ret);
         ret.setOpPoint(recLogsRet.getDelta())
                 .setOpCost(recLogsRet.getDeltaCost())
-                .setRecLogList(recLogs);
+                .setRecLogList(recLogs)
+                .setLogs(List.of(PointLogDto.build(pointLog)));
         return ret;
     }
 

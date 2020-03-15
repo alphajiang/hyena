@@ -18,6 +18,21 @@
 package io.github.alphajiang.hyena.model.dto;
 
 import io.github.alphajiang.hyena.model.po.PointLogPo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+import org.springframework.beans.BeanUtils;
 
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class PointLogDto extends PointLogPo {
+
+    public static PointLogDto build(PointLogPo po) {
+        PointLogDto o = new PointLogDto();
+        BeanUtils.copyProperties(po, o);
+        return o;
+    }
 }

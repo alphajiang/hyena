@@ -63,6 +63,23 @@ public class PointFlowService {
 
     }
 
+    public void addFlow(PointUsage usage, List<PointLogPo> pointLogs, List<PointRecLogDto> recLogs) {
+        pointLogs.stream().forEach(pointLog -> {
+            PointLogFlowQueue.PointLog logItem = new PointLogFlowQueue.PointLog();
+            logItem.setPointLog(pointLog).setType(usage.getType());
+            this.pointLogFlowQueue.offer(logItem);
+        });
+
+
+
+        recLogs.stream().forEach(o -> {
+            PointRecLogFlowQueue.PointRecLog item = new PointRecLogFlowQueue.PointRecLog();
+            item.setPointRecLog(o).setType(usage.getType());
+            this.pointRecLogFlowQueue.offer(item);
+        });
+
+    }
+
     public void updatePoint(String type, PointPo point) {
         PointUpdateQueue.Point item = new PointUpdateQueue.Point();
         item.setPoint(point).setType(type);

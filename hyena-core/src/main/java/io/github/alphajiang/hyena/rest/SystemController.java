@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @Api(value = "系统设置接口", tags = "系统")
-@RequestMapping("/hyena/system")
+@RequestMapping(value = "/hyena/system", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SystemController {
     private static final Logger logger = LoggerFactory.getLogger(SystemController.class);
 
@@ -61,7 +61,7 @@ public class SystemController {
     private QueueMonitor queueMonitor;
 
     @ApiOperation(value = "获取积分类型列表")
-    @GetMapping(value = "/listPointType", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = "/listPointType")
     public ListResponse<String> listPointType(HttpServletRequest request) {
         logger.debug(LoggerHelper.formatEnterLog(request));
         var list = this.pointTableDs.listTable();
@@ -74,7 +74,7 @@ public class SystemController {
     }
 
     @ApiOperation(value = "新增积分类型")
-    @PostMapping(value = "/addPointType", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/addPointType")
     public BaseResponse addPointType(HttpServletRequest request,
                                      @ApiParam(value = "积分类型", example = "score") @RequestParam(name = "name", required = true) String name) {
         logger.info(LoggerHelper.formatEnterLog(request));
@@ -85,7 +85,7 @@ public class SystemController {
 
 
     @ApiOperation(value = "获取缓存信息")
-    @GetMapping(value = "/dumpMemCache", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = "/dumpMemCache")
     public ListResponse<PointCache> dumpMemCache(HttpServletRequest request) {
         logger.info(LoggerHelper.formatEnterLog(request));
         List<PointCache> list = new ArrayList<>();
@@ -96,7 +96,7 @@ public class SystemController {
     }
 
     @ApiOperation(value = "获取队列信息")
-    @GetMapping(value = "/dumpQueue", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = "/dumpQueue")
     public ListResponse<QueueInfo> dumpQueue(HttpServletRequest request) {
         logger.info(LoggerHelper.formatEnterLog(request));
         List<QueueInfo> list = queueMonitor.dump();

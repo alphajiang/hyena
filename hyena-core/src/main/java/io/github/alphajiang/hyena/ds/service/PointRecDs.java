@@ -215,7 +215,12 @@ public class PointRecDs {
     @Transactional
     public PointRecPo expirePointRec(PointRecPo rec) {
         BigDecimal available = rec.getAvailable();
-        rec.setAvailable(DecimalUtils.ZERO).setExpire(available).setEnable(false);
+        BigDecimal usedCost = rec.getUsedCost().add(rec.getAvailable());
+        rec.setAvailable(DecimalUtils.ZERO).setExpire(available)
+                .setUsedCost(usedCost);
+        if (!DecimalUtils.gt(rec.getFrozen(), BigDecimal.ZERO)) {
+            rec.setEnable(false);
+        }
         return rec;
     }
 

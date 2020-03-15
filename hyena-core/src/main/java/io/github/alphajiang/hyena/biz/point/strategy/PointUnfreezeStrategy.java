@@ -28,6 +28,7 @@ import io.github.alphajiang.hyena.ds.service.FreezeOrderRecDs;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
@@ -133,17 +134,28 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
             point2Update.setFrozenCost(curPoint.getFrozenCost());
         }
 
-        pointFlowService.updatePoint(usage.getType(), point2Update);
-        pointFlowService.updatePointRec(usage.getType(), recLogsRet.getRecList4Update());
-        if (CollectionUtils.isNotEmpty(recLogsRet.getForList())) {
-            pointFlowService.closeFreezeOrderRec(usage.getType(), recLogsRet.getForList());
-        }
-        pointFlowService.addFlow(usage, pointLog, recLogsRet.getRecLogs());
-
         PointOpResult ret = new PointOpResult();
         BeanUtils.copyProperties(curPoint, ret);
         ret.setOpPoint(recLogsRet.getDelta())
-                .setOpCost(recLogsRet.getDeltaCost());
+                .setOpCost(recLogsRet.getDeltaCost())
+                .setLogs(List.of(PointLogDto.build(pointLog)));
+        if (usage.isDoUpdate()) {
+            pointFlowService.updatePoint(usage.getType(), point2Update);
+            pointFlowService.updatePointRec(usage.getType(), recLogsRet.getRecList4Update());
+            if (CollectionUtils.isNotEmpty(recLogsRet.getForList())) {
+                pointFlowService.closeFreezeOrderRec(usage.getType(), recLogsRet.getForList());
+            }
+            pointFlowService.addFlow(usage, pointLog, recLogsRet.getRecLogs());
+
+        } else {
+            ret.getUpdateQ().setPoint(point2Update);
+            ret.getUpdateQ().getLogs().add(pointLog);
+            ret.getUpdateQ().getRecList().addAll(recLogsRet.getRecList4Update());
+            if (CollectionUtils.isNotEmpty(recLogsRet.getForList())) {
+                ret.getUpdateQ().getFoList().addAll(recLogsRet.getForList());
+            }
+            ret.getUpdateQ().getRecLogs().addAll(recLogsRet.getRecLogs());
+        }
         return ret;
     }
 

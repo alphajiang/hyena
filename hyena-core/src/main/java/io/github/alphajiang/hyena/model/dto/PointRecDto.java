@@ -32,6 +32,8 @@ import java.util.List;
 public class PointRecDto extends PointRecPo {
     private String uid;
 
+    private String subUid;
+
     private List<PointRecLogDto> recLogs;
 
 }

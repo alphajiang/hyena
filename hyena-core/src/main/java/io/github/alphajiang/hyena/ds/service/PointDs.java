@@ -21,6 +21,7 @@ import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.ds.mapper.PointMapper;
 import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
+import io.github.alphajiang.hyena.model.param.BaseListParam;
 import io.github.alphajiang.hyena.model.param.ListPointParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.vo.PointVo;
@@ -129,5 +130,18 @@ public class PointDs {
     public boolean update(String type, PointPo point) {
         int ret = this.pointMapper.updateCusPoint(TableNameHelper.getPointTableName(type), point);
         return ret > 0;
+    }
+
+
+
+    public List<PointPo> listExpirePoint(BaseListParam param) {
+        logger.debug("param = {}", param);
+        if (param.getSize() == null) {
+            param.setSize(999);
+        }
+        String pointTableName = TableNameHelper.getPointTableName(param.getType());
+        HyenaAssert.isTrue(pointTableDs.isTableExists(pointTableName), HyenaConstants.RES_CODE_PARAMETER_ERROR,
+                "type not exist");
+        return this.pointMapper.listExpirePoint(pointTableName, param);
     }
 }
