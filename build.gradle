@@ -39,8 +39,8 @@ allprojects {
     test.onlyIf { ! Boolean.getBoolean('skipTests') }
 
     repositories {
-        maven { url 'http://maven.aliyun.com/mvn/repository/' }
-        jcenter()
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        jcenter { url 'https://maven.aliyun.com/repository/jcenter' }
     }
     repositories {
         mavenCentral()
