@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointWrapper;
@@ -48,7 +49,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
     private PointTableDs cusPointTableDs;
 
     @Autowired
-    private PointMemCacheService pointMemCacheService;
+    private HyenaCacheFactory hyenaCacheFactory;
 
     @PostConstruct
     public void init() {
@@ -62,17 +63,27 @@ abstract class AbstractPointStrategy implements PointStrategy {
         log.info("usage = {}", usage);
         PointVo backup = null;
         PointVo point = null;
-        try (PointWrapper pw = preProcess(usage, true, true)) {
-            PointCache p = pw.getPointCache();
+        try (PointWrapper pw = preProcess(usage, usage.getPw() == null, true)) {
+            PointCache p;
+            if (usage.getPw() != null) {
+                p = usage.getPw().getPointCache();
+            } else {
+                p = pw.getPointCache();
+            }
             point = p.getPoint();
             backup = new PointVo();
             BeanUtils.copyProperties(point, backup);
-            return this.processPoint(usage, p);
+            PointOpResult result = this.processPoint(usage, p);
+            hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                    usage.getUid(), usage.getSubUid(), p.getPoint());
+            //hyenaCacheFactory.getPointCacheService().un
+            return result;
         } catch (Exception e) {
             if (point != null && backup != null) {
                 // 回滚缓存的数据
                 BeanUtils.copyProperties(backup, point);
             }
+            hyenaCacheFactory.getPointCacheService().unlock(usage.getType(), usage.getUid(), usage.getSubUid());
             throw e;
         }
     }
@@ -90,6 +101,9 @@ abstract class AbstractPointStrategy implements PointStrategy {
         //String tableName =
         HyenaAssert.notBlank(usage.getType(), "invalid parameter, 'type' can't blank");
         HyenaAssert.notBlank(usage.getUid(), "invalid parameter, 'uid' can't blank");
+//        if (usage.getPw() != null) {
+//            return usage.getPw();
+//        }
         if (getType() == CalcType.INCREASE || getType() == CalcType.EXPIRE) {
 
         } else if ((getType() == CalcType.FREEZE_COST || getType() == CalcType.REFUND)
@@ -106,7 +120,8 @@ abstract class AbstractPointStrategy implements PointStrategy {
         //logger.debug("tableName = {}", tableName);
 
         if (fetchPoint) {
-            PointWrapper pw = this.pointMemCacheService.getPoint(usage.getType(), usage.getUid(),  usage.getSubUid(),true);
+            PointWrapper pw = this.hyenaCacheFactory.getPointCacheService()
+                    .getPoint(usage.getType(), usage.getUid(), usage.getSubUid(), true);
             if (mustExist && pw.getPointCache().getPoint() == null) {
                 pw.close();
                 throw new HyenaParameterException("account not exist");

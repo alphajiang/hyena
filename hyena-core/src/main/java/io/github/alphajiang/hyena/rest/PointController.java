@@ -18,10 +18,10 @@
 package io.github.alphajiang.hyena.rest;
 
 import io.github.alphajiang.hyena.aop.Idempotent;
+import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageBuilder;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
-import io.github.alphajiang.hyena.biz.point.strategy.PointMemCacheService;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
@@ -80,7 +80,7 @@ public class PointController {
     private PointRecLogDs pointRecLogDs;
 
     @Autowired
-    private PointMemCacheService pointMemCacheService;
+    private HyenaCacheFactory hyenaCacheFactory;
 
     @ApiOperation(value = "获取积分信息")
     @GetMapping(value = "/getPoint")
@@ -90,7 +90,7 @@ public class PointController {
             @ApiParam(value = "用户ID") @RequestParam String uid,
             @ApiParam(value = "用户二级ID") @RequestParam(required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(request));
-        var ret = this.pointMemCacheService.getPoint(type, uid, subUid, false);
+        var ret = this.hyenaCacheFactory.getPointCacheService().getPoint(type, uid, subUid, false);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret.getPointCache().getPoint());
         logger.info(LoggerHelper.formatLeaveLog(request));
         return res;

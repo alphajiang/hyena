@@ -15,7 +15,7 @@
  *
  */
 
-package io.github.alphajiang.hyena.biz.point.strategy;
+package io.github.alphajiang.hyena.biz.cache;
 
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointWrapper;
@@ -27,25 +27,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class PointMemCacheService {
+public class PointMemCacheService implements IPointCache {
 
+    private static final String CACHE_TYPE_MEMORY = "memory";
 
     @Value("${hyena.mem.ttl:30}")
     private int cacheTtl; // minutes
 
+
     //private final String type;
-    private Map<String, PointCache> map = new ConcurrentHashMap<>();
+    private final Map<String, PointCache> map = new ConcurrentHashMap<>();
+
+    @Autowired
+    private HyenaCacheFactory hyenaCacheFactory;
 
     @Autowired
     private PointDs pointDs;
 
 
+    @PostConstruct
+    public void init() {
+        hyenaCacheFactory.setPointCacheService(this);
+    }
+
+    public String getCacheType() {
+        return CACHE_TYPE_MEMORY;
+    }
+
+    @Override
     public PointWrapper getPoint(String type, String uid, String subUid, boolean lock) {
         PointWrapper result = new PointWrapper(this.getPointX(type, uid, subUid));
 
@@ -62,6 +78,7 @@ public class PointMemCacheService {
         return result;
     }
 
+    @Override
     public synchronized void removePoint(String type, String uid, String subUid) {
         try {
             String key = this.formatKey(type, uid, subUid);
@@ -72,9 +89,9 @@ public class PointMemCacheService {
     }
 
     private String formatKey(String type, String uid, String subUid) {
-        if(subUid == null) {
+        if (subUid == null) {
             return type + "-" + uid;
-        }else {
+        } else {
             return type + "-" + uid + "-" + subUid;
         }
     }
@@ -91,10 +108,12 @@ public class PointMemCacheService {
         return p;
     }
 
+    @Override
     public Collection<PointCache> dump() {
         return map.values();
     }
 
+    @Override
     public void expireCache() {
         if (map.isEmpty()) {
             return;
@@ -114,4 +133,19 @@ public class PointMemCacheService {
             log.info("end remove mem cache");
         }
     }
+
+    @Override
+    public void updatePoint(String type, String uid, String subUid, PointVo point) {
+        String key = formatKey(type, uid, subUid);
+        PointCache p = new PointCache();
+        p.setKey(key);
+        p.setPoint(point);
+        p.setUpdateTime(new Date());
+        map.put(key, p);
+    }
+
+    @Override
+    public void unlock(String type, String uid, String subUid) {
+    }
+
 }

@@ -53,4 +53,6 @@ public class PointUsage extends BaseObject {
 
     private boolean doUpdate = true;
 
+    private PointWrapper pw;
+
 }

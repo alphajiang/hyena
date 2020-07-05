@@ -36,12 +36,12 @@ import io.github.alphajiang.hyena.model.vo.PointLogBi;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DateUtils;
+import io.github.alphajiang.hyena.utils.HyenaTestAssert;
 import io.github.alphajiang.hyena.utils.JsonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -50,14 +50,11 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @AutoConfigureMockMvc
+@Slf4j
 public class TestPointController extends HyenaTestBase {
-    private final Logger logger = LoggerFactory.getLogger(TestPointController.class);
 
     @Autowired
     private MockMvc mockMvc;
@@ -67,6 +64,10 @@ public class TestPointController extends HyenaTestBase {
 
     @Autowired
     private PointRecDs pointRecDs;
+
+
+    @Autowired
+    private RestTestUtils restTestUtils;
 
 
     @BeforeEach
@@ -82,7 +83,7 @@ public class TestPointController extends HyenaTestBase {
                 .param("uid", super.getUid());
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
 
         });
@@ -104,7 +105,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ListResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointPo>>() {
 
         });
@@ -125,7 +126,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
 
         Assertions.assertFalse(res.getStatus() == HyenaConstants.RES_CODE_SUCCESS);
@@ -148,7 +149,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ListResponse<PointLogDto> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
 
         });
@@ -169,7 +170,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ListResponse<PointLogBi> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
 
         });
@@ -188,7 +189,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ListResponse<PointRecDto> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
 
         });
@@ -206,7 +207,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ListResponse<PointRecLogDto> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointRecLogDto>>() {
 
         });
@@ -234,7 +235,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
@@ -253,7 +254,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(buf.toString());
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
         Assertions.assertEquals(HyenaConstants.RES_CODE_PARAMETER_ERROR, res.getStatus());
     }
@@ -270,7 +271,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(buf.toString());
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
         Assertions.assertEquals(HyenaConstants.RES_CODE_PARAMETER_ERROR, res.getStatus());
     }
@@ -288,7 +289,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
@@ -308,7 +309,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
@@ -332,7 +333,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
@@ -361,7 +362,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
@@ -387,7 +388,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
@@ -409,7 +410,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
@@ -440,7 +441,7 @@ public class TestPointController extends HyenaTestBase {
                 .content(JsonUtils.toJsonString(param));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
         });
@@ -463,12 +464,61 @@ public class TestPointController extends HyenaTestBase {
                 .param("end", DateUtils.toYyyyMmDdHhMmSs(end));
 
         String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        logger.info("response = {}", resBody);
+        log.info("response = {}", resBody);
         ObjectResponse<Long> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<Long>>() {
 
         });
         Long result = res.getData();
         Assertions.assertNotNull(result);
-        Assertions.assertTrue(result  > 0L);
+        Assertions.assertTrue(result > 0L);
+    }
+
+
+    @Test
+    public void test_freeze_no_enough_point() throws Exception {
+        restTestUtils.increase(this, BigDecimal.valueOf(56.78));
+
+        // 冻结操作,期望返回 'no enough available point'
+        ObjectResponse<PointOpResult> freezeResultA = restTestUtils.freeze(this, BigDecimal.valueOf(200.34));
+        Assertions.assertEquals(freezeResultA.getStatus(), HyenaConstants.RES_CODE_NO_ENOUGH_POINT);
+        Assertions.assertEquals("no enough available point", freezeResultA.getError());
+
+        // 正常冻结操作,期望返回成功
+        ObjectResponse<PointOpResult> freezeResultB = restTestUtils.freeze(this, BigDecimal.valueOf(20.34));
+        Assertions.assertEquals(freezeResultB.getStatus(), HyenaConstants.RES_CODE_SUCCESS);
+
+        PointOpResult ret = freezeResultB.getData();
+        Assertions.assertNotNull(ret);
+        HyenaTestAssert.assertEquals(BigDecimal.valueOf(20.34), ret.getFrozen());
+        HyenaTestAssert.assertEquals(super.getUserPoint().getAvailable().add(BigDecimal.valueOf(56.78 - 20.34)),
+                ret.getAvailable());
+    }
+
+    @Test
+    public void test_unfreeze_02() throws Exception {
+        String orderNo = UUID.randomUUID().toString();
+        ObjectResponse<PointOpResult> res = restTestUtils.freeze(this, BigDecimal.valueOf(20.34), orderNo);
+        Assertions.assertEquals(res.getStatus(), HyenaConstants.RES_CODE_SUCCESS);
+
+        //  解冻操作,期望返回 'no enough frozen point'
+        res = restTestUtils.unfreeze(this, BigDecimal.valueOf(123.34));
+        Assertions.assertEquals(res.getStatus(), HyenaConstants.RES_CODE_NO_ENOUGH_POINT);
+        Assertions.assertEquals("no enough frozen point", res.getError());
+
+
+        //  解冻操作,期望返回 'frozen number mis-match'
+        res = restTestUtils.unfreeze(this, BigDecimal.valueOf(13.34), orderNo);
+        Assertions.assertEquals(res.getStatus(), HyenaConstants.RES_CODE_NO_ENOUGH_POINT);
+        Assertions.assertEquals("frozen number mis-match", res.getError());
+
+
+        res = restTestUtils.unfreeze(this, BigDecimal.valueOf(20.34), orderNo);
+        Assertions.assertEquals(res.getStatus(), HyenaConstants.RES_CODE_SUCCESS);
+
+        PointOpResult ret = res.getData();
+        Assertions.assertNotNull(ret);
+        HyenaTestAssert.assertEquals(BigDecimal.valueOf(0.00), ret.getFrozen());
+        HyenaTestAssert.assertEquals(super.getUserPoint().getAvailable(),
+                ret.getAvailable());
     }
 }

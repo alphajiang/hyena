@@ -24,6 +24,7 @@ logging:
 
 hyena:
   idempotent: redis
+  cache: redis
 
 
 

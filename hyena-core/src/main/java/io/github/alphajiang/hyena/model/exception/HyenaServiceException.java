@@ -39,6 +39,10 @@ public class HyenaServiceException extends BaseException {
     }
 
 
+    public HyenaServiceException(String msg, Throwable e) {
+        super(CODE, msg, e);
+    }
+
     public HyenaServiceException(int code, String msg) {
         super(code, msg);
     }

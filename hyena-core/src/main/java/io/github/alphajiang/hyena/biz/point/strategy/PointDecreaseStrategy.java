@@ -70,8 +70,8 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
     @Autowired
     private PointFlowService pointFlowService;
 
-    @Autowired
-    private PointMemCacheService pointMemCacheService;
+//    @Autowired
+//    private HyenaCacheFactory hyenaCacheFactory;
 
 
     @Autowired

@@ -18,9 +18,9 @@
 package io.github.alphajiang.hyena.task;
 
 import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
-import io.github.alphajiang.hyena.biz.point.strategy.PointMemCacheService;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
@@ -49,7 +49,7 @@ public class ExpirePointTask {
     private PointDs pointDs;
 
     @Autowired
-    private PointMemCacheService pointMemCacheService;
+    private HyenaCacheFactory hyenaCacheFactory;
 
     @Scheduled(fixedRate = 60 * 60 * 1000, initialDelay = 30 * 1000)  // every 1 hour
     public void expirePointTask() {
@@ -78,7 +78,8 @@ public class ExpirePointTask {
                         usage.setUid(rec.getUid()).setSubUid(rec.getSubUid())//.setPoint(rec.getAvailable())
                                 .setType(type).setNote("expire").setRecId(rec.getId());
                         this.pointUsageFacade.expire(usage);
-                        this.pointMemCacheService.removePoint(type, rec.getUid(), rec.getSubUid());
+                        this.hyenaCacheFactory.getPointCacheService()
+                                .removePoint(type, rec.getUid(), rec.getSubUid());
                     } catch (Exception e) {
                         log.error("rec = {}, error = {}", rec, e.getMessage(), e);
                     }

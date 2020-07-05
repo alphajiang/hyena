@@ -78,8 +78,8 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
     @Autowired
     private PointFlowService pointFlowService;
 
-    @Autowired
-    private PointMemCacheService pointMemCacheService;
+//    @Autowired
+//    private HyenaCacheFactory hyenaCacheFactory;
 
     @Autowired
     private CostCalculator costCalculator;

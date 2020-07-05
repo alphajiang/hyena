@@ -17,7 +17,7 @@
 
 package io.github.alphajiang.hyena.task;
 
-import io.github.alphajiang.hyena.biz.point.strategy.PointMemCacheService;
+import io.github.alphajiang.hyena.biz.cache.PointMemCacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

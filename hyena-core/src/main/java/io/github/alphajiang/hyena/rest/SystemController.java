@@ -18,10 +18,10 @@
 package io.github.alphajiang.hyena.rest;
 
 import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.flow.QueueMonitor;
 import io.github.alphajiang.hyena.biz.point.PointCache;
-import io.github.alphajiang.hyena.biz.point.strategy.PointMemCacheService;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
@@ -55,7 +55,7 @@ public class SystemController {
     private PointFlowService pointFlowService;
 
     @Autowired
-    private PointMemCacheService pointMemCacheService;
+    private HyenaCacheFactory hyenaCacheFactory;
 
     @Autowired
     private QueueMonitor queueMonitor;
@@ -89,7 +89,7 @@ public class SystemController {
     public ListResponse<PointCache> dumpMemCache(HttpServletRequest request) {
         logger.info(LoggerHelper.formatEnterLog(request));
         List<PointCache> list = new ArrayList<>();
-        list.addAll(pointMemCacheService.dump());
+        list.addAll(hyenaCacheFactory.getPointCacheService().dump());
         ListResponse<PointCache> ret = new ListResponse<>(list, list.size());
         logger.info(LoggerHelper.formatLeaveLog(request));
         return ret;

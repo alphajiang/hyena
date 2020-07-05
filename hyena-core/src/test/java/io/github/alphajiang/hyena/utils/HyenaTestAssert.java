@@ -23,7 +23,13 @@ import io.github.alphajiang.hyena.model.po.PointRecLogPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import org.junit.jupiter.api.Assertions;
 
+import java.math.BigDecimal;
+
 public class HyenaTestAssert {
+
+    public static void assertEquals(BigDecimal expect, BigDecimal actual) {
+        Assertions.assertEquals(expect.doubleValue(), actual.doubleValue());
+    }
 
     public static void assertEquals(PointPo expect, PointPo actual) {
         Assertions.assertEquals(expect.getUid(), actual.getUid());

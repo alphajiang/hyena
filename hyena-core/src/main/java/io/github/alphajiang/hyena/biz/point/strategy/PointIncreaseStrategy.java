@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.biz.point.strategy;
 
+import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointBuilder;
 import io.github.alphajiang.hyena.biz.point.PointCache;
@@ -74,7 +75,9 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     private PointFlowService pointFlowService;
 
     @Autowired
-    private PointMemCacheService pointMemCacheService;
+    private HyenaCacheFactory hyenaCacheFactory;
+//    @Autowired
+//    private HyenaCacheFactory hyenaCacheFactory;
 
     @Autowired
     private PointBuilder pointBuilder;
@@ -100,6 +103,8 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
             BeanUtils.copyProperties(pw.getPointCache().getPoint(), ret);
             ret.setOpPoint(usage.getPoint())
                     .setOpCost(usage.getCost());
+            hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                    usage.getUid(), usage.getSubUid(), pw.getPointCache().getPoint());
             return ret;
         } catch (Exception e) {
             throw e;

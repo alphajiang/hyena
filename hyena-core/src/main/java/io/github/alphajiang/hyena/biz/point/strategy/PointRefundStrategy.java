@@ -1,6 +1,7 @@
 package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
+import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.calculator.CostCalculator;
 import io.github.alphajiang.hyena.biz.calculator.PointRecCalculator;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
@@ -68,6 +69,9 @@ public class PointRefundStrategy extends AbstractPointStrategy {
     @Autowired
     private PointBuilder pointBuilder;
 
+    @Autowired
+    private HyenaCacheFactory hyenaCacheFactory;
+
     @Override
     public CalcType getType() {
         return CalcType.REFUND;
@@ -92,11 +96,16 @@ public class PointRefundStrategy extends AbstractPointStrategy {
                 PointUsage usage4Unfreeze = new PointUsage();
                 BeanUtils.copyProperties(usage, usage4Unfreeze);
                 usage4Unfreeze.setPoint(usage.getUnfreezePoint())
-                        .setDoUpdate(false);
+                        .setDoUpdate(false)
+                .setPw(pw);
 
                 PointOpResult unfreezeRet = this.pointUnfreezeStrategy.process(usage4Unfreeze);
 
-                return this.processPoint(usage, p, forList, unfreezeRet);
+                PointOpResult result= this.processPoint(usage, p, forList, unfreezeRet);
+
+                hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                        usage.getUid(), usage.getSubUid(), pw.getPointCache().getPoint());
+                return result;
             } else {
                 return this.processPoint(usage, p);
             }

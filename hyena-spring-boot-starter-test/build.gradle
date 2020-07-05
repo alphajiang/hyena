@@ -24,6 +24,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
     implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
+
+
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
 
     implementation('org.springframework.boot:spring-boot-starter-actuator')
