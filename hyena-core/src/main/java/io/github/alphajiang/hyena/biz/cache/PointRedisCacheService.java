@@ -84,7 +84,20 @@ public class PointRedisCacheService implements IPointCache {
     @Override
     public PointWrapper getPoint(String type, String uid, String subUid, boolean lock) {
         if (lock) {
-            if (!this.lock(type, uid, subUid)) {
+            int retry = 5;
+            boolean locked = false;
+            while (!locked && retry > 0) {
+                locked = this.lock(type, uid, subUid);
+                retry--;
+                if (!locked && retry > 0) {
+                    try {
+                        this.wait(50, 0);
+                    } catch (Exception e) {
+                        log.warn("error = {}", e.getMessage());
+                    }
+                }
+            }
+            if (!locked) {
                 log.warn("failed to get cache. type = {}, uid = {}, subUid = {}", type, uid, subUid);
                 throw new HyenaServiceException("failed to get cache");
             }

@@ -113,7 +113,9 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
 
 
         if (gap.compareTo(DecimalUtils.ZERO) != 0) {
-            log.warn("no enough available point! gap = {}", gap);
+            log.error("no enough available point! gap = {}, usage = {}, pointCache = {}",
+                    gap, usage, pointCache);
+            throw new HyenaNoPointException("no enough available point", Level.ERROR);
         }
         if (DecimalUtils.gt(cost, DecimalUtils.ZERO)) {
             pointLog.setDeltaCost(cost).setFrozenCost(pointLog.getFrozenCost().add(cost));
