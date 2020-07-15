@@ -104,7 +104,7 @@ public class PointRefundStrategy extends AbstractPointStrategy {
                 PointOpResult result= this.processPoint(usage, p, forList, unfreezeRet);
 
                 hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
-                        usage.getUid(), usage.getSubUid(), pw.getPointCache().getPoint());
+                        usage.getUid(), usage.getSubUid(), p.getPoint());
                 return result;
             } else {
                 return this.processPoint(usage, p);
@@ -161,6 +161,10 @@ public class PointRefundStrategy extends AbstractPointStrategy {
         ret.setOpPoint(recLogsRet.getDelta())
                 .setOpCost(recLogsRet.getDeltaCost())
                 .setLogs(List.of(PointLogDto.build(pointLog)));
+
+        hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                usage.getUid(), usage.getSubUid(), pointCache.getPoint());
+
         log.info("<< pointCache = {}", pointCache);
         return ret;
 

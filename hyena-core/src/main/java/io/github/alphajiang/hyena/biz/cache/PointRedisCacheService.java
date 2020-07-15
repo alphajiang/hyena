@@ -121,6 +121,7 @@ public class PointRedisCacheService implements IPointCache {
     @Override
     public void updatePoint(String type, String uid, String subUid, PointVo point) {
         String key = formatKey(type, uid, subUid);
+        log.info("key = {}, point = {}", key, point);
         this.redisStringTemplate.opsForValue().set(key, JsonUtils.toJsonString(point));
         this.redisStringTemplate.expire(key, this.cacheTtl, TimeUnit.MINUTES);
         this.unlock(type, uid, subUid);

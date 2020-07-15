@@ -19,18 +19,22 @@ package io.github.alphajiang.hyena.model.vo;
 
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.utils.JsonUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.List;
 
 @Data
 @Accessors(chain = true)
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class PointVo extends PointPo {
 
     private List<PointRecPo> recList;
+
+    @Override
+    public String toString() {
+        return JsonUtils.toJsonString(this);
+    }
 }
