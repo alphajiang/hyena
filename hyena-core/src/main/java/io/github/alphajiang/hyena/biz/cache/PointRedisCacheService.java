@@ -93,12 +93,12 @@ public class PointRedisCacheService implements IPointCache {
                     try {
                         this.wait(50, 0);
                     } catch (Exception e) {
-                        log.warn("error = {}", e.getMessage());
+                        log.warn("error = {}", e.getMessage(), e);
                     }
                 }
             }
             if (!locked) {
-                log.warn("failed to get cache. type = {}, uid = {}, subUid = {}", type, uid, subUid);
+                log.error("failed to get cache. type = {}, uid = {}, subUid = {}", type, uid, subUid);
                 throw new HyenaServiceException("failed to get cache");
             }
         }
