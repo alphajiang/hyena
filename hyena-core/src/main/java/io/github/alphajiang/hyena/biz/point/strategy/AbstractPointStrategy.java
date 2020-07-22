@@ -25,6 +25,7 @@ import io.github.alphajiang.hyena.biz.point.PointWrapper;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
@@ -32,6 +33,7 @@ import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointVo;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
+import io.github.alphajiang.hyena.utils.HyenaLockService;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +53,9 @@ abstract class AbstractPointStrategy implements PointStrategy {
     @Autowired
     private HyenaCacheFactory hyenaCacheFactory;
 
+    @Autowired
+    private HyenaLockService hyenaLockService;
+
     @PostConstruct
     public void init() {
         PointStrategyFactory.addStrategy(this);
@@ -63,28 +68,45 @@ abstract class AbstractPointStrategy implements PointStrategy {
         log.info("usage = {}", usage);
         PointVo backup = null;
         PointVo point = null;
-        try (PointWrapper pw = preProcess(usage, usage.getPw() == null, true)) {
-            PointCache p;
-            if (usage.getPw() != null) {
-                p = usage.getPw().getPointCache();
-            } else {
-                p = pw.getPointCache();
+        if (usage.getPw() == null) {
+            boolean localLockRet = hyenaLockService.lock(usage.getUid(), usage.getSubUid());
+            if (!localLockRet) {
+                log.error("get lock timeout!!! usage = {}", usage);
+                throw new HyenaServiceException("get lock timeout, retry later");
             }
-            point = p.getPoint();
-            backup = new PointVo();
-            BeanUtils.copyProperties(point, backup);
-            PointOpResult result = this.processPoint(usage, p);
-            hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
-                    usage.getUid(), usage.getSubUid(), p.getPoint());
-            //hyenaCacheFactory.getPointCacheService().un
-            return result;
-        } catch (Exception e) {
-            if (point != null && backup != null) {
-                // 回滚缓存的数据
-                BeanUtils.copyProperties(backup, point);
+        }
+        try {
+            try (PointWrapper pw = preProcess(usage, usage.getPw() == null, true)) {
+                PointCache p;
+                if (usage.getPw() != null) {
+                    p = usage.getPw().getPointCache();
+                } else {
+                    p = pw.getPointCache();
+                }
+                point = p.getPoint();
+                backup = new PointVo();
+                BeanUtils.copyProperties(point, backup);
+                PointOpResult result = this.processPoint(usage, p);
+                hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                        usage.getUid(), usage.getSubUid(), p.getPoint());
+                //hyenaCacheFactory.getPointCacheService().un
+                return result;
+            } catch (Exception e) {
+                log.warn("exception: {}", e.getMessage(), e);
+                if (point != null && backup != null) {
+                    // 回滚缓存的数据
+                    BeanUtils.copyProperties(backup, point);
+                }
+                hyenaCacheFactory.getPointCacheService().unlock(usage.getType(), usage.getUid(), usage.getSubUid());
+
+                throw e;
             }
-            hyenaCacheFactory.getPointCacheService().unlock(usage.getType(), usage.getUid(), usage.getSubUid());
-            throw e;
+        } catch (Exception e3) {
+            throw e3;
+        } finally {
+            if (usage.getPw() == null) {
+                hyenaLockService.unlock(usage.getUid(), usage.getSubUid());
+            }
         }
     }
 
