@@ -37,6 +37,7 @@ dependencies {
     implementation('net.logstash.logback:logstash-logback-encoder:6.1')
 
     implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
+    runtimeOnly("org.apache.commons:commons-pool2:${commonsPoolVersion}")
     runtimeOnly("io.springfox:springfox-swagger-ui:${swaggerVersion}")
 
     //implementation('io.swagger:swagger-annotations')

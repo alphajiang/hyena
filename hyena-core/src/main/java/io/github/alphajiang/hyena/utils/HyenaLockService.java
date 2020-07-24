@@ -34,7 +34,7 @@ public class HyenaLockService {
         boolean ret = false;
         try {
             ret = lock.tryLock(5, TimeUnit.SECONDS);
-            log.info("local lock ret = {}, uid, = {}, subUid = {}, num = {}",
+            log.info("local lock ret = {}, uid = {}, subUid = {}, num = {}",
                     ret, uid, subUid, num);
         } catch (Exception e) {
             log.error("uid = {}, subUid = {}, num = {}, exception {}",
@@ -46,7 +46,7 @@ public class HyenaLockService {
     public void unlock(String uid, String subUid) {
         int num = (uid.hashCode() + (subUid == null ? 0 : subUid.hashCode())) % LOCK_NUM;
 
-        log.info("local unlock uid, = {}, subUid = {}, num = {}",
+        log.info("local unlock uid = {}, subUid = {}, num = {}",
                 uid, subUid, num);
         try {
             Lock lock = this.locks.get(num);

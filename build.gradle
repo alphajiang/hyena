@@ -18,12 +18,13 @@ ext {
     swaggerVersion = '2.9.2'
     lombokVersion = '1.18.12'
 
+    commonsPoolVersion = '2.8.0' //apache commons pool. redis pool 需要 https://commons.apache.org/proper/commons-pool/
 }
 
 
 allprojects {
     group = 'io.github.alphajiang'
-    version = '0.0.22.20200721.9-SNAPSHOT'
+    version = '0.0.22.20200723.4-SNAPSHOT'
     //version = '0.0.21'
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'

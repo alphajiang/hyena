@@ -87,8 +87,10 @@ abstract class AbstractPointStrategy implements PointStrategy {
                 backup = new PointVo();
                 BeanUtils.copyProperties(point, backup);
                 PointOpResult result = this.processPoint(usage, p);
-                hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
-                        usage.getUid(), usage.getSubUid(), p.getPoint());
+                if (usage.isDoUpdate()) {
+                    hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                            usage.getUid(), usage.getSubUid(), p.getPoint());
+                }
                 //hyenaCacheFactory.getPointCacheService().un
                 return result;
             } catch (Exception e) {

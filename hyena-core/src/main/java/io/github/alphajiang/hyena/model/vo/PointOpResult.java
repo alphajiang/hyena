@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
@@ -54,7 +55,7 @@ public class PointOpResult extends PointPo {
     private List<PointRecLogDto> recLogList;
 
     @ApiModelProperty(hidden = true)
-    @JsonInclude(JsonInclude.Include.NON_ABSENT)
+    @JsonIgnore
     private UpdateQueue updateQ = new UpdateQueue();
 
     @Data

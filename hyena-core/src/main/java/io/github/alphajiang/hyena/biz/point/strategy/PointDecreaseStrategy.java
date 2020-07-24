@@ -30,6 +30,7 @@ import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
@@ -136,6 +137,67 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         ret.setOpPoint(recLogsRet.getDelta())
                 .setOpCost(recLogsRet.getDeltaCost())
                 .setRecLogList(recLogs)
+                .setLogs(List.of(PointLogDto.build(pointLog)));
+        return ret;
+    }
+
+
+    protected PointOpResult processPoint(PointUsage usage,
+                                         PointCache pointCache,
+                                         List<FreezeOrderRecPo> forList,
+                                         PointOpResult unfreezeRet) {
+        PointPo curPoint = pointCache.getPoint();
+        log.debug("curPoint = {}", curPoint);
+
+        HyenaAssert.notNull(curPoint.getAvailable(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
+                "can't find point to the uid: " + usage.getUid(), Level.WARN);
+
+        if (usage.getRecId() != null && usage.getRecId() > 0L) {
+            checkPointRec(usage, pointCache);   // 校验失败会抛出异常
+        }
+
+        curPoint.setSeqNum(curPoint.getSeqNum() + 1)
+                .setPoint(curPoint.getPoint().subtract(usage.getPoint()))
+                .setAvailable(curPoint.getAvailable().subtract(usage.getPoint()))
+                .setUsed(curPoint.getUsed().add(usage.getPoint()));
+        var point2Update = unfreezeRet.getUpdateQ().getPoint();
+        point2Update.setPoint(curPoint.getPoint())
+                .setAvailable(curPoint.getAvailable())
+                .setUsed(curPoint.getUsed()).setSeqNum(curPoint.getSeqNum())
+                .setId(curPoint.getId());
+
+        PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.DECREASE, usage, curPoint);
+        unfreezeRet.getUpdateQ().getLogs().add(pointLog);
+
+        BigDecimal gap = usage.getPoint();
+        BigDecimal cost = DecimalUtils.ZERO;
+        //List<PointRecLogDto> recLogs = new ArrayList<>();
+
+        var recLogsRet = this.decreasePointLoop(usage.getType(),
+                pointCache,
+                pointLog, gap, usage.getRecId());
+        gap = gap.subtract(recLogsRet.getDelta());
+        cost = cost.add(recLogsRet.getDeltaCost());
+        unfreezeRet.getUpdateQ().getRecLogs().addAll(recLogsRet.getRecLogs());
+        unfreezeRet.getUpdateQ().getRecList().addAll(recLogsRet.getRecList4Update());
+        log.debug("gap = {}", gap);
+
+        if (DecimalUtils.gt(cost, DecimalUtils.ZERO)) {
+            pointLog.setDeltaCost(cost).setCost(pointLog.getCost().subtract(cost));
+            curPoint.setCost(curPoint.getCost().subtract(cost));
+            point2Update.setCost(curPoint.getCost());
+        }
+
+        pointFlowService.updatePoint(usage.getType(), point2Update);
+        pointFlowService.updatePointRec(usage.getType(), unfreezeRet.getUpdateQ().getRecList());
+        pointFlowService.addFlow(usage, unfreezeRet.getUpdateQ().getLogs(),
+                unfreezeRet.getUpdateQ().getRecLogs());
+        //return curPoint;
+        PointOpResult ret = new PointOpResult();
+        BeanUtils.copyProperties(curPoint, ret);
+        ret.setOpPoint(recLogsRet.getDelta())
+                .setOpCost(recLogsRet.getDeltaCost())
+                .setRecLogList(unfreezeRet.getUpdateQ().getRecLogs())
                 .setLogs(List.of(PointLogDto.build(pointLog)));
         return ret;
     }

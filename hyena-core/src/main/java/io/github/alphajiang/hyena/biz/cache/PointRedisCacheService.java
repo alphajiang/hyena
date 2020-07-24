@@ -123,10 +123,15 @@ public class PointRedisCacheService implements IPointCache {
     @Override
     public void updatePoint(String type, String uid, String subUid, PointVo point) {
         String key = formatKey(type, uid, subUid);
-        log.info("key = {}, point = {}", key, point);
-        this.redisStringTemplate.opsForValue().set(key, JsonUtils.toJsonString(point));
-        this.redisStringTemplate.expire(key, this.cacheTtl, TimeUnit.MINUTES);
-        this.unlock(type, uid, subUid);
+        String lockKey = formatLockKey(type, uid, subUid);
+        log.info("update-unlock. key = {}, lockKey = {}, point = {}",
+                key, lockKey, point);
+//        this.redisStringTemplate.opsForValue().set(key, JsonUtils.toJsonString(point));
+//        this.redisStringTemplate.expire(key, this.cacheTtl, TimeUnit.MINUTES);
+//        this.unlock(type, uid, subUid);
+
+        this.redisStringTemplate.execute(new RedisUpdateCallback(key, JsonUtils.toJsonString(point), lockKey, this.cacheTtl));
+        log.debug("update-unlock done. key = {}, lockKey = {}", key, lockKey);
     }
 
     @Override
@@ -183,6 +188,7 @@ public class PointRedisCacheService implements IPointCache {
         log.info("unlock lockKey = {}", lockKey);
     }
 
+
     private String formatKey(String type, String uid, String subUid) {
         if (StringUtils.isBlank(subUid)) {
             return MessageFormat.format(POINT_CACHE_KEY, type, uid, "", "");
@@ -234,6 +240,29 @@ public class PointRedisCacheService implements IPointCache {
 
         private long getExpireTime() {
             return System.currentTimeMillis() + CACHE_LOCK_TIME_SECONDS * 1000 + 1;
+        }
+    }
+
+
+    public static class RedisUpdateCallback implements RedisCallback<Boolean> {
+
+        private String key;
+        private String value;
+        private String lockKey;
+        private int ttlMinutes;
+
+        public RedisUpdateCallback(String key, String value, String lockKey, int ttlMinutes) {
+            this.key = key;
+            this.value = value;
+            this.lockKey = lockKey;
+            this.ttlMinutes = ttlMinutes;
+        }
+
+        @Override
+        public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
+            connection.setEx(key.getBytes(), ttlMinutes * 60, value.getBytes());
+            connection.del(lockKey.getBytes());
+            return true;
         }
     }
 }

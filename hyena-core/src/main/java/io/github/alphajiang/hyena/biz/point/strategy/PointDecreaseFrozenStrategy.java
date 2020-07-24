@@ -17,27 +17,30 @@
 
 package io.github.alphajiang.hyena.biz.point.strategy;
 
+import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.ds.service.PointDs;
-import io.github.alphajiang.hyena.ds.service.PointLogDs;
-import io.github.alphajiang.hyena.ds.service.PointRecDs;
-import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
+import io.github.alphajiang.hyena.biz.point.PointWrapper;
+import io.github.alphajiang.hyena.ds.service.*;
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
+import io.github.alphajiang.hyena.utils.HyenaLockService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Component
-public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
+public class PointDecreaseFrozenStrategy extends PointDecreaseStrategy {
 
     @Autowired
     private PointDs pointDs;
@@ -55,10 +58,19 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
     private PointFlowService pointFlowService;
 
     @Autowired
+    private FreezeOrderRecDs freezeOrderRecDs;
+
+    @Autowired
     private PointUnfreezeStrategy pointUnfreezeStrategy;
 
     @Autowired
     private PointDecreaseStrategy pointDecreaseStrategy;
+
+    @Autowired
+    private HyenaCacheFactory hyenaCacheFactory;
+
+    @Autowired
+    private HyenaLockService hyenaLockService;
 
 
     @Override
@@ -66,23 +78,73 @@ public class PointDecreaseFrozenStrategy extends AbstractPointStrategy {
         return CalcType.DECREASE_FROZEN;
     }
 
+//    @Override
+//    @Transactional
+//    public PointOpResult process(PointUsage usage) {
+//        log.info("decrease frozen. usage = {}", usage);
+//        PointPo ret = null;
+//
+//        if (usage.getUnfreezePoint() != null
+//                && usage.getUnfreezePoint().compareTo(DecimalUtils.ZERO) > 0) {
+//            PointUsage usage4Unfreeze = new PointUsage();
+//            BeanUtils.copyProperties(usage, usage4Unfreeze);
+//            usage4Unfreeze.setPoint(usage.getUnfreezePoint());
+//
+//            this.pointUnfreezeStrategy.process(usage4Unfreeze);
+//        }
+//
+//        return this.pointDecreaseStrategy.process(usage);
+//
+//
+//    }
+
+
     @Override
     @Transactional
     public PointOpResult process(PointUsage usage) {
         log.info("decrease frozen. usage = {}", usage);
-        PointPo ret = null;
-
-        if (usage.getUnfreezePoint() != null
-                && usage.getUnfreezePoint().compareTo(DecimalUtils.ZERO) > 0) {
-            PointUsage usage4Unfreeze = new PointUsage();
-            BeanUtils.copyProperties(usage, usage4Unfreeze);
-            usage4Unfreeze.setPoint(usage.getUnfreezePoint());
-
-            this.pointUnfreezeStrategy.process(usage4Unfreeze);
+        if(usage.getUnfreezePoint() == null || DecimalUtils.lte(usage.getUnfreezePoint(), DecimalUtils.ZERO)) {
+            // frozen number is zero, use decrease
+            return this.pointDecreaseStrategy.process(usage);
         }
 
-        return this.pointDecreaseStrategy.process(usage);
+        boolean localLockRet = hyenaLockService.lock(usage.getUid(), usage.getSubUid());
+        if (!localLockRet) {
+            log.error("get lock timeout!!! usage = {}", usage);
+            throw new HyenaServiceException("get lock timeout, retry later");
+        }
 
+        try (PointWrapper pw = preProcess(usage, true, true)) {
+            PointCache p = pw.getPointCache();
+
+            List<FreezeOrderRecPo> forList = this.freezeOrderRecDs.getFreezeOrderRecList(usage.getType(),
+                    p.getPoint().getId(),
+                    usage.getOrderType(), usage.getOrderNo());
+
+
+            PointUsage usage4Unfreeze = new PointUsage();
+            BeanUtils.copyProperties(usage, usage4Unfreeze);
+            usage4Unfreeze.setPoint(usage.getUnfreezePoint())
+                    .setDoUpdate(false)
+                    .setPw(pw);
+
+            PointOpResult unfreezeRet = this.pointUnfreezeStrategy.process(usage4Unfreeze);
+
+            PointOpResult result= super.processPoint(usage, p, forList, unfreezeRet);
+
+            //PointOpResult result= this.processPoint(usage, p, forList, unfreezeRet);
+
+            hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                    usage.getUid(), usage.getSubUid(), p.getPoint());
+            return result;
+
+
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            hyenaLockService.unlock(usage.getUid(), usage.getSubUid());
+        }
 
     }
 
