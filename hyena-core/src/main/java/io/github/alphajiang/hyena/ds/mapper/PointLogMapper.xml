@@ -70,6 +70,13 @@
         </foreach>
     </insert>
 
+
+    <update id="updateAbnormal">
+        update `${pointTableName}_log`
+        set abnormal = #{abnormal}
+        where id = #{id}
+    </update>
+
     <select id="listPointLogBi" resultType="io.github.alphajiang.hyena.model.vo.PointLogBi">
         select log.`type` as logType,
         sum(log.delta) as delta,

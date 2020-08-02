@@ -65,6 +65,9 @@ public class HyenaInitialization {
         if (sqlVer < 3) {
             upgradeSchemaDs.addSqlV3(tables);
         }
+        if (sqlVer < 4) {
+            upgradeSchemaDs.addSqlV4(tables);
+        }
         return sqlVer;
     }
 }

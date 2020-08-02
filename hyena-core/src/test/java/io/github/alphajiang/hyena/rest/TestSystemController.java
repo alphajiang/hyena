@@ -113,4 +113,19 @@ public class TestSystemController extends HyenaTestBase {
         res = JsonUtils.fromJson(resBody, BaseResponse.class);
         Assertions.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
     }
+
+    @Test
+    public void test_analysePointLog() throws Exception {
+        
+        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/system/analysePointLog")
+                .param("type", super.getPointType())
+                .param("uid", super.getUid())
+                .param("subUid", super.getSubUid());
+
+        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        logger.info("response = {}", resBody);
+        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
+        Assertions.assertEquals(HyenaConstants.RES_CODE_SUCCESS, res.getStatus());
+
+    }
 }

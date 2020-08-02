@@ -68,4 +68,11 @@
         alter table ${pointTableName}_rec_log add column `refundCost` bigint(20) not null default 0 after usedCost
     </update>
 
+    <update id="addPointLogAbnormal">
+        alter table ${pointTableName}_log add column `abnormal` boolean default false after note
+    </update>
+
+    <update id="addPointRecLogAbnormal">
+        alter table ${pointTableName}_rec_log add column `abnormal` boolean default false after note
+    </update>
 </mapper>

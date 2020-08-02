@@ -34,6 +34,9 @@ public interface PointLogMapper {
     void batchInsert(@Param(value = "pointTableName") String pointTableName,
                      @Param(value = "pointLogList") List<PointLogPo> pointLogList);
 
+    void updateAbnormal(@Param(value = "pointTableName") String pointTableName,
+                        @Param(value = "id") Long id,
+                        @Param(value = "abnormal") boolean abnormal);
 
 
     List<PointLogDto> listPointLog(@Param(value = "pointTableName") String pointTableName,

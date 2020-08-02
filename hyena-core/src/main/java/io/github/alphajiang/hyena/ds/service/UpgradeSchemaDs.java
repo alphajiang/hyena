@@ -74,6 +74,13 @@ public class UpgradeSchemaDs {
         });
     }
 
+    public void addSqlV4(List<String> pointTypes){
+        pointTypes.stream().forEach(p-> {
+            executeSql(t-> upgradeSchemaMapper.addPointLogAbnormal(t), p);
+            executeSql(t-> upgradeSchemaMapper.addPointRecLogAbnormal(t), p);
+        });
+    }
+
     private void executeSql(Consumer<String> f, String pointType) {
         try {
             f.accept(pointType);

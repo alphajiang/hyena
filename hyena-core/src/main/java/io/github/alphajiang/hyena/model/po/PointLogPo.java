@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.model.po;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.alphajiang.hyena.model.base.BasePo;
@@ -54,7 +55,7 @@ public class PointLogPo extends BasePo {
     @ApiModelProperty("变动后,冻结的成本")
     private BigDecimal frozenCost;
     /**
-     * PointStatus
+     * PointOpType
      */
     private Integer type;
     private String tag;
@@ -68,5 +69,7 @@ public class PointLogPo extends BasePo {
     private String extra;
     private String note;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Boolean abnormal;
 
 }

@@ -22,6 +22,7 @@ import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.flow.QueueMonitor;
 import io.github.alphajiang.hyena.biz.point.PointCache;
+import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.base.ListResponse;
@@ -50,6 +51,9 @@ public class SystemController {
 
     @Autowired
     private PointTableDs pointTableDs;
+
+    @Autowired
+    private PointLogDs pointLogDs;
 
     @Autowired
     private PointFlowService pointFlowService;
@@ -103,5 +107,18 @@ public class SystemController {
         ListResponse<QueueInfo> ret = new ListResponse<>(list);
         logger.info(LoggerHelper.formatLeaveLog(request));
         return ret;
+    }
+
+    @ApiOperation(value = "分析积分日志")
+    @GetMapping(value = "/analysePointLog")
+    public BaseResponse analysePointLog(
+            HttpServletRequest request,
+            @ApiParam(value = "积分类型", example = "score") @RequestParam(required = true) String type,
+            @ApiParam(value = "用户标识", example = "abcd") @RequestParam(required = true) String uid,
+            @ApiParam(value = "用户副标识", example = "efgh") @RequestParam(required = true) String subUid) {
+        logger.info(LoggerHelper.formatEnterLog(request));
+        this.pointLogDs.analyseLog(type, uid, subUid);
+        logger.info(LoggerHelper.formatLeaveLog(request));
+        return BaseResponse.success();
     }
 }

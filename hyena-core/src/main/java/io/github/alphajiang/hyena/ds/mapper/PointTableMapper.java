@@ -56,4 +56,5 @@ public interface PointTableMapper {
 
     Integer createFreezeOrderRecTable(@Param(value = "pointTableName") String pointTableName);
     void createFreezeOrderRecTableIndex(@Param(value = "pointTableName") String pointTableName);
+
 }

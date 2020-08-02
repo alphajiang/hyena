@@ -43,4 +43,8 @@ public interface UpgradeSchemaMapper {
     void addPointRecLogFrozenCost(@Param(value = "pointTableName") String pointTableName );
     void addPointRecLogUsedCost(@Param(value = "pointTableName") String pointTableName );
     void addPointRecLogRefundCost(@Param(value = "pointTableName") String pointTableName );
+
+
+    void addPointLogAbnormal(@Param(value = "pointTableName") String pointTableName);
+    void addPointRecLogAbnormal(@Param(value = "pointTableName") String pointTableName);
 }

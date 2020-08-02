@@ -77,6 +77,7 @@
         `payType` int,
         `extra` text,
         `note` text,
+        `abnormal` boolean default false,
         `enable` boolean not null default true,
         `createTime` timestamp default now(),
         `updateTime` timestamp default now()
@@ -158,6 +159,7 @@
         `orderType` int,
         `payType` int,
         `note` text,
+        `abnormal` boolean default false,
         `enable` boolean not null default true,
         `createTime` timestamp default now()
         ) engine=InnoDB default charset=utf8mb4

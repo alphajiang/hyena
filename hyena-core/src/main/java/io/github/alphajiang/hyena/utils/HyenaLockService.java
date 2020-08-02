@@ -16,7 +16,7 @@ public class HyenaLockService {
 
 
     private static final int LOCK_NUM = 500;
-    private Map<Integer, Lock> locks = new ConcurrentHashMap<>();
+    private final Map<Integer, Lock> locks = new ConcurrentHashMap<>();
 
 
     @PostConstruct
@@ -29,7 +29,7 @@ public class HyenaLockService {
 
 
     public boolean lock(String uid, String subUid) {
-        int num = (uid.hashCode() + (subUid == null ? 0 : subUid.hashCode())) % LOCK_NUM;
+        int num = Math.abs((uid.hashCode() + (subUid == null ? 0 : subUid.hashCode()))) % LOCK_NUM;
         Lock lock = this.locks.get(num);
         boolean ret = false;
         try {
@@ -44,7 +44,7 @@ public class HyenaLockService {
     }
 
     public void unlock(String uid, String subUid) {
-        int num = (uid.hashCode() + (subUid == null ? 0 : subUid.hashCode())) % LOCK_NUM;
+        int num = Math.abs((uid.hashCode() + (subUid == null ? 0 : subUid.hashCode()))) % LOCK_NUM;
 
         log.info("local unlock uid = {}, subUid = {}, num = {}",
                 uid, subUid, num);
