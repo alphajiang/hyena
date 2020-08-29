@@ -25,7 +25,9 @@ dependencies {
     //implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
 
-    implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
+    implementation("io.springfox:springfox-core:${swaggerVersion}")
+    implementation("io.swagger:swagger-annotations:${swaggerAnnotationsVersion}")
+    //implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
 
     testRuntimeOnly("org.apache.commons:commons-pool2:${commonsPoolVersion}")
 

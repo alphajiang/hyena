@@ -8,6 +8,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
-    implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
+    //implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
+    implementation "io.springfox:springfox-boot-starter:${swaggerVersion}"
 
 }

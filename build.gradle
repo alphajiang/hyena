@@ -1,6 +1,6 @@
 
 plugins {
-    id 'org.springframework.boot' version '2.3.0.RELEASE'
+    id 'org.springframework.boot' version '2.3.3.RELEASE'
     id 'java'
     id 'jacoco'
     id 'com.github.kt3k.coveralls' version '2.8.2'
@@ -12,10 +12,11 @@ apply plugin: 'eclipse'
 
 
 ext {
-    springBootVersion = "2.3.0.RELEASE"
-    springCloudVersion = "Hoxton.SR5"
+    springBootVersion = "2.3.3.RELEASE"
+    springCloudVersion = "Hoxton.SR7"
     mybatisStarterVersion = '2.1.0'
-    swaggerVersion = '2.9.2'
+    swaggerVersion = '3.0.0'
+    swaggerAnnotationsVersion = '1.6.2'
     lombokVersion = '1.18.12'
 
     commonsPoolVersion = '2.8.0' //apache commons pool. redis pool 需要 https://commons.apache.org/proper/commons-pool/
@@ -24,7 +25,7 @@ ext {
 
 allprojects {
     group = 'io.github.alphajiang'
-    version = '0.0.22.20200802.1-SNAPSHOT'
+    version = '0.0.22.20200829.1-SNAPSHOT'
     //version = '0.0.21'
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'
@@ -42,6 +43,7 @@ allprojects {
     repositories {
         maven { url 'https://maven.aliyun.com/repository/central' }
         jcenter { url 'https://maven.aliyun.com/repository/jcenter' }
+        mavenCentral()
     }
     repositories {
         mavenCentral()
