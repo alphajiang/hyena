@@ -38,6 +38,7 @@ import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
+import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import lombok.extern.slf4j.Slf4j;
@@ -190,6 +191,9 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
 
         pointFlowService.updatePoint(usage.getType(), point2Update);
         pointFlowService.updatePointRec(usage.getType(), unfreezeRet.getUpdateQ().getRecList());
+        if (CollectionUtils.isNotEmpty(forList)) {
+            pointFlowService.closeFreezeOrderRec(usage.getType(), forList);
+        }
         pointFlowService.addFlow(usage, unfreezeRet.getUpdateQ().getLogs(),
                 unfreezeRet.getUpdateQ().getRecLogs());
         //return curPoint;
