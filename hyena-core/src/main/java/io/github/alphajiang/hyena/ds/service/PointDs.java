@@ -115,6 +115,7 @@ public class PointDs {
      * @param type 积分类型
      * @param pid  积分ID
      * @param uid  用户uid
+     * @param subUid 用户子帐号
      * @return 用户积分数据
      */
     public PointVo getPointVo(@NonNull String type,
