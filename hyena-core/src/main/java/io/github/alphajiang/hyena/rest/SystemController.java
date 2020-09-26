@@ -88,6 +88,19 @@ public class SystemController {
     }
 
 
+    @ApiOperation(value = "清除缓存")
+    @PostMapping(value = "/cleanCache")
+    public BaseResponse cleanCache(ServerWebExchange exh,
+                                   @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+                                   @ApiParam(value = "用户ID") @RequestParam String uid,
+                                   @ApiParam(value = "用户二级ID") @RequestParam(required = false) String subUid) {
+        logger.info(LoggerHelper.formatEnterLog(exh));
+        this.hyenaCacheFactory.getPointCacheService().removePoint(type, uid, subUid);
+        logger.info(LoggerHelper.formatLeaveLog(exh));
+        return BaseResponse.success();
+    }
+
+
     @ApiOperation(value = "获取缓存信息")
     @GetMapping(value = "/dumpMemCache")
     public ListResponse<PointCache> dumpMemCache(ServerWebExchange exh) {
