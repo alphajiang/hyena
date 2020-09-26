@@ -96,7 +96,9 @@ public class IdempotentAround {
             return res;
         }
         String key = getKey(name, param);
-        String resMsg = this.hyenaIdempotent.getByKey(key);
+
+
+        String resMsg = this.hyenaIdempotent.getByKey(name, key);
         if (StringUtils.isNotBlank(resMsg)) {    // cache match
             res = (BaseResponse) JsonUtils.fromJson(resMsg, method.getReturnType());
             logger.info("idempotent cache matched. res = {}", JsonUtils.toJsonString(res));
@@ -116,7 +118,7 @@ public class IdempotentAround {
         if (StringUtils.isNotBlank(param.getSeq())) {
             String key = getKey(name, param);
             res.setSeq(param.getSeq());
-            this.hyenaIdempotent.setByKey(key, res);
+            this.hyenaIdempotent.setByKey(name, key, res);
 
             this.hyenaIdempotent.unlock(key);
         }

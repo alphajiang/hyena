@@ -23,7 +23,7 @@ public interface HyenaIdempotent {
 
     boolean lock(String seq);
     void unlock(String seq);
-    String getByKey(String seq);
-    void setByKey(String seq, BaseResponse obj);
+    String getByKey(String name, String seq);
+    void setByKey(String name, String seq, BaseResponse obj);
 
 }

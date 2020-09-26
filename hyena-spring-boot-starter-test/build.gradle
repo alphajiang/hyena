@@ -25,7 +25,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
     implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
-
+    implementation("org.springframework.boot:spring-boot-starter-cache:${springBootVersion}")
 
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
 
@@ -38,6 +38,11 @@ dependencies {
     implementation('net.logstash.logback:logstash-logback-encoder:6.1')
 
     implementation "io.springfox:springfox-boot-starter:${swaggerVersion}"
+
+    implementation("org.ehcache:ehcache:${ehcacheVersion}")
+//    implementation("javax.cache:cache-api:${cacheApiVersion}")
+
+
     //implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
     runtimeOnly("org.apache.commons:commons-pool2:${commonsPoolVersion}")
     //runtimeOnly("io.springfox:springfox-swagger-ui:${swaggerVersion}")

@@ -42,12 +42,12 @@ public class HyenaRedisIdempotent implements HyenaIdempotent {
     }
 
     @Override
-    public String getByKey(String seq) {
+    public String getByKey(String name, String seq) {
         return redisStringTemplate.opsForValue().get(getCacheKey(seq));
     }
 
     @Override
-    public void setByKey(String seq, BaseResponse obj) {
+    public void setByKey(String name, String seq, BaseResponse obj) {
         redisStringTemplate.opsForValue().set(getCacheKey(seq), JsonUtils.toJsonString(obj),
                 CACHE_TIME_SECONDS, TimeUnit.SECONDS);
     }
@@ -69,7 +69,7 @@ public class HyenaRedisIdempotent implements HyenaIdempotent {
     }
 
 
-    private String getCacheKey(String seq) {
+    private String getCacheKey( String seq) {
         return CACHE_KEY_PREFIX + seq;
     }
 
