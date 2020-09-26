@@ -155,7 +155,7 @@ Maven
 <dependency>
     <groupId>io.github.alphajiang</groupId>
     <artifactId>hyena-spring-boot-starter</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.24</version>
 </dependency>
 ```
 Gradle
@@ -184,7 +184,7 @@ Java代码
 @EnableScheduling
 public class HyenaMain {
     public static void main(String[] args) {
-        new SpringApplicationBuilder(HyenaMain.class).web(WebApplicationType.SERVLET).run(args);
+        new SpringApplicationBuilder(HyenaMain.class).web(WebApplicationType.REACTIVE).run(args);
     }
 }
 ```
