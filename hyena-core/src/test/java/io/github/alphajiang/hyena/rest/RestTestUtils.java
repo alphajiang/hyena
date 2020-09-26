@@ -1,6 +1,5 @@
 package io.github.alphajiang.hyena.rest;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.param.PointFreezeParam;
@@ -13,11 +12,10 @@ import io.github.alphajiang.hyena.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -29,8 +27,10 @@ import java.util.UUID;
 public class RestTestUtils {
 
 
-    @Autowired(required = false)
-    private MockMvc mockMvc;
+//    @Autowired(required = false)
+//    private MockMvc mockMvc;
+    @Autowired
+    private WebTestClient webTestClient;
 
     /**
      * 增加积分
@@ -54,15 +54,22 @@ public class RestTestUtils {
         extra.put("aaa", "bbbb");
         extra.put("ccc", 123);
         param.setExtra(JsonUtils.toJsonString(extra));
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
+
+        ObjectResponse<PointOpResult> res = webTestClient.post().uri("/hyena/point/increase")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
-
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
-
-        });
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult().getResponseBody();
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//
+//        });
         PointPo result = res.getData();
         Assertions.assertNotNull(result);
     }
@@ -93,15 +100,23 @@ public class RestTestUtils {
         if (StringUtils.isNotBlank(orderNo)) {
             param.setOrderNo(orderNo);
         }
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/freeze")
+        ObjectResponse<PointOpResult> res = webTestClient.post().uri("/hyena/point/freeze")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult().getResponseBody();
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/freeze")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        });
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//
+//        });
         return res;
     }
 
@@ -123,15 +138,22 @@ public class RestTestUtils {
             param.setUnfreezeByOrderNo(true);
             param.setOrderNo(orderNo);
         }
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/unfreeze")
+        ObjectResponse<PointOpResult> res = webTestClient.post().uri("/hyena/point/unfreeze")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
-
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
-
-        });
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult().getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/unfreeze")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
+//
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//
+//        });
         return res;
     }
 }

@@ -43,21 +43,22 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.math.BigDecimal;
 import java.util.*;
 
-@AutoConfigureMockMvc
+//@AutoConfigureMockMvc
 @Slf4j
 public class TestPointController extends HyenaTestBase {
 
+    //    @Autowired
+//    private MockMvc mockMvc;
     @Autowired
-    private MockMvc mockMvc;
+    private WebTestClient webTestClient;
 
     @Autowired
     private PointUsageFacade pointUsageFacade;
@@ -78,15 +79,26 @@ public class TestPointController extends HyenaTestBase {
     @Test
     public void test_getPoint() throws Exception {
 
-        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/getPoint")
-                .param("type", super.getPointType())
-                .param("uid", super.getUid());
+//        RequestBuilder builder = MockMvcRequestBuilders
+        ObjectResponse<PointPo> res  = webTestClient.get().uri("/hyena/point/getPoint?type={type}&uid={uid}&subUid={subUid}",
+                Map.of("type", super.getPointType(),
+                "uid", super.getUid(),
+                        "subUid", super.getSubUid()
+        ))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointPo>>() {
+                })
+                .returnResult()
+                .getResponseBody();
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+//        String resBody = new String(resContent);
+        log.info("response = {}", res);
 
-        });
+//        ObjectResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointPo>>() {
+
+//        });
         PointPo ret = res.getData();
         Assertions.assertNotNull(ret);
     }
@@ -100,15 +112,25 @@ public class TestPointController extends HyenaTestBase {
         param.setStart(0L).setSize(10);
 
 
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPoint")
+        ListResponse<PointPo> res  = webTestClient.post().uri("/hyena/point/listPoint")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ListResponse<PointPo>>() {
+                })
+                .returnResult()
+                .getResponseBody();
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ListResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointPo>>() {
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPoint")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        });
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ListResponse<PointPo> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointPo>>() {
+//
+//        });
         List<PointPo> list = res.getData();
         Assertions.assertFalse(list.isEmpty());
     }
@@ -121,13 +143,22 @@ public class TestPointController extends HyenaTestBase {
         param.setType("invalid_type_test");
         param.setStart(0L).setSize(10);
 
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPoint")
+        ListResponse<PointPo> res  = webTestClient.post().uri("/hyena/point/listPoint")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ListResponse<PointPo>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPoint")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
 
         Assertions.assertFalse(res.getStatus() == HyenaConstants.RES_CODE_SUCCESS);
     }
@@ -144,15 +175,24 @@ public class TestPointController extends HyenaTestBase {
         param.setPayTypes(List.of(super.getPayType(), 7, 8, 9));
         param.setStart(0L).setSize(10);
 
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointLog")
+        ListResponse<PointLogDto> res  = webTestClient.post().uri("/hyena/point/listPointLog")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ListResponse<PointLogDto>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointLog")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ListResponse<PointLogDto> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ListResponse<PointLogDto> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
 
-        });
+//        });
         List<PointLogDto> list = res.getData();
         Assertions.assertFalse(list.isEmpty());
         Assertions.assertTrue(res.getTotal() > 0L);
@@ -165,15 +205,24 @@ public class TestPointController extends HyenaTestBase {
         param.setType(super.getPointType());
         param.setUid(super.getUid());
 
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointLogBi")
+        ListResponse<PointLogBi> res  = webTestClient.post().uri("/hyena/point/listPointLogBi")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ListResponse<PointLogBi>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointLogBi")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ListResponse<PointLogBi> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
-
-        });
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ListResponse<PointLogBi> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
+//
+//        });
         List<PointLogBi> list = res.getData();
         Assertions.assertFalse(list.isEmpty());
         Assertions.assertTrue(res.getTotal() > 0L);
@@ -184,15 +233,25 @@ public class TestPointController extends HyenaTestBase {
         Thread.sleep(100L);
         ListPointRecParam param = new ListPointRecParam();
         param.setType(super.getPointType());
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointRecord")
+
+        ListResponse<PointRecDto> res  = webTestClient.post().uri("/hyena/point/listPointRecord")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ListResponse<PointRecDto>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointRecord")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ListResponse<PointRecDto> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ListResponse<PointRecDto> res = JsonUtils.fromJson(resBody, new TypeReference<>() {
 
-        });
+//        });
         List<PointRecDto> list = res.getData();
         Assertions.assertFalse(list.isEmpty());
         Assertions.assertTrue(res.getTotal() > 0L);
@@ -202,15 +261,25 @@ public class TestPointController extends HyenaTestBase {
     public void test_listPointRecordLog() throws Exception {
         ListPointRecLogParam param = new ListPointRecLogParam();
         param.setType(super.getPointType());
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointRecordLog")
+
+        ListResponse<PointRecLogDto> res  = webTestClient.post().uri("/hyena/point/listPointRecordLog")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ListResponse<PointRecLogDto>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/listPointRecordLog")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ListResponse<PointRecLogDto> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointRecLogDto>>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ListResponse<PointRecLogDto> res = JsonUtils.fromJson(resBody, new TypeReference<ListResponse<PointRecLogDto>>() {
 
-        });
+//        });
         List<PointRecLogDto> list = res.getData();
         Assertions.assertFalse(list.isEmpty());
         Assertions.assertTrue(res.getTotal() > 0L);
@@ -230,15 +299,25 @@ public class TestPointController extends HyenaTestBase {
         extra.put("aaa", "bbbb");
         extra.put("ccc", 123);
         param.setExtra(JsonUtils.toJsonString(extra));
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
+
+        ObjectResponse<PointOpResult> res  = webTestClient.post().uri("/hyena/point/increase")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
-        });
+//        });
         PointPo result = res.getData();
         Assertions.assertNotNull(result);
     }
@@ -249,13 +328,21 @@ public class TestPointController extends HyenaTestBase {
         buf.append("{").append("\"uid\":\"").append(super.getUid()).append("\",")
                 .append("\"point\":\"").append("abcd").append("\"")
                 .append("}");
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
+        BaseResponse res  = webTestClient.post().uri("/hyena/point/increase")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(buf.toString());
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(buf.toString())
+                .exchange()
+                .expectBody(BaseResponse.class)
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(buf.toString());
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
         Assertions.assertEquals(HyenaConstants.RES_CODE_PARAMETER_ERROR, res.getStatus());
     }
 
@@ -266,13 +353,21 @@ public class TestPointController extends HyenaTestBase {
                 .append("\"point\":\"").append(123).append("\",")
                 .append("\"type\":null")
                 .append("}");
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
+        BaseResponse res  = webTestClient.post().uri("/hyena/point/increase")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(buf.toString());
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(buf.toString())
+                .exchange()
+                .expectBody(BaseResponse.class)
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/increase")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(buf.toString());
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        BaseResponse res = JsonUtils.fromJson(resBody, BaseResponse.class);
         Assertions.assertEquals(HyenaConstants.RES_CODE_PARAMETER_ERROR, res.getStatus());
     }
 
@@ -284,15 +379,25 @@ public class TestPointController extends HyenaTestBase {
         param.setUid(super.getUid());
         param.setSubUid(super.getSubUid());
         param.setPoint(BigDecimal.valueOf(1L));
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decrease")
+
+        ObjectResponse<PointOpResult> res  = webTestClient.post().uri("/hyena/point/decrease")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decrease")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
-        });
+//        });
         PointPo result = res.getData();
         Assertions.assertNotNull(result);
     }
@@ -304,15 +409,25 @@ public class TestPointController extends HyenaTestBase {
         param.setUid(super.getUid());
         param.setSubUid(super.getSubUid());
         param.setPoint(BigDecimal.valueOf(1L));
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/freeze")
+
+        ObjectResponse<PointOpResult> res  = webTestClient.post().uri("/hyena/point/freeze")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/freeze")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
-        });
+//        });
         PointPo result = res.getData();
         Assertions.assertNotNull(result);
     }
@@ -328,15 +443,26 @@ public class TestPointController extends HyenaTestBase {
         param.setUid(super.getUid());
         param.setSubUid(super.getSubUid());
         param.setPoint(BigDecimal.valueOf(9L));
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decreaseFrozen")
+
+
+        ObjectResponse<PointOpResult> res  = webTestClient.post().uri("/hyena/point/decreaseFrozen")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decreaseFrozen")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
-        });
+//        });
         PointPo result = res.getData();
         Assertions.assertNotNull(result);
     }
@@ -357,15 +483,26 @@ public class TestPointController extends HyenaTestBase {
         param.setSubUid(super.getSubUid());
         param.setUnfreezePoint(BigDecimal.valueOf(5L)); // 要做解冻的部分
         param.setPoint(BigDecimal.valueOf(9L)); // 要消费的部分
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decreaseFrozen")
+
+
+        ObjectResponse<PointOpResult> res  = webTestClient.post().uri("/hyena/point/decreaseFrozen")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/decreaseFrozen")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
-        });
+//        });
         PointPo result = res.getData();
         Assertions.assertNotNull(result);
     }
@@ -383,15 +520,27 @@ public class TestPointController extends HyenaTestBase {
         param.setUid(super.getUid());
         param.setSubUid(super.getSubUid());
         param.setPoint(BigDecimal.valueOf(9L));
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/unfreeze")
+
+
+
+        ObjectResponse<PointOpResult> res  = webTestClient.post().uri("/hyena/point/unfreeze")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/unfreeze")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
-        });
+//        });
         PointPo result = res.getData();
         Assertions.assertNotNull(result);
     }
@@ -405,15 +554,26 @@ public class TestPointController extends HyenaTestBase {
         param.setSubUid(super.getSubUid());
         param.setCost(BigDecimal.valueOf(5L)); // 退款部分的成本
         param.setPoint(BigDecimal.valueOf(10L)); // 退款的部分
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/refund")
+
+
+        ObjectResponse<PointOpResult> res  = webTestClient.post().uri("/hyena/point/refund")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/refund")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
-        });
+//        });
         PointPo result = res.getData();
         Assertions.assertNotNull(result);
     }
@@ -436,15 +596,26 @@ public class TestPointController extends HyenaTestBase {
         param.setSubUid(super.getSubUid());
         param.setPoint(rec.getAvailable());
         param.setRecId(rec.getId());
-        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/cancel")
+
+
+        ObjectResponse<PointOpResult> res  = webTestClient.post().uri("/hyena/point/cancel")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJsonString(param));
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(JsonUtils.toJsonString(param))
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<PointOpResult>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.post("/hyena/point/cancel")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJsonString(param));
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
-        });
+//        });
         PointPo result = res.getData();
         Assertions.assertNotNull(result);
     }
@@ -457,17 +628,31 @@ public class TestPointController extends HyenaTestBase {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.DATE, 1);
 
-        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/getIncreasedPoint")
-                .param("type", super.getPointType())
-                .param("uid", super.getUid())
-                .param("start", DateUtils.toYyyyMmDdHhMmSs(start))
-                .param("end", DateUtils.toYyyyMmDdHhMmSs(end));
+        ObjectResponse<Long> res  = webTestClient.get()
+                .uri("/hyena/point/getIncreasedPoint?type={type}&uid={uid}&start={start}&end={end}",
+                        Map.of("type", super.getPointType(),
+                                "uid", super.getUid(),
+                                "start", DateUtils.toYyyyMmDdHhMmSs(start),
+                                "end", DateUtils.toYyyyMmDdHhMmSs(end)))
 
-        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        log.info("response = {}", resBody);
-        ObjectResponse<Long> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<Long>>() {
+                .accept(MediaType.APPLICATION_JSON)
 
-        });
+                .exchange()
+                .expectBody(new ParameterizedTypeReference<ObjectResponse<Long>>() {
+                })
+                .returnResult()
+                .getResponseBody();
+//        RequestBuilder builder = MockMvcRequestBuilders.get("/hyena/point/getIncreasedPoint")
+//                .param("type", super.getPointType())
+//                .param("uid", super.getUid())
+//                .param("start", DateUtils.toYyyyMmDdHhMmSs(start))
+//                .param("end", DateUtils.toYyyyMmDdHhMmSs(end));
+
+//        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
+        log.info("response = {}", res);
+//        ObjectResponse<Long> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<Long>>() {
+
+//        });
         Long result = res.getData();
         Assertions.assertNotNull(result);
         Assertions.assertTrue(result > 0L);
