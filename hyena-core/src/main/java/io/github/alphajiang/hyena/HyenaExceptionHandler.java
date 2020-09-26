@@ -23,13 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.ServerWebInputException;
 
 @RestControllerAdvice
 public class HyenaExceptionHandler {
@@ -38,12 +39,12 @@ public class HyenaExceptionHandler {
 
     @ExceptionHandler
     @ResponseBody
-    public BaseResponse errorHandler(NativeWebRequest request, Throwable exception) {
-        logger.info("request {} exception {}", request, exception);
+    public BaseResponse errorHandler(Throwable exception, ServerWebExchange exh) {
+        logger.info("req.url {} exception {}", exh.getRequest().getPath().toString(), exception);
 
         String errorMsg;
         int status;
-        String seq = this.getSeq(request);
+        String seq = this.getSeq(exh);
 
         if (exception instanceof HttpMessageNotReadableException) {
             HttpMessageNotReadableException exp = (HttpMessageNotReadableException) exception;
@@ -61,13 +62,15 @@ public class HyenaExceptionHandler {
             }
             logger.warn("param = {}, message = {}", exp.getParameter(), errorMsg, exp);
 
-        } else if (exception instanceof MissingServletRequestParameterException) {
-            MissingServletRequestParameterException rtE = (MissingServletRequestParameterException) exception;
+        }
+        else if (exception instanceof ServerWebInputException) {
+            ServerWebInputException rtE = (ServerWebInputException) exception;
             status = HyenaConstants.RES_CODE_PARAMETER_ERROR;
             errorMsg = rtE.getMessage();
             logger.warn(exception.getMessage(), rtE);
             logger.info("请求参数错误: " + rtE.getMessage());
-        } else if (exception instanceof IllegalArgumentException) {
+        }
+        else if (exception instanceof IllegalArgumentException) {
             IllegalArgumentException rtE = (IllegalArgumentException) exception;
             status = HyenaConstants.RES_CODE_PARAMETER_ERROR;
             errorMsg = rtE.getMessage();
@@ -80,8 +83,7 @@ public class HyenaExceptionHandler {
             this.logException(exp);
 
 
-        }
-        else {
+        } else {
             logger.error("未定义异常: " + exception.getMessage(), exception);
             errorMsg = "系统异常, 请联系系统管理员";
             status = HyenaConstants.RES_CODE_SERVER_ERROR;
@@ -97,9 +99,9 @@ public class HyenaExceptionHandler {
 
     }
 
-    private String getSeq(NativeWebRequest request) {
+    private String getSeq(ServerWebExchange request) {
         try {
-            return (String) request.getAttribute(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY, 0);
+            return request.getRequest().getHeaders().get(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY).get(0);
         } catch (Exception e) {
             return "";
         }

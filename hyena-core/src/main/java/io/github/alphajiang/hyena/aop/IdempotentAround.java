@@ -31,8 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -52,13 +52,19 @@ public class IdempotentAround {
         Idempotent shelter = method.getAnnotation(Idempotent.class);
         String name = shelter.name();
         Object[] args = point.getArgs();
-        HttpServletRequest request = (HttpServletRequest) args[0];
+
+        ServerWebExchange exh = (ServerWebExchange) args[0];
         PointOpParam param = (PointOpParam) args[1];
         BaseResponse res;
 
         // String seq = request.getParameter(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY);
-        String seq = param.getSeq();
-        request.setAttribute(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY, seq);
+//        String seq = param.getSeq();
+        String seq = this.getSeq(exh);
+        if (seq != null) {
+            param.setSeq(seq);
+            exh.getResponse().getHeaders().add(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY, seq);
+        }
+//        request.getResponse().getHeaders().set(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY, seq);
 
         res = this.preProceed(name, param, method);
 
@@ -70,6 +76,15 @@ public class IdempotentAround {
 
         this.postProceed(name, param, res);
         return res;
+    }
+
+    private String getSeq(ServerWebExchange exh) {
+        try {
+            return exh.getRequest().getHeaders().get(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY).get(0);
+        } catch (Exception e) {
+            logger.warn("no hyena-seq header");
+        }
+        return null;
     }
 
     private BaseResponse preProceed(String name, PointOpParam param, Method method)

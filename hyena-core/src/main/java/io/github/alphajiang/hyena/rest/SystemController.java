@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ServerWebExchange;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,59 +66,59 @@ public class SystemController {
 
     @ApiOperation(value = "获取积分类型列表")
     @GetMapping(value = "/listPointType")
-    public ListResponse<String> listPointType(HttpServletRequest request) {
-        logger.debug(LoggerHelper.formatEnterLog(request));
+    public ListResponse<String> listPointType(ServerWebExchange exh) {
+        logger.debug(LoggerHelper.formatEnterLog(exh));
         var list = this.pointTableDs.listTable();
         list = list.stream()
                 .map(o -> StringUtils.replaceFirst(o, HyenaConstants.PREFIX_POINT_TABLE_NAME))
                 .collect(Collectors.toList());
         ListResponse<String> res = new ListResponse<>(list);
-        logger.debug(LoggerHelper.formatLeaveLog(request));
+        logger.debug(LoggerHelper.formatLeaveLog(exh));
         return res;
     }
 
     @ApiOperation(value = "新增积分类型")
     @PostMapping(value = "/addPointType")
-    public BaseResponse addPointType(HttpServletRequest request,
+    public BaseResponse addPointType(ServerWebExchange exh,
                                      @ApiParam(value = "积分类型", example = "score") @RequestParam(name = "name", required = true) String name) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(exh));
         this.pointTableDs.getOrCreateTable(name);
-        logger.info(LoggerHelper.formatLeaveLog(request));
+        logger.info(LoggerHelper.formatLeaveLog(exh));
         return BaseResponse.success();
     }
 
 
     @ApiOperation(value = "获取缓存信息")
     @GetMapping(value = "/dumpMemCache")
-    public ListResponse<PointCache> dumpMemCache(HttpServletRequest request) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+    public ListResponse<PointCache> dumpMemCache(ServerWebExchange exh) {
+        logger.info(LoggerHelper.formatEnterLog(exh));
         List<PointCache> list = new ArrayList<>();
         list.addAll(hyenaCacheFactory.getPointCacheService().dump());
         ListResponse<PointCache> ret = new ListResponse<>(list, list.size());
-        logger.info(LoggerHelper.formatLeaveLog(request));
+        logger.info(LoggerHelper.formatLeaveLog(exh));
         return ret;
     }
 
     @ApiOperation(value = "获取队列信息")
     @GetMapping(value = "/dumpQueue")
-    public ListResponse<QueueInfo> dumpQueue(HttpServletRequest request) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+    public ListResponse<QueueInfo> dumpQueue(ServerWebExchange exh) {
+        logger.info(LoggerHelper.formatEnterLog(exh));
         List<QueueInfo> list = queueMonitor.dump();
         ListResponse<QueueInfo> ret = new ListResponse<>(list);
-        logger.info(LoggerHelper.formatLeaveLog(request));
+        logger.info(LoggerHelper.formatLeaveLog(exh));
         return ret;
     }
 
     @ApiOperation(value = "分析积分日志")
     @GetMapping(value = "/analysePointLog")
     public BaseResponse analysePointLog(
-            HttpServletRequest request,
+            ServerWebExchange exh,
             @ApiParam(value = "积分类型", example = "score") @RequestParam(required = true) String type,
             @ApiParam(value = "用户标识", example = "abcd") @RequestParam(required = true) String uid,
             @ApiParam(value = "用户副标识", example = "efgh") @RequestParam(required = true) String subUid) {
-        logger.info(LoggerHelper.formatEnterLog(request));
+        logger.info(LoggerHelper.formatEnterLog(exh));
         this.pointLogDs.analyseLog(type, uid, subUid);
-        logger.info(LoggerHelper.formatLeaveLog(request));
+        logger.info(LoggerHelper.formatLeaveLog(exh));
         return BaseResponse.success();
     }
 }

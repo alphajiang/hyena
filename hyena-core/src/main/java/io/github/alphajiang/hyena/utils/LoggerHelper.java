@@ -17,26 +17,27 @@
 
 package io.github.alphajiang.hyena.utils;
 
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.web.server.ServerWebExchange;
+
 import java.util.Iterator;
 
 
 public class LoggerHelper {
 
 
-    public static String formatEnterLog(HttpServletRequest request) {
-        return ">> " + LoggerHelper.getUserLog(request, true);
+    public static String formatEnterLog(ServerWebExchange exh) {
+        return ">> " + LoggerHelper.getUserLog(exh, true);
     }
 
-    public static String formatEnterLog(HttpServletRequest request, boolean logParams) {
-        return ">> " + LoggerHelper.getUserLog(request, logParams);
+    public static String formatEnterLog(ServerWebExchange exh, boolean logParams) {
+        return ">> " + LoggerHelper.getUserLog(exh, logParams);
     }
 
-    public static String formatLeaveLog(HttpServletRequest request) {
-        return "<< " + LoggerHelper.getUserLog(request, false);
+    public static String formatLeaveLog(ServerWebExchange exh) {
+        return "<< " + LoggerHelper.getUserLog(exh, false);
     }
 
-    private static String getUserLog(HttpServletRequest request, boolean logParams) {
+    private static String getUserLog(ServerWebExchange exh, boolean logParams) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -44,7 +45,7 @@ public class LoggerHelper {
         if (logParams) {
             sb.append("params = { ");
             boolean firstKey = true;
-            Iterator<String> iter = request.getParameterMap().keySet().iterator();
+            Iterator<String> iter = exh.getRequest().getQueryParams().keySet().iterator();
             while (iter.hasNext()) {
                 String k = iter.next();
 
@@ -56,7 +57,7 @@ public class LoggerHelper {
 
                 sb.append(k).append("=[");
                 boolean firstValue = true;
-                for (String v : request.getParameterMap().get(k)) {
+                for (String v : exh.getRequest().getQueryParams().get(k)) {
                     if (firstValue) {
                         firstValue = false;
                     } else {

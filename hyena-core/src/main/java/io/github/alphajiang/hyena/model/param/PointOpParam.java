@@ -31,7 +31,7 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class PointOpParam extends BaseObject {
-    @ApiModelProperty(value = "请求消息序列号", example = "")
+    @ApiModelProperty(value = "请求消息序列号", example = "", hidden = true)
     private String seq;
 
     @ApiModelProperty(value = "积分类型", example = "score")

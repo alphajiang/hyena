@@ -37,7 +37,7 @@ public class HyenaMain {
 
     public static void main(String[] args) {
         logger.info("starting......");
-        new SpringApplicationBuilder(HyenaMain.class).web(WebApplicationType.SERVLET).run(args);
+        new SpringApplicationBuilder(HyenaMain.class).web(WebApplicationType.REACTIVE).run(args);
         logger.info("started");
     }
 }

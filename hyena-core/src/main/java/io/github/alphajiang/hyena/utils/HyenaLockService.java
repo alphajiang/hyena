@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class HyenaLockService {
 
 
-    private static final int LOCK_NUM = 500;
+    private static final int LOCK_NUM = 1000;
     private final Map<Integer, Lock> locks = new ConcurrentHashMap<>();
 
 
