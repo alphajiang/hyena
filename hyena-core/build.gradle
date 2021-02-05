@@ -31,7 +31,7 @@ dependencies {
 
     testRuntimeOnly("org.apache.commons:commons-pool2:${commonsPoolVersion}")
 
-    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
 
     testRuntimeOnly('com.h2database:h2:1.4.199')
 
