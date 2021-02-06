@@ -12,7 +12,7 @@ apply plugin: 'eclipse'
 
 
 ext {
-    springBootVersion = "2.3.4.RELEASE"
+    springBootVersion = "2.4.2"
     springCloudVersion = "Hoxton.SR8"
     mybatisStarterVersion = '2.1.4'
     swaggerVersion = '3.0.0'
