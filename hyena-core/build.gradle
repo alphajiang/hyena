@@ -41,6 +41,7 @@ dependencies {
 
     testRuntimeOnly('com.h2database:h2:1.4.200')
     testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+    testImplementation platform('io.projectreactor:reactor-bom:2020.0.3')
     testImplementation('io.projectreactor:reactor-test')
 
 
