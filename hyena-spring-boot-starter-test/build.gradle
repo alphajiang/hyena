@@ -13,7 +13,7 @@ sourceSets {
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR8"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR9"
     }
 }
 
@@ -35,7 +35,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
 
 
-    implementation('net.logstash.logback:logstash-logback-encoder:6.1')
+    implementation('net.logstash.logback:logstash-logback-encoder:6.6')
 
     implementation "io.springfox:springfox-boot-starter:${swaggerVersion}"
 
@@ -48,6 +48,6 @@ dependencies {
     //runtimeOnly("io.springfox:springfox-swagger-ui:${swaggerVersion}")
 
     //implementation('io.swagger:swagger-annotations')
-    runtimeOnly('mysql:mysql-connector-java:8.0.11')
+    runtimeOnly('mysql:mysql-connector-java:8.0.23')
 
 }
