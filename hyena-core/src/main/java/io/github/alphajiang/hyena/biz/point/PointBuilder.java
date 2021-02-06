@@ -92,7 +92,7 @@ public class PointBuilder {
         recLog.setRefund(rec.getRefund() == null ? DecimalUtils.ZERO : rec.getRefund());
         recLog.setCancelled(rec.getCancelled() == null ? DecimalUtils.ZERO : rec.getCancelled());
         recLog.setExpire(rec.getExpire() == null ? DecimalUtils.ZERO : rec.getExpire());
-        recLog.setCost(rec.getTotalCost() .subtract(rec.getUsedCost()));
+        recLog.setCost(rec.getTotalCost().subtract(rec.getUsedCost()));
         recLog.setFrozenCost(rec.getFrozenCost());
         recLog.setUsedCost(rec.getUsedCost());
         recLog.setRefundCost(rec.getRefundCost());

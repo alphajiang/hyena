@@ -113,17 +113,12 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
 
     // 创建新帐号
     private void addPoint(PointUsage usage, PointCache pc) {
-        var point2Update = new PointPo();
+        var point2Update = PointPo.buildPointPo();
         point2Update.setSeqNum(1L)
                 .setPoint(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
                 .setAvailable(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
                 .setUid(usage.getUid())
                 .setSubUid(usage.getSubUid())
-                .setUsed(DecimalUtils.ZERO)
-                .setFrozen(DecimalUtils.ZERO)
-                .setRefund(DecimalUtils.ZERO)
-                .setExpire(DecimalUtils.ZERO)
-                .setFrozenCost(DecimalUtils.ZERO)
                 .setEnable(true)
                 .setCreateTime(new Date())
                 .setUpdateTime(new Date());

@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.model.po;
 
 import io.github.alphajiang.hyena.model.base.BasePo;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -64,4 +65,21 @@ public class PointRecLogPo extends BasePo {
     private String note;
 
 
+    public static PointRecLogPo buildRecLog(PointOpType type) {
+        PointRecLogPo recLog = new PointRecLogPo();
+        recLog.setType(type.code())
+                .setDelta(BigDecimal.ZERO)
+                .setDeltaCost(BigDecimal.ZERO)
+                .setAvailable(BigDecimal.ZERO)
+                .setUsed(BigDecimal.ZERO)
+                .setFrozen(BigDecimal.ZERO)
+                .setRefund(BigDecimal.ZERO)
+                .setCancelled(BigDecimal.ZERO)
+                .setExpire(BigDecimal.ZERO)
+                .setCost(BigDecimal.ZERO)
+                .setFrozenCost(BigDecimal.ZERO)
+                .setUsedCost(BigDecimal.ZERO)
+                .setRefundCost(BigDecimal.ZERO);
+        return recLog;
+    }
 }

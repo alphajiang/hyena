@@ -47,4 +47,16 @@ public class PointPo extends BasePo {
     private BigDecimal frozenCost;
     private Long seqNum;
 
+    public static PointPo buildPointPo() {
+        PointPo p = new PointPo();
+        p.setPoint(BigDecimal.ZERO)
+                .setAvailable(BigDecimal.ZERO)
+                .setUsed(BigDecimal.ZERO)
+                .setFrozen(BigDecimal.ZERO)
+                .setRefund(BigDecimal.ZERO)
+                .setExpire(BigDecimal.ZERO)
+                .setCost(BigDecimal.ZERO)
+                .setFrozenCost(BigDecimal.ZERO);
+        return p;
+    }
 }

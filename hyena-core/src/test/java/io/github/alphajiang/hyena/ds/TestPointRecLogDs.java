@@ -20,6 +20,7 @@ package io.github.alphajiang.hyena.ds;
 import io.github.alphajiang.hyena.HyenaTestBase;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
+import io.github.alphajiang.hyena.model.type.PointOpType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,13 +42,13 @@ public class TestPointRecLogDs extends HyenaTestBase {
     @Test
     public void test_batchInsert() {
         List<PointRecLogPo> logs = new ArrayList<>();
-        PointRecLogPo log1 = new PointRecLogPo();
+        PointRecLogPo log1 = PointRecLogPo.buildRecLog(PointOpType.DECREASE);
         log1.setUsed(BigDecimal.valueOf(123L));
         logs.add(log1);
         this.pointRecLogDs.batchInsert(super.getPointType(), logs);
 
 
-        PointRecLogPo log2 = new PointRecLogPo();
+        PointRecLogPo log2 = PointRecLogPo.buildRecLog(PointOpType.DECREASE);
         log2.setUsed(BigDecimal.valueOf(456L));
         logs.add(log2);
         this.pointRecLogDs.batchInsert(super.getPointType(), logs);
@@ -55,8 +56,8 @@ public class TestPointRecLogDs extends HyenaTestBase {
 
     @Test
     public void test_addPointRecLog() {
-        PointRecLogPo log1 = new PointRecLogPo();
-        log1.setUsed(BigDecimal.valueOf(111L));
+        PointRecLogPo log1 = PointRecLogPo.buildRecLog(PointOpType.INCREASE);
+        log1.setUsed(BigDecimal.valueOf(11.1d));
 
         this.pointRecLogDs.addPointRecLog(super.getPointType(), log1);
     }

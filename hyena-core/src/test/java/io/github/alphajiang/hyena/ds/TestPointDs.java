@@ -46,8 +46,11 @@ public class TestPointDs extends HyenaTestBase {
     @BeforeEach
     public void init() {
         super.init();
-        PointPo point = new PointPo();
-        point.setUid("gewgewgew").setName("ut tom").setPoint(BigDecimal.valueOf(998876L));
+        PointPo point = PointPo.buildPointPo();
+        point.setUid("gewgewgew")
+                .setName("ut tom")
+                .setPoint(BigDecimal.valueOf(998876L))
+                .setSeqNum(1L);
         this.pointDs.addPoint(super.getPointType(), point);
     }
 
@@ -118,7 +121,7 @@ public class TestPointDs extends HyenaTestBase {
 
     @Test
     public void test_update() {
-        PointPo point = this.pointDs.getCusPoint(super.getPointType(), super.getUid(),  super.getSubUid(),true);
+        PointPo point = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), super.getSubUid(), true);
         point.setSeqNum(point.getSeqNum() + 1).setName("测试改个名字")
                 .setPoint(BigDecimal.valueOf(111L).setScale(DecimalUtils.SCALE_2))
                 .setAvailable(BigDecimal.valueOf(222L).setScale(DecimalUtils.SCALE_2))
@@ -131,7 +134,7 @@ public class TestPointDs extends HyenaTestBase {
                 .setEnable(false);
         this.pointDs.update(super.getPointType(), point);
 
-        PointPo result = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), super.getSubUid(),false);
+        PointPo result = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), super.getSubUid(), false);
         HyenaTestAssert.assertEquals(point, result);
     }
 
@@ -140,7 +143,7 @@ public class TestPointDs extends HyenaTestBase {
     public void test_disableAccount() {
         this.pointDs.disableAccount(super.getPointType(), super.getUid(), super.getSubUid());
 
-        PointPo result = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), super.getSubUid(),false);
+        PointPo result = this.pointDs.getCusPoint(super.getPointType(), super.getUid(), super.getSubUid(), false);
         Assertions.assertFalse(result.getEnable());
     }
 }
