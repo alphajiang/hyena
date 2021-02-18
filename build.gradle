@@ -13,7 +13,7 @@ apply plugin: 'idea'
 
 ext {
 
-    springBootVersion = "2.3.8.RELEASE"
+    springBootVersion = "2.4.3"
     springCloudVersion = "Hoxton.SR9"
     mybatisStarterVersion = '2.1.3'
     swaggerVersion = '3.0.0'
