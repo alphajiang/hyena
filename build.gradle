@@ -19,7 +19,7 @@ ext {
     swaggerVersion = '3.0.0'
     swaggerAnnotationsVersion = '1.6.2'
     lombokVersion = '1.18.18'
-    ehcacheVersion = '3.8.1'
+    ehcacheVersion = '3.9.3'
     commonsPoolVersion = '2.8.1' //apache commons pool. redis pool 需要 https://commons.apache.org/proper/commons-pool/
 }
 
