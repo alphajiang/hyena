@@ -49,6 +49,6 @@ dependencies {
     //runtimeOnly("io.springfox:springfox-swagger-ui:${swaggerVersion}")
 
     //implementation('io.swagger:swagger-annotations')
-    runtimeOnly('mysql:mysql-connector-java:8.0.23')
+    runtimeOnly('mysql:mysql-connector-java:8.0.25')
 
 }
