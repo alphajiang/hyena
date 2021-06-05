@@ -15,7 +15,7 @@ ext {
 
     springBootVersion = "2.4.5"
     springCloudVersion = "2020.02"
-    mybatisStarterVersion = '2.1.3'
+    mybatisStarterVersion = '2.2.0'
     swaggerVersion = '3.0.0'
     swaggerAnnotationsVersion = '1.6.2'
     lombokVersion = '1.18.18'
