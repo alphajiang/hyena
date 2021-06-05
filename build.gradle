@@ -3,7 +3,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'jacoco'
-    id 'com.github.kt3k.coveralls' version '2.8.2'
+    id 'com.github.kt3k.coveralls' version '2.12.0'
 }
 
 apply plugin: 'idea'
