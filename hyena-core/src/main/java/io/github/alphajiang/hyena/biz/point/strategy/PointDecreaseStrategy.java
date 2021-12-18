@@ -41,6 +41,7 @@ import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
+import io.github.alphajiang.hyena.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.BeanUtils;
@@ -116,7 +117,7 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         List<PointRecLogDto> recLogs = new ArrayList<>();
 
         var recLogsRet = this.decreasePointLoop(usage.getType(),
-                pointCache,
+                pointCache, usage,
                 pointLog, gap, usage.getRecId());
         gap = gap.subtract(recLogsRet.getDelta());
         cost = cost.add(recLogsRet.getDeltaCost());
@@ -175,7 +176,7 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         //List<PointRecLogDto> recLogs = new ArrayList<>();
 
         var recLogsRet = this.decreasePointLoop(usage.getType(),
-                pointCache,
+                pointCache, usage,
                 pointLog, gap, usage.getRecId());
         gap = gap.subtract(recLogsRet.getDelta());
         cost = cost.add(recLogsRet.getDeltaCost());
@@ -207,6 +208,7 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
     }
 
     private LoopResult decreasePointLoop(String type, PointCache pointCache,
+                                         PointUsage usage,
                                          PointLogPo pointLog, BigDecimal expected, Long recId) {
         log.info("decrease. type = {}, uid = {}, expected = {}, recId = {}",
                 type, pointCache.getPoint().getUid(), expected, recId);
@@ -218,6 +220,9 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         List<PointRecLogDto> recLogs = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
             if (recId != null && recId > 0L && !recId.equals(rec.getId())) {
+                continue;
+            } else if (StringUtils.isNotBlank(usage.getRecOrderNo())
+                    && !usage.getRecOrderNo().equals(rec.getOrderNo())) {
                 continue;
             }
             BigDecimal gap = expected.subtract(sum);

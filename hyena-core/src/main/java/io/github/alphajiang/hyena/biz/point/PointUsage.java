@@ -40,6 +40,7 @@ public class PointUsage extends BaseObject {
     private BigDecimal cost;
     private Boolean unfreezeByOrderNo;
     private Long recId; // 积分记录的ID
+    private String recOrderNo;  // 创建积分记录对应的订单号
     private String tag;
     private String orderNo;
 

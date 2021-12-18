@@ -178,10 +178,14 @@ public class PointRefundStrategy extends AbstractPointStrategy {
 
         PointPo curPoint = pointCache.getPoint();
         BigDecimal availableCost = curPoint.getCost().subtract(curPoint.getFrozenCost());
-        HyenaAssert.isTrue(DecimalUtils.gte(availableCost, usage.getPoint()),
+        HyenaAssert.isTrue(DecimalUtils.gte(availableCost, usage.getCost()),
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
                 "no enough available cost");
 
+        BigDecimal availablePoint = curPoint.getPoint().subtract(curPoint.getFrozen());
+        HyenaAssert.isTrue(DecimalUtils.gte(availablePoint, usage.getPoint()),
+                HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
+                "no enough available point");
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1);
         var point2Update = unfreezeRet.getUpdateQ().getPoint();

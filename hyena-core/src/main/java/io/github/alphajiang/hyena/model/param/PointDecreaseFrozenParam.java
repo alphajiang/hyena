@@ -31,6 +31,9 @@ import java.math.BigDecimal;
 @ToString(callSuper = true)
 public class PointDecreaseFrozenParam extends PointUnfreezeParam {
 
+    @ApiModelProperty(value = "创建积分快的订单号", example = "A123")
+    private String recOrderNo;
+
     @ApiModelProperty(value = "解冻积分数量", example = "10.00")
     private BigDecimal unfreezePoint;
 }

@@ -67,7 +67,8 @@ public class PointUsageBuilder {
 
     public static PointUsage fromPointFreezeParam(PointFreezeParam param) {
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
-        usage.setCost(param.getCost());
+        usage.setRecOrderNo(param.getRecOrderNo())
+                .setCost(param.getCost());
         return usage;
     }
 
@@ -91,7 +92,8 @@ public class PointUsageBuilder {
 
     public static PointUsage fromPointDecreaseParam(PointDecreaseFrozenParam param) {
         PointUsage usage = PointUsageBuilder.fromPointUnfreezeParam(param);
-        usage.setUnfreezePoint(param.getUnfreezePoint());
+        usage.setRecOrderNo(param.getRecOrderNo())
+                .setUnfreezePoint(param.getUnfreezePoint());
         return usage;
     }
 

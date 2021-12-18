@@ -1,8 +1,9 @@
 plugins {
-    id 'org.springframework.boot' version '2.4.5'
+    id 'org.springframework.boot' version '2.5.7'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'jacoco'
+    id 'maven-publish'
     id 'com.github.kt3k.coveralls' version '2.8.2'
 }
 
@@ -13,21 +14,21 @@ apply plugin: 'idea'
 
 ext {
 
-    springBootVersion = "2.4.5"
-    springCloudVersion = "2020.02"
+    springBootVersion = "2.5.7"
+    springCloudVersion = "2020.0.4"
     mybatisStarterVersion = '2.1.3'
     swaggerVersion = '3.0.0'
     swaggerAnnotationsVersion = '1.6.2'
-    lombokVersion = '1.18.18'
+    lombokVersion = '1.18.22'
     ehcacheVersion = '3.8.1'
-    commonsPoolVersion = '2.8.1' //apache commons pool. redis pool 需要 https://commons.apache.org/proper/commons-pool/
+    commonsPoolVersion = '2.11.1' //apache commons pool. redis pool 需要 https://commons.apache.org/proper/commons-pool/
 }
 
 
 allprojects {
     group = 'io.github.alphajiang'
-//    version = '0.0.25.20200926.3-SNAPSHOT'
-    version = '0.0.26'
+    version = '0.0.27.20211218.1-SNAPSHOT'
+//    version = '0.0.26'
     apply plugin: 'java'
 //    apply plugin: 'io.spring.dependency-management'
     apply plugin: 'jacoco'
@@ -43,7 +44,7 @@ allprojects {
 
     repositories {
         maven { url 'https://maven.aliyun.com/repository/central' }
-        jcenter { url 'https://maven.aliyun.com/repository/jcenter' }
+//        jcenter { url 'https://maven.aliyun.com/repository/jcenter' }
         mavenCentral()
     }
     repositories {
@@ -65,8 +66,9 @@ jar {
 
 subprojects {
 
-    apply plugin: 'maven'
+//    apply plugin: 'maven'
     apply plugin: 'signing'
+    apply plugin: 'maven-publish'
 //    apply plugin: 'io.spring.dependency-management'
 
 
@@ -91,51 +93,97 @@ subprojects {
 
 
 
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                snapshotRepository(url: snapshotRepoUrl) {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                pom.project {
-                    name 'hyena'
-                    packaging 'jar'
-                    // optionally artifactId can be defined here
-                    description 'Micro service for user score hosting. '
-                    url 'https://github.com/alphajiang/hyena'
-
-                    scm {
-                        connection 'https://github.com/alphajiang/hyena.git'
-                        developerConnection 'https://github.com/alphajiang/hyena.git'
-                        url 'https://github.com/alphajiang/hyena.git'
-                    }
-
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                pom {
+                    name = 'hyena'
+                    description = 'Micro service for user score hosting. '
+                    url = 'https://github.com/alphajiang/hyena'
+                    properties = [
+                            myProp: "value",
+                            "prop.with.dots": "anotherValue"
+                    ]
                     licenses {
                         license {
-                            name 'The Apache License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                         }
                     }
-
                     developers {
                         developer {
-                            id 'alphajiang'
-                            name 'Alpha Jiang'
-                            email 'alphajiang@163.com'
+                            id = 'alphajiang'
+                            name = 'Alpha Jiang'
+                            email = 'alphajiang@163.com'
                         }
+                    }
+                    scm {
+                        connection = 'https://github.com/alphajiang/hyena.git'
+                        developerConnection = 'https://github.com/alphajiang/hyena.git'
+                        url = 'https://github.com/alphajiang/hyena.git'
                     }
                 }
             }
         }
+        repositories {
+            maven {
+                // change URLs to point to your repos, e.g. http://my.org/repo
+                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+                def snapshotsRepoUrl = snapshotRepoUrl
+                credentials  {
+                    username = ossrhUsername
+                    password = ossrhPassword
+                }
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            }
+        }
     }
+
+//
+//    uploadArchives {
+//        repositories {
+//            mavenDeployer {
+//                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+//
+//                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+//                    authentication(userName: ossrhUsername, password: ossrhPassword)
+//                }
+//
+//                snapshotRepository(url: snapshotRepoUrl) {
+//                    authentication(userName: ossrhUsername, password: ossrhPassword)
+//                }
+//
+//                pom.project {
+//                    name 'hyena'
+//                    packaging 'jar'
+//                    // optionally artifactId can be defined here
+//                    description 'Micro service for user score hosting. '
+//                    url 'https://github.com/alphajiang/hyena'
+//
+//                    scm {
+//                        connection 'https://github.com/alphajiang/hyena.git'
+//                        developerConnection 'https://github.com/alphajiang/hyena.git'
+//                        url 'https://github.com/alphajiang/hyena.git'
+//                    }
+//
+//                    licenses {
+//                        license {
+//                            name 'The Apache License, Version 2.0'
+//                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+//                        }
+//                    }
+//
+//                    developers {
+//                        developer {
+//                            id 'alphajiang'
+//                            name 'Alpha Jiang'
+//                            email 'alphajiang@163.com'
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     dependencies {
 
@@ -177,8 +225,8 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
     executionData jacocoMerge.destinationFile
 
     reports {
-        html.enabled = true // human readable
-        xml.enabled = true // required by coveralls
+        html.required = true // human readable
+        xml.required = true // required by coveralls
     }
 }
 

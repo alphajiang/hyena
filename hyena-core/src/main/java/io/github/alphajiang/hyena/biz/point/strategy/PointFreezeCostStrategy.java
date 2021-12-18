@@ -28,6 +28,7 @@ import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
@@ -37,6 +38,7 @@ import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
+import io.github.alphajiang.hyena.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +81,7 @@ public class PointFreezeCostStrategy extends AbstractPointStrategy {
     @Override
     public PointOpResult processPoint(PointUsage usage, PointCache pointCache) {
         PointPo curPoint = pointCache.getPoint();
-        HyenaAssert.notNull(usage.getCost(), "invalid parameter: cost");
+//        HyenaAssert.notNull(usage.getCost(), "invalid parameter: cost");
         BigDecimal availableCost = curPoint.getCost().subtract(curPoint.getFrozenCost());
         HyenaAssert.isTrue(DecimalUtils.gte(availableCost, usage.getCost()),
                 HyenaConstants.RES_CODE_NO_ENOUGH_POINT,
@@ -91,13 +93,23 @@ public class PointFreezeCostStrategy extends AbstractPointStrategy {
         point2Update.setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
 
-
+        if (usage.getPoint() == null || DecimalUtils.lt(usage.getPoint(), usage.getCost())) {
+            usage.setPoint(usage.getCost());
+        }
         PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.FREEZE, usage, curPoint);
 
         List<PointRecLogDto> recLogs = new ArrayList<>();
 
-        var recLogsRet = this.freezeCostLoop(usage.getType(), pointCache, pointLog, usage.getCost());
-
+        var recLogsRet = this.freezeCostLoop(usage.getType(), pointCache, usage, pointLog, usage.getCost());
+        if (DecimalUtils.gt(usage.getPoint(), usage.getCost())) {
+            // 需要追加冻结赠送金
+            BigDecimal freePoint = usage.getPoint().subtract(usage.getCost());
+            LoopResult recLogRetFree = this.freezeFreePoint(usage.getType(), usage, pointCache, pointLog, freePoint);
+            recLogsRet.setDelta(recLogsRet.getDelta().add(recLogRetFree.getDelta()));
+            recLogsRet.getRecList4Update().addAll(recLogRetFree.getRecList4Update());
+            recLogsRet.getRecLogs().addAll(recLogRetFree.getRecLogs());
+            recLogsRet.getForList().addAll(recLogRetFree.getForList());
+        }
         recLogs.addAll(recLogsRet.getRecLogs());
 
         curPoint.setFrozen(curPoint.getFrozen().add(recLogsRet.getDelta()))
@@ -114,6 +126,7 @@ public class PointFreezeCostStrategy extends AbstractPointStrategy {
 
         pointFlowService.updatePoint(usage.getType(), point2Update);
         pointFlowService.updatePointRec(usage.getType(), recLogsRet.getRecList4Update());
+        pointFlowService.addFreezeOrderRec(usage.getType(), recLogsRet.getForList());
         pointFlowService.addFlow(usage, pointLog, recLogs);
 
         PointOpResult ret = new PointOpResult();
@@ -125,6 +138,7 @@ public class PointFreezeCostStrategy extends AbstractPointStrategy {
 
 
     private LoopResult freezeCostLoop(String type, PointCache pointCache,
+                                      PointUsage usage,
                                       PointLogPo pointLog, BigDecimal expected) {
         log.info("freezeCost. type = {}, uid = {}, expected = {}",
                 type, pointCache.getPoint().getUid(), expected);
@@ -134,8 +148,13 @@ public class PointFreezeCostStrategy extends AbstractPointStrategy {
         BigDecimal cost = DecimalUtils.ZERO;
         //long deltaCost = 0L;
         List<PointRecPo> recList4Update = new ArrayList<>();
+        List<FreezeOrderRecPo> forList = new ArrayList<>();
         List<PointRecLogDto> recLogs = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
+            if (StringUtils.isNotBlank(usage.getRecOrderNo())
+                    && !usage.getRecOrderNo().equals(rec.getOrderNo())) {
+                continue;
+            }
             BigDecimal gap = expected.subtract(sum);
             BigDecimal availableCost = this.costCalculator.getAvailableCost(rec);
             if (DecimalUtils.lte(gap, DecimalUtils.ZERO)) {
@@ -149,6 +168,9 @@ public class PointFreezeCostStrategy extends AbstractPointStrategy {
                 cost = cost.add(deltaCost);
                 PointRecCalcResult calcResult = this.pointRecCalculator.freezePoint(rec, delta);
                 recList4Update.add(calcResult.getRec4Update());
+                FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
+                        rec, usage.getOrderType(), usage.getOrderNo(), delta, calcResult.getDeltaCost());
+                forList.add(fo);
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
             } else {
@@ -158,6 +180,9 @@ public class PointFreezeCostStrategy extends AbstractPointStrategy {
                 cost = cost.add(deltaCost);
                 PointRecCalcResult calcResult = this.pointRecCalculator.freezePoint(rec, delta);
                 recList4Update.add(calcResult.getRec4Update());
+                FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
+                        rec, usage.getOrderType(), usage.getOrderNo(), gap, calcResult.getDeltaCost());
+                forList.add(fo);
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
                 break;
@@ -166,10 +191,68 @@ public class PointFreezeCostStrategy extends AbstractPointStrategy {
         //var ret = point - sum;
         result.setDelta(sumPoint).setDeltaCost(cost)
                 .setRecList4Update(recList4Update)
-                .setRecLogs(recLogs);
+                .setRecLogs(recLogs)
+                .setForList(forList);
         log.debug("result = {}", result);
         return result;
     }
 
+    private LoopResult freezeFreePoint(String type, PointUsage usage, PointCache pointCache,
+                                       PointLogPo pointLog, BigDecimal expected) {
+        log.info("freezeFreePoint. type = {}, uid = {}, expected = {}",
+                type, pointCache.getPoint().getUid(), expected);
+        LoopResult result = new LoopResult();
+        BigDecimal sum = DecimalUtils.ZERO;
+        BigDecimal deltaCost = DecimalUtils.ZERO;
+        List<PointRecPo> recList4Update = new ArrayList<>();
+        List<PointRecLogDto> recLogs = new ArrayList<>();
+        List<FreezeOrderRecPo> forList = new ArrayList<>();
+        for (PointRecPo rec : pointCache.getPoint().getRecList()) {
+            BigDecimal gap = expected.subtract(sum);
+            if (StringUtils.isNotBlank(usage.getRecOrderNo())
+                    && !usage.getRecOrderNo().equals(rec.getOrderNo())) {
+                continue;
+            } else if (DecimalUtils.gt(rec.getTotalCost(), BigDecimal.ZERO)) {
+                // 忽略有实际金额的资金块
+                continue;
+            }
+            if (DecimalUtils.lte(gap, DecimalUtils.ZERO)) {
+                log.warn("gap = {} !!!", gap);
+                break;
+            } else if (DecimalUtils.lte(rec.getAvailable(), DecimalUtils.ZERO)) {
+                // do nothing
+            } else if (DecimalUtils.lt(rec.getAvailable(), gap)) {
+                sum = sum.add(rec.getAvailable());
+                BigDecimal delta = rec.getAvailable();
+                PointRecCalcResult calcResult = this.pointRecCalculator.freezePoint(rec, delta);
+                recList4Update.add(calcResult.getRec4Update());
+                deltaCost = deltaCost.add(calcResult.getDeltaCost());
+                FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
+                        rec, usage.getOrderType(), usage.getOrderNo(), delta, calcResult.getDeltaCost());
+                forList.add(fo);
+                var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
+                recLogs.add(recLog);
+            } else {
+                sum = sum.add(gap);
+                PointRecCalcResult calcResult = this.pointRecCalculator.freezePoint(rec, gap);
+                recList4Update.add(calcResult.getRec4Update());
+                deltaCost = deltaCost.add(calcResult.getDeltaCost());
+                FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
+                        rec, usage.getOrderType(), usage.getOrderNo(), gap, calcResult.getDeltaCost());
+                forList.add(fo);
+                var recLog = this.pointBuilder.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
+                recLogs.add(recLog);
+                break;
+            }
+        }
+        result.setDelta(sum).setDeltaCost(deltaCost)
+                .setRecList4Update(recList4Update)
+                .setRecLogs(recLogs)
+                .setForList(forList);
+        log.debug("result = {}", result);
+        return result;
+
+
+    }
 
 }

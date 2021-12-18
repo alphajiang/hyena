@@ -132,7 +132,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
 
         } else if ((getType() == CalcType.FREEZE_COST || getType() == CalcType.REFUND)
                 && usage.getCost() != null) {
-            if (usage.getCost().compareTo(DecimalUtils.ZERO) <= 0) {
+            if (DecimalUtils.lt(usage.getCost(), BigDecimal.ZERO)) {
                 throw new HyenaParameterException("invalid parameter cost");
             }
         } else {
