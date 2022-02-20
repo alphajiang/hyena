@@ -41,9 +41,9 @@ import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DateUtils;
 import io.github.alphajiang.hyena.utils.LoggerHelper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +58,7 @@ import java.util.Calendar;
 import java.util.List;
 
 @RestController
-@Api(value = "积分相关的接口", tags = "积分")
+@Tag(name = "积分相关的接口", description = "积分")
 @RequestMapping(value = "/hyena/point", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PointController {
 
@@ -82,13 +82,13 @@ public class PointController {
     @Autowired
     private HyenaCacheFactory hyenaCacheFactory;
 
-    @ApiOperation(value = "获取积分信息")
+    @Operation(summary = "获取积分信息")
     @GetMapping(value = "/getPoint")
     public ObjectResponse<PointPo> getPoint(
             ServerWebExchange exh,
-            @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @ApiParam(value = "用户ID") @RequestParam String uid,
-            @ApiParam(value = "用户二级ID") @RequestParam(required = false) String subUid) {
+            @Parameter(name = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+            @Parameter(name = "用户ID") @RequestParam String uid,
+            @Parameter(name = "用户二级ID") @RequestParam(required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         var ret = this.hyenaCacheFactory.getPointCacheService().getPoint(type, uid, subUid, false);
         ObjectResponse<PointPo> res = new ObjectResponse<>(ret.getPointCache().getPoint());
@@ -97,7 +97,7 @@ public class PointController {
     }
 
 
-    @ApiOperation(value = "获取积分列表")
+    @Operation(summary = "获取积分列表")
     @PostMapping(value = "/listPoint")
     public ListResponse<PointPo> listPoint(ServerWebExchange exh,
                                            @RequestBody ListPointParam param) {
@@ -110,7 +110,7 @@ public class PointController {
     }
 
 
-    @ApiOperation(value = "获取变更明细列表")
+    @Operation(summary = "获取变更明细列表")
     @PostMapping(value = "/listPointLog")
     public ListResponse<PointLogDto> listPointLog(
             ServerWebExchange exh,
@@ -124,7 +124,7 @@ public class PointController {
         return res;
     }
 
-    @ApiOperation(value = "获取变更明细统计")
+    @Operation(summary = "获取变更明细统计")
     @PostMapping(value = "/listPointLogBi")
     public ListResponse<PointLogBi> listPointLogBi(
             ServerWebExchange exh,
@@ -136,7 +136,7 @@ public class PointController {
         return res;
     }
 
-    @ApiOperation(value = "获取记录列表")
+    @Operation(summary = "获取记录列表")
     @PostMapping(value = "/listPointRecord")
     public ListResponse<PointRecDto> listPointRecord(ServerWebExchange exh,
                                                      @RequestBody ListPointRecParam param) {
@@ -149,7 +149,7 @@ public class PointController {
         return res;
     }
 
-    @ApiOperation(value = "获取记录历史明细列表")
+    @Operation(summary = "获取记录历史明细列表")
     @PostMapping(value = "/listPointRecordLog")
     public ListResponse<PointRecLogDto> listPointRecordLog(
             ServerWebExchange exh,
@@ -172,7 +172,7 @@ public class PointController {
     }
 
     @Idempotent(name = "increase-point")
-    @ApiOperation(value = "增加用户积分")
+    @Operation(summary = "增加用户积分")
     @PostMapping(value = "/increase")
     public ObjectResponse<PointPo> increasePoint(ServerWebExchange exh,
                                                  @RequestBody @NotNull PointIncreaseParam param) {
@@ -187,7 +187,7 @@ public class PointController {
     }
 
     @Idempotent(name = "decrease-point")
-    @ApiOperation(value = "消费用户积分")
+    @Operation(summary = "消费用户积分")
     @PostMapping(value = "/decrease")
     public ObjectResponse<PointOpResult> decreasePoint(ServerWebExchange exh,
                                                        @RequestBody PointDecreaseParam param) {
@@ -204,7 +204,7 @@ public class PointController {
 
 
     @Idempotent(name = "decreaseFrozen-point")
-    @ApiOperation(value = "消费已冻结的用户积分")
+    @Operation(summary = "消费已冻结的用户积分")
     @PostMapping(value = "/decreaseFrozen")
     public ObjectResponse<PointOpResult> decreaseFrozenPoint(ServerWebExchange exh,
                                                              @RequestBody PointDecreaseFrozenParam param) {
@@ -221,7 +221,7 @@ public class PointController {
 
 
     @Idempotent(name = "freeze-point")
-    @ApiOperation(value = "冻结用户积分")
+    @Operation(summary = "冻结用户积分")
     @PostMapping(value = "/freeze")
     public ObjectResponse<PointOpResult> freezePoint(ServerWebExchange exh,
                                                      @RequestBody PointOpParam param) {
@@ -237,7 +237,7 @@ public class PointController {
     }
 
     @Idempotent(name = "unfreeze-point")
-    @ApiOperation(value = "解冻用户积分")
+    @Operation(summary = "解冻用户积分")
     @PostMapping(value = "/unfreeze")
     public ObjectResponse<PointOpResult> unfreezePoint(ServerWebExchange exh,
                                                        @RequestBody PointUnfreezeParam param) {
@@ -254,7 +254,7 @@ public class PointController {
     }
 
     @Idempotent(name = "cancel-point")
-    @ApiOperation(value = "撤销用户积分")
+    @Operation(summary = "撤销用户积分")
     @PostMapping(value = "/cancel")
     public ObjectResponse<PointOpResult> cancelPoint(ServerWebExchange exh,
                                                      @RequestBody PointCancelParam param) {
@@ -269,7 +269,7 @@ public class PointController {
     }
 
     @Idempotent(name = "freeze-by-rec-id")
-    @ApiOperation(value = "按积分块冻结")
+    @Operation(summary = "按积分块冻结")
     @PostMapping(value = "/freezeByRecId")
     public ObjectResponse<PointOpResult> freezeByRecId(ServerWebExchange exh,
                                                        @RequestBody PointFreezeByRecIdParam param) {
@@ -285,7 +285,7 @@ public class PointController {
     }
 
     @Idempotent(name = "freeze-cost")
-    @ApiOperation(value = "按成本冻结")
+    @Operation(summary = "按成本冻结")
     @PostMapping(value = "/freezeCost")
     public ObjectResponse<PointOpResult> freezeCost(ServerWebExchange exh,
                                                     @RequestBody PointFreezeParam param) {
@@ -301,7 +301,7 @@ public class PointController {
     }
 
     @Idempotent(name = "unfreeze-cost")
-    @ApiOperation(value = "按成本解冻")
+    @Operation(summary = "按成本解冻")
     @PostMapping(value = "/unfreezeCost")
     public ObjectResponse<PointOpResult> unfreezeCost(ServerWebExchange exh,
                                                       @RequestBody PointUnfreezeParam param) {
@@ -314,7 +314,7 @@ public class PointController {
     }
 
 //    @Idempotent(name = "refund-frozen")
-//    @ApiOperation(value = "已冻结积分做退款")
+//    @Operation(summary = "已冻结积分做退款")
 //    @PostMapping(value = "/refundFrozen")
 //    public ObjectResponse<PointOpResult> refundFrozen(ServerWebExchange exh,
 //                                                @RequestBody PointRefundFrozenParam param) {
@@ -328,7 +328,7 @@ public class PointController {
 //    }
 
     @Idempotent(name = "refund")
-    @ApiOperation(value = "退款")
+    @Operation(summary = "退款")
     @PostMapping(value = "/refund")
     public ObjectResponse<PointOpResult> refund(ServerWebExchange exh,
                                                 @RequestBody PointRefundParam param) {
@@ -341,14 +341,14 @@ public class PointController {
         return res;
     }
 
-    @ApiOperation(value = "获取时间段内总共增加的积分数量")
+    @Operation(summary = "获取时间段内总共增加的积分数量")
     @GetMapping(value = "/getIncreasedPoint")
     public ObjectResponse<BigDecimal> getIncreasedPoint(
             ServerWebExchange exh,
-            @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @ApiParam(value = "用户ID") @RequestParam(required = false) String uid,
-            @ApiParam(value = "开始时间", example = "2019-03-25 18:35:21") @RequestParam(required = false, value = "start") String strStart,
-            @ApiParam(value = "结束时间", example = "2019-04-26 20:15:31") @RequestParam(required = false, value = "end") String strEnd) {
+            @Parameter(name = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+            @Parameter(name = "用户ID") @RequestParam(required = false) String uid,
+            @Parameter(name = "开始时间", example = "2019-03-25 18:35:21") @RequestParam(required = false, value = "start") String strStart,
+            @Parameter(name = "结束时间", example = "2019-04-26 20:15:31") @RequestParam(required = false, value = "end") String strEnd) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         try {
             Calendar calStart = DateUtils.fromYyyyMmDdHhMmSs(strStart);
@@ -364,13 +364,13 @@ public class PointController {
         }
     }
 
-    @ApiOperation(value = "禁用帐号")
+    @Operation(summary = "禁用帐号")
     @PostMapping(value = "/disableAccount")
     public BaseResponse disableAccount(
             ServerWebExchange exh,
-            @ApiParam(value = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @ApiParam(value = "用户ID") @RequestParam String uid,
-            @ApiParam(value = "用户二级ID") @RequestParam(required = false) String subUid) {
+            @Parameter(name = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+            @Parameter(name = "用户ID") @RequestParam String uid,
+            @Parameter(name = "用户二级ID") @RequestParam(required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         this.pointDs.disableAccount(type, uid, subUid);
         logger.info(LoggerHelper.formatLeaveLog(exh));

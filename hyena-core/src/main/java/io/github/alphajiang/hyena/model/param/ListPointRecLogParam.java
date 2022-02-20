@@ -17,7 +17,7 @@
 
 package io.github.alphajiang.hyena.model.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -32,25 +32,25 @@ import java.util.List;
 public class ListPointRecLogParam extends BaseListParam {
 
 
-    @ApiModelProperty(value = "用户ID")
+    @Schema(name = "用户ID")
     private String uid;
 
-    @ApiModelProperty(value = "用户二级ID")
+    @Schema(name = "用户二级ID")
     private String subUid;
 
-    @ApiModelProperty(value = "用户记录ID")
+    @Schema(name = "用户记录ID")
     private long pid;
 
-    @ApiModelProperty(value = "变更流水号")
+    @Schema(name = "变更流水号")
     private List<Long> seqNumList;
 
-    @ApiModelProperty(value = "积分记录ID")
+    @Schema(name = "积分记录ID")
     private List<Long> recIdList;
 
-    @ApiModelProperty(value = "变更的订单号")
+    @Schema(name = "变更的订单号")
     private List<String> orderNoList;
 
-    @ApiModelProperty(value = "标签")
+    @Schema(name = "标签")
     private String tag;
 
 

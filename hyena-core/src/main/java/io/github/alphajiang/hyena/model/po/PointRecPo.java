@@ -20,7 +20,7 @@ package io.github.alphajiang.hyena.model.po;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.github.alphajiang.hyena.model.base.BasePo;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -44,13 +44,13 @@ public class PointRecPo extends BasePo {
     private BigDecimal refund;
     private BigDecimal cancelled;
     private BigDecimal expire;
-    @ApiModelProperty("总成本")
+    @Schema(name = "总成本")
     private BigDecimal totalCost;
-    @ApiModelProperty("冻结的成本")
+    @Schema(name = "冻结的成本")
     private BigDecimal frozenCost;
-    @ApiModelProperty("已消耗的成本")
+    @Schema(name = "已消耗的成本")
     private BigDecimal usedCost;
-    @ApiModelProperty("已退款的成本")
+    @Schema(name = "已退款的成本")
     private BigDecimal refundCost;
     private String tag;
     private String orderNo;
@@ -62,7 +62,7 @@ public class PointRecPo extends BasePo {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty(value = "发放时间")
+    @Schema(name = "发放时间")
     private Date issueTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")

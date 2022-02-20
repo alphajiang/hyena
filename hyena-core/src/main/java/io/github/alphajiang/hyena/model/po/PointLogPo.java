@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.alphajiang.hyena.model.base.BasePo;
 import io.github.alphajiang.hyena.utils.JacksonStringDeserialize;
 import io.github.alphajiang.hyena.utils.JacksonStringSerialize;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -42,7 +42,7 @@ public class PointLogPo extends BasePo {
     private String subUid;
     private long seqNum;
     private BigDecimal delta;
-    @ApiModelProperty("变动部分的实际成本")
+    @Schema(name = "变动部分的实际成本")
     private BigDecimal deltaCost;
     private BigDecimal point;
     private BigDecimal available;
@@ -50,9 +50,9 @@ public class PointLogPo extends BasePo {
     private BigDecimal frozen;
     private BigDecimal refund;
     private BigDecimal expire;
-    @ApiModelProperty("变动后,实际成本")
+    @Schema(name = "变动后,实际成本")
     private BigDecimal cost;
-    @ApiModelProperty("变动后,冻结的成本")
+    @Schema(name = "变动后,冻结的成本")
     private BigDecimal frozenCost;
     /**
      * PointOpType

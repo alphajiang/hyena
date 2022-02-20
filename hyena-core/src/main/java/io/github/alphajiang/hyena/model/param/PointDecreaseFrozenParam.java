@@ -17,7 +17,7 @@
 
 package io.github.alphajiang.hyena.model.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -31,9 +31,9 @@ import java.math.BigDecimal;
 @ToString(callSuper = true)
 public class PointDecreaseFrozenParam extends PointUnfreezeParam {
 
-    @ApiModelProperty(value = "创建积分快的订单号", example = "A123")
+    @Schema(name = "创建积分快的订单号", example = "A123")
     private String recOrderNo;
 
-    @ApiModelProperty(value = "解冻积分数量", example = "10.00")
+    @Schema(name = "解冻积分数量", example = "10.00")
     private BigDecimal unfreezePoint;
 }

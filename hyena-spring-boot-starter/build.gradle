@@ -19,11 +19,9 @@ dependencies {
     implementation project(':hyena-core'), project(':hyena-spring-boot-autoconfigure')
 
     implementation("org.springframework.boot:spring-boot-starter:${springBootVersion}")
-//    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
-    
-    //compile('mysql:mysql-connector-java:8.0.11')
+
 
 }

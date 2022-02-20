@@ -7,14 +7,14 @@ package io.github.alphajiang.hyena.model.param;
 //@Accessors(chain = true)
 //@EqualsAndHashCode(callSuper = true)
 //@ToString(callSuper = true)
-//@ApiModel(value = "退款(已冻结)请求参数")
+//@Schema(name = "退款(已冻结)请求参数")
 //public class PointRefundFrozenParam extends PointOpParam {
 //
 //
-////    @ApiModelProperty(value = "解冻积分数量", example = "10.00")
+////    @Schema(name = "解冻积分数量", example = "10.00")
 ////    private BigDecimal unfreezePoint;
 //
-//    @ApiModelProperty(value = "积分块ID", example = "112")
+//    @Schema(name = "积分块ID", example = "112")
 //    private Long recId;
 //
 //}

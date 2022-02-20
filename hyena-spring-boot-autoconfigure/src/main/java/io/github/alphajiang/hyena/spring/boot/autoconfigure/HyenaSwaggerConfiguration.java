@@ -17,23 +17,23 @@
 
 package io.github.alphajiang.hyena.spring.boot.autoconfigure;
 
+import org.springdoc.core.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
 
 @Configuration
-@EnableSwagger2
 public class HyenaSwaggerConfiguration {
 
     @Bean
-    public Docket petApi() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                // 仅显示 io.github.alphajiang.hyena.rest 目录下的接口
-                .apis(RequestHandlerSelectors.basePackage("io.github.alphajiang.hyena.rest"))
+    public GroupedOpenApi hyenaApi() {
+//        return new Docket(DocumentationType.SWAGGER_2)
+//                .select()
+//                // 仅显示 io.github.alphajiang.hyena.rest 目录下的接口
+//                .apis(RequestHandlerSelectors.basePackage("io.github.alphajiang.hyena.rest"))
+//                .build();
+        return GroupedOpenApi.builder()
+                .packagesToScan("io.github.alphajiang.hyena.rest")
                 .build();
     }
 }

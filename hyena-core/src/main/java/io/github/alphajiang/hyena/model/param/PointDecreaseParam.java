@@ -17,7 +17,7 @@
 
 package io.github.alphajiang.hyena.model.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -29,6 +29,6 @@ import lombok.experimental.Accessors;
 @ToString(callSuper = true)
 public class PointDecreaseParam extends PointOpParam {
 
-    @ApiModelProperty(value = "指定减少的积分块ID", example = "123")
+    @Schema(name = "指定减少的积分块ID", example = "123")
     private Long recId;
 }

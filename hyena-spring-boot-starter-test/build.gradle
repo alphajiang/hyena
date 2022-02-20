@@ -22,33 +22,24 @@ dependencies {
     implementation project(':hyena-spring-boot-starter')
 
     implementation("org.springframework.boot:spring-boot-starter:${springBootVersion}")
-//    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
     implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
     implementation("org.springframework.boot:spring-boot-starter-cache:${springBootVersion}")
-
-    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
-
     implementation('org.springframework.boot:spring-boot-starter-actuator')
-
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
+    implementation("org.springdoc:springdoc-openapi-ui:${springdocVersion}")
+
 
 
     implementation('net.logstash.logback:logstash-logback-encoder:6.6')
-
-    implementation "io.springfox:springfox-boot-starter:${swaggerVersion}"
-
     implementation("org.ehcache:ehcache:${ehcacheVersion}")
-//    implementation("javax.cache:cache-api:${cacheApiVersion}")
 
 
-    //implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
     runtimeOnly("org.apache.commons:commons-pool2:${commonsPoolVersion}")
-    //runtimeOnly("io.springfox:springfox-swagger-ui:${swaggerVersion}")
 
-    //implementation('io.swagger:swagger-annotations')
     runtimeOnly('mysql:mysql-connector-java:8.0.23')
 
 }

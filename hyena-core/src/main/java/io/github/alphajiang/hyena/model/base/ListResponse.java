@@ -17,17 +17,17 @@
 
 package io.github.alphajiang.hyena.model.base;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ListResponse<T> extends BaseResponse {
 
-    @ApiModelProperty(value = "总数据条数")
+    @Schema(name = "总数据条数")
     private long total;
 
-    @ApiModelProperty(value = "返回结果的数据部分")
+    @Schema(name = "返回结果的数据部分")
     private List<T> data;
 
     public ListResponse() {

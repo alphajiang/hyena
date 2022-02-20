@@ -18,7 +18,7 @@
 package io.github.alphajiang.hyena.model.param;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -36,16 +36,16 @@ public class PointIncreaseParam extends PointOpParam {
 
 
     @Nullable
-    @ApiModelProperty(value = "实际成本", example = "1.00")
+    @Schema(name = "实际成本", example = "1.00")
     private BigDecimal cost;
 
     @Nullable
-    @ApiModelProperty(value = "获取积分时间", example = "2005-12-25 15:34:46")
+    @Schema(name = "获取积分时间", example = "2005-12-25 15:34:46")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date issueTime;
 
     @Nullable
-    @ApiModelProperty(value = "过期时间", example = "2025-10-24 15:34:46")
+    @Schema(name = "过期时间", example = "2025-10-24 15:34:46")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date expireTime;
 

@@ -18,7 +18,7 @@
 package io.github.alphajiang.hyena.model.param;
 
 import io.github.alphajiang.hyena.model.base.BaseObject;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -31,42 +31,42 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class PointOpParam extends BaseObject {
-    @ApiModelProperty(value = "请求消息序列号", example = "", hidden = true)
+    @Schema(name = "请求消息序列号", example = "", hidden = true)
     private String seq;
 
-    @ApiModelProperty(value = "积分类型", example = "score")
+    @Schema(name = "积分类型", example = "score")
     private String type = "default";
 
-    @ApiModelProperty(value = "用户ID", example = "customer_abc123")
+    @Schema(name = "用户ID", example = "customer_abc123")
     private String uid;
 
-    @ApiModelProperty(value = "用户二级ID", example = "customer_abc123")
+    @Schema(name = "用户二级ID", example = "customer_abc123")
     private String subUid;
 
-    @ApiModelProperty(value = "显示名称", example = "Tom")
+    @Schema(name = "显示名称", example = "Tom")
     private String name;
 
-    @ApiModelProperty(value = "积分数量", example = "10.00")
+    @Schema(name = "积分数量", example = "10.00")
     private BigDecimal point;
 
 
-    @ApiModelProperty(value = "标签", example = "")
+    @Schema(name = "标签", example = "")
     private String tag;
 
-    @ApiModelProperty(value = "变动相关的订单", example = "")
+    @Schema(name = "变动相关的订单", example = "")
     private String orderNo;
 
 
-    @ApiModelProperty(value = "自定义来源")
+    @Schema(name = "自定义来源")
     private Integer sourceType;
-    @ApiModelProperty(value = "自定义订单类型")
+    @Schema(name = "自定义订单类型")
     private Integer orderType;
-    @ApiModelProperty(value = "自定义支付方式")
+    @Schema(name = "自定义支付方式")
     private Integer payType;
 
     private Object extra;
 
-    @ApiModelProperty(value = "备注", example = "this is a note")
+    @Schema(name = "备注", example = "this is a note")
     private String note = "";
 
 

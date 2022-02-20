@@ -1,6 +1,6 @@
 package io.github.alphajiang.hyena.model.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @ToString(callSuper = true)
 public class PointFreezeByRecIdParam extends PointOpParam {
 
-    @ApiModelProperty(value = "积分块ID", example = "123")
+    @Schema(name = "积分块ID", example = "123")
     private Long recId;
 
 }

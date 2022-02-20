@@ -17,7 +17,7 @@
 
 package io.github.alphajiang.hyena.model.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -29,26 +29,26 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ListPointLogParam extends BaseListParam {
-    @ApiModelProperty(value = "用户ID")
+    @Schema(name = "用户ID")
     private String uid;
 
-    @ApiModelProperty(value = "用户二级ID")
+    @Schema(name = "用户二级ID")
     private String subUid;
 
-    @ApiModelProperty(value = "积分记录ID")
+    @Schema(name = "积分记录ID")
     private long pid;
 
-    @ApiModelProperty(value = "积分记录序号")
+    @Schema(name = "积分记录序号")
     private long seqNum = 0L;
 
 
-    @ApiModelProperty(value = "标签")
+    @Schema(name = "标签")
     private String tag;
 
-    @ApiModelProperty(value = "订单号")
+    @Schema(name = "订单号")
     private String orderNo;
 
-    @ApiModelProperty(value = "创建时间过滤器")
+    @Schema(name = "创建时间过滤器")
     private TimeFilter createTimeFilter;
 
     // PointStatus

@@ -25,7 +25,7 @@ import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -41,20 +41,20 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class PointOpResult extends PointPo {
 
-    @ApiModelProperty(value = "变更的积分", example = "100.00")
+    @Schema(name = "变更的积分", example = "100.00")
     private BigDecimal opPoint;
 
-    @ApiModelProperty(value = "变更的成本", example = "10.00")
+    @Schema(name = "变更的成本", example = "10.00")
     private BigDecimal opCost;
 
-    @ApiModelProperty("账户变更明细")
+    @Schema(name = "账户变更明细")
     private List<PointLogDto> logs;
 
-    @ApiModelProperty("积分块变更明细")
+    @Schema(name = "积分块变更明细")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<PointRecLogDto> recLogList;
 
-    @ApiModelProperty(hidden = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @JsonIgnore
     private UpdateQueue updateQ = new UpdateQueue();
 

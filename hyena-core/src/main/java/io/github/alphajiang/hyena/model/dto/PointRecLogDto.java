@@ -19,7 +19,7 @@ package io.github.alphajiang.hyena.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.github.alphajiang.hyena.model.po.PointRecLogPo;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -39,11 +39,11 @@ public class PointRecLogDto extends PointRecLogPo {
     private BigDecimal total;
 
 
-    @ApiModelProperty("变动记录的订单号")
+    @Schema(name = "变动记录的订单号")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String orderNo;
 
-    @ApiModelProperty("创建积分块的订单号")
+    @Schema(name = "创建积分块的订单号")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String recOrigOrderNo;
 }

@@ -18,7 +18,7 @@
 package io.github.alphajiang.hyena.model.po;
 
 import io.github.alphajiang.hyena.model.base.BasePo;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -41,9 +41,9 @@ public class PointPo extends BasePo {
     private BigDecimal frozen;
     private BigDecimal refund;
     private BigDecimal expire;
-    @ApiModelProperty("实际成本(含冻结部分)")
+    @Schema(name = "实际成本(含冻结部分)")
     private BigDecimal cost;
-    @ApiModelProperty("冻结的成本")
+    @Schema(name = "冻结的成本")
     private BigDecimal frozenCost;
     private Long seqNum;
 

@@ -18,7 +18,7 @@
 package io.github.alphajiang.hyena.model.param;
 
 import io.github.alphajiang.hyena.model.base.BaseObject;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
@@ -26,22 +26,22 @@ public class BaseListParam extends BaseObject {
 
     private String type;
 
-    @ApiModelProperty(value = "搜索关键词")
+    @Schema(name = "搜索关键词")
     private String sk = "";
 
-    @ApiModelProperty(value = "是否有效")
+    @Schema(name = "是否有效")
     private Boolean enable;
 
     private boolean lock = false;
 
 
-    @ApiModelProperty(value = "分页开始")
+    @Schema(name = "分页开始")
     private Long start;
 
-    @ApiModelProperty(value = "查询最大数量")
+    @Schema(name = "查询最大数量")
     private Integer size;
 
-    @ApiModelProperty(value = "排序方式")
+    @Schema(name = "排序方式")
     private List<SortParam> sorts;
 
 

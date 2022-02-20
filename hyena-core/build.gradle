@@ -17,23 +17,18 @@ test {
 
 dependencies {
 
-//    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
     implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
     implementation("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:${springBootVersion}")
     implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
     implementation("org.springframework.boot:spring-boot-starter-cache:${springBootVersion}")
-    //implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
 
-    implementation("io.springfox:springfox-core:${swaggerVersion}")
-    implementation("io.swagger:swagger-annotations:${swaggerAnnotationsVersion}")
-    //implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
+    implementation("org.springdoc:springdoc-openapi-ui:${springdocVersion}")
 
 
     implementation("org.ehcache:ehcache:${ehcacheVersion}")
-//    implementation("javax.cache:cache-api:${cacheApiVersion}")
 
     testRuntimeOnly("org.apache.commons:commons-pool2:${commonsPoolVersion}")
 
@@ -41,7 +36,7 @@ dependencies {
 
     testRuntimeOnly('com.h2database:h2:1.4.200')
     testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
-    testImplementation platform('io.projectreactor:reactor-bom:2020.0.3')
+    testImplementation platform('io.projectreactor:reactor-bom:2020.0.16')
     testImplementation('io.projectreactor:reactor-test')
 
 
