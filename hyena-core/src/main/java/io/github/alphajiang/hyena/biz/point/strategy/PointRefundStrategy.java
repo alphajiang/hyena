@@ -88,20 +88,20 @@ public class PointRefundStrategy extends AbstractPointStrategy {
 
             if (usage.getUnfreezePoint() != null
                     && DecimalUtils.gt(usage.getUnfreezePoint(), DecimalUtils.ZERO)) {
-                List<FreezeOrderRecPo> forList = this.freezeOrderRecDs.getFreezeOrderRecList(usage.getType(),
-                        p.getPoint().getId(),
-                        usage.getOrderType(), usage.getOrderNo());
+//                List<FreezeOrderRecPo> forList = this.freezeOrderRecDs.getFreezeOrderRecList(usage.getType(),
+//                        p.getPoint().getId(),
+//                        usage.getOrderType(), usage.getOrderNo());
 
 
                 PointUsage usage4Unfreeze = new PointUsage();
                 BeanUtils.copyProperties(usage, usage4Unfreeze);
                 usage4Unfreeze.setPoint(usage.getUnfreezePoint())
                         .setDoUpdate(false)
-                .setPw(pw);
+                        .setPw(pw);
 
                 PointOpResult unfreezeRet = this.pointUnfreezeStrategy.process(usage4Unfreeze);
-
-                PointOpResult result= this.processPoint(usage, p, forList, unfreezeRet);
+                List<FreezeOrderRecPo> forList = unfreezeRet.getUpdateQ().getFoList();
+                PointOpResult result = this.processPoint(usage, p, forList, unfreezeRet);
 
                 hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
                         usage.getUid(), usage.getSubUid(), p.getPoint());

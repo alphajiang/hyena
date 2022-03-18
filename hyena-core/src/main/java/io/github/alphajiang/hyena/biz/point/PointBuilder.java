@@ -24,6 +24,7 @@ import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
+import io.github.alphajiang.hyena.utils.IdGenerator;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -103,6 +104,7 @@ public class PointBuilder {
     }
 
     public FreezeOrderRecPo buildFreezeOrderRec(@NonNull PointPo point, @NonNull PointRecPo rec,
+                                                IdGenerator idGenerator,
                                                 Integer orderType,
                                                 String orderNo, BigDecimal frozen, BigDecimal frozenCost) {
         FreezeOrderRecPo fo = new FreezeOrderRecPo();
@@ -115,6 +117,7 @@ public class PointBuilder {
                 .setOrderNo(orderNo)
                 .setFrozen(frozen)
                 .setFrozenCost(frozenCost)
+                .setId(idGenerator.getId())
                 .setEnable(true)
                 .setCreateTime(new Date())
                 .setUpdateTime(new Date());

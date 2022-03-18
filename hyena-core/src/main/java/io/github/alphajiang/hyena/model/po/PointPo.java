@@ -30,7 +30,7 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class PointPo extends BasePo {
+public class PointPo extends BasePo<Long>  {
 
     private String uid;
     private String subUid;

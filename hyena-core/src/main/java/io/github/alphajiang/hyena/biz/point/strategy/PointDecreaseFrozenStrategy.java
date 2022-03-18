@@ -117,9 +117,9 @@ public class PointDecreaseFrozenStrategy extends PointDecreaseStrategy {
         try (PointWrapper pw = preProcess(usage, true, true)) {
             PointCache p = pw.getPointCache();
 
-            List<FreezeOrderRecPo> forList = this.freezeOrderRecDs.getFreezeOrderRecList(usage.getType(),
-                    p.getPoint().getId(),
-                    usage.getOrderType(), usage.getOrderNo());
+//            List<FreezeOrderRecPo> forList = this.freezeOrderRecDs.getFreezeOrderRecList(usage.getType(),
+//                    p.getPoint().getId(),
+//                    usage.getOrderType(), usage.getOrderNo());
 
 
             PointUsage usage4Unfreeze = new PointUsage();
@@ -129,7 +129,7 @@ public class PointDecreaseFrozenStrategy extends PointDecreaseStrategy {
                     .setPw(pw);
 
             PointOpResult unfreezeRet = this.pointUnfreezeStrategy.process(usage4Unfreeze);
-
+            List<FreezeOrderRecPo> forList = unfreezeRet.getUpdateQ().getFoList();
             PointOpResult result= super.processPoint(usage, p, forList, unfreezeRet);
 
             //PointOpResult result= this.processPoint(usage, p, forList, unfreezeRet);

@@ -17,14 +17,19 @@
 
 package io.github.alphajiang.hyena.model.vo;
 
+import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.JsonUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Data
 @Accessors(chain = true)
@@ -32,6 +37,17 @@ import java.util.List;
 public class PointVo extends PointPo {
 
     private List<PointRecPo> recList;
+    private Map<String, FreezeOrderRecPo> forList;
+
+    public synchronized void addForList(List<FreezeOrderRecPo> inForList) {
+        if (CollectionUtils.isEmpty(inForList)) {
+            return;
+        }
+        if (forList == null) {
+            forList = new HashMap<>();
+        }
+        this.forList.putAll(inForList.stream().collect(Collectors.toMap(o -> o.getId(), o -> o, (l, r) -> l)));
+    }
 
     @Override
     public String toString() {

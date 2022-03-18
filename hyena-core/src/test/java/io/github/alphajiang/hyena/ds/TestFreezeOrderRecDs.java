@@ -54,14 +54,15 @@ public class TestFreezeOrderRecDs extends HyenaTestBase {
             PointRecPo rec = new PointRecPo();
             rec.setId(i + 1);
             FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(super.getUserPoint(),
-                    rec, null, orderNo, BigDecimal.valueOf(i + 1), BigDecimal.valueOf(i));
+                    rec, super.getIdGenerator(),
+                    null, orderNo, BigDecimal.valueOf(i + 1), BigDecimal.valueOf(i));
             foList.add(fo);
         }
         this.freezeOrderRecDs.batchInsert(super.getPointType(), foList);
 
         List<FreezeOrderRecPo> list = this.freezeOrderRecDs.getFreezeOrderRecList(super.getPointType(),
                 super.getUserPoint().getId(), null, orderNo);
-        List<Long> idList = list.stream().map(FreezeOrderRecPo::getId).collect(Collectors.toList());
+        List<String> idList = list.stream().map(FreezeOrderRecPo::getId).collect(Collectors.toList());
         this.freezeOrderRecDs.closeByIdList(super.getPointType(), idList);
     }
 }

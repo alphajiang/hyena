@@ -474,17 +474,20 @@ public class TestPointController extends HyenaTestBase {
     public void test_decreaseFrozen_unfreeze() throws Exception {
         PointUsage freeze = new PointUsage();
         freeze.setPoint(BigDecimal.valueOf(14L)).setType(super.getPointType())
-                .setUid(super.getUid()).setSubUid(super.getSubUid());
+                .setUid(super.getUid()).setSubUid(super.getSubUid())
+                .setOrderNo(super.getOrderNo(0));
         this.pointUsageFacade.freeze(freeze);
 
         PointDecreaseFrozenParam param = new PointDecreaseFrozenParam();
         param.setType(super.getPointType());
         param.setUid(super.getUid());
         param.setSubUid(super.getSubUid());
-        param.setUnfreezePoint(BigDecimal.valueOf(5L)); // 要做解冻的部分
+        param.setUnfreezePoint(BigDecimal.valueOf(14L)); // 要做解冻的部分
         param.setPoint(BigDecimal.valueOf(9L)); // 要消费的部分
+        param.setUnfreezeByOrderNo(true);   // unfree by orderNo
+        param.setOrderNo(super.getOrderNo(0));  // orderNo
 
-
+//        Thread.sleep(500L);
         ObjectResponse<PointOpResult> res  = webTestClient.post().uri("/hyena/point/decreaseFrozen")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -500,9 +503,7 @@ public class TestPointController extends HyenaTestBase {
 
 //        String resBody = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
         log.info("response = {}", res);
-//        ObjectResponse<PointOpResult> res = JsonUtils.fromJson(resBody, new TypeReference<ObjectResponse<PointOpResult>>() {
 
-//        });
         PointPo result = res.getData();
         Assertions.assertNotNull(result);
     }

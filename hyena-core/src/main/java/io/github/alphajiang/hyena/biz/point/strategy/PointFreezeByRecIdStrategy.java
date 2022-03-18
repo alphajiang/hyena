@@ -39,6 +39,7 @@ import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
 import io.github.alphajiang.hyena.model.vo.PointVo;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
+import io.github.alphajiang.hyena.utils.IdGenerator;
 import io.github.alphajiang.hyena.utils.NumberUtils;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -79,6 +80,8 @@ public class PointFreezeByRecIdStrategy extends AbstractPointStrategy {
     @Autowired
     private PointBuilder pointBuilder;
 
+    @Autowired
+    private IdGenerator idGenerator;
 
     @Override
     public CalcType getType() {
@@ -125,7 +128,7 @@ public class PointFreezeByRecIdStrategy extends AbstractPointStrategy {
         List<PointRecPo> recList4Update = List.of(result.getRec4Update());
 
         FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
-                rec, usage.getOrderType(), usage.getOrderNo(), gap, result.getDeltaCost());
+                rec, idGenerator, usage.getOrderType(), usage.getOrderNo(), gap, result.getDeltaCost());
         List<FreezeOrderRecPo> forList = List.of(fo);
 
         var recLog = this.pointBuilder.buildRecLog(rec, pointLog, gap, result.getDeltaCost());
@@ -145,6 +148,7 @@ public class PointFreezeByRecIdStrategy extends AbstractPointStrategy {
         pointFlowService.addFreezeOrderRec(usage.getType(), forList);
         pointFlowService.addFlow(usage, pointLog, recLogs);
 
+        pointCache.getPoint().addForList(forList);
         pointCache.setUpdateTime(new Date());
         //return curPoint;
         PointOpResult ret = new PointOpResult();

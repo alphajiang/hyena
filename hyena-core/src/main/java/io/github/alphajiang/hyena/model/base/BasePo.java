@@ -22,10 +22,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Date;
 
-public abstract class BasePo extends BaseObject {
+public abstract class BasePo<T> extends BaseObject {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long id;
+    private T id;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Boolean enable;
@@ -38,11 +38,11 @@ public abstract class BasePo extends BaseObject {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Date updateTime;
 
-    public Long getId() {
+    public T getId() {
         return id;
     }
 
-    public BasePo setId(Long id) {
+    public BasePo setId(T id) {
         this.id = id;
         return this;
     }

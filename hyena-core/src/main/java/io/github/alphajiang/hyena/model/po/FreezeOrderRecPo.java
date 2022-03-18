@@ -29,7 +29,7 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class FreezeOrderRecPo extends BasePo {
+public class FreezeOrderRecPo extends BasePo<String> {
     private long pid;
     private String uid;
     private String subUid;

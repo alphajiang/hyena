@@ -23,7 +23,9 @@ import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.ds.service.SysPropertyDs;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
+import io.github.alphajiang.hyena.utils.IdGenerator;
 import io.github.alphajiang.hyena.utils.JsonUtils;
+import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -34,9 +36,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = HyenaTestMain.class)
 @AutoConfigureWebTestClient
@@ -53,6 +54,10 @@ public abstract class HyenaTestBase {
     @Autowired
     private PointUsageFacade pointUsageFacade;
 
+    @Getter
+    @Autowired
+    private IdGenerator idGenerator;
+
     private String pointType;
 
     private String tag;
@@ -64,6 +69,8 @@ public abstract class HyenaTestBase {
     private Integer orderType = 11;
     private Integer payType = 21;
 
+    private List<String> orderNoList;
+
     private PointUsage initialPointUsage;
 
     private PointPo userPoint;
@@ -72,15 +79,19 @@ public abstract class HyenaTestBase {
         String random = UUID.randomUUID().toString().replace("-", "");
         this.pointType = random.substring(0, 6);
         this.uid = random.substring(7, 12);
-        this.subUid = random.substring(3,7);
+        this.subUid = random.substring(3, 7);
         this.tag = random.substring(13, 16);
         Map<String, Object> extra = new HashMap<>();
         extra.put("aaa", "bbbb");
         extra.put("ccc", 123L);
+        this.orderNoList = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            this.orderNoList.add(UUID.randomUUID().toString().replace("-", "").substring(0, 6));
+        }
         this.initialPointUsage = new PointUsage();
         this.initialPointUsage.setType(this.pointType).setTag(tag)
                 .setUid(this.uid).setSubUid(this.subUid)
-                .setPoint(BigDecimal.valueOf( 100L).setScale(DecimalUtils.SCALE_2))
+                .setPoint(BigDecimal.valueOf(100L).setScale(DecimalUtils.SCALE_2))
                 .setCost(BigDecimal.valueOf(50L).setScale(DecimalUtils.SCALE_2))
                 .setSourceType(sourceType).setOrderType(orderType).setPayType(payType)
                 .setExtra(JsonUtils.toJsonString(extra));
@@ -132,5 +143,18 @@ public abstract class HyenaTestBase {
 
     public Integer getPayType() {
         return payType;
+    }
+
+    public List<String> getOrderNoList() {
+        return this.orderNoList;
+    }
+
+    public String getOrderNo(int idx) {
+        try {
+            return orderNoList.get(idx);
+        } catch (Exception e) {
+            logger.warn("invalidparam, idx = {}, orderNoList = {}", idx, this.orderNoList);
+            return null;
+        }
     }
 }

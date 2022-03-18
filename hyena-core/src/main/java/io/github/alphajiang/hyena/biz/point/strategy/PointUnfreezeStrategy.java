@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -216,6 +217,15 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
         List<FreezeOrderRecPo> forList = this.freezeOrderRecDs.getFreezeOrderRecList(usage.getType(),
                 pointCache.getPoint().getId(),
                 usage.getOrderType(), usage.getOrderNo());
+        pointCache.getPoint().addForList(forList);
+        if (pointCache.getPoint().getForList() == null || pointCache.getPoint().getForList().isEmpty()) {
+            forList = List.of();
+        } else {
+            forList = pointCache.getPoint().getForList()
+                    .values().stream()
+                    .filter(o -> StringUtils.equals(o.getOrderNo(), usage.getOrderNo()))
+                    .collect(Collectors.toList());
+        }
         BigDecimal frozen = forList.stream().map(FreezeOrderRecPo::getFrozen)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         //long frozen = forList.stream().mapToLong(FreezeOrderRecPo::getFrozen).sum();

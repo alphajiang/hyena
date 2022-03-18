@@ -33,7 +33,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class PointRecPo extends BasePo {
+public class PointRecPo extends BasePo<Long>  {
 
     private long pid;
     private long seqNum;

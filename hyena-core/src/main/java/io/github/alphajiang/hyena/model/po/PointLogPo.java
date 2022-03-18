@@ -35,7 +35,7 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class PointLogPo extends BasePo {
+public class PointLogPo extends BasePo<Long> {
 
     private long pid;
     private String uid;

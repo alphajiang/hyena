@@ -31,7 +31,7 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class PointRecLogPo extends BasePo {
+public class PointRecLogPo extends BasePo<Long>  {
 
     private long pid;
     private long seqNum;

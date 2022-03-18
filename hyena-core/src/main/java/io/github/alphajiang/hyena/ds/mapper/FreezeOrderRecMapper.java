@@ -32,7 +32,7 @@ public interface FreezeOrderRecMapper {
 
 
     void closeByIdList(@Param(value = "pointTableName") String pointTableName,
-                       @Param(value = "idList") List<Long> idList);
+                       @Param(value = "idList") List<String> idList);
 
     List<FreezeOrderRecPo> getFreezeOrderRecList(@Param(value = "pointTableName") String pointTableName,
                                                  @Param(value = "pid") long pid,

@@ -40,7 +40,7 @@ public class FreezeOrderRecDs {
         this.freezeOrderRecMapper.batchInsert(pointTableName, freezeOrderRecList);
     }
 
-    public void closeByIdList(@NonNull String type, List<Long> idList) {
+    public void closeByIdList(@NonNull String type, List<String> idList) {
         String pointTableName = TableNameHelper.getPointTableName(type);
         this.freezeOrderRecMapper.closeByIdList(pointTableName, idList);
     }

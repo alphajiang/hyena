@@ -38,6 +38,7 @@ import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.model.vo.PointRecCalcResult;
 import io.github.alphajiang.hyena.model.vo.PointVo;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
+import io.github.alphajiang.hyena.utils.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.springframework.beans.BeanUtils;
@@ -75,6 +76,8 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
     @Autowired
     private PointBuilder pointBuilder;
 
+    @Autowired
+    private IdGenerator idGenerator;
 
     @Override
     public CalcType getType() {
@@ -129,6 +132,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
         pointFlowService.addFreezeOrderRec(usage.getType(), recLogsRet.getForList());
         pointFlowService.addFlow(usage, pointLog, recLogs);
 
+        pointCache.getPoint().addForList(recLogsRet.getForList());
         pointCache.setUpdateTime(new Date());
         //return curPoint;
         PointOpResult ret = new PointOpResult();
@@ -164,7 +168,8 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
                 recList4Update.add(calcResult.getRec4Update());
                 deltaCost = deltaCost.add(calcResult.getDeltaCost());
                 FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
-                        rec, usage.getOrderType(), usage.getOrderNo(), delta, calcResult.getDeltaCost());
+                        rec, idGenerator,
+                        usage.getOrderType(), usage.getOrderNo(), delta, calcResult.getDeltaCost());
                 forList.add(fo);
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, delta, calcResult.getDeltaCost());
                 recLogs.add(recLog);
@@ -174,7 +179,8 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
                 recList4Update.add(calcResult.getRec4Update());
                 deltaCost = deltaCost.add(calcResult.getDeltaCost());
                 FreezeOrderRecPo fo = pointBuilder.buildFreezeOrderRec(pointCache.getPoint(),
-                        rec, usage.getOrderType(), usage.getOrderNo(), gap, calcResult.getDeltaCost());
+                        rec, idGenerator,
+                        usage.getOrderType(), usage.getOrderNo(), gap, calcResult.getDeltaCost());
                 forList.add(fo);
                 var recLog = this.pointBuilder.buildRecLog(rec, pointLog, gap, calcResult.getDeltaCost());
                 recLogs.add(recLog);

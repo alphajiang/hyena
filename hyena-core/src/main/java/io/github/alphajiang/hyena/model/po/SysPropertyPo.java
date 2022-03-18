@@ -27,7 +27,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class SysPropertyPo extends BasePo {
+public class SysPropertyPo extends BasePo<Long>  {
     private String key;
     private String value;
 }
