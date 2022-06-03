@@ -3,16 +3,12 @@ package io.github.alphajiang.hyena.biz.cache;
 import io.github.alphajiang.hyena.biz.strategy.TestPointStrategyBase;
 import io.github.alphajiang.hyena.model.vo.PointVo;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
@@ -36,8 +32,9 @@ public class TestPointRedisCacheService extends TestPointStrategyBase {
         //log.info("aaaaaaaaaaaaaaaa");
         //for(int i = 0; i < 1000; i ++) {
         log.info("before updatePoint");
-        pointRedisCacheService.lock(super.getPointType(), super.getUid(), super.getSubUid());
-        pointRedisCacheService.updatePoint(super.getPointType(), super.getUid(), super.getSubUid(), pv);
+        pointRedisCacheService.lock(super.getPointType(), super.getUid(), super.getSubUid(), 5)
+                .flatMap(lockRet -> pointRedisCacheService.updatePoint(super.getPointType(), super.getUid(), super.getSubUid(), pv))
+                .subscribe();
         log.info("after updatePoint");
         //}
         //log.info("bbbbbbbbbbbbbb");

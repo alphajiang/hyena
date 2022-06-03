@@ -32,25 +32,25 @@ import java.util.List;
 public class ListPointRecLogParam extends BaseListParam {
 
 
-    @Schema(name = "用户ID")
+    @Schema(title = "用户ID")
     private String uid;
 
-    @Schema(name = "用户二级ID")
+    @Schema(title = "用户二级ID")
     private String subUid;
 
-    @Schema(name = "用户记录ID")
+    @Schema(title = "用户记录ID")
     private long pid;
 
-    @Schema(name = "变更流水号")
+    @Schema(title = "变更流水号")
     private List<Long> seqNumList;
 
-    @Schema(name = "积分记录ID")
+    @Schema(title = "积分记录ID")
     private List<Long> recIdList;
 
-    @Schema(name = "变更的订单号")
+    @Schema(title = "变更的订单号")
     private List<String> orderNoList;
 
-    @Schema(name = "标签")
+    @Schema(title = "标签")
     private String tag;
 
 

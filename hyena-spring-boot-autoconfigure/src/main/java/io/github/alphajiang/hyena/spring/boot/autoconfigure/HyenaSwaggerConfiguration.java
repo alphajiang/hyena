@@ -33,6 +33,7 @@ public class HyenaSwaggerConfiguration {
 //                .apis(RequestHandlerSelectors.basePackage("io.github.alphajiang.hyena.rest"))
 //                .build();
         return GroupedOpenApi.builder()
+                .group("hyena")
                 .packagesToScan("io.github.alphajiang.hyena.rest")
                 .build();
     }

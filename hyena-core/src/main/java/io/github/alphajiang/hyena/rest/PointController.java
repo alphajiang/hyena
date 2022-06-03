@@ -19,6 +19,7 @@ package io.github.alphajiang.hyena.rest;
 
 import io.github.alphajiang.hyena.aop.Idempotent;
 import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageBuilder;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
@@ -33,29 +34,49 @@ import io.github.alphajiang.hyena.model.dto.PointLogDto;
 import io.github.alphajiang.hyena.model.dto.PointRecDto;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
-import io.github.alphajiang.hyena.model.param.*;
+import io.github.alphajiang.hyena.model.param.ListPointLogParam;
+import io.github.alphajiang.hyena.model.param.ListPointParam;
+import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
+import io.github.alphajiang.hyena.model.param.ListPointRecParam;
+import io.github.alphajiang.hyena.model.param.PointCancelParam;
+import io.github.alphajiang.hyena.model.param.PointDecreaseFrozenParam;
+import io.github.alphajiang.hyena.model.param.PointDecreaseParam;
+import io.github.alphajiang.hyena.model.param.PointFreezeByRecIdParam;
+import io.github.alphajiang.hyena.model.param.PointFreezeParam;
+import io.github.alphajiang.hyena.model.param.PointIncreaseParam;
+import io.github.alphajiang.hyena.model.param.PointOpParam;
+import io.github.alphajiang.hyena.model.param.PointRefundParam;
+import io.github.alphajiang.hyena.model.param.PointUnfreezeParam;
+import io.github.alphajiang.hyena.model.param.SortParam;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.model.vo.PointLogBi;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DateUtils;
+import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.LoggerHelper;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.github.alphajiang.hyena.utils.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ServerWebExchange;
-
-import javax.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
+import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 @RestController
 @Tag(name = "积分相关的接口", description = "积分")
@@ -84,23 +105,20 @@ public class PointController {
 
     @Operation(summary = "获取积分信息")
     @GetMapping(value = "/getPoint")
-    public ObjectResponse<PointPo> getPoint(
-            ServerWebExchange exh,
-            @Parameter(name = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @Parameter(name = "用户ID") @RequestParam String uid,
-            @Parameter(name = "用户二级ID") @RequestParam(required = false) String subUid) {
+    public Mono<ObjectResponse<PointPo>> getPoint(ServerWebExchange exh,
+        @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+        @Parameter(description = "用户ID") @RequestParam String uid,
+        @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         var ret = this.hyenaCacheFactory.getPointCacheService().getPoint(type, uid, subUid, false);
-        ObjectResponse<PointPo> res = new ObjectResponse<>(ret.getPointCache().getPoint());
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        return res;
+        return ret.map(o -> new ObjectResponse<>((PointPo) o.getPointCache().getPoint()))
+            .doOnNext(o -> logger.info(LoggerHelper.formatLeaveLog(exh)));
     }
-
 
     @Operation(summary = "获取积分列表")
     @PostMapping(value = "/listPoint")
     public ListResponse<PointPo> listPoint(ServerWebExchange exh,
-                                           @RequestBody ListPointParam param) {
+        @RequestBody ListPointParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
 
         param.setSorts(List.of(SortParam.as("pt.id", SortOrder.desc)));
@@ -109,12 +127,10 @@ public class PointController {
         return res;
     }
 
-
     @Operation(summary = "获取变更明细列表")
     @PostMapping(value = "/listPointLog")
-    public ListResponse<PointLogDto> listPointLog(
-            ServerWebExchange exh,
-            @RequestBody ListPointLogParam param) {
+    public ListResponse<PointLogDto> listPointLog(ServerWebExchange exh,
+        @RequestBody ListPointLogParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
         if (CollectionUtils.isEmpty(param.getSorts())) {
             param.setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
@@ -126,9 +142,8 @@ public class PointController {
 
     @Operation(summary = "获取变更明细统计")
     @PostMapping(value = "/listPointLogBi")
-    public ListResponse<PointLogBi> listPointLogBi(
-            ServerWebExchange exh,
-            @RequestBody ListPointLogParam param) {
+    public ListResponse<PointLogBi> listPointLogBi(ServerWebExchange exh,
+        @RequestBody ListPointLogParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
         var list = this.pointLogDs.listPointLogBi(param);
         var res = new ListResponse<>(list, list.size());
@@ -139,7 +154,7 @@ public class PointController {
     @Operation(summary = "获取记录列表")
     @PostMapping(value = "/listPointRecord")
     public ListResponse<PointRecDto> listPointRecord(ServerWebExchange exh,
-                                                     @RequestBody ListPointRecParam param) {
+        @RequestBody ListPointRecParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + "param = {}", param);
         if (CollectionUtils.isEmpty(param.getSorts())) {
             param.setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)));
@@ -151,22 +166,13 @@ public class PointController {
 
     @Operation(summary = "获取记录历史明细列表")
     @PostMapping(value = "/listPointRecordLog")
-    public ListResponse<PointRecLogDto> listPointRecordLog(
-            ServerWebExchange exh,
-            @RequestBody ListPointRecLogParam param) {
+    public ListResponse<PointRecLogDto> listPointRecordLog(ServerWebExchange exh,
+        @RequestBody ListPointRecLogParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + "param = {}", param);
-
-        //ListPointRecLogParam param = new ListPointRecLogParam();
-        //param.setUid(uid).setRecId(recId).setTag(tag);
-//        if (seqNum != null) {
-//            param.setSeqNum(seqNum);
-//        }
         if (param.getSorts() == null) {
             param.setSorts(List.of(SortParam.as("log.id", SortOrder.desc)));
         }
         var res = this.pointRecLogDs.listPointRecLog4Page(param);
-
-
         logger.info(LoggerHelper.formatLeaveLog(exh));
         return res;
     }
@@ -174,186 +180,154 @@ public class PointController {
     @Idempotent(name = "increase-point")
     @Operation(summary = "增加用户积分")
     @PostMapping(value = "/increase")
-    public ObjectResponse<PointPo> increasePoint(ServerWebExchange exh,
-                                                 @RequestBody @NotNull PointIncreaseParam param) {
+    public Mono<ObjectResponse<PointPo>> increasePoint(ServerWebExchange exh,
+        @RequestBody @NotNull PointIncreaseParam param) {
         long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointIncreaseParam(param);
-        PointPo ret = this.pointUsageFacade.increase(usage);
-        ObjectResponse<PointPo> res = new ObjectResponse<>(ret);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        debugPerformance(exh, startTime);
-        return res;
+        if (usage.getPoint() == null || DecimalUtils.ltZero(usage.getPoint())) {
+            throw new HyenaParameterException("invalid parameter point");
+        }
+
+        return this.pointUsageFacade.increase(PSession.fromUsage(usage))
+            .map(sess -> new ObjectResponse<>((PointPo) sess.getResult()))
+            .doOnNext(rt -> {
+                logger.info(LoggerHelper.formatLeaveLog(exh));
+                debugPerformance(exh, startTime);
+            });
     }
 
     @Idempotent(name = "decrease-point")
     @Operation(summary = "消费用户积分")
     @PostMapping(value = "/decrease")
-    public ObjectResponse<PointOpResult> decreasePoint(ServerWebExchange exh,
-                                                       @RequestBody PointDecreaseParam param) {
+    public Mono<ObjectResponse<PointOpResult>> decreasePoint(ServerWebExchange exh,
+        @RequestBody PointDecreaseParam param) {
         long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
         usage.setRecId(param.getRecId());
-        PointOpResult ret = this.pointUsageFacade.decrease(usage);
-        ObjectResponse<PointOpResult> res = new ObjectResponse<>(ret);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        debugPerformance(exh, startTime);
-        return res;
+        if (usage.getPoint() == null || DecimalUtils.ltZero(usage.getPoint())) {
+            throw new HyenaParameterException("invalid parameter point");
+        }
+        return this.pointUsageFacade.decrease(PSession.fromUsage(usage))
+            .map(sess -> mapObjResult(exh, sess, startTime));
     }
-
 
     @Idempotent(name = "decreaseFrozen-point")
     @Operation(summary = "消费已冻结的用户积分")
     @PostMapping(value = "/decreaseFrozen")
-    public ObjectResponse<PointOpResult> decreaseFrozenPoint(ServerWebExchange exh,
-                                                             @RequestBody PointDecreaseFrozenParam param) {
+    public Mono<ObjectResponse<PointOpResult>> decreaseFrozenPoint(ServerWebExchange exh,
+        @RequestBody PointDecreaseFrozenParam param) {
         long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointDecreaseParam(param);
-
-        PointOpResult ret = this.pointUsageFacade.decreaseFrozen(usage);
-        ObjectResponse<PointOpResult> res = new ObjectResponse<>(ret);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        debugPerformance(exh, startTime);
-        return res;
+        return this.pointUsageFacade.decreaseFrozen(PSession.fromUsage(usage))
+            .map(sess -> mapObjResult(exh, sess, startTime));
     }
-
 
     @Idempotent(name = "freeze-point")
     @Operation(summary = "冻结用户积分")
     @PostMapping(value = "/freeze")
-    public ObjectResponse<PointOpResult> freezePoint(ServerWebExchange exh,
-                                                     @RequestBody PointOpParam param) {
+    public Mono<ObjectResponse<PointOpResult>> freezePoint(ServerWebExchange exh,
+        @RequestBody PointOpParam param) {
         long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
-
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
-        PointOpResult cusPoint = this.pointUsageFacade.freeze(usage);
-        ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        debugPerformance(exh, startTime);
-        return res;
+        return this.pointUsageFacade.freeze(PSession.fromUsage(usage))
+            .map(sess -> mapObjResult(exh, sess, startTime));
     }
 
     @Idempotent(name = "unfreeze-point")
     @Operation(summary = "解冻用户积分")
     @PostMapping(value = "/unfreeze")
-    public ObjectResponse<PointOpResult> unfreezePoint(ServerWebExchange exh,
-                                                       @RequestBody PointUnfreezeParam param) {
+    public Mono<ObjectResponse<PointOpResult>> unfreezePoint(ServerWebExchange exh,
+        @RequestBody PointUnfreezeParam param) {
         long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
-
         PointUsage usage = PointUsageBuilder.fromPointUnfreezeParam(param);
-        PointOpResult cusPoint = this.pointUsageFacade.unfreeze(usage);
-
-        ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        debugPerformance(exh, startTime);
-        return res;
+        return this.pointUsageFacade.unfreeze(PSession.fromUsage(usage))
+            .map(sess -> mapObjResult(exh, sess, startTime));
     }
 
     @Idempotent(name = "cancel-point")
     @Operation(summary = "撤销用户积分")
     @PostMapping(value = "/cancel")
-    public ObjectResponse<PointOpResult> cancelPoint(ServerWebExchange exh,
-                                                     @RequestBody PointCancelParam param) {
+    public Mono<ObjectResponse<PointOpResult>> cancelPoint(ServerWebExchange exh,
+        @RequestBody PointCancelParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
 
         PointUsage usage = PointUsageBuilder.fromPointCancelParam(param);
-        PointOpResult cusPoint = this.pointUsageFacade.cancel(usage);
-
-        ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        return res;
+        return this.pointUsageFacade.cancel(PSession.fromUsage(usage))
+            .map(sess -> mapObjResult(exh, sess, null));
     }
 
     @Idempotent(name = "freeze-by-rec-id")
     @Operation(summary = "按积分块冻结")
     @PostMapping(value = "/freezeByRecId")
-    public ObjectResponse<PointOpResult> freezeByRecId(ServerWebExchange exh,
-                                                       @RequestBody PointFreezeByRecIdParam param) {
+    public Mono<ObjectResponse<PointOpResult>> freezeByRecId(ServerWebExchange exh,
+        @RequestBody PointFreezeByRecIdParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
-//        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
-//            throw new HyenaParameterException("invalid parameter: unfreezePoint");
-//        }
+        //        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
+        //            throw new HyenaParameterException("invalid parameter: unfreezePoint");
+        //        }
         PointUsage usage = PointUsageBuilder.fromPointFreezeByRecIdParam(param);
-        PointOpResult cusPoint = this.pointUsageFacade.freezeByRecId(usage);
-        ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        return res;
+        return this.pointUsageFacade.freezeByRecId(PSession.fromUsage(usage))
+            .map(sess -> mapObjResult(exh, sess, null));
     }
 
     @Idempotent(name = "freeze-cost")
     @Operation(summary = "按成本冻结")
     @PostMapping(value = "/freezeCost")
-    public ObjectResponse<PointOpResult> freezeCost(ServerWebExchange exh,
-                                                    @RequestBody PointFreezeParam param) {
+    public Mono<ObjectResponse<PointOpResult>> freezeCost(ServerWebExchange exh,
+        @RequestBody PointFreezeParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
-//        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
-//            throw new HyenaParameterException("invalid parameter: unfreezePoint");
-//        }
         PointUsage usage = PointUsageBuilder.fromPointFreezeParam(param);
-        PointOpResult cusPoint = this.pointUsageFacade.freezeCost(usage);
-        ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        return res;
+        if (usage.getCost() == null || DecimalUtils.ltZero(usage.getCost())) {
+            throw new HyenaParameterException("invalid parameter cost");
+        } else if (StringUtils.isBlank(usage.getOrderNo())) {
+            throw new HyenaParameterException("invalid parameter 'orderNo'");
+        }
+        return this.pointUsageFacade.freezeCost(PSession.fromUsage(usage))
+            .map(sess -> mapObjResult(exh, sess, null));
     }
 
-    @Idempotent(name = "unfreeze-cost")
-    @Operation(summary = "按成本解冻")
-    @PostMapping(value = "/unfreezeCost")
-    public ObjectResponse<PointOpResult> unfreezeCost(ServerWebExchange exh,
-                                                      @RequestBody PointUnfreezeParam param) {
-        logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
-        PointUsage usage = PointUsageBuilder.fromPointUnfreezeParam(param);
-        PointOpResult cusPoint = this.pointUsageFacade.unfreezeCost(usage);
-        ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        return res;
-    }
-
-//    @Idempotent(name = "refund-frozen")
-//    @Operation(summary = "已冻结积分做退款")
-//    @PostMapping(value = "/refundFrozen")
-//    public ObjectResponse<PointOpResult> refundFrozen(ServerWebExchange exh,
-//                                                @RequestBody PointRefundFrozenParam param) {
-//        logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
-//        PointUsage usage = PointUsageBuilder.fromPointRefundFrozenParam(param);
-//        //usage.setUnfreezePoint(param.getUnfreezePoint());
-//        PointOpResult cusPoint = this.pointUsageFacade.refundFrozen(usage);
-//        ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
-//        logger.info(LoggerHelper.formatLeaveLog(exh));
-//        return res;
-//    }
+    //    @Idempotent(name = "unfreeze-cost")
+    //    @Operation(summary = "按成本解冻")
+    //    @PostMapping(value = "/unfreezeCost")
+    //    public Mono<ObjectResponse<PointOpResult>> unfreezeCost(ServerWebExchange exh, @RequestBody PointUnfreezeParam param) {
+    //        logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
+    //        PointUsage usage = PointUsageBuilder.fromPointUnfreezeParam(param);
+    //        if (StringUtils.isBlank(usage.getOrderNo())) {
+    //            throw new HyenaParameterException("invalid parameter 'orderNo'");
+    //        }
+    //        return this.pointUsageFacade.unfreezeCost(PSession.fromUsage(usage)).map(sess -> mapObjResult(exh, sess, null));
+    //    }
 
     @Idempotent(name = "refund")
     @Operation(summary = "退款")
     @PostMapping(value = "/refund")
-    public ObjectResponse<PointOpResult> refund(ServerWebExchange exh,
-                                                @RequestBody PointRefundParam param) {
+    public Mono<ObjectResponse<PointOpResult>> refund(ServerWebExchange exh,
+        @RequestBody PointRefundParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
         usage.setUnfreezePoint(param.getUnfreezePoint());
-        PointOpResult cusPoint = this.pointUsageFacade.refund(usage);
-        ObjectResponse<PointOpResult> res = new ObjectResponse<>(cusPoint);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        return res;
+        return this.pointUsageFacade.refund(PSession.fromUsage(usage))
+            .map(sess -> mapObjResult(exh, sess, null));
     }
 
     @Operation(summary = "获取时间段内总共增加的积分数量")
     @GetMapping(value = "/getIncreasedPoint")
-    public ObjectResponse<BigDecimal> getIncreasedPoint(
-            ServerWebExchange exh,
-            @Parameter(name = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @Parameter(name = "用户ID") @RequestParam(required = false) String uid,
-            @Parameter(name = "开始时间", example = "2019-03-25 18:35:21") @RequestParam(required = false, value = "start") String strStart,
-            @Parameter(name = "结束时间", example = "2019-04-26 20:15:31") @RequestParam(required = false, value = "end") String strEnd) {
+    public ObjectResponse<BigDecimal> getIncreasedPoint(ServerWebExchange exh,
+        @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+        @Parameter(description = "用户ID") @RequestParam(required = false) String uid,
+        @Parameter(description = "开始时间", example = "2019-03-25 18:35:21") @RequestParam(required = false, value = "start") String strStart,
+        @Parameter(description = "结束时间", example = "2019-04-26 20:15:31") @RequestParam(required = false, value = "end") String strEnd) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         try {
             Calendar calStart = DateUtils.fromYyyyMmDdHhMmSs(strStart);
             Calendar calEnd = DateUtils.fromYyyyMmDdHhMmSs(strEnd);
-            var ret = this.pointRecDs.getIncreasedPoint(type, uid, calStart.getTime(), calEnd.getTime());
+            var ret =
+                this.pointRecDs.getIncreasedPoint(type, uid, calStart.getTime(), calEnd.getTime());
 
             ObjectResponse<BigDecimal> res = new ObjectResponse<>(ret);
             logger.info(LoggerHelper.formatLeaveLog(exh) + " ret = {}", ret);
@@ -366,23 +340,31 @@ public class PointController {
 
     @Operation(summary = "禁用帐号")
     @PostMapping(value = "/disableAccount")
-    public BaseResponse disableAccount(
-            ServerWebExchange exh,
-            @Parameter(name = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-            @Parameter(name = "用户ID") @RequestParam String uid,
-            @Parameter(name = "用户二级ID") @RequestParam(required = false) String subUid) {
+    public BaseResponse disableAccount(ServerWebExchange exh,
+        @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+        @Parameter(description = "用户ID") @RequestParam String uid,
+        @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         this.pointDs.disableAccount(type, uid, subUid);
         logger.info(LoggerHelper.formatLeaveLog(exh));
         return BaseResponse.success();
     }
 
+    private ObjectResponse<PointOpResult> mapObjResult(ServerWebExchange exh, PSession sess,
+        Long startTime) {
+        ObjectResponse<PointOpResult> res = new ObjectResponse<>(sess.getResult());
+        logger.info(LoggerHelper.formatLeaveLog(exh));
+        if (startTime != null) {
+            debugPerformance(exh, startTime);
+        }
+        return res;
+    }
+
     private void debugPerformance(ServerWebExchange exh, long startTime) {
         long curTime = System.nanoTime();
         if (curTime - startTime > 2000L * 1000000) {
-            logger.warn("延迟过大...{}. url = {}",
-                    (curTime - startTime) / 1000000,
-                    exh.getRequest().getPath().toString());
+            logger.warn("延迟过大...{}. url = {}", (curTime - startTime) / 1000000,
+                exh.getRequest().getPath().toString());
         }
     }
 }

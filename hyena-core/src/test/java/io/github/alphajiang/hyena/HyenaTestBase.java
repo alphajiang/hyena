@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena;
 
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
@@ -102,7 +103,9 @@ public abstract class HyenaTestBase {
         sysPropertyDs.createSysPropertyTable();
         pointTableDs.getOrCreateTable(this.pointType);
 
-        userPoint = this.pointUsageFacade.increase(this.initialPointUsage);
+        userPoint = this.pointUsageFacade.increase(PSession.fromUsage(this.initialPointUsage))
+                .block()
+                .getResult();
         logger.info("userPoint = {}", userPoint);
         Assertions.assertNotNull(userPoint);
 

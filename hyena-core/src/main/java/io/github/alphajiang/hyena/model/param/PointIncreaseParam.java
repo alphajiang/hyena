@@ -36,45 +36,18 @@ public class PointIncreaseParam extends PointOpParam {
 
 
     @Nullable
-    @Schema(name = "实际成本", example = "1.00")
+    @Schema(title = "实际成本", example = "1.00")
     private BigDecimal cost;
 
     @Nullable
-    @Schema(name = "获取积分时间", example = "2005-12-25 15:34:46")
+    @Schema(title = "获取积分时间", example = "2005-12-25 15:34:46")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date issueTime;
 
     @Nullable
-    @Schema(name = "过期时间", example = "2025-10-24 15:34:46")
+    @Schema(title = "过期时间", example = "2025-10-24 15:34:46")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date expireTime;
 
 
-//    @Nullable
-//    public Long getCost() {
-//        return cost;
-//    }
-//
-//    public void setCost(@Nullable Long cost) {
-//        this.cost = cost;
-//    }
-//
-//    @Nullable
-//    public Date getIssueTime() {
-//        return issueTime;
-//    }
-//
-//    public PointIncreaseParam setIssueTime(@Nullable Date issueTime) {
-//        this.issueTime = issueTime;
-//        return this;
-//    }
-//
-//    @Nullable
-//    public Date getExpireTime() {
-//        return expireTime;
-//    }
-//
-//    public void setExpireTime(@Nullable Date expireTime) {
-//        this.expireTime = expireTime;
-//    }
 }

@@ -29,19 +29,19 @@ import io.github.alphajiang.hyena.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -64,7 +64,7 @@ public class PointRedisCacheService implements IPointCache {
     private PointDs pointDs;
 
     @Autowired
-    private RedisTemplate<String, String> redisStringTemplate;
+    private ReactiveStringRedisTemplate redisStringTemplate;
 
     @PostConstruct
     public void init() {
@@ -76,87 +76,91 @@ public class PointRedisCacheService implements IPointCache {
     }
 
 
-//    public void setRedisTemplate(RedisTemplate<String, String> redisStringTemplate) {
-//        this.redisStringTemplate = redisStringTemplate;
-//    }
-
-
     @Override
-    public PointWrapper getPoint(String type, String uid, String subUid, boolean lock) {
-        if (lock) {
-            synchronized (this) {
-                int retry = 5;
-                boolean locked = false;
-                while (!locked && retry > 0) {
-                    locked = this.lock(type, uid, subUid);
-                    retry--;
-                    if (!locked && retry > 0) {
-                        try {
-                            this.wait(50, 0);
-                        } catch (Exception e) {
-                            log.warn("error = {}", e.getMessage(), e);
-                        }
-                    }
-                }
-                if (!locked) {
-                    log.error("failed to get cache. type = {}, uid = {}, subUid = {}", type, uid, subUid);
-                    throw new HyenaServiceException("failed to get cache");
-                }
-            }
+    public Mono<PointWrapper> getPoint(String type, String uid, String subUid, boolean lock) {
+        int retry = 5;
+        if (!lock) {
+            retry = 0;
         }
-        PointWrapper result = new PointWrapper(this.getPointX(type, uid, subUid));
-        result.getPointCache().lock();
-        if (result.getPointCache().getPoint() == null) {
-            PointVo p = this.pointDs.getPointVo(type, null, uid, subUid);
-            if (p != null && p.getRecList() != null) {
-                p.setRecList(p.getRecList().stream().sorted(Comparator.comparingLong(PointRecPo::getId)).collect(Collectors.toList()));
-            }
-            result.getPointCache().setPoint(p);
-            String key = formatKey(type, uid, subUid);
-            this.redisStringTemplate.opsForValue().set(key,
-                    JsonUtils.toJsonString(result.getPointCache().getPoint()));
-            this.redisStringTemplate.expire(key, this.cacheTtl, TimeUnit.MINUTES);
-        }
-        return result;
+        Mono<PointWrapper> mono = lockLoop(type, uid, subUid, retry)
+                .flatMap(x -> this.getPointX(type, uid, subUid)
+                        .map(pc -> new PointWrapper(pc))
+                        .doOnNext(c -> {
+                            if (lock) {
+                                c.getPointCache().lock();
+                            }
+                        })
+                        .flatMap(c -> {
+                            if (c.getPointCache().getPoint() == null) {
+                                PointVo p = this.pointDs.getPointVo(type, null, uid, subUid);
+                                if (p != null && p.getRecList() != null) {
+                                    p.setRecList(p.getRecList().stream().sorted(Comparator.comparingLong(PointRecPo::getId)).collect(Collectors.toList()));
+                                }
+                                c.getPointCache().setPoint(p);
+                                if(p != null) {
+                                    return updateRedisPointCache(type, c.getPointCache().getPoint())
+                                            .map(b -> c);
+                                }else {
+                                    return Mono.just(c);
+                                }
+                            } else {
+                                return Mono.just(c);
+                            }
+                        })
+                );
+        return mono;
+    }
+
+    private Mono<Boolean> updateRedisPointCache(String type, PointVo point) {
+        String key = formatKey(type, point.getUid(), point.getSubUid());
+        return this.redisStringTemplate.opsForValue().set(key, JsonUtils.toJsonString(point), Duration.ofMinutes(this.cacheTtl));
     }
 
     @Override
-    public void updatePoint(String type, String uid, String subUid, PointVo point) {
+    public Mono<PointVo> updatePoint(String type, String uid, String subUid, PointVo point) {
         String key = formatKey(type, uid, subUid);
         String lockKey = formatLockKey(type, uid, subUid);
         log.info("update-unlock. key = {}, lockKey = {}, point = {}",
                 key, lockKey, point);
-//        this.redisStringTemplate.opsForValue().set(key, JsonUtils.toJsonString(point));
-//        this.redisStringTemplate.expire(key, this.cacheTtl, TimeUnit.MINUTES);
-//        this.unlock(type, uid, subUid);
-
-        this.redisStringTemplate.execute(new RedisUpdateCallback(key, JsonUtils.toJsonString(point), lockKey, this.cacheTtl));
-        log.debug("update-unlock done. key = {}, lockKey = {}", key, lockKey);
+        return this.redisStringTemplate.opsForValue().set(key, JsonUtils.toJsonString(point), Duration.ofMinutes(this.cacheTtl))
+                .flatMap(rt -> redisStringTemplate.delete(lockKey).map(delRt -> {
+                    log.debug("update-unlock done. key = {}, lockKey = {}", key, lockKey);
+                    return delRt > 0L;
+                }))
+                .map(rt -> point);
     }
 
     @Override
-    public synchronized void removePoint(String type, String uid, String subUid) {
-        try {
-            String key = this.formatKey(type, uid, subUid);
-            redisStringTemplate.delete(key);
-        } catch (Exception e) {
-            log.error("can't remove point. type = {}, uid = {}", type, uid);
-        }
+    public Mono<Boolean> removePoint(String type, String uid, String subUid) {
+//        try {
+        String key = this.formatKey(type, uid, subUid);
+        return redisStringTemplate.delete(key)
+                .map(rt -> {
+                    log.info("removePoint rt = {}", rt);
+                    return Boolean.TRUE;
+                });
+//        } catch (Exception e) {
+//            log.error("can't remove point. type = {}, uid = {}", type, uid);
+//        }
     }
 
 
-    private synchronized PointCache getPointX(String type, String uid, String subUid) {
+    private Mono<PointCache> getPointX(String type, String uid, String subUid) {
         String key = this.formatKey(type, uid, subUid);
-        PointCache p = new PointCache();
-        String strVal = redisStringTemplate.opsForValue().get(key);
-        if (StringUtils.isBlank(strVal)) {
-            //p = new PointCache();
-            //p.setKey(key);
-        } else {
-            p.setPoint(JsonUtils.fromJson(strVal, PointVo.class));
-        }
-        p.setUpdateTime(new Date());
-        return p;
+        return redisStringTemplate.opsForValue().get(key)
+                .flatMap(strVal -> {
+//                    log.debug("strVal from redis : {}", strVal);
+                    PointCache p = new PointCache();
+                    if (StringUtils.isNotBlank(strVal)) {
+                        p.setPoint(JsonUtils.fromJson(strVal, PointVo.class));
+                    }
+                    return Mono.just(p);
+                })
+                .switchIfEmpty(Mono.just(new PointCache()))
+                .doOnNext(pt -> {
+                    pt.setUpdateTime(new Date());
+                });
+
     }
 
     @Override
@@ -169,23 +173,77 @@ public class PointRedisCacheService implements IPointCache {
 
     }
 
+    private long getExpireTime() {
+        return System.currentTimeMillis() + CACHE_LOCK_TIME_SECONDS * 1000 + 1;
+    }
 
-    public boolean lock(String type, String uid, String subUid) {
+
+    public Mono<Boolean> lockLoop(String type, String uid, String subUid, int retry) {
+        if (retry < 1) {
+            return Mono.just(Boolean.TRUE);
+        }
+        Flux<Boolean> flux = Flux.empty();
+        for (int i = 0; i < retry; i++) {
+            int retryX = retry - i;
+            if (i == 0) {
+                flux = flux.concatWith(lock(type, uid, subUid, retryX));
+            } else {
+                flux = flux.concatWith(Mono.delay(Duration.ofMillis(50L)).flatMap(o -> lock(type, uid, subUid, retryX)));
+            }
+        }
+        return flux.any(Boolean.TRUE::equals)
+                .doOnNext(ret -> {
+                    if (!ret) {
+                        log.error("failed to get cache. type = {}, uid = {}, subUid = {}", type, uid, subUid);
+                        throw new HyenaServiceException("failed to get cache");
+                    }
+                });
+    }
+
+    public Mono<Boolean> lock(String type, String uid, String subUid, int retry) {
 
         String lockKey = formatLockKey(type, uid, subUid);
-        PointRedisCacheService.HyenaRedisCallback callback = new PointRedisCacheService.HyenaRedisCallback(lockKey);
+        log.debug("lockKey = {}, retry = {}", lockKey, retry);
+        Flux<Object> flux = redisStringTemplate.executeInSession(op -> {
+            return op.opsForValue().setIfAbsent(lockKey, String.valueOf(getExpireTime()))
+                    .flatMap(ret -> {
+                        log.debug("lockKey = {}, setNX ret = {}", lockKey, ret);
+                        if (Boolean.TRUE.equals(ret)) {
+                            return op.expireAt(lockKey, Instant.ofEpochMilli(getExpireTime()));
+//                            return op.expireAt(lockKey, Instant.ofEpochMilli(System.currentTimeMillis() + 90 * 1000 + 1));
+                        } else {
+                            return op.opsForValue().get(lockKey)
+                                    .flatMap(v -> {
+                                        long expireTime = NumberUtils.parseLong(v, 0L);
+                                        log.debug("lockKey = {}, expireTime = {}", lockKey, expireTime);
+                                        if (expireTime < System.currentTimeMillis()) {
+                                            return op.opsForValue().getAndSet(lockKey, String.valueOf(getExpireTime()))
+                                                    .map(oldVal -> {
+                                                        long oldExpire = NumberUtils.parseLong(oldVal, 0L);
+                                                        log.debug("lockKey = {}, oldExpire = {}, curtime = {}", lockKey, oldExpire, System.currentTimeMillis());
+                                                        return oldExpire < System.currentTimeMillis();
+                                                    });
+                                        } else {
+                                            return Mono.just(Boolean.FALSE);
+                                        }
+                                    });
+                        }
+                    });
 
-        Boolean ret = redisStringTemplate.execute(callback);
-        log.info("lock result = {}, lockKey = {}", ret, lockKey);
-        return ret != null && ret;
+        });
+        return flux.all(ret -> Boolean.TRUE.equals(ret));
     }
 
     @Override
-    public void unlock(String type, String uid, String subUid) {
+    public Mono<Boolean> unlock(String type, String uid, String subUid) {
         //log.debug("unlock seq = {}", seq);
         String lockKey = formatLockKey(type, uid, subUid);
-        redisStringTemplate.delete(lockKey);
-        log.info("unlock lockKey = {}", lockKey);
+        return redisStringTemplate.delete(lockKey)
+                .map(rt -> {
+                    log.debug("unlock lockKey = {}, rt = {}", lockKey, rt);
+                    return Boolean.TRUE;
+                });
+
     }
 
 
@@ -205,64 +263,4 @@ public class PointRedisCacheService implements IPointCache {
         }
     }
 
-    public static class HyenaRedisCallback implements RedisCallback<Boolean> {
-
-        private final String lockKey;
-
-        HyenaRedisCallback(String lockKey) {
-            this.lockKey = lockKey;
-        }
-
-        @Override
-        public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
-            Boolean acquire = connection.setNX(lockKey.getBytes(), String.valueOf(getExpireTime()).getBytes());
-
-            if (acquire != null && acquire) {
-                connection.pExpireAt(lockKey.getBytes(), getExpireTime());
-                return true;
-            } else {
-
-                byte[] value = connection.get(lockKey.getBytes());
-
-                if (value != null && value.length > 0) {
-
-                    long expireTime = Long.parseLong(new String(value));
-
-                    if (expireTime < System.currentTimeMillis()) {
-                        long oldValue = NumberUtils.parseLong(connection.getSet(lockKey.getBytes(),
-                                String.valueOf(getExpireTime()).getBytes()), 0L);
-                        return oldValue < System.currentTimeMillis();
-                    }
-                }
-            }
-            return false;
-        }
-
-        private long getExpireTime() {
-            return System.currentTimeMillis() + CACHE_LOCK_TIME_SECONDS * 1000 + 1;
-        }
-    }
-
-
-    public static class RedisUpdateCallback implements RedisCallback<Boolean> {
-
-        private String key;
-        private String value;
-        private String lockKey;
-        private int ttlMinutes;
-
-        public RedisUpdateCallback(String key, String value, String lockKey, int ttlMinutes) {
-            this.key = key;
-            this.value = value;
-            this.lockKey = lockKey;
-            this.ttlMinutes = ttlMinutes;
-        }
-
-        @Override
-        public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
-            connection.setEx(key.getBytes(), ttlMinutes * 60, value.getBytes());
-            connection.del(lockKey.getBytes());
-            return true;
-        }
-    }
 }

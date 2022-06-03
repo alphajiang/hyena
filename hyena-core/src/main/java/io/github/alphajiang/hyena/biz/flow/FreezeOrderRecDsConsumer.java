@@ -19,6 +19,7 @@ package io.github.alphajiang.hyena.biz.flow;
 
 import io.github.alphajiang.hyena.ds.service.FreezeOrderRecDs;
 import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
+import io.github.alphajiang.hyena.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class FreezeOrderRecDsConsumer implements Runnable {
         Map<String, List<FreezeOrderRecPo>> map4Update = new HashMap<>();
 
         list.stream().forEach(o -> {
-            if (o.isInsert()) {
+            if (o.isInsert() && StringUtils.isNotBlank(o.getFreezeOrderRec().getOrderNo())) {
                 this.add2Map(o, map4Insert);
             } else {
                 this.add2Map(o, map4Update);

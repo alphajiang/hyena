@@ -19,9 +19,9 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.biz.point.PointWrapper;
 import io.github.alphajiang.hyena.ds.service.PointTableDs;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaParameterException;
@@ -39,6 +39,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
@@ -64,65 +65,74 @@ abstract class AbstractPointStrategy implements PointStrategy {
     abstract PointOpResult processPoint(PointUsage usage, PointCache p);
 
     @Override
-    public PointOpResult process(PointUsage usage) {
-        log.info("usage = {}", usage);
-        PointVo backup = null;
-        PointVo point = null;
-        if (usage.getPw() == null) {
+    public Mono<PSession> process(PSession session) {
+        log.info("usage = {}", session.getUsage());
+        PointUsage usage = session.getUsage();
+        if (session.getPw() == null) {
             boolean localLockRet = hyenaLockService.lock(usage.getUid(), usage.getSubUid());
             if (!localLockRet) {
                 log.error("get lock timeout!!! usage = {}", usage);
                 throw new HyenaServiceException("get lock timeout, retry later");
             }
         }
-        try {
-            try (PointWrapper pw = preProcess(usage, usage.getPw() == null, true)) {
-                PointCache p;
-                if (usage.getPw() != null) {
-                    p = usage.getPw().getPointCache();
-                } else {
-                    p = pw.getPointCache();
-                }
-                point = p.getPoint();
-                backup = new PointVo();
-                BeanUtils.copyProperties(point, backup);
-                PointOpResult result = this.processPoint(usage, p);
-                if (usage.isDoUpdate()) {
-                    hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
-                            usage.getUid(), usage.getSubUid(), p.getPoint());
-                }
-                //hyenaCacheFactory.getPointCacheService().un
-                return result;
-            } catch (Exception e) {
-                log.warn("exception: {}", e.getMessage(), e);
-                if (point != null && backup != null) {
-                    // 回滚缓存的数据
-                    BeanUtils.copyProperties(backup, point);
-                }
-                hyenaCacheFactory.getPointCacheService().unlock(usage.getType(), usage.getUid(), usage.getSubUid());
 
-                throw e;
-            }
-        } catch (Exception e3) {
-            throw e3;
-        } finally {
-            if (usage.getPw() == null) {
-                hyenaLockService.unlock(usage.getUid(), usage.getSubUid());
-            }
-        }
+        return preProcess(session, session.getPw() == null, true)
+                .flatMap(pw -> {
+
+                    PointCache p = session.getPw().getPointCache();
+//                    if (usage.getPw() != null) {
+//                        p = usage.getPw().getPointCache();
+//                    } else {
+//                        p = pw.getPointCache();
+//                    }
+
+                    session.setOriginPoint(new PointVo());
+                    BeanUtils.copyProperties(p.getPoint(), session.getOriginPoint());
+                    PointOpResult result = this.processPoint(usage, p);
+                    session.setResult(result);
+                    if (usage.isDoUpdate()) {
+                        return hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                                        usage.getUid(), usage.getSubUid(), p.getPoint())
+                                .map(x -> session);
+                    } else {
+                        return Mono.just(session);
+                    }
+                })
+                .doOnError(err -> {
+                    log.error("error = {}", err.getMessage(), err);
+                    log.error("session data = {}", session);
+                    if (session.getOriginPoint() != null
+                            && session.getPw() != null
+                            && session.getPw().getPointCache() != null
+                            && session.getPw().getPointCache().getPoint() != null) {
+                        // 回滚缓存的数据
+                        BeanUtils.copyProperties(session.getOriginPoint(), session.getPw().getPointCache().getPoint());
+                    }
+                    hyenaCacheFactory.getPointCacheService().unlock(usage.getType(), usage.getUid(), usage.getSubUid())
+                            .subscribe();
+                })
+                .doFinally(pw -> {
+                    if(session.getPw() != null) {
+                        session.getPw().close();
+                    }
+                    hyenaLockService.unlock(usage.getUid(), usage.getSubUid());
+                });
+
+
     }
 
 
-    PointWrapper preProcess(PointUsage usage) {
-        return this.preProcess(usage, false);
+    Mono<PSession> preProcess(PSession session) {
+        return this.preProcess(session, false);
     }
 
-    PointWrapper preProcess(PointUsage usage, boolean fetchPoint) {
-        return this.preProcess(usage, fetchPoint, false);
+    Mono<PSession> preProcess(PSession session, boolean fetchPoint) {
+        return this.preProcess(session, fetchPoint, false);
     }
 
-    PointWrapper preProcess(PointUsage usage, boolean fetchPoint, boolean mustExist) {
+    Mono<PSession> preProcess(PSession session, boolean fetchPoint, boolean mustExist) {
         //String tableName =
+        PointUsage usage = session.getUsage();
         HyenaAssert.notBlank(usage.getType(), "invalid parameter, 'type' can't blank");
         HyenaAssert.notBlank(usage.getUid(), "invalid parameter, 'uid' can't blank");
 //        if (usage.getPw() != null) {
@@ -136,7 +146,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
                 throw new HyenaParameterException("invalid parameter cost");
             }
         } else {
-            HyenaAssert.isTrue(usage.getPoint().compareTo(DecimalUtils.ZERO) > 0,
+            HyenaAssert.isTrue(usage.getPoint() != null && usage.getPoint().compareTo(DecimalUtils.ZERO) > 0,
                     HyenaConstants.RES_CODE_PARAMETER_ERROR,
                     "invalid parameter, 'point' must great than 0");
         }
@@ -144,15 +154,20 @@ abstract class AbstractPointStrategy implements PointStrategy {
         //logger.debug("tableName = {}", tableName);
 
         if (fetchPoint) {
-            PointWrapper pw = this.hyenaCacheFactory.getPointCacheService()
-                    .getPoint(usage.getType(), usage.getUid(), usage.getSubUid(), true);
-            if (mustExist && pw.getPointCache().getPoint() == null) {
-                pw.close();
-                throw new HyenaParameterException("account not exist");
-            }
-            return pw;
+            return this.hyenaCacheFactory.getPointCacheService()
+                    .getPoint(usage.getType(), usage.getUid(), usage.getSubUid(), true)
+                    .doOnNext(pw -> {
+                        if (mustExist && pw.getPointCache().getPoint() == null) {
+                            pw.close();
+                            throw new HyenaParameterException("account not exist");
+                        }
+                    })
+                    .map(pw -> {
+                        session.setPw(pw);
+                        return session;
+                    });
         } else {
-            return null;
+            return Mono.just(session);
         }
     }
 

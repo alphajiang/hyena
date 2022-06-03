@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.biz.strategy;
 
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointRefundStrategy;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
@@ -66,7 +67,9 @@ public class TestPointRefundStrategy extends TestPointStrategyBase {
         usage.setType(super.getPointType()).setUid(super.getUid()).setCost(refundNum)
                 .setTag(USAGE_TAG).setOrderNo(UUID.randomUUID().toString())
                 .setNote("test_refundPoint");
-        PointPo result = this.strategy.process(usage);
+        PointPo result = this.strategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         log.info("result = {}", result);
         Assertions.assertEquals(this.point.getPoint().subtract(refundNum.multiply(BigDecimal.valueOf(2))), result.getPoint());
         Assertions.assertEquals(BigDecimal.valueOf(20L).setScale(DecimalUtils.SCALE_2), result.getAvailable());
@@ -176,13 +179,17 @@ public class TestPointRefundStrategy extends TestPointStrategyBase {
         freezeUsage1.setType(super.getPointType()).setUid(super.getUid()).setPoint(freezeNum[0])
                 .setOrderNo(orderNo)
                 .setNote("test_refundPoint_using_orderNo-1");
-        this.point = this.pointFreezeStrategy.process(freezeUsage1);
+        this.point = this.pointFreezeStrategy.process(PSession.fromUsage(freezeUsage1))
+                .block()
+                .getResult();
 
         PointUsage freezeUsage2 = new PointUsage();
         freezeUsage2.setType(super.getPointType()).setUid(super.getUid()).setPoint(freezeNum[1])
                 .setOrderNo(orderNo)
                 .setNote("test_refundPoint_using_orderNo-2");
-        this.point = this.pointFreezeStrategy.process(freezeUsage2);
+        this.point = this.pointFreezeStrategy.process(PSession.fromUsage(freezeUsage2))
+                .block()
+                .getResult();
         Thread.sleep(200L);
 
         log.info("======>");
@@ -194,7 +201,8 @@ public class TestPointRefundStrategy extends TestPointStrategyBase {
                 .setUnfreezeByOrderNo(true)
                 .setOrderNo(orderNo)
                 .setNote("test_refundPoint_using_orderNo");
-        PointPo result = this.strategy.process(usage);
+        PointPo result = this.strategy.process(PSession.fromUsage(usage))
+                .block().getResult();
         log.info("<======");
 
         log.info("result = {}", result);

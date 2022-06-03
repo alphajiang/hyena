@@ -22,15 +22,17 @@ dependencies {
     implementation project(':hyena-spring-boot-starter')
 
     implementation("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
     implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
     implementation("org.springframework.boot:spring-boot-starter-cache:${springBootVersion}")
     implementation('org.springframework.boot:spring-boot-starter-actuator')
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+//    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisStarterVersion}")
     implementation("org.springdoc:springdoc-openapi-ui:${springdocVersion}")
+    implementation("org.springdoc:springdoc-openapi-webflux-ui:${springdocVersion}")
 
 
 

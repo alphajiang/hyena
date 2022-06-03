@@ -6,8 +6,10 @@ dependencies {
     implementation project(':hyena-core')
 
     implementation("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis:${springBootVersion}")
+//    implementation("org.springframework.boot:spring-boot-starter-data-redis:${springBootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive:${springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
     implementation("org.springdoc:springdoc-openapi-ui:${springdocVersion}")
+    implementation("org.springdoc:springdoc-openapi-webflux-ui:${springdocVersion}")
 
 }

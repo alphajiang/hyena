@@ -44,13 +44,13 @@ public class PointRecPo extends BasePo<Long>  {
     private BigDecimal refund;
     private BigDecimal cancelled;
     private BigDecimal expire;
-    @Schema(name = "总成本")
+    @Schema(title = "总成本")
     private BigDecimal totalCost;
-    @Schema(name = "冻结的成本")
+    @Schema(title = "冻结的成本")
     private BigDecimal frozenCost;
-    @Schema(name = "已消耗的成本")
+    @Schema(title = "已消耗的成本")
     private BigDecimal usedCost;
-    @Schema(name = "已退款的成本")
+    @Schema(title = "已退款的成本")
     private BigDecimal refundCost;
     private String tag;
     private String orderNo;
@@ -62,7 +62,7 @@ public class PointRecPo extends BasePo<Long>  {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Schema(name = "发放时间")
+    @Schema(title = "发放时间")
     private Date issueTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")

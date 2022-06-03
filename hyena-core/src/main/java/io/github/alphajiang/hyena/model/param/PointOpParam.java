@@ -31,42 +31,44 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class PointOpParam extends BaseObject {
-    @Schema(name = "请求消息序列号", example = "", hidden = true)
+    @Schema(title = "请求消息序列号", example = "", hidden = true)
     private String seq;
 
-    @Schema(name = "积分类型", example = "score")
+    @Schema(title = "积分类型", example = "score")
     private String type = "default";
 
-    @Schema(name = "用户ID", example = "customer_abc123")
+    @Schema(title = "用户ID", example = "customer_abc123")
     private String uid;
 
-    @Schema(name = "用户二级ID", example = "customer_abc123")
+    @Schema(title = "用户二级ID", example = "customer_abc123")
     private String subUid;
 
-    @Schema(name = "显示名称", example = "Tom")
+    @Schema(title = "显示名称", example = "Tom")
     private String name;
 
-    @Schema(name = "积分数量", example = "10.00")
+    @Schema(title = "积分数量", example = "10.00")
     private BigDecimal point;
 
+    @Schema(title = "指定操作的积分块ID", example = "123")
+    private Long recId;
 
-    @Schema(name = "标签", example = "")
+    @Schema(title = "标签", example = "")
     private String tag;
 
-    @Schema(name = "变动相关的订单", example = "")
+    @Schema(title = "变动相关的订单", example = "")
     private String orderNo;
 
 
-    @Schema(name = "自定义来源")
+    @Schema(title = "自定义来源")
     private Integer sourceType;
-    @Schema(name = "自定义订单类型")
+    @Schema(title = "自定义订单类型")
     private Integer orderType;
-    @Schema(name = "自定义支付方式")
+    @Schema(title = "自定义支付方式")
     private Integer payType;
 
     private Object extra;
 
-    @Schema(name = "备注", example = "this is a note")
+    @Schema(title = "备注", example = "this is a note")
     private String note = "";
 
 

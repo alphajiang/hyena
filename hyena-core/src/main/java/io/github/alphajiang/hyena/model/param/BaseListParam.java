@@ -26,22 +26,22 @@ public class BaseListParam extends BaseObject {
 
     private String type;
 
-    @Schema(name = "搜索关键词")
+    @Schema(title = "搜索关键词")
     private String sk = "";
 
-    @Schema(name = "是否有效")
+    @Schema(title = "是否有效")
     private Boolean enable;
 
     private boolean lock = false;
 
 
-    @Schema(name = "分页开始")
+    @Schema(title = "分页开始")
     private Long start;
 
-    @Schema(name = "查询最大数量")
+    @Schema(title = "查询最大数量")
     private Integer size;
 
-    @Schema(name = "排序方式")
+    @Schema(title = "排序方式")
     private List<SortParam> sorts;
 
 

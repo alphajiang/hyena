@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -55,7 +56,7 @@ public class IdempotentAround {
 
         ServerWebExchange exh = (ServerWebExchange) args[0];
         PointOpParam param = (PointOpParam) args[1];
-        BaseResponse res;
+       Mono< BaseResponse> res;
 
         // String seq = request.getParameter(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY);
 //        String seq = param.getSeq();
@@ -66,15 +67,17 @@ public class IdempotentAround {
         }
 //        request.getResponse().getHeaders().set(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY, seq);
 
-        res = this.preProceed(name, param, method);
+        BaseResponse preRes = this.preProceed(name, param, method);
 
-        if (res != null) {
-            return res;
+        if (preRes != null) {
+            return Mono.just(preRes);
         }
 
-        res = (BaseResponse) point.proceed(point.getArgs());
-
-        this.postProceed(name, param, res);
+       res = (Mono) point.proceed(point.getArgs());
+       res =  res.doOnNext(o -> {
+            this.postProceed(name, param, (BaseResponse) o);
+        })
+        ;
         return res;
     }
 
@@ -106,7 +109,8 @@ public class IdempotentAround {
         }
 
         if (!this.hyenaIdempotent.lock(key)) {
-            res = (BaseResponse) method.getReturnType().getDeclaredConstructor().newInstance();
+//            res = (BaseResponse) method.getReturnType().getDeclaredConstructor().newInstance();
+            res = new BaseResponse();
             res.setStatus(HyenaConstants.RES_CODE_DUPLICATE_IDEMPOTENT);
             res.setError("请勿重复提交");
 

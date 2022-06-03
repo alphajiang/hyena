@@ -129,10 +129,12 @@ public class PointCancelStrategy extends AbstractPointStrategy {
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1)
                 .setPoint(curPoint.getPoint().subtract(delta))
-                .setAvailable(curPoint.getAvailable().subtract(delta));
+                .setAvailable(curPoint.getAvailable().subtract(delta))
+                .setCost(curPoint.getCost().subtract(deltaCost));
         var point2Update = new PointPo();
         point2Update.setPoint(curPoint.getPoint())
                 .setAvailable(curPoint.getAvailable())
+                .setCost(curPoint.getCost())
                 .setSeqNum(curPoint.getSeqNum())
                 .setId(curPoint.getId());
 

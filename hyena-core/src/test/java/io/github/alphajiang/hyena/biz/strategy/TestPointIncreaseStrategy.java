@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.biz.strategy;
 
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -42,7 +43,9 @@ public class TestPointIncreaseStrategy extends TestPointStrategyBase {
         BigDecimal resultNumber = this.point.getPoint().add(number);
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number);
-        PointPo result = this.pointIncreaseStrategy.process(usage);
+        PointPo result = this.pointIncreaseStrategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         logger.info("result = {}", result);
         Assertions.assertEquals(resultNumber, result.getPoint());
         Assertions.assertEquals(resultNumber, result.getAvailable());

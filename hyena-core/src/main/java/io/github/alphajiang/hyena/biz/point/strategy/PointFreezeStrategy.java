@@ -28,6 +28,7 @@ import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecLogDs;
 import io.github.alphajiang.hyena.model.dto.PointRecLogDto;
 import io.github.alphajiang.hyena.model.exception.HyenaNoPointException;
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -49,6 +50,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -92,6 +94,10 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
             throw new HyenaNoPointException("no enough available point", Level.WARN);
         }
 
+        if (usage.getRecId() != null && usage.getRecId() > 0L) {
+            checkPointRec(usage, pointCache);   // 校验失败会抛出异常
+        }
+
         curPoint.setSeqNum(curPoint.getSeqNum() + 1)
                 .setAvailable(curPoint.getAvailable().subtract(usage.getPoint()))
                 .setFrozen(curPoint.getFrozen().add(usage.getPoint()));
@@ -108,7 +114,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
 
 
         LoopResult recLogsRet = this.freezePointLoop(usage, pointCache,
-                pointLog, gap);
+                pointLog, gap, usage.getRecId());
         gap = gap.subtract(recLogsRet.getDelta());
         cost = cost.add(recLogsRet.getDeltaCost());
         recLogs.addAll(recLogsRet.getRecLogs());
@@ -144,7 +150,7 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
 
 
     private LoopResult freezePointLoop(PointUsage usage, PointCache pointCache,
-                                       PointLogPo pointLog, BigDecimal expected) {
+                                       PointLogPo pointLog, BigDecimal expected, Long recId) {
         log.info("freeze. type = {}, uid = {}, expected = {}",
                 usage.getType(), pointCache.getPoint().getUid(), expected);
 
@@ -156,7 +162,9 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
         List<FreezeOrderRecPo> forList = new ArrayList<>();
         for (PointRecPo rec : pointCache.getPoint().getRecList()) {
             BigDecimal gap = expected.subtract(sum);
-            if (DecimalUtils.lte(gap, DecimalUtils.ZERO)) {
+            if (recId != null && recId > 0L && !recId.equals(rec.getId())) {
+                continue;
+            } else if (DecimalUtils.lte(gap, DecimalUtils.ZERO)) {
                 log.warn("gap = {} !!!", gap);
                 break;
             } else if (DecimalUtils.lte(rec.getAvailable(), DecimalUtils.ZERO)) {
@@ -196,4 +204,23 @@ public class PointFreezeStrategy extends AbstractPointStrategy {
     }
 
 
+    private boolean checkPointRec(PointUsage usage, PointCache pointCache) {
+        var filter = pointCache.getPoint().getRecList().stream()
+                .filter(rec -> rec.getId().equals(usage.getRecId())).findFirst();
+        if (filter.isPresent()) {
+            PointRecPo rec = filter.get();
+            if (DecimalUtils.gte(rec.getAvailable(), usage.getPoint())) {
+                return true;
+            } else {
+                log.warn("块内余额不足. rec = {}, usage = {}", rec, usage);
+                throw new HyenaServiceException("块内余额不足");
+            }
+        } else {
+            log.warn("积分块已消耗完. recId = {}, recIdList = {}",
+                    usage.getRecId(),
+                    pointCache.getPoint().getRecList().stream().map(PointRecPo::getId).collect(Collectors.toList()));
+            throw new HyenaServiceException("积分块已消耗完");
+        }
+
+    }
 }

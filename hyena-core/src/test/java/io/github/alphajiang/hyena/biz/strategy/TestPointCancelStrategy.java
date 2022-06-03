@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.biz.strategy;
 
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
@@ -63,7 +64,9 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setRecId(rec.getId())
                 .setUid(super.getUid()).setPoint(number).setNote("test_cancelPoint_byRecId");
-        PointPo result = this.pointCancelStrategy.process(usage);
+        PointPo result = this.pointCancelStrategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         log.info("result = {}", result);
         // Assertions.assertEquals(number, result.getPoint() );
         Assertions.assertEquals(resultAvailable, result.getAvailable());
@@ -93,7 +96,9 @@ public class TestPointCancelStrategy extends TestPointStrategyBase {
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType())
                 .setUid(super.getUid()).setPoint(number).setNote("test_cancelPoint");
-        PointPo result = this.pointCancelStrategy.process(usage);
+        PointPo result = this.pointCancelStrategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         log.info("result = {}", result);
         Assertions.assertEquals(resultAvailable, result.getPoint());
         Assertions.assertEquals(resultAvailable, result.getAvailable());

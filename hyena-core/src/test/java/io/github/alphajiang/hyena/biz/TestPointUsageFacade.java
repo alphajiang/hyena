@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.biz;
 
 import io.github.alphajiang.hyena.HyenaTestBase;
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
 import io.github.alphajiang.hyena.model.po.PointPo;
@@ -41,7 +42,9 @@ public class TestPointUsageFacade extends HyenaTestBase {
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setUid("test_increase")
                 .setPoint(BigDecimal.valueOf(99887L));
-        PointPo ret = this.pointUsageFacade.increase(usage);
+        PointPo ret = this.pointUsageFacade.increase(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         logger.info("point = {}", ret);
         Assertions.assertNotNull(ret);
 

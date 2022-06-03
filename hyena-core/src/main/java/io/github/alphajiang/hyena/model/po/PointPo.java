@@ -30,7 +30,7 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class PointPo extends BasePo<Long>  {
+public class PointPo extends BasePo<Long> {
 
     private String uid;
     private String subUid;
@@ -41,22 +41,28 @@ public class PointPo extends BasePo<Long>  {
     private BigDecimal frozen;
     private BigDecimal refund;
     private BigDecimal expire;
-    @Schema(name = "实际成本(含冻结部分)")
+    @Schema(title = "实际成本(含冻结部分)")
     private BigDecimal cost;
-    @Schema(name = "冻结的成本")
+    @Schema(title = "冻结的成本")
     private BigDecimal frozenCost;
     private Long seqNum;
 
     public static PointPo buildPointPo() {
         PointPo p = new PointPo();
-        p.setPoint(BigDecimal.ZERO)
+        buildPointPo(p);
+        return p;
+    }
+
+    public static PointPo buildPointPo(PointPo in) {
+        in.setPoint(BigDecimal.ZERO)
                 .setAvailable(BigDecimal.ZERO)
                 .setUsed(BigDecimal.ZERO)
                 .setFrozen(BigDecimal.ZERO)
                 .setRefund(BigDecimal.ZERO)
                 .setExpire(BigDecimal.ZERO)
                 .setCost(BigDecimal.ZERO)
-                .setFrozenCost(BigDecimal.ZERO);
-        return p;
+                .setFrozenCost(BigDecimal.ZERO)
+                .setSeqNum(0L);
+        return in;
     }
 }

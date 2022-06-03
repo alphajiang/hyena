@@ -42,7 +42,7 @@ public class PointLogPo extends BasePo<Long> {
     private String subUid;
     private long seqNum;
     private BigDecimal delta;
-    @Schema(name = "变动部分的实际成本")
+    @Schema(title = "变动部分的实际成本")
     private BigDecimal deltaCost;
     private BigDecimal point;
     private BigDecimal available;
@@ -50,9 +50,9 @@ public class PointLogPo extends BasePo<Long> {
     private BigDecimal frozen;
     private BigDecimal refund;
     private BigDecimal expire;
-    @Schema(name = "变动后,实际成本")
+    @Schema(title = "变动后,实际成本")
     private BigDecimal cost;
-    @Schema(name = "变动后,冻结的成本")
+    @Schema(title = "变动后,冻结的成本")
     private BigDecimal frozenCost;
     /**
      * PointOpType

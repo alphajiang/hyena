@@ -17,6 +17,9 @@ public class DecimalUtils {
         return left.compareTo(right) < 0;
     }
 
+    public static boolean ltZero(BigDecimal left) {
+        return left.compareTo(BigDecimal.ZERO) < 0;
+    }
     public static boolean lte(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) < 1;
     }

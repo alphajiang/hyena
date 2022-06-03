@@ -25,9 +25,9 @@ public class PointUsageBuilder {
     public static PointUsage fromPointOpParam(PointOpParam param) {
         PointUsage usage = new PointUsage();
         usage.setType(param.getType()).setUid(param.getUid())
-
                 .setName(param.getName())
                 .setPoint(param.getPoint())
+                .setRecId(param.getRecId())
                 .setTag(param.getTag())
                 .setOrderNo(param.getOrderNo())
                 .setSourceType(param.getSourceType())
@@ -45,7 +45,8 @@ public class PointUsageBuilder {
 
     public static PointUsage fromPointIncreaseParam(PointIncreaseParam param) {
         PointUsage usage = new PointUsage();
-        usage.setType(param.getType()).setUid(param.getUid())
+        usage.setType(param.getType())
+                .setUid(param.getUid())
                 .setName(param.getName())
                 .setPoint(param.getPoint())
                 .setCost(param.getCost())

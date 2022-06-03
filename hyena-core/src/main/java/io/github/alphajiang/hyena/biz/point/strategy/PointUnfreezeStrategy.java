@@ -208,7 +208,7 @@ public class PointUnfreezeStrategy extends AbstractPointStrategy {
 
     private LoopResult unfreezeByOrderNo(PointUsage usage, PointCache pointCache,
                                          PointLogPo pointLog) {
-        log.info("unfreeze. type = {}, uid = {}",
+        log.info("unfreezeByOrderNo. type = {}, uid = {}",
                 usage.getType(), pointCache.getPoint().getUid());
         if (StringUtils.isBlank(usage.getOrderNo())) {
             log.warn("invalid parameter: orderNo is blank. usage = {}", usage);

@@ -17,9 +17,11 @@
 
 package io.github.alphajiang.hyena.biz.strategy;
 
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.model.dto.PointLogDto;
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.param.ListPointLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecLogParam;
 import io.github.alphajiang.hyena.model.param.ListPointRecParam;
@@ -31,15 +33,14 @@ import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.type.SortOrder;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaTestAssert;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 public class TestPointDecreaseStrategy extends TestPointStrategyBase {
@@ -55,8 +56,7 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
 
 
     /**
-     * 1, increase 100
-     * 2, decrease 80
+     * 1, increase 100 2, decrease 80
      */
     @Test
     public void test_decreasePoint() throws InterruptedException {
@@ -65,11 +65,13 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         BigDecimal resultNumber = this.point.getPoint().subtract(number);
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number)
-                .setOrderNo(UUID.randomUUID().toString()).setTag(USAGE_TAG)
-                .setSourceType(DECREASE_SOURCE_TYPE).setOrderType(DECREASE_ORDER_TYPE)
-                .setPayType(DECREASE_PAY_TYPE)
-                .setNote("test_decreasePoint");
-        PointPo result = this.pointDecreaseStrategy.process(usage);
+            .setOrderNo(UUID.randomUUID().toString()).setTag(USAGE_TAG)
+            .setSourceType(DECREASE_SOURCE_TYPE).setOrderType(DECREASE_ORDER_TYPE)
+            .setPayType(DECREASE_PAY_TYPE)
+            .setNote("test_decreasePoint");
+        PointPo result = this.pointDecreaseStrategy.process(PSession.fromUsage(usage))
+            .block()
+            .getResult();
         log.info("result = {}", result);
         Assertions.assertEquals(resultNumber, result.getPoint());
         Assertions.assertEquals(resultNumber, result.getAvailable());
@@ -81,31 +83,31 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         // verify point log
         ListPointLogParam listPointLogParam = new ListPointLogParam();
         listPointLogParam.setUid(super.getUid()).setSeqNum(result.getSeqNum())
-                .setSourceTypes(List.of(DECREASE_SOURCE_TYPE))
-                .setOrderTypes(List.of(DECREASE_ORDER_TYPE))
-                .setPayTypes(List.of(DECREASE_PAY_TYPE))
-                .setType(super.getPointType());
+            .setSourceTypes(List.of(DECREASE_SOURCE_TYPE))
+            .setOrderTypes(List.of(DECREASE_ORDER_TYPE))
+            .setPayTypes(List.of(DECREASE_PAY_TYPE))
+            .setType(super.getPointType());
         var pointLogs = pointLogDs.listPointLog(listPointLogParam);
         log.info("pointLogs = {}", pointLogs);
         Assertions.assertEquals(1, pointLogs.size());
         var pointLog = pointLogs.get(0);
         var expectPoingLog = new PointLogDto();
         expectPoingLog.setUid(super.getUid()).setType(PointOpType.DECREASE.code())
-                .setSeqNum(result.getSeqNum()).setDelta(number)
-                .setDeltaCost(number.divide(BigDecimal.valueOf(2)))
-                .setPoint(result.getPoint()).setAvailable(result.getAvailable())
-                .setUsed(result.getUsed()).setFrozen(result.getFrozen())
-                .setExpire(result.getExpire())
-                .setRefund(DecimalUtils.ZERO)
-                .setCost(INCREASE_COST_1.subtract(number.divide(BigDecimal.valueOf(2))))
-                .setFrozenCost(DecimalUtils.ZERO)
-                .setTag(usage.getTag())
-                .setOrderNo(usage.getOrderNo())
-                .setSourceType(DECREASE_SOURCE_TYPE)
-                .setOrderType(DECREASE_ORDER_TYPE)
-                .setPayType(DECREASE_PAY_TYPE)
-                .setExtra(usage.getExtra())
-                .setNote(usage.getNote());
+            .setSeqNum(result.getSeqNum()).setDelta(number)
+            .setDeltaCost(number.divide(BigDecimal.valueOf(2)))
+            .setPoint(result.getPoint()).setAvailable(result.getAvailable())
+            .setUsed(result.getUsed()).setFrozen(result.getFrozen())
+            .setExpire(result.getExpire())
+            .setRefund(DecimalUtils.ZERO)
+            .setCost(INCREASE_COST_1.subtract(number.divide(BigDecimal.valueOf(2))))
+            .setFrozenCost(DecimalUtils.ZERO)
+            .setTag(usage.getTag())
+            .setOrderNo(usage.getOrderNo())
+            .setSourceType(DECREASE_SOURCE_TYPE)
+            .setOrderType(DECREASE_ORDER_TYPE)
+            .setPayType(DECREASE_PAY_TYPE)
+            .setExtra(usage.getExtra())
+            .setNote(usage.getNote());
         HyenaTestAssert.assertEquals(expectPoingLog, pointLog);
 
         // verify point record
@@ -117,18 +119,18 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         PointRecPo pointRec = pointRecList.get(0);
         var expectPointRec = new PointRecPo();
         expectPointRec.setPid(super.point.getId()).setSeqNum(super.seqNumIncrease1)
-                .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1.subtract(number))
-                .setUsed(number).setFrozen(DecimalUtils.ZERO)
-                .setExpire(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO)
-                .setTotalCost(super.INCREASE_COST_1)
-                .setFrozenCost(DecimalUtils.ZERO)
-                .setUsedCost(number.divide(BigDecimal.valueOf(2)))
-                .setRefundCost(DecimalUtils.ZERO)
-                .setTag(super.INCREASE_TAG_1)
-                .setOrderNo(super.INCREASE_ORDER_NO_1)
-                .setSourceType(INCREASE_SOURCE_TYPE)
-                .setOrderType(INCREASE_ORDER_TYPE)
-                .setPayType(INCREASE_PAY_TYPE);
+            .setTotal(INCREASE_POINT_1).setAvailable(INCREASE_POINT_1.subtract(number))
+            .setUsed(number).setFrozen(DecimalUtils.ZERO)
+            .setExpire(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO)
+            .setTotalCost(super.INCREASE_COST_1)
+            .setFrozenCost(DecimalUtils.ZERO)
+            .setUsedCost(number.divide(BigDecimal.valueOf(2)))
+            .setRefundCost(DecimalUtils.ZERO)
+            .setTag(super.INCREASE_TAG_1)
+            .setOrderNo(super.INCREASE_ORDER_NO_1)
+            .setSourceType(INCREASE_SOURCE_TYPE)
+            .setOrderType(INCREASE_ORDER_TYPE)
+            .setPayType(INCREASE_PAY_TYPE);
         HyenaTestAssert.assertEquals(expectPointRec, pointRec);
 
         // verify point record logs
@@ -136,26 +138,28 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         SortParam pointRecLogSortParam = new SortParam();
         pointRecLogSortParam.setColumns(List.of("log.id")).setOrder(SortOrder.desc);
         listPointRecLogParam.setRecIdList(List.of(pointRec.getId()))
-                .setSorts(List.of(pointRecLogSortParam));
-        var pointRecLogList = pointRecLogDs.listPointRecLog(super.getPointType(), listPointRecLogParam);
+            .setSorts(List.of(pointRecLogSortParam));
+        var pointRecLogList = pointRecLogDs.listPointRecLog(super.getPointType(),
+            listPointRecLogParam);
         log.info("pointRecLogList = {}", pointRecLogList);
         Assertions.assertEquals(2, pointRecLogList.size()); // 0: decrease; 1: increase
         var pointRecLog = pointRecLogList.get(0);
         var expectPointRecLog = new PointRecLogPo();
         expectPointRecLog.setPid(super.point.getId())
-                .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
-                .setType(PointOpType.DECREASE.code()).setDelta(number)
-                .setAvailable(pointRec.getAvailable())
-                .setUsed(pointRec.getUsed())
-                .setFrozen(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO).setExpire(DecimalUtils.ZERO)
-                .setCost(super.INCREASE_COST_1.subtract(number.divide(BigDecimal.valueOf(2))))
-                .setFrozenCost(DecimalUtils.ZERO)
-                .setUsedCost(number.divide(BigDecimal.valueOf(2)))
-                .setRefundCost(DecimalUtils.ZERO)
-                .setSourceType(DECREASE_SOURCE_TYPE)
-                .setOrderType(DECREASE_ORDER_TYPE)
-                .setPayType(DECREASE_PAY_TYPE)
-                .setNote(usage.getNote());
+            .setSeqNum(result.getSeqNum()).setRecId(pointRec.getId())
+            .setType(PointOpType.DECREASE.code()).setDelta(number)
+            .setAvailable(pointRec.getAvailable())
+            .setUsed(pointRec.getUsed())
+            .setFrozen(DecimalUtils.ZERO).setCancelled(DecimalUtils.ZERO)
+            .setExpire(DecimalUtils.ZERO)
+            .setCost(super.INCREASE_COST_1.subtract(number.divide(BigDecimal.valueOf(2))))
+            .setFrozenCost(DecimalUtils.ZERO)
+            .setUsedCost(number.divide(BigDecimal.valueOf(2)))
+            .setRefundCost(DecimalUtils.ZERO)
+            .setSourceType(DECREASE_SOURCE_TYPE)
+            .setOrderType(DECREASE_ORDER_TYPE)
+            .setPayType(DECREASE_PAY_TYPE)
+            .setNote(usage.getNote());
         HyenaTestAssert.assertEquals(expectPointRecLog, pointRecLog);
         log.info("<< test end");
     }
@@ -167,17 +171,22 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
 
         PointUsage increaseUsage = new PointUsage();
         increaseUsage.setType(super.getPointType()).setUid(super.getUid())
-                .setPoint(BigDecimal.valueOf(555L)).setNote("test_decreasePoint2");
-        var resultPoint = this.pointIncreaseStrategy.process(increaseUsage);
+            .setPoint(BigDecimal.valueOf(555L)).setNote("test_decreasePoint2");
+        var resultPoint = this.pointIncreaseStrategy.process(PSession.fromUsage(increaseUsage))
+            .block()
+            .getResult();
         BeanUtils.copyProperties(resultPoint, super.point);
 
         BigDecimal number = BigDecimal.valueOf(123L).setScale(DecimalUtils.SCALE_2);
         BigDecimal resultNumber = this.point.getPoint().subtract(number);
 
         PointUsage usage = new PointUsage();
-        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number).setNote("test_decreasePoint2");
+        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number)
+            .setNote("test_decreasePoint2");
 
-        PointPo result = this.pointDecreaseStrategy.process(usage);
+        PointPo result = this.pointDecreaseStrategy.process(PSession.fromUsage(usage))
+            .block()
+            .getResult();
         log.info("result = {}", result);
         Assertions.assertEquals(resultNumber, result.getPoint());
         Assertions.assertEquals(resultNumber, result.getAvailable());
@@ -192,10 +201,13 @@ public class TestPointDecreaseStrategy extends TestPointStrategyBase {
         log.info(">> test start");
         PointUsage usage = new PointUsage();
         BigDecimal number = BigDecimal.valueOf(9999999L);
-        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number).setNote("test_decreasePoint_not_enough");
-        PointPo result = this.pointDecreaseStrategy.process(usage);
-        Assertions.assertTrue(DecimalUtils.lt(result.getAvailable(), DecimalUtils.ZERO));
+        usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(number)
+            .setNote("test_decreasePoint_not_enough");
+        Assertions.assertThrowsExactly(HyenaServiceException.class,
+            () -> this.pointDecreaseStrategy.process(PSession.fromUsage(usage)).block(),
+            "throw exception: 'no enough available point'");
+//        Assertions.assertTrue(DecimalUtils.lt(result.getAvailable(), DecimalUtils.ZERO));
         //Assert.fail();
-        log.info("<< test end");
+//        log.info("<< test end");
     }
 }

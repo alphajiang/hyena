@@ -17,13 +17,15 @@
 
 package io.github.alphajiang.hyena.biz.point.strategy;
 
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
+import reactor.core.publisher.Mono;
 
 public interface PointStrategy {
 
     CalcType getType();
 
-    PointOpResult process(PointUsage usage);
+    Mono<PSession> process(PSession session);
 }

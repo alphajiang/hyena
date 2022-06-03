@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.biz.strategy;
 
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.model.dto.PointLogDto;
@@ -68,13 +69,17 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
 
         PointUsage freezeUsage = new PointUsage();
         freezeUsage.setType(super.getPointType()).setUid(super.getUid()).setPoint(freezeNum).setNote("test_unfreezePoint");
-        this.point = this.pointFreezeStrategy.process(freezeUsage);
+        this.point = this.pointFreezeStrategy.process(PSession.fromUsage(freezeUsage))
+                .block()
+                .getResult();
 
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(unfreezeNumber)
                 .setTag(USAGE_TAG).setOrderNo(UUID.randomUUID().toString())
                 .setNote("test_unfreezePoint");
-        PointPo result = this.pointUnfreezeStrategy.process(usage);
+        PointPo result = this.pointUnfreezeStrategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         log.info("result = {}", result);
         Assertions.assertEquals(this.point.getPoint(), result.getPoint());
         Assertions.assertEquals(expectAvailable, result.getAvailable());
@@ -171,17 +176,23 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
 
         PointUsage freezeUsage1 = new PointUsage();
         freezeUsage1.setType(super.getPointType()).setUid(super.getUid()).setPoint(freezeNum[0]).setNote("test_unfreezePoint-1");
-        this.point = this.pointFreezeStrategy.process(freezeUsage1);
+        this.point = this.pointFreezeStrategy.process(PSession.fromUsage(freezeUsage1))
+                .block()
+                .getResult();
 
         PointUsage freezeUsage2 = new PointUsage();
         freezeUsage2.setType(super.getPointType()).setUid(super.getUid()).setPoint(freezeNum[1]).setNote("test_unfreezePoint-2");
-        this.point = this.pointFreezeStrategy.process(freezeUsage2);
+        this.point = this.pointFreezeStrategy.process(PSession.fromUsage(freezeUsage2))
+                .block()
+                .getResult();
 
         PointUsage usage = new PointUsage();
         usage.setType(super.getPointType()).setUid(super.getUid()).setPoint(unfreezeNumber)
                 .setTag(USAGE_TAG).setOrderNo(UUID.randomUUID().toString())
                 .setNote("test_unfreezePoint");
-        PointPo result = this.pointUnfreezeStrategy.process(usage);
+        PointPo result = this.pointUnfreezeStrategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         log.info("result = {}", result);
         Assertions.assertEquals(this.point.getPoint(), result.getPoint());
         Assertions.assertEquals(expectAvailable, result.getAvailable());
@@ -283,13 +294,17 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
         freezeUsage1.setType(super.getPointType()).setUid(super.getUid()).setPoint(freezeNum[0])
                 .setOrderNo(orderNo)
                 .setNote("test_unfreezePoint-1");
-        this.point = this.pointFreezeStrategy.process(freezeUsage1);
+        this.point = this.pointFreezeStrategy.process(PSession.fromUsage(freezeUsage1))
+                .block()
+                .getResult();
 
         PointUsage freezeUsage2 = new PointUsage();
         freezeUsage2.setType(super.getPointType()).setUid(super.getUid()).setPoint(freezeNum[1])
                 .setOrderNo(orderNo)
                 .setNote("test_unfreezePoint-2");
-        this.point = this.pointFreezeStrategy.process(freezeUsage2);
+        this.point = this.pointFreezeStrategy.process(PSession.fromUsage(freezeUsage2))
+                .block()
+                .getResult();
 
         Thread.sleep(100L);
         PointUsage usage = new PointUsage();
@@ -298,7 +313,9 @@ public class TestPointUnfreezeStrategy extends TestPointStrategyBase {
                 .setUnfreezeByOrderNo(true)
                 .setOrderNo(orderNo)
                 .setNote("test_unfreezePoint");
-        PointPo result = this.pointUnfreezeStrategy.process(usage);
+        PointPo result = this.pointUnfreezeStrategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         log.info("result = {}", result);
         Assertions.assertEquals(this.point.getPoint(), result.getPoint());
         Assertions.assertEquals(expectAvailable, result.getAvailable());

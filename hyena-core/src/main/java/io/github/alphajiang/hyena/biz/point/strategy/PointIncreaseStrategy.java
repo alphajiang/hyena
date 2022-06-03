@@ -19,10 +19,7 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
-import io.github.alphajiang.hyena.biz.point.PointBuilder;
-import io.github.alphajiang.hyena.biz.point.PointCache;
-import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.biz.point.PointWrapper;
+import io.github.alphajiang.hyena.biz.point.*;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
@@ -44,6 +41,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -89,26 +87,38 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
 
     @Override
     @Transactional //(isolation = Isolation.READ_COMMITTED)
-    public PointOpResult process(PointUsage usage) {
+    public Mono<PSession> process(PSession session) {
+        PointUsage usage = session.getUsage();
         logger.info("increase. usage = {}", usage);
-        try (PointWrapper pw = super.preProcess(usage, true, false)) {
-            if (pw.getPointCache().getPoint() == null) {
-                this.addPoint(usage, pw.getPointCache());
-            } else if (DecimalUtils.gt(usage.getPoint(), DecimalUtils.ZERO)) {
-                this.updatePointCache(usage, pw.getPointCache());
-            } else {
-                log.info("do nothing... usage = {}", usage);
-            }
-            PointOpResult ret = new PointOpResult();
-            BeanUtils.copyProperties(pw.getPointCache().getPoint(), ret);
-            ret.setOpPoint(usage.getPoint())
-                    .setOpCost(usage.getCost());
-            hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
-                    usage.getUid(), usage.getSubUid(), pw.getPointCache().getPoint());
-            return ret;
-        } catch (Exception e) {
-            throw e;
-        }
+
+            return super.preProcess(session, true, false)
+                    .flatMap(sess -> {
+                        PointWrapper pw = sess.getPw();
+                        if (pw.getPointCache().getPoint() == null) {
+                            this.addPoint(usage, pw.getPointCache());
+                        } else if (DecimalUtils.gt(usage.getPoint(), DecimalUtils.ZERO)) {
+                            this.updatePointCache(usage, pw.getPointCache());
+                        } else {
+                            log.info("do nothing... usage = {}", usage);
+                        }
+                        PointOpResult ret = new PointOpResult();
+                        BeanUtils.copyProperties(pw.getPointCache().getPoint(), ret);
+                        ret.setOpPoint(usage.getPoint())
+                                .setOpCost(usage.getCost());
+                        sess.setResult(ret);
+                        return hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                                        usage.getUid(), usage.getSubUid(), pw.getPointCache().getPoint())
+                                .map(x -> sess);
+//                                .subscribe();
+//                        return ret;
+                    })
+                    .doFinally(x -> {
+                        if(session.getPw() != null) {
+                            session.getPw().close();
+                        }
+//                        hyenaLockService.unlock(usage.getUid(), usage.getSubUid());
+                    });
+
     }
 
     // 创建新帐号

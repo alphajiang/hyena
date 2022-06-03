@@ -30,12 +30,14 @@ import io.github.alphajiang.hyena.utils.TableNameHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 public class PointDs {
@@ -112,9 +114,9 @@ public class PointDs {
     /**
      * pid 和 uid 必须要有一个不为null
      *
-     * @param type 积分类型
-     * @param pid  积分ID
-     * @param uid  用户uid
+     * @param type   积分类型
+     * @param pid    积分ID
+     * @param uid    用户uid
      * @param subUid 用户子帐号
      * @return 用户积分数据
      */
@@ -125,14 +127,34 @@ public class PointDs {
             throw new HyenaParameterException("invalid parameter");
         }
         String pointTableName = TableNameHelper.getPointTableName(type);
-        return this.pointMapper.getPointVo(pointTableName, pid, uid, subUid);
+        try {
+            return this.pointMapper.getPointVo(pointTableName, pid, uid, subUid);
+        } catch (Exception ex) {
+            if (ex instanceof BadSqlGrammarException) {
+                String rex = "Table '(\\w+.\\w+)' doesn't exist";
+                if (Pattern.compile(rex).matcher(ex.getMessage()).find()) {
+                    logger.warn("point table does not create yet. type = {}, pid = {}, uid = {}, subUid = {}",
+                            type, pid, uid, subUid);
+                    // point table not create yet, return an all zero point result
+                    PointVo ret = new PointVo();
+                    PointPo.buildPointPo(ret);
+                    ret.setUid(uid)
+                            .setSubUid(subUid)
+                            .setId(pid);
+                    return ret;
+                } else {
+                    throw ex;
+                }
+            } else {
+                throw ex;
+            }
+        }
     }
 
     public boolean update(String type, PointPo point) {
         int ret = this.pointMapper.updateCusPoint(TableNameHelper.getPointTableName(type), point);
         return ret > 0;
     }
-
 
 
     public List<PointPo> listExpirePoint(BaseListParam param) {

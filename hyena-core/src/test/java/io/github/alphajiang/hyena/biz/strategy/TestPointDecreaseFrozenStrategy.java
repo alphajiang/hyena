@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.biz.strategy;
 
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.model.dto.PointLogDto;
@@ -74,7 +75,9 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
         PointUsage freezeUsage = new PointUsage();
         freezeUsage.setType(super.getPointType()).setUid(super.getUid()).setPoint(freezeNum)
                 .setNote("test_decreasePointUnfreeze");
-        PointPo retPoint = this.pointFreezeStrategy.process(freezeUsage);
+        PointPo retPoint = this.pointFreezeStrategy.process(PSession.fromUsage(freezeUsage))
+                .block()
+                .getResult();
         log.info("point = {}", retPoint);
 
         PointUsage usage = new PointUsage();
@@ -84,7 +87,9 @@ public class TestPointDecreaseFrozenStrategy extends TestPointStrategyBase {
                 .setOrderType(DECREASE_ORDER_TYPE)
                 .setPayType(DECREASE_PAY_TYPE)
                 .setNote("test_decreasePointUnfreeze");
-        PointPo result = this.pointDecreaseFrozenStrategy.process(usage);
+        PointPo result = this.pointDecreaseFrozenStrategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         log.info("result = {}", result);
         Thread.sleep(200L);
         Assertions.assertEquals(expectPoint, result.getPoint());

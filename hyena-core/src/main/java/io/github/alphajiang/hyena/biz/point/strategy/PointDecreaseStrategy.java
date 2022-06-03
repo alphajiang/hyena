@@ -96,9 +96,14 @@ public class PointDecreaseStrategy extends AbstractPointStrategy {
         HyenaAssert.notNull(curPoint.getAvailable(), HyenaConstants.RES_CODE_PARAMETER_ERROR,
                 "can't find point to the uid: " + usage.getUid(), Level.WARN);
 
+        if (usage.getPoint() != null && DecimalUtils.gt(usage.getPoint(), pointCache.getPoint().getAvailable())) {
+            log.warn("no enough available point!!! usage = {}, curPoint = {}", usage, pointCache.getPoint());
+            throw new HyenaServiceException("no enough available point");
+        }
         if (usage.getRecId() != null && usage.getRecId() > 0L) {
             checkPointRec(usage, pointCache);   // 校验失败会抛出异常
         }
+
 
         curPoint.setSeqNum(curPoint.getSeqNum() + 1)
                 .setPoint(curPoint.getPoint().subtract(usage.getPoint()))

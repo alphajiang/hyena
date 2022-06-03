@@ -42,7 +42,7 @@ public class PointRecLogPo extends BasePo<Long>  {
      */
     private Integer type;
     private BigDecimal delta;
-    @Schema(name = "变动部分的实际成本")
+    @Schema(title = "变动部分的实际成本")
     private BigDecimal deltaCost;
     private BigDecimal available;
     private BigDecimal used;
@@ -50,13 +50,13 @@ public class PointRecLogPo extends BasePo<Long>  {
     private BigDecimal refund;
     private BigDecimal cancelled;
     private BigDecimal expire;
-    @Schema(name = "变动后,实际成本")
+    @Schema(title = "变动后,实际成本")
     private BigDecimal cost;
-    @Schema(name = "变动后,冻结的实际成本")
+    @Schema(title = "变动后,冻结的实际成本")
     private BigDecimal frozenCost;
-    @Schema(name = "变动后,已消耗的实际成本")
+    @Schema(title = "变动后,已消耗的实际成本")
     private BigDecimal usedCost;
-    @Schema(name = "已退款的成本")
+    @Schema(title = "已退款的成本")
     private BigDecimal refundCost;
 
     private Integer sourceType;

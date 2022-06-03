@@ -19,6 +19,7 @@ package io.github.alphajiang.hyena.task;
 
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.PointUsageFacade;
 import io.github.alphajiang.hyena.ds.service.PointDs;
@@ -74,12 +75,12 @@ public class ExpirePointTask {
                 .forEach(rec -> {
                     try {
                         PointUsage usage = new PointUsage();
-
                         usage.setUid(rec.getUid()).setSubUid(rec.getSubUid())//.setPoint(rec.getAvailable())
                                 .setType(type).setNote("expire").setRecId(rec.getId());
-                        this.pointUsageFacade.expire(usage);
-                        this.hyenaCacheFactory.getPointCacheService()
-                                .removePoint(type, rec.getUid(), rec.getSubUid());
+                        this.pointUsageFacade.expire(PSession.fromUsage(usage))
+                                .flatMap(sess -> this.hyenaCacheFactory.getPointCacheService()
+                                        .removePoint(type, rec.getUid(), rec.getSubUid()))
+                                .subscribe();
                     } catch (Exception e) {
                         log.error("rec = {}, error = {}", rec, e.getMessage(), e);
                     }

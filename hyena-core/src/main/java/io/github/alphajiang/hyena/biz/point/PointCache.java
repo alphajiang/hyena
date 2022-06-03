@@ -17,12 +17,14 @@
 
 package io.github.alphajiang.hyena.biz.point;
 
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.vo.PointVo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 @Data
 @Accessors(chain = true)
@@ -32,16 +34,21 @@ public class PointCache {
 
     private PointVo point;
 
+
     private Date updateTime;
 
-    private ReentrantLock lock = new ReentrantLock();
+    private Semaphore lock = new Semaphore(1);
 
     public void lock() {
-        this.lock.lock();
+        try {
+            this.lock.tryAcquire(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new HyenaServiceException("get lock failed", e);
+        }
     }
 
     public void unlock() {
-        this.lock.unlock();
+        this.lock.release();
     }
 
 

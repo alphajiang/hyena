@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.biz.strategy;
 
 import io.github.alphajiang.hyena.biz.cache.PointMemCacheService;
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
@@ -60,7 +61,7 @@ public class TestPointExpireStrategy extends TestPointStrategyBase {
         calExpire.add(Calendar.HOUR, -1);
         rec.setExpireTime(calExpire.getTime());
         this.pointRecDs.updatePointRec(super.getPointType(), rec);
-        this.pointMemCacheService.removePoint(super.getPointType(), super.getUid(), null);
+        this.pointMemCacheService.removePoint(super.getPointType(), super.getUid(), null).subscribe();
     }
 
     @Test
@@ -78,7 +79,9 @@ public class TestPointExpireStrategy extends TestPointStrategyBase {
         usage.setType(super.getPointType())//.setRecId(rec.getId())
                 .setUid(super.getUid())//.setSubUid(super.getSubUid())
                 .setPoint(number).setNote("test_expirePoint");
-        PointPo result = this.pointExpireStrategy.process(usage);
+        PointPo result = this.pointExpireStrategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         logger.info("result = {}", result);
         Assertions.assertEquals(this.point.getPoint().subtract(number), result.getPoint());
         Assertions.assertEquals(resultAvailable, result.getAvailable());

@@ -41,16 +41,16 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class PointOpResult extends PointPo {
 
-    @Schema(name = "变更的积分", example = "100.00")
+    @Schema(title = "变更的积分", example = "100.00")
     private BigDecimal opPoint;
 
-    @Schema(name = "变更的成本", example = "10.00")
+    @Schema(title = "变更的成本", example = "10.00")
     private BigDecimal opCost;
 
-    @Schema(name = "账户变更明细")
+    @Schema(title = "账户变更明细")
     private List<PointLogDto> logs;
 
-    @Schema(name = "积分块变更明细")
+    @Schema(title = "积分块变更明细")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<PointRecLogDto> recLogList;
 

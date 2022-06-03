@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.biz.strategy;
 
+import io.github.alphajiang.hyena.biz.point.PSession;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
 import io.github.alphajiang.hyena.biz.point.strategy.PointStrategy;
 import io.github.alphajiang.hyena.model.dto.PointLogDto;
@@ -67,7 +68,9 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
                 .setSourceType(FREEZE_SOURCE_TYPE).setOrderType(FREEZE_ORDER_TYPE)
                 .setPayType(FREEZE_PAY_TYPE)
                 .setNote("test_freezePoint");
-        PointPo result = this.pointFreezeStrategy.process(usage);
+        PointPo result = this.pointFreezeStrategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         log.info("result = {}", result);
         Assertions.assertEquals(this.point.getPoint() , result.getPoint() );
         Assertions.assertEquals(resultAvailable, result.getAvailable() );
@@ -179,7 +182,9 @@ public class TestPointFreezeStrategy extends TestPointStrategyBase {
                 .setSourceType(FREEZE_SOURCE_TYPE).setOrderType(FREEZE_ORDER_TYPE)
                 .setPayType(FREEZE_PAY_TYPE)
                 .setNote("test_freezePoint");
-        PointPo result = this.pointFreezeStrategy.process(usage);
+        PointPo result = this.pointFreezeStrategy.process(PSession.fromUsage(usage))
+                .block()
+                .getResult();
         log.info("result = {}", result);
         Assertions.assertEquals(point.getPoint(), result.getPoint());
         Assertions.assertEquals(resultAvailable, result.getAvailable());

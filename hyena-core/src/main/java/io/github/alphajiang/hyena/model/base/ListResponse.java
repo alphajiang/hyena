@@ -24,10 +24,10 @@ import java.util.List;
 
 public class ListResponse<T> extends BaseResponse {
 
-    @Schema(name = "总数据条数")
+    @Schema(title = "总数据条数")
     private long total;
 
-    @Schema(name = "返回结果的数据部分")
+    @Schema(title = "返回结果的数据部分")
     private List<T> data;
 
     public ListResponse() {

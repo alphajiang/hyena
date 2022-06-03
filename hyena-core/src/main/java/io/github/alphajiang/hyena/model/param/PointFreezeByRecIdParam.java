@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @ToString(callSuper = true)
 public class PointFreezeByRecIdParam extends PointOpParam {
 
-    @Schema(name = "积分块ID", example = "123")
+    @Schema(title = "积分块ID", example = "123")
     private Long recId;
 
 }

@@ -39,11 +39,11 @@ public class PointRecLogDto extends PointRecLogPo {
     private BigDecimal total;
 
 
-    @Schema(name = "变动记录的订单号")
+    @Schema(title = "变动记录的订单号")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String orderNo;
 
-    @Schema(name = "创建积分块的订单号")
+    @Schema(title = "创建积分块的订单号")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String recOrigOrderNo;
 }

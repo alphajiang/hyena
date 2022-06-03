@@ -1,4 +1,4 @@
-create database score;
+create database p_hyena;
 
-CREATE USER 'test'@'%' IDENTIFIED BY 'some_pass';
-GRANT ALL PRIVILEGES ON score.* TO 'test'@'%' WITH GRANT OPTION;
+CREATE USER 'hyena'@'%' IDENTIFIED BY 'hyenapass';
+GRANT ALL PRIVILEGES ON p_hyena.* TO 'hyena'@'%' WITH GRANT OPTION;

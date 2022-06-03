@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -37,14 +38,10 @@ import java.util.stream.Collectors;
 public class PointMemCacheService implements IPointCache {
 
     private static final String CACHE_TYPE_MEMORY = "memory";
-
-    @Value("${hyena.mem.ttl:30}")
-    private int cacheTtl; // minutes
-
-
     //private final String type;
     private final Map<String, PointCache> map = new ConcurrentHashMap<>();
-
+    @Value("${hyena.mem.ttl:30}")
+    private int cacheTtl; // minutes
     @Autowired
     private HyenaCacheFactory hyenaCacheFactory;
 
@@ -62,7 +59,7 @@ public class PointMemCacheService implements IPointCache {
     }
 
     @Override
-    public PointWrapper getPoint(String type, String uid, String subUid, boolean lock) {
+    public Mono<PointWrapper> getPoint(String type, String uid, String subUid, boolean lock) {
         PointWrapper result = new PointWrapper(this.getPointX(type, uid, subUid));
 
         if (lock) {
@@ -75,17 +72,16 @@ public class PointMemCacheService implements IPointCache {
             }
             result.getPointCache().setPoint(p);
         }
-        return result;
+        return Mono.just(result);
     }
 
     @Override
-    public synchronized void removePoint(String type, String uid, String subUid) {
-        try {
-            String key = this.formatKey(type, uid, subUid);
-            map.remove(key);
-        } catch (Exception e) {
-            log.error("can't remove point. type = {}, uid = {}", type, uid);
-        }
+    public Mono<Boolean> removePoint(String type, String uid, String subUid) {
+        return Mono.just(this.formatKey(type, uid, subUid))
+                .map(key -> {
+                    map.remove(key);
+                    return Boolean.TRUE;
+                });
     }
 
     private String formatKey(String type, String uid, String subUid) {
@@ -135,17 +131,22 @@ public class PointMemCacheService implements IPointCache {
     }
 
     @Override
-    public void updatePoint(String type, String uid, String subUid, PointVo point) {
-        String key = formatKey(type, uid, subUid);
-        PointCache p = new PointCache();
-        p.setKey(key);
-        p.setPoint(point);
-        p.setUpdateTime(new Date());
-        map.put(key, p);
+    public Mono<PointVo> updatePoint(String type, String uid, String subUid, PointVo point) {
+        return Mono.just(new PointCache())
+                .doOnNext(p -> {
+                    String key = formatKey(type, uid, subUid);
+                    p.setKey(key);
+                    p.setPoint(point);
+                    p.setUpdateTime(new Date());
+                    map.put(key, p);
+                })
+                .map(pc -> pc.getPoint());
+
     }
 
     @Override
-    public void unlock(String type, String uid, String subUid) {
+    public Mono<Boolean> unlock(String type, String uid, String subUid) {
+        return Mono.just(Boolean.TRUE);
     }
 
 }

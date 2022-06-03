@@ -29,15 +29,16 @@ import io.github.alphajiang.hyena.model.base.ListResponse;
 import io.github.alphajiang.hyena.model.vo.QueueInfo;
 import io.github.alphajiang.hyena.utils.LoggerHelper;
 import io.github.alphajiang.hyena.utils.StringUtils;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,7 @@ public class SystemController {
     @Operation(summary = "新增积分类型")
     @PostMapping(value = "/addPointType")
     public BaseResponse addPointType(ServerWebExchange exh,
-                                     @Parameter(name = "积分类型", example = "score") @RequestParam(name = "name", required = true) String name) {
+                                     @Parameter(description = "积分类型", example = "score") @RequestParam(name = "name", required = true) String name) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         this.pointTableDs.getOrCreateTable(name);
         logger.info(LoggerHelper.formatLeaveLog(exh));
@@ -90,14 +91,14 @@ public class SystemController {
 
     @Operation(summary = "清除缓存")
     @PostMapping(value = "/cleanCache")
-    public BaseResponse cleanCache(ServerWebExchange exh,
-                                   @Parameter(name = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-                                   @Parameter(name = "用户ID") @RequestParam String uid,
-                                   @Parameter(name = "用户二级ID") @RequestParam(required = false) String subUid) {
+    public Mono<BaseResponse> cleanCache(ServerWebExchange exh,
+                                         @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+                                         @Parameter(description = "用户ID") @RequestParam String uid,
+                                         @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
-        this.hyenaCacheFactory.getPointCacheService().removePoint(type, uid, subUid);
-        logger.info(LoggerHelper.formatLeaveLog(exh));
-        return BaseResponse.success();
+        return this.hyenaCacheFactory.getPointCacheService().removePoint(type, uid, subUid)
+                .map(rt -> BaseResponse.success())
+                .doOnNext(rt -> logger.info(LoggerHelper.formatLeaveLog(exh)));
     }
 
 
@@ -126,9 +127,9 @@ public class SystemController {
     @GetMapping(value = "/analysePointLog")
     public BaseResponse analysePointLog(
             ServerWebExchange exh,
-            @Parameter(name = "积分类型", example = "score") @RequestParam(required = true) String type,
-            @Parameter(name = "用户标识", example = "abcd") @RequestParam(required = true) String uid,
-            @Parameter(name = "用户副标识", example = "efgh") @RequestParam(required = true) String subUid) {
+            @Parameter(description = "积分类型", example = "score") @RequestParam(required = true) String type,
+            @Parameter(description = "用户标识", example = "abcd") @RequestParam(required = true) String uid,
+            @Parameter(description = "用户副标识", example = "efgh") @RequestParam(required = true) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         this.pointLogDs.analyseLog(type, uid, subUid);
         logger.info(LoggerHelper.formatLeaveLog(exh));

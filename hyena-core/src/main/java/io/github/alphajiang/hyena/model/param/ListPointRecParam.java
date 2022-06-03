@@ -32,22 +32,22 @@ import java.util.List;
 @ToString(callSuper = true)
 public class ListPointRecParam extends BaseListParam {
 
-    @Schema(name = "积分记录ID")
+    @Schema(title = "积分记录ID")
     private List<Long> recIdList;
 
-    @Schema(name = "用户ID")
+    @Schema(title = "用户ID")
     private String uid;
 
-    @Schema(name = "用户二级ID")
+    @Schema(title = "用户二级ID")
     private String subUid;
 
-    @Schema(name = "标签")
+    @Schema(title = "标签")
     private String tag;
 
-    @Schema(name = "创建积分的序列号列表")
+    @Schema(title = "创建积分的序列号列表")
     private List<Long> seqNumList;
 
-    @Schema(name = "是否获取积分块对应的流水明细", example = "false")
+    @Schema(title = "是否获取积分块对应的流水明细", example = "false")
     private Boolean fetchRecLogs;
 
     //private boolean available = false;

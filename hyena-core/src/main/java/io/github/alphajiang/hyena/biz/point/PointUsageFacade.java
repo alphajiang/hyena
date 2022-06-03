@@ -23,6 +23,7 @@ import io.github.alphajiang.hyena.model.type.CalcType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
@@ -32,110 +33,110 @@ public class PointUsageFacade {
     /**
      * 增加积分
      *
-     * @param usage 增加积分参数
+     * @param session 增加积分参数
      * @return 增加后的用户积分
      */
     @Transactional
-    public PointOpResult increase(PointUsage usage) {
+    public Mono<PSession> increase(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.INCREASE);
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 
     /**
      * 减少(使用)积分
      *
-     * @param usage 减少积分参数
+     * @param session 减少积分参数
      * @return 减少后的用户积分
      */
     //@Transactional
-    public PointOpResult decrease(PointUsage usage) {
+    public Mono<PSession> decrease(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.DECREASE);
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 
     /**
      * 减少(使用)已冻结的积分
      *
-     * @param usage 减少积分参数
+     * @param session 减少积分参数
      * @return 减少后的用户积分
      */
     //@Transactional
-    public PointOpResult decreaseFrozen(PointUsage usage) {
+    public Mono<PSession> decreaseFrozen(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.DECREASE_FROZEN);
 //        if(usage.getUnfreezePoint() != null && usage.getUnfreezePoint() > 0L){
 //            // 有需要解冻的积分, 先做解冻操作
 //            Optional<PointStrategy> unfreezeStrategy = PointStrategyFactory.getStrategy(CalcType.UNFREEZE);
-//            PointUsage usage4Unfreeze = new PointUsage();
+//            PSession session4Unfreeze = new PointUsage();
 //            BeanUtils.copyProperties(usage, usage4Unfreeze);
 //            usage4Unfreeze.setPoint(usage.getUnfreezePoint());
 //            unfreezeStrategy.ifPresent(act -> act.process(usage4Unfreeze));
 //        }
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 
 
     /**
      * 冻结积分
      *
-     * @param usage 冻结参数
+     * @param session 冻结参数
      * @return 冻结后的用户积分
      */
     //@Transactional
-    public PointOpResult freeze(PointUsage usage) {
+    public Mono<PSession> freeze(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.FREEZE);
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 
-    public PointOpResult freezeByRecId(PointUsage usage) {
+    public Mono<PSession> freezeByRecId(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.FREEZE_BY_REC_ID);
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 
     /**
      * 解冻积分
      *
-     * @param usage 解冻参数
+     * @param session 解冻参数
      * @return 解冻后的用户积分
      */
     //@Transactional
-    public PointOpResult unfreeze(PointUsage usage) {
+    public Mono<PSession> unfreeze(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.UNFREEZE);
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 
     @Transactional
-    public PointOpResult cancel(PointUsage usage) {
+    public Mono<PSession> cancel(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.CANCEL);
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 
     @Transactional
-    public PointOpResult freezeCost(PointUsage usage) {
+    public Mono<PSession> freezeCost(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.FREEZE_COST);
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 
     @Transactional
-    public PointOpResult unfreezeCost(PointUsage usage) {
+    public Mono<PSession> unfreezeCost(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.UNFREEZE_COST);
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 
     @Transactional
-    public PointOpResult refund(PointUsage usage) {
+    public Mono<PSession> refund(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.REFUND);
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 
 //    @Transactional
-//    public PointOpResult refundFrozen(PointUsage usage) {
+//    public PointOpResult refundFrozen(PSession session) {
 //        Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.REFUND_FROZEN);
 //        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
 //    }
 
     @Transactional
-    public PointOpResult expire(PointUsage usage) {
+    public Mono<PSession> expire(PSession session) {
         Optional<PointStrategy> strategy = PointStrategyFactory.getStrategy(CalcType.EXPIRE);
-        return strategy.flatMap(act -> Optional.ofNullable(act.process(usage))).get();
+        return strategy.flatMap(act -> Optional.ofNullable(act.process(session))).get();
     }
 }

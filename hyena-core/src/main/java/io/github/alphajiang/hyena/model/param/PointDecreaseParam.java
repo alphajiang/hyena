@@ -29,6 +29,6 @@ import lombok.experimental.Accessors;
 @ToString(callSuper = true)
 public class PointDecreaseParam extends PointOpParam {
 
-    @Schema(name = "指定减少的积分块ID", example = "123")
+    @Schema(title = "指定减少的积分块ID", example = "123")
     private Long recId;
 }

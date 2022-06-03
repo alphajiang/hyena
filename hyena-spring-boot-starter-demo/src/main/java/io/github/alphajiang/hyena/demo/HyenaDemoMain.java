@@ -32,12 +32,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @MapperScan(basePackages = {"io.github.alphajiang.hyena.ds.mapper"})
 @EnableTransactionManagement
 @EnableScheduling
-public class HyenaMain {
-    private static final Logger logger = LoggerFactory.getLogger(HyenaMain.class);
+public class HyenaDemoMain {
+    private static final Logger logger = LoggerFactory.getLogger(HyenaDemoMain.class);
 
     public static void main(String[] args) {
         logger.info("starting......");
-        new SpringApplicationBuilder(HyenaMain.class).web(WebApplicationType.REACTIVE).run(args);
+        new SpringApplicationBuilder(HyenaDemoMain.class).web(WebApplicationType.REACTIVE).run(args);
         logger.info("started");
     }
 }

@@ -29,26 +29,26 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ListPointLogParam extends BaseListParam {
-    @Schema(name = "用户ID")
+    @Schema(title = "用户ID")
     private String uid;
 
-    @Schema(name = "用户二级ID")
+    @Schema(title = "用户二级ID")
     private String subUid;
 
-    @Schema(name = "积分记录ID")
+    @Schema(title = "积分记录ID")
     private long pid;
 
-    @Schema(name = "积分记录序号")
+    @Schema(title = "积分记录序号")
     private long seqNum = 0L;
 
 
-    @Schema(name = "标签")
+    @Schema(title = "标签")
     private String tag;
 
-    @Schema(name = "订单号")
+    @Schema(title = "订单号")
     private String orderNo;
 
-    @Schema(name = "创建时间过滤器")
+    @Schema(title = "创建时间过滤器")
     private TimeFilter createTimeFilter;
 
     // PointStatus

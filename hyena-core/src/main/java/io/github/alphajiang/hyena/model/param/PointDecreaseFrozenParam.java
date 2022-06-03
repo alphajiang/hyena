@@ -31,9 +31,9 @@ import java.math.BigDecimal;
 @ToString(callSuper = true)
 public class PointDecreaseFrozenParam extends PointUnfreezeParam {
 
-    @Schema(name = "创建积分快的订单号", example = "A123")
+    @Schema(title = "创建积分快的订单号", example = "A123")
     private String recOrderNo;
 
-    @Schema(name = "解冻积分数量", example = "10.00")
+    @Schema(title = "解冻积分数量", example = "10.00")
     private BigDecimal unfreezePoint;
 }

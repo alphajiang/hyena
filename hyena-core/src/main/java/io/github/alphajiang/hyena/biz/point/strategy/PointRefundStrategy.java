@@ -5,10 +5,7 @@ import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.calculator.CostCalculator;
 import io.github.alphajiang.hyena.biz.calculator.PointRecCalculator;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
-import io.github.alphajiang.hyena.biz.point.PointBuilder;
-import io.github.alphajiang.hyena.biz.point.PointCache;
-import io.github.alphajiang.hyena.biz.point.PointUsage;
-import io.github.alphajiang.hyena.biz.point.PointWrapper;
+import io.github.alphajiang.hyena.biz.point.*;
 import io.github.alphajiang.hyena.ds.service.FreezeOrderRecDs;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
@@ -30,6 +27,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -80,40 +78,48 @@ public class PointRefundStrategy extends AbstractPointStrategy {
 
     @Override
     @Transactional
-    public PointOpResult process(PointUsage usage) {
+    public Mono<PSession> process(PSession session) {
+        PointUsage usage = session.getUsage();
         log.info("refund. usage = {}", usage);
 
-        try (PointWrapper pw = preProcess(usage, true, true)) {
-            PointCache p = pw.getPointCache();
+//        try (PointWrapper pw = ) {
+            return preProcess(session, true, true)
+                    .flatMap(sess -> {
+                        PointCache p = sess.getPw().getPointCache();
+                        if (usage.getUnfreezePoint() != null
+                                && DecimalUtils.gt(usage.getUnfreezePoint(), DecimalUtils.ZERO)) {
 
-            if (usage.getUnfreezePoint() != null
-                    && DecimalUtils.gt(usage.getUnfreezePoint(), DecimalUtils.ZERO)) {
-//                List<FreezeOrderRecPo> forList = this.freezeOrderRecDs.getFreezeOrderRecList(usage.getType(),
-//                        p.getPoint().getId(),
-//                        usage.getOrderType(), usage.getOrderNo());
+                            PointUsage usage4Unfreeze = new PointUsage();
+                            BeanUtils.copyProperties(usage, usage4Unfreeze);
+                            usage4Unfreeze.setPoint(usage.getUnfreezePoint())
+                                    .setDoUpdate(false);
+
+                            return Mono.just(PSession.fromUsage(usage4Unfreeze))
+                                    .doOnNext(sess4Unfreeze -> sess4Unfreeze.setPw(sess.getPw()))
+                                    .flatMap(sess4Unfreeze -> this.pointUnfreezeStrategy.process(sess4Unfreeze))
+                                    .flatMap(sess4Unfreeze -> {
+
+                                                List<FreezeOrderRecPo> forList = sess4Unfreeze.getResult().getUpdateQ().getFoList();
+                                        PointOpResult result =   this.processPoint(usage, p, forList, sess4Unfreeze.getResult());
+                                        sess.setResult(result);
+                                        return
+                                                hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                                                        usage.getUid(), usage.getSubUid(), p.getPoint())
+                                                        .map(x -> sess);
+                                            });
 
 
-                PointUsage usage4Unfreeze = new PointUsage();
-                BeanUtils.copyProperties(usage, usage4Unfreeze);
-                usage4Unfreeze.setPoint(usage.getUnfreezePoint())
-                        .setDoUpdate(false)
-                        .setPw(pw);
-
-                PointOpResult unfreezeRet = this.pointUnfreezeStrategy.process(usage4Unfreeze);
-                List<FreezeOrderRecPo> forList = unfreezeRet.getUpdateQ().getFoList();
-                PointOpResult result = this.processPoint(usage, p, forList, unfreezeRet);
-
-                hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
-                        usage.getUid(), usage.getSubUid(), p.getPoint());
-                return result;
-            } else {
-                return this.processPoint(usage, p);
-            }
-
-
-        } catch (Exception e) {
-            throw e;
-        }
+                        } else {
+                            PointOpResult result = this.processPoint(usage, p);
+                            sess.setResult(result);
+                            return Mono.just(sess);
+                        }
+                    })
+                    .doFinally(x -> {
+                        if(session.getPw() != null) {
+                            session.getPw().close();
+                        }
+                    });
 
     }
 
@@ -163,7 +169,8 @@ public class PointRefundStrategy extends AbstractPointStrategy {
                 .setLogs(List.of(PointLogDto.build(pointLog)));
 
         hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
-                usage.getUid(), usage.getSubUid(), pointCache.getPoint());
+                        usage.getUid(), usage.getSubUid(), pointCache.getPoint())
+                .subscribe();
 
         log.info("<< pointCache = {}", pointCache);
         return ret;
