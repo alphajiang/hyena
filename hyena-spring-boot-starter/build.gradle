@@ -1,14 +1,18 @@
 
-
 archivesBaseName  = "hyena-spring-boot-starter"
 
-sourceSets {
-    main {
-        resources {
-            srcDirs "src/main/resources", "src/main/java"
-        }
-    }
-}
+//sourceSets {
+//    main {
+//        resources {
+//            srcDirs "src/main/resources", "src/main/java"
+//        }
+//    }
+//}
+
+//jar {
+//    enabled = true
+//}
+
 
 test {
     //include 'org/aj/**'

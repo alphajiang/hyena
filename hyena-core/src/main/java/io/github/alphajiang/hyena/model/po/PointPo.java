@@ -19,12 +19,11 @@ package io.github.alphajiang.hyena.model.po;
 
 import io.github.alphajiang.hyena.model.base.BasePo;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-
-import java.math.BigDecimal;
 
 @Data
 @Accessors(chain = true)
@@ -55,14 +54,32 @@ public class PointPo extends BasePo<Long> {
 
     public static PointPo buildPointPo(PointPo in) {
         in.setPoint(BigDecimal.ZERO)
-                .setAvailable(BigDecimal.ZERO)
-                .setUsed(BigDecimal.ZERO)
-                .setFrozen(BigDecimal.ZERO)
-                .setRefund(BigDecimal.ZERO)
-                .setExpire(BigDecimal.ZERO)
-                .setCost(BigDecimal.ZERO)
-                .setFrozenCost(BigDecimal.ZERO)
-                .setSeqNum(0L);
+            .setAvailable(BigDecimal.ZERO)
+            .setUsed(BigDecimal.ZERO)
+            .setFrozen(BigDecimal.ZERO)
+            .setRefund(BigDecimal.ZERO)
+            .setExpire(BigDecimal.ZERO)
+            .setCost(BigDecimal.ZERO)
+            .setFrozenCost(BigDecimal.ZERO)
+            .setSeqNum(0L);
         return in;
+    }
+
+    public static PointPo copy(PointPo in) {
+        PointPo p = new PointPo();
+        p.copy(in);
+        p.uid = in.uid;
+        p.subUid = in.subUid;
+        p.name = in.name;
+        p.point = in.point;
+        p.available = in.available;
+        p.used = in.used;
+        p.frozen = in.frozen;
+        p.refund = in.refund;
+        p.expire = in.expire;
+        p.cost = in.cost;
+        p.frozenCost = in.frozenCost;
+        p.seqNum = in.seqNum;
+        return p;
     }
 }

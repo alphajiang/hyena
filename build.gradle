@@ -19,8 +19,8 @@ ext {
     mybatisStarterVersion = '2.2.2'
 //    swaggerVersion = '3.0.0'
 //    swaggerAnnotationsVersion = '1.6.2'
-    springdocVersion = '1.6.8'
-    lombokVersion = '1.18.22'
+    springdocVersion = '1.6.9'
+    lombokVersion = '1.18.24'
     ehcacheVersion = '3.8.1'
     commonsPoolVersion = '2.11.1' //apache commons pool. redis pool 需要 https://commons.apache.org/proper/commons-pool/
 }
@@ -28,7 +28,7 @@ ext {
 
 allprojects {
     group = 'io.github.alphajiang'
-    version = '0.0.27.20220220.1-SNAPSHOT'
+    version = '0.0.27.20220622.1-SNAPSHOT'
 //    version = '0.0.26'
     apply plugin: 'java'
 //    apply plugin: 'io.spring.dependency-management'
@@ -67,7 +67,6 @@ jar {
 
 subprojects {
 
-//    apply plugin: 'maven'
     apply plugin: 'signing'
     apply plugin: 'maven-publish'
 //    apply plugin: 'io.spring.dependency-management'
@@ -124,7 +123,11 @@ subprojects {
                         url = 'https://github.com/alphajiang/hyena.git'
                     }
                 }
+                from components.java
             }
+//            library(MavenPublication) {
+//                from components.java
+//            }
         }
         repositories {
             maven {

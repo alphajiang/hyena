@@ -111,7 +111,7 @@ public class PointController {
         @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         var ret = this.hyenaCacheFactory.getPointCacheService().getPoint(type, uid, subUid, false);
-        return ret.map(o -> new ObjectResponse<>((PointPo) o.getPointCache().getPoint()))
+        return ret.map(o -> new ObjectResponse<>(PointPo.copy(o.getPointCache().getPoint())))
             .doOnNext(o -> logger.info(LoggerHelper.formatLeaveLog(exh)));
     }
 

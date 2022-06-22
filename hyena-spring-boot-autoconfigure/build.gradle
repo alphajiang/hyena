@@ -1,6 +1,9 @@
 
 archivesBaseName  = "hyena-spring-boot-autoconfigure"
 
+//jar {
+//    enabled = true
+//}
 
 dependencies {
     implementation project(':hyena-core')

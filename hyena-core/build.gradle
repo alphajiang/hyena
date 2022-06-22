@@ -1,5 +1,4 @@
 
-
 archivesBaseName  = "hyena-core"
 
 sourceSets {
@@ -9,6 +8,11 @@ sourceSets {
         }
     }
 }
+
+//jar {
+//    enabled = true
+//}
+
 
 test {
     include 'io/github/alphajiang/hyena/**'
