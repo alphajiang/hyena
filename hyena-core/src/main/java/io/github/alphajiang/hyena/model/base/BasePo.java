@@ -74,7 +74,7 @@ public abstract class BasePo<T> extends BaseObject {
         return this;
     }
 
-    public void copy(BasePo<T> in) {
+    public void copyBase(BasePo<T> in) {
         this.id = in.id;
         this.enable = in.enable;
         this.createTime = in.createTime;

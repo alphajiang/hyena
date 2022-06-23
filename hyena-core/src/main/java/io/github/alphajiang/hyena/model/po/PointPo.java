@@ -67,7 +67,7 @@ public class PointPo extends BasePo<Long> {
 
     public static PointPo copy(PointPo in) {
         PointPo p = new PointPo();
-        p.copy(in);
+        p.copyBase(in);
         p.uid = in.uid;
         p.subUid = in.subUid;
         p.name = in.name;
