@@ -32,22 +32,26 @@ import io.github.alphajiang.hyena.utils.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @Tag(name = "系统设置接口", description = "系统")
 @RequestMapping(value = "/hyena/system", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SystemController {
+
     private static final Logger logger = LoggerFactory.getLogger(SystemController.class);
 
     @Autowired
@@ -71,8 +75,8 @@ public class SystemController {
         logger.debug(LoggerHelper.formatEnterLog(exh));
         var list = this.pointTableDs.listTable();
         list = list.stream()
-                .map(o -> StringUtils.replaceFirst(o, HyenaConstants.PREFIX_POINT_TABLE_NAME))
-                .collect(Collectors.toList());
+            .map(o -> StringUtils.replaceFirst(o, HyenaConstants.PREFIX_POINT_TABLE_NAME))
+            .collect(Collectors.toList());
         ListResponse<String> res = new ListResponse<>(list);
         logger.debug(LoggerHelper.formatLeaveLog(exh));
         return res;
@@ -81,7 +85,7 @@ public class SystemController {
     @Operation(summary = "新增积分类型")
     @PostMapping(value = "/addPointType")
     public BaseResponse addPointType(ServerWebExchange exh,
-                                     @Parameter(description = "积分类型", example = "score") @RequestParam(name = "name", required = true) String name) {
+        @Parameter(description = "积分类型", example = "score") @RequestParam(name = "name", required = true) String name) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         this.pointTableDs.getOrCreateTable(name);
         logger.info(LoggerHelper.formatLeaveLog(exh));
@@ -92,13 +96,13 @@ public class SystemController {
     @Operation(summary = "清除缓存")
     @PostMapping(value = "/cleanCache")
     public Mono<BaseResponse> cleanCache(ServerWebExchange exh,
-                                         @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-                                         @Parameter(description = "用户ID") @RequestParam String uid,
-                                         @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid) {
+        @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
+        @Parameter(description = "用户ID") @RequestParam String uid,
+        @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         return this.hyenaCacheFactory.getPointCacheService().removePoint(type, uid, subUid)
-                .map(rt -> BaseResponse.success())
-                .doOnNext(rt -> logger.info(LoggerHelper.formatLeaveLog(exh)));
+            .map(rt -> BaseResponse.success())
+            .doOnNext(rt -> logger.info(LoggerHelper.formatLeaveLog(exh)));
     }
 
 
@@ -126,10 +130,10 @@ public class SystemController {
     @Operation(summary = "分析积分日志")
     @GetMapping(value = "/analysePointLog")
     public BaseResponse analysePointLog(
-            ServerWebExchange exh,
-            @Parameter(description = "积分类型", example = "score") @RequestParam(required = true) String type,
-            @Parameter(description = "用户标识", example = "abcd") @RequestParam(required = true) String uid,
-            @Parameter(description = "用户副标识", example = "efgh") @RequestParam(required = true) String subUid) {
+        ServerWebExchange exh,
+        @Parameter(description = "积分类型", example = "score") @RequestParam(required = true) String type,
+        @Parameter(description = "用户标识", example = "abcd") @RequestParam(required = true) String uid,
+        @Parameter(description = "用户副标识", example = "efgh") @RequestParam(required = true) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         this.pointLogDs.analyseLog(type, uid, subUid);
         logger.info(LoggerHelper.formatLeaveLog(exh));

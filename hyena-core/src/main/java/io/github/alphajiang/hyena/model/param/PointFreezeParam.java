@@ -17,6 +17,7 @@
 
 package io.github.alphajiang.hyena.model.param;
 
+import io.github.alphajiang.hyena.utils.JsonUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,7 +29,6 @@ import java.math.BigDecimal;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class PointFreezeParam extends PointOpParam {
 
     @Schema(title = "创建积分快的订单号", example = "A123")
@@ -36,4 +36,9 @@ public class PointFreezeParam extends PointOpParam {
 
     @Schema(title = "实际成本, 按成本冻结时传递", example = "1.00")
     private BigDecimal cost;
+
+    @Override
+    public String toString() {
+        return JsonUtils.toJsonString(this);
+    }
 }

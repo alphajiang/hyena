@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.biz.point;
 
 import io.github.alphajiang.hyena.model.base.BaseObject;
+import io.github.alphajiang.hyena.utils.JsonUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -29,7 +30,6 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class PointUsage extends BaseObject {
     private String type;
     private String uid;
@@ -56,4 +56,8 @@ public class PointUsage extends BaseObject {
 
 //    private PointWrapper pw;
 
+    @Override
+    public String toString() {
+        return JsonUtils.toJsonString(this);
+    }
 }

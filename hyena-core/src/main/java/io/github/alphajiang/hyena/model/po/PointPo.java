@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.model.po;
 
 import io.github.alphajiang.hyena.model.base.BasePo;
+import io.github.alphajiang.hyena.utils.JsonUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import lombok.Data;
@@ -66,6 +67,9 @@ public class PointPo extends BasePo<Long> {
     }
 
     public static PointPo copy(PointPo in) {
+        if (in == null) {
+            return null;
+        }
         PointPo p = new PointPo();
         p.copyBase(in);
         p.uid = in.uid;
@@ -81,5 +85,10 @@ public class PointPo extends BasePo<Long> {
         p.frozenCost = in.frozenCost;
         p.seqNum = in.seqNum;
         return p;
+    }
+
+    @Override
+    public String toString() {
+        return JsonUtils.toJsonString(this);
     }
 }

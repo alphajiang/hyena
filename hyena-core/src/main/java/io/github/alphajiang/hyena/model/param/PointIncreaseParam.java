@@ -18,6 +18,7 @@
 package io.github.alphajiang.hyena.model.param;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.github.alphajiang.hyena.utils.JsonUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,7 +32,6 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class PointIncreaseParam extends PointOpParam {
 
 
@@ -49,5 +49,8 @@ public class PointIncreaseParam extends PointOpParam {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date expireTime;
 
-
+    @Override
+    public String toString() {
+        return JsonUtils.toJsonString(this);
+    }
 }

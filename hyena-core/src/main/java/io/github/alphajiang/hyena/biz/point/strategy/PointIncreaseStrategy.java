@@ -19,7 +19,11 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 
 import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
-import io.github.alphajiang.hyena.biz.point.*;
+import io.github.alphajiang.hyena.biz.point.PSession;
+import io.github.alphajiang.hyena.biz.point.PointBuilder;
+import io.github.alphajiang.hyena.biz.point.PointCache;
+import io.github.alphajiang.hyena.biz.point.PointUsage;
+import io.github.alphajiang.hyena.biz.point.PointWrapper;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.ds.service.PointLogDs;
 import io.github.alphajiang.hyena.ds.service.PointRecDs;
@@ -34,6 +38,11 @@ import io.github.alphajiang.hyena.model.type.PointOpType;
 import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.StringUtils;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,17 +52,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Date;
-import java.util.List;
-
 /**
  * 增加积分
  */
 @Slf4j
 @Component
 public class PointIncreaseStrategy extends AbstractPointStrategy {
+
     private static final Logger logger = LoggerFactory.getLogger(PointIncreaseStrategy.class);
 
     @Autowired
@@ -91,33 +96,33 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         PointUsage usage = session.getUsage();
         logger.info("increase. usage = {}", usage);
 
-            return super.preProcess(session, true, false)
-                    .flatMap(sess -> {
-                        PointWrapper pw = sess.getPw();
-                        if (pw.getPointCache().getPoint() == null) {
-                            this.addPoint(usage, pw.getPointCache());
-                        } else if (DecimalUtils.gt(usage.getPoint(), DecimalUtils.ZERO)) {
-                            this.updatePointCache(usage, pw.getPointCache());
-                        } else {
-                            log.info("do nothing... usage = {}", usage);
-                        }
-                        PointOpResult ret = new PointOpResult();
-                        BeanUtils.copyProperties(pw.getPointCache().getPoint(), ret);
-                        ret.setOpPoint(usage.getPoint())
-                                .setOpCost(usage.getCost());
-                        sess.setResult(ret);
-                        return hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
-                                        usage.getUid(), usage.getSubUid(), pw.getPointCache().getPoint())
-                                .map(x -> sess);
+        return super.preProcess(session, true, false)
+            .flatMap(sess -> {
+                PointWrapper pw = sess.getPw();
+                if (pw.getPointCache().getPoint() == null) {
+                    this.addPoint(usage, pw.getPointCache());
+                } else if (DecimalUtils.gt(usage.getPoint(), DecimalUtils.ZERO)) {
+                    this.updatePointCache(usage, pw.getPointCache());
+                } else {
+                    log.info("do nothing... usage = {}", usage);
+                }
+                PointOpResult ret = new PointOpResult();
+                BeanUtils.copyProperties(pw.getPointCache().getPoint(), ret);
+                ret.setOpPoint(usage.getPoint())
+                    .setOpCost(usage.getCost());
+                sess.setResult(ret);
+                return hyenaCacheFactory.getPointCacheService().updatePoint(usage.getType(),
+                        usage.getUid(), usage.getSubUid(), pw.getPointCache().getPoint())
+                    .map(x -> sess);
 //                                .subscribe();
 //                        return ret;
-                    })
-                    .doFinally(x -> {
-                        if(session.getPw() != null) {
-                            session.getPw().close();
-                        }
+            })
+            .doFinally(x -> {
+                if (session.getPw() != null) {
+                    session.getPw().close();
+                }
 //                        hyenaLockService.unlock(usage.getUid(), usage.getSubUid());
-                    });
+            });
 
     }
 
@@ -125,14 +130,15 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     private void addPoint(PointUsage usage, PointCache pc) {
         var point2Update = PointPo.buildPointPo();
         point2Update.setSeqNum(1L)
-                .setPoint(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
-                .setAvailable(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
-                .setUid(usage.getUid())
-                .setSubUid(usage.getSubUid())
-                .setEnable(true)
-                .setCreateTime(new Date())
-                .setUpdateTime(new Date());
-        BigDecimal cost = usage.getCost() != null && DecimalUtils.gt(usage.getCost(), DecimalUtils.ZERO)
+            .setPoint(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
+            .setAvailable(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
+            .setUid(usage.getUid())
+            .setSubUid(usage.getSubUid())
+            .setEnable(true)
+            .setCreateTime(new Date())
+            .setUpdateTime(new Date());
+        BigDecimal cost =
+            usage.getCost() != null && DecimalUtils.gt(usage.getCost(), DecimalUtils.ZERO)
                 ? usage.getCost().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP)
                 : DecimalUtils.ZERO;
         point2Update.setCost(cost);
@@ -142,19 +148,30 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         }
 
         this.pointDs.addPoint(usage.getType(), point2Update);
-
+        PointRecPo rec = null;
         if (DecimalUtils.gt(usage.getPoint(), DecimalUtils.ZERO)) {    // <= 0 表示仅创建帐号
-            PointRecPo rec = this.pointRecDs.addPointRec(usage, point2Update.getId(), point2Update.getSeqNum());
+            rec = this.pointRecDs.addPointRec(usage, point2Update.getId(),
+                point2Update.getSeqNum());
 
-            PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage, point2Update);
+            PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage,
+                point2Update);
             PointRecLogDto recLog = this.pointBuilder.buildRecLog(rec, pointLog, usage.getPoint(),
-                    cost);
-
+                cost);
 
             pointFlowService.addFlow(usage, pointLog, List.of(recLog));
         }
 
         pc.setPoint(this.pointDs.getPointVo(usage.getType(), point2Update.getId(), null, null));
+        if (rec != null) {
+            if (pc.getPoint().getRecList() == null) {
+                pc.getPoint().setRecList(new ArrayList<>());
+            }
+            long recSeqNo = rec.getSeqNum();
+            if (pc.getPoint().getRecList().stream().filter(r -> r.getSeqNum() == recSeqNo).findAny()
+                .isEmpty()) {
+                pc.getPoint().getRecList().add(rec);
+            }
+        }
     }
 
 
@@ -162,23 +179,26 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
         PointPo point = pc.getPoint();
         var point2Update = new PointPo();
         point.setSeqNum(point.getSeqNum() + 1L)
-                .setPoint(point.getPoint().add(usage.getPoint()).setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
-                .setAvailable(point.getAvailable().add(usage.getPoint()).setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP));
-        BigDecimal cost = usage.getCost() != null && DecimalUtils.gt(usage.getCost(), DecimalUtils.ZERO)
+            .setPoint(point.getPoint().add(usage.getPoint())
+                .setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
+            .setAvailable(point.getAvailable().add(usage.getPoint())
+                .setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP));
+        BigDecimal cost =
+            usage.getCost() != null && DecimalUtils.gt(usage.getCost(), DecimalUtils.ZERO)
                 ? usage.getCost() : DecimalUtils.ZERO;
-        point.setCost(point.getCost().add(cost).setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP));
+        point.setCost(
+            point.getCost().add(cost).setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP));
         if (StringUtils.isNotBlank(usage.getName())) {
             point.setName(usage.getName());
         }
 
         point2Update.setSeqNum(point.getSeqNum())
-                .setPoint(point.getPoint())
-                .setAvailable(point.getAvailable())
-                .setCost(point.getCost())
-                .setName(point.getName())
-                .setId(point.getId());
+            .setPoint(point.getPoint())
+            .setAvailable(point.getAvailable())
+            .setCost(point.getCost())
+            .setName(point.getName())
+            .setId(point.getId());
         //point2Update.setCost(cost);
-
 
         this.pointFlowService.updatePoint(usage.getType(), point2Update);
 
@@ -197,17 +217,16 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
             BigDecimal number = usage.getPoint().subtract(point.getPoint());
             PointRecPo rec4Update = new PointRecPo();
             rec4Update.setPid(pointRec.getPid())
-                    .setSeqNum(pointRec.getSeqNum())
-                    .setAvailable(pointRec.getAvailable().subtract(number))
-                    .setUsed(number);
+                .setSeqNum(pointRec.getSeqNum())
+                .setAvailable(pointRec.getAvailable().subtract(number))
+                .setUsed(number);
             //this.pointRecDs.updatePointRec(usage.getType(), pointRec);
             this.pointFlowService.updatePointRec(usage.getType(), List.of(rec4Update));
         }
 
         PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage, point);
         PointRecLogDto recLog = this.pointBuilder.buildRecLog(pointRec, pointLog, usage.getPoint(),
-                cost);
-
+            cost);
 
         pointFlowService.addFlow(usage, pointLog, List.of(recLog));
 

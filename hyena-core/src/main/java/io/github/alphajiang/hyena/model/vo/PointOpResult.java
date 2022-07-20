@@ -25,6 +25,7 @@ import io.github.alphajiang.hyena.model.po.FreezeOrderRecPo;
 import io.github.alphajiang.hyena.model.po.PointLogPo;
 import io.github.alphajiang.hyena.model.po.PointPo;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
+import io.github.alphajiang.hyena.utils.JsonUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,7 +38,6 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class PointOpResult extends PointPo {
 
@@ -66,5 +66,11 @@ public class PointOpResult extends PointPo {
         private List<PointRecPo> recList = new ArrayList<>();
         private List<FreezeOrderRecPo> foList = new ArrayList<>();
         private List<PointRecLogDto> recLogs = new ArrayList<>();
+    }
+
+
+    @Override
+    public String toString() {
+        return JsonUtils.toJsonString(this);
     }
 }

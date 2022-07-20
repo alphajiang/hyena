@@ -23,6 +23,8 @@ import io.github.alphajiang.hyena.model.base.BaseResponse;
 import io.github.alphajiang.hyena.model.param.PointOpParam;
 import io.github.alphajiang.hyena.utils.JsonUtils;
 import io.github.alphajiang.hyena.utils.StringUtils;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -34,12 +36,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 @Component
 @Aspect
 public class IdempotentAround {
+
     private final Logger logger = LoggerFactory.getLogger(IdempotentAround.class);
 
     @Autowired
@@ -56,7 +56,7 @@ public class IdempotentAround {
 
         ServerWebExchange exh = (ServerWebExchange) args[0];
         PointOpParam param = (PointOpParam) args[1];
-       Mono< BaseResponse> res;
+        Mono<BaseResponse> res;
 
         // String seq = request.getParameter(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY);
 //        String seq = param.getSeq();
@@ -73,8 +73,8 @@ public class IdempotentAround {
             return Mono.just(preRes);
         }
 
-       res = (Mono) point.proceed(point.getArgs());
-       res =  res.doOnNext(o -> {
+        res = (Mono) point.proceed(point.getArgs());
+        res = res.doOnNext(o -> {
             this.postProceed(name, param, (BaseResponse) o);
         })
         ;
@@ -91,15 +91,14 @@ public class IdempotentAround {
     }
 
     private BaseResponse preProceed(String name, PointOpParam param, Method method)
-            throws NoSuchMethodException, IllegalAccessException,
-            InvocationTargetException, InstantiationException {
+        throws NoSuchMethodException, IllegalAccessException,
+        InvocationTargetException, InstantiationException {
 
         BaseResponse res = null;
         if (StringUtils.isBlank(param.getSeq())) {
             return res;
         }
         String key = getKey(name, param);
-
 
         String resMsg = this.hyenaIdempotent.getByKey(name, key);
         if (StringUtils.isNotBlank(resMsg)) {    // cache match

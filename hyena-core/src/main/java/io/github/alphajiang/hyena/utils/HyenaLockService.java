@@ -24,7 +24,7 @@ public class HyenaLockService {
     @PostConstruct
     public void init() {
         for (int i = 0; i < LOCK_NUM; i++) {
-            Semaphore lock = new Semaphore(1);
+            Semaphore lock = new Semaphore(1, true);
             this.locks.put(i, lock);
         }
     }
@@ -51,10 +51,44 @@ public class HyenaLockService {
                 uid, subUid, num);
         try {
             Semaphore lock = this.locks.get(num);
-            lock.release();
+            log.debug("permits = {}", lock.availablePermits());
+            if(lock.availablePermits() > 0) {
+                return;
+            }
+            lock.release(1);
+//            lock.drainPermits();
         } catch (Exception e) {
             log.warn("uid = {}, subUid = {}, num = {},  exception: {}",
                     uid, subUid, num, e.getMessage(), e);
         }
+    }
+
+
+    public static void main(String[] args) throws InterruptedException {
+        HyenaLockService ls = new HyenaLockService();
+        ls.init();
+
+        boolean ret = ls.lock("111", "222");
+        System.out.println("lock result = " + ret);
+
+        for(int i = 0;i < 3; i ++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    log.info("start");
+                    boolean ret = ls.lock("111", "222");
+                    System.out.println("lock result = " + ret);
+                    try {
+                        Thread.sleep(3000L);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }).start();
+        }
+
+        Thread.sleep(1000L);
+        ls.unlock("111", "222");
+        ls.unlock("111", "222");
     }
 }
