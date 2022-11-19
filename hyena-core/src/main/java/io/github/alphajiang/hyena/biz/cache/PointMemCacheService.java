@@ -71,7 +71,7 @@ public class PointMemCacheService implements IPointCache {
             long startTime = System.nanoTime();
             result.getPointCache().lock();
             long endTime = System.nanoTime();
-            long lockMs = (endTime - startTime) / 1000 * 1000; // 获得锁消耗的时间
+            long lockMs = (endTime - startTime) / 1000000; // 获得锁消耗的时间
             if (lockMs > 500) {
                 log.info("key = {}, lock takes {} ms", result.getPointCache().getKey(), lockMs);
             }
