@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.8'
+    id 'org.springframework.boot' version '2.6.13'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'jacoco'
@@ -14,12 +14,12 @@ apply plugin: 'idea'
 
 ext {
 
-    springBootVersion = "2.6.8"
-    springCloudVersion = "2021.0.2"
+    springBootVersion = "2.6.13"
+    springCloudVersion = "2021.0.5"
     mybatisStarterVersion = '2.2.2'
 //    swaggerVersion = '3.0.0'
 //    swaggerAnnotationsVersion = '1.6.2'
-    springdocVersion = '1.6.9'
+    springdocVersion = '1.6.12'
     lombokVersion = '1.18.24'
     ehcacheVersion = '3.8.1'
     commonsPoolVersion = '2.11.1' //apache commons pool. redis pool 需要 https://commons.apache.org/proper/commons-pool/
@@ -28,7 +28,7 @@ ext {
 
 allprojects {
     group = 'io.github.alphajiang'
-    version = '0.0.27.20220623.1-SNAPSHOT'
+    version = '0.0.27.20220720.1-SNAPSHOT'
 //    version = '0.0.26'
     apply plugin: 'java'
 //    apply plugin: 'io.spring.dependency-management'
