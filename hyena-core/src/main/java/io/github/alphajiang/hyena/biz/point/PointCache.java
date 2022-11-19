@@ -19,16 +19,19 @@ package io.github.alphajiang.hyena.biz.point;
 
 import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import io.github.alphajiang.hyena.model.vo.PointVo;
-import lombok.Data;
-import lombok.experimental.Accessors;
-
 import java.util.Date;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import lombok.Data;
+import lombok.ToString;
+import lombok.ToString.Exclude;
+import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
+@ToString
 public class PointCache {
+
     //private Long pid;
     private String key; // type + uid
 
@@ -37,6 +40,7 @@ public class PointCache {
 
     private Date updateTime;
 
+    @Exclude
     private Semaphore lock = new Semaphore(1);
 
     public void lock() {
@@ -50,6 +54,7 @@ public class PointCache {
     public void unlock() {
         this.lock.release();
     }
+
 
 
 }

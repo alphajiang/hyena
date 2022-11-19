@@ -86,8 +86,12 @@ public class PointPo extends BasePo<Long> {
         return p;
     }
 
-    @Override
-    public String toString() {
-        return JsonUtils.toJsonString(this);
-    }
+//    @Override
+//    public String toString() {
+//        return JsonUtils.toJsonString(this);
+//    }
+//
+//    public String dump(){
+//        return JsonUtils.toJsonString(this);
+//    }
 }

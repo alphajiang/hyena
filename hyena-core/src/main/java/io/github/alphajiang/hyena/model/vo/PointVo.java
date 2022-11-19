@@ -24,6 +24,8 @@ import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.JsonUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 import lombok.experimental.Accessors;
 
 import java.util.HashMap;
@@ -34,9 +36,14 @@ import java.util.stream.Collectors;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
+@ToString
 public class PointVo extends PointPo {
 
+    @Exclude
     private List<PointRecPo> recList;
+
+
+    @Exclude
     private Map<String, FreezeOrderRecPo> forList;
 
     public synchronized void addForList(List<FreezeOrderRecPo> inForList) {
@@ -49,8 +56,8 @@ public class PointVo extends PointPo {
         this.forList.putAll(inForList.stream().collect(Collectors.toMap(o -> o.getId(), o -> o, (l, r) -> l)));
     }
 
-    @Override
-    public String toString() {
-        return JsonUtils.toJsonString(this);
-    }
+//    @Override
+//    public String toString() {
+//        return JsonUtils.toJsonString(this);
+//    }
 }

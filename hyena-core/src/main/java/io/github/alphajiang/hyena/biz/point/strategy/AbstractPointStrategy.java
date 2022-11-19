@@ -35,6 +35,8 @@ import io.github.alphajiang.hyena.utils.DecimalUtils;
 import io.github.alphajiang.hyena.utils.HyenaAssert;
 import io.github.alphajiang.hyena.utils.HyenaLockService;
 import lombok.Data;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -174,11 +176,15 @@ abstract class AbstractPointStrategy implements PointStrategy {
 
     @Data
     @Accessors(chain = true)
+    @ToString
     public static class LoopResult {
         private BigDecimal delta;
         private BigDecimal deltaCost;
+        @Exclude
         private List<PointRecPo> recList4Update;
+        @Exclude
         private List<PointRecLogDto> recLogs;
+        @Exclude
         private List<FreezeOrderRecPo> forList;
     }
 

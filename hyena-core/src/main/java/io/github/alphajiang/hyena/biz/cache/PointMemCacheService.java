@@ -22,16 +22,21 @@ import io.github.alphajiang.hyena.biz.point.PointWrapper;
 import io.github.alphajiang.hyena.ds.service.PointDs;
 import io.github.alphajiang.hyena.model.po.PointRecPo;
 import io.github.alphajiang.hyena.model.vo.PointVo;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import javax.annotation.PostConstruct;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -63,12 +68,20 @@ public class PointMemCacheService implements IPointCache {
         PointWrapper result = new PointWrapper(this.getPointX(type, uid, subUid));
 
         if (lock) {
+            long startTime = System.nanoTime();
             result.getPointCache().lock();
+            long endTime = System.nanoTime();
+            long lockMs = (endTime - startTime) / 1000 * 1000; // 获得锁消耗的时间
+            if (lockMs > 500) {
+                log.info("key = {}, lock takes {} ms", result.getPointCache().getKey(), lockMs);
+            }
         }
         if (result.getPointCache().getPoint() == null) {
             PointVo p = this.pointDs.getPointVo(type, null, uid, subUid);
             if (p != null && p.getRecList() != null) {
-                p.setRecList(p.getRecList().stream().sorted(Comparator.comparingLong(PointRecPo::getId)).collect(Collectors.toList()));
+                p.setRecList(
+                    p.getRecList().stream().sorted(Comparator.comparingLong(PointRecPo::getId))
+                        .collect(Collectors.toList()));
             }
             result.getPointCache().setPoint(p);
         }
@@ -78,10 +91,10 @@ public class PointMemCacheService implements IPointCache {
     @Override
     public Mono<Boolean> removePoint(String type, String uid, String subUid) {
         return Mono.just(this.formatKey(type, uid, subUid))
-                .map(key -> {
-                    map.remove(key);
-                    return Boolean.TRUE;
-                });
+            .map(key -> {
+                map.remove(key);
+                return Boolean.TRUE;
+            });
     }
 
     private String formatKey(String type, String uid, String subUid) {
@@ -133,14 +146,14 @@ public class PointMemCacheService implements IPointCache {
     @Override
     public Mono<PointVo> updatePoint(String type, String uid, String subUid, PointVo point) {
         return Mono.just(new PointCache())
-                .doOnNext(p -> {
-                    String key = formatKey(type, uid, subUid);
-                    p.setKey(key);
-                    p.setPoint(point);
-                    p.setUpdateTime(new Date());
-                    map.put(key, p);
-                })
-                .map(pc -> pc.getPoint());
+            .doOnNext(p -> {
+                String key = formatKey(type, uid, subUid);
+                p.setKey(key);
+                p.setPoint(point);
+                p.setUpdateTime(new Date());
+                map.put(key, p);
+            })
+            .map(pc -> pc.getPoint());
 
     }
 
