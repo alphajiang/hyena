@@ -13,8 +13,8 @@ public class TestHyenaLockService  extends HyenaTestBase {
 
     @Test
     public void test_lock() throws InterruptedException {
-        this.hyenaLockService.lock("84790", "34490");
-        this.hyenaLockService.unlock("84790", "34490");
+        this.hyenaLockService.lock("score", "84790", "34490");
+        this.hyenaLockService.unlock("score", "84790", "34490");
 
         // this.hyenaLockService.lock("84790", "34490");
         //this.hyenaLockService.unlock("84790", "34490");

@@ -256,7 +256,7 @@ public class PointController {
             .doOnNext(
                 usageIn -> lockService.lock(param.getType(), param.getUid(), param.getSubUid()))
             .flatMap(usageIn ->
-        this.pointUsageFacade.freeze(PSession.fromUsage(usage)))
+                this.pointUsageFacade.freeze(PSession.fromUsage(usage)))
             .map(sess -> mapObjResult(exh, sess, startTime))
             .doFinally(x -> lockService.unlock(param.getType(), param.getUid(), param.getSubUid()));
     }
@@ -354,6 +354,11 @@ public class PointController {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
         long startTime = System.nanoTime();
         PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
+        if (usage.getCost() == null || DecimalUtils.ltZero(usage.getCost())) {
+            throw new HyenaParameterException("invalid parameter cost");
+        } else if (usage.getPoint() == null || DecimalUtils.ltZero(usage.getPoint())) {
+            throw new HyenaParameterException("invalid parameter point");
+        }
         usage.setUnfreezePoint(param.getUnfreezePoint());
         return Mono.just(usage)
             .doOnNext(
