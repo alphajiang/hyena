@@ -109,11 +109,11 @@ public class PointDecreaseFrozenStrategy extends PointDecreaseStrategy {
             return this.pointDecreaseStrategy.process(session);
         }
 
-        boolean localLockRet = hyenaLockService.lock(usage.getUid(), usage.getSubUid());
-        if (!localLockRet) {
-            log.error("get lock timeout!!! usage = {}", usage);
-            throw new HyenaServiceException("get lock timeout, retry later");
-        }
+//        boolean localLockRet = hyenaLockService.lock(usage.getUid(), usage.getSubUid());
+//        if (!localLockRet) {
+//            log.error("get lock timeout!!! usage = {}", usage);
+//            throw new HyenaServiceException("get lock timeout, retry later");
+//        }
 
         return preProcess(session, true, true)
                 .flatMap(sess -> {
@@ -148,7 +148,7 @@ public class PointDecreaseFrozenStrategy extends PointDecreaseStrategy {
                     if (session.getPw() != null) {
                         session.getPw().close();
                     }
-                    hyenaLockService.unlock(usage.getUid(), usage.getSubUid());
+//                    hyenaLockService.unlock(usage.getUid(), usage.getSubUid());
                 });
 
 

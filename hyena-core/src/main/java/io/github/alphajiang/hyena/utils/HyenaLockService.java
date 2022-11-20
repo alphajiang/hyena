@@ -1,11 +1,13 @@
 package io.github.alphajiang.hyena.utils;
 
+import io.github.alphajiang.hyena.model.exception.HyenaServiceException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.event.Level;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -52,8 +54,8 @@ public class HyenaLockService {
         }
     }
 
-    public boolean lock(String uid, String subUid) {
-        int num = Math.abs((uid.hashCode() + (subUid == null ? 0 : subUid.hashCode()))) % LOCK_NUM;
+    public boolean lock(String type, String uid, String subUid) {
+        int num = getLockNum(type, uid, subUid);
         Semaphore lock = this.locks.get(num);
         boolean ret = false;
         try {
@@ -67,14 +69,19 @@ public class HyenaLockService {
             log.error("uid = {}, subUid = {}, num = {}, exception {}",
                 uid, subUid, num, e.getMessage(), e);
         }
+        if (!ret) {
+            log.warn("lock failed. type = {}, uid = {}, subUid = {}, num = {}",
+                type, uid, subUid, num);
+            throw new HyenaServiceException("acquire lock failed", Level.WARN);
+        }
         return ret;
     }
 
-    public void unlock(String uid, String subUid) {
-        int num = Math.abs((uid.hashCode() + (subUid == null ? 0 : subUid.hashCode()))) % LOCK_NUM;
+    public void unlock(String type, String uid, String subUid) {
+        int num = getLockNum(type, uid, subUid);
 
-        log.info("local unlock uid = {}, subUid = {}, num = {}",
-            uid, subUid, num);
+        log.info("unlock type = {}, uid = {}, subUid = {}, num = {}",
+            type, uid, subUid, num);
         try {
             Semaphore lock = this.locks.get(num);
             log.debug("permits = {}", lock.availablePermits());
@@ -86,6 +93,18 @@ public class HyenaLockService {
         } catch (Exception e) {
             log.warn("uid = {}, subUid = {}, num = {},  exception: {}",
                 uid, subUid, num, e.getMessage(), e);
+        }
+    }
+
+    private int getLockNum(String type, String uid, String subUid) {
+        if (type == null && subUid == null) {
+            return Math.abs(uid.hashCode()) % LOCK_NUM;
+        } else if (type == null) {
+            return Math.abs(uid.hashCode() + subUid.hashCode()) % LOCK_NUM;
+        } else {
+            return Math.abs(
+                type.hashCode() + uid.hashCode() + subUid.hashCode())
+                % LOCK_NUM;
         }
     }
 }

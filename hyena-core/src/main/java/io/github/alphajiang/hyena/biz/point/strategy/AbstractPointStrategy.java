@@ -70,13 +70,13 @@ abstract class AbstractPointStrategy implements PointStrategy {
     public Mono<PSession> process(PSession session) {
         log.info("usage = {}", session.getUsage());
         PointUsage usage = session.getUsage();
-        if (session.getPw() == null) {
-            boolean localLockRet = hyenaLockService.lock(usage.getUid(), usage.getSubUid());
-            if (!localLockRet) {
-                log.error("get lock timeout!!! usage = {}", usage);
-                throw new HyenaServiceException("get lock timeout, retry later");
-            }
-        }
+//        if (session.getPw() == null) {
+//            boolean localLockRet = hyenaLockService.lock(usage.getUid(), usage.getSubUid());
+//            if (!localLockRet) {
+//                log.error("get lock timeout!!! usage = {}", usage);
+//                throw new HyenaServiceException("get lock timeout, retry later");
+//            }
+//        }
 
         return preProcess(session, session.getPw() == null, true)
                 .flatMap(pw -> {
@@ -117,7 +117,7 @@ abstract class AbstractPointStrategy implements PointStrategy {
                     if(session.getPw() != null) {
                         session.getPw().close();
                     }
-                    hyenaLockService.unlock(usage.getUid(), usage.getSubUid());
+//                    hyenaLockService.unlock(usage.getUid(), usage.getSubUid());
                 });
 
 

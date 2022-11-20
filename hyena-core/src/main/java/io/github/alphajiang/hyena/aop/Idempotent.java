@@ -17,8 +17,10 @@
 
 package io.github.alphajiang.hyena.aop;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Type;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Idempotent {
@@ -26,4 +28,6 @@ public @interface Idempotent {
      * @return the name part of idempotent key
      */
     String name() default "";
+
+    Class resClass();
 }

@@ -55,6 +55,7 @@ import io.github.alphajiang.hyena.model.vo.PointOpResult;
 import io.github.alphajiang.hyena.utils.CollectionUtils;
 import io.github.alphajiang.hyena.utils.DateUtils;
 import io.github.alphajiang.hyena.utils.DecimalUtils;
+import io.github.alphajiang.hyena.utils.HyenaLockService;
 import io.github.alphajiang.hyena.utils.LoggerHelper;
 import io.github.alphajiang.hyena.utils.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -103,14 +104,19 @@ public class PointController {
     @Autowired
     private HyenaCacheFactory hyenaCacheFactory;
 
+    @Autowired
+    private HyenaLockService lockService;
+
     @Operation(summary = "获取积分信息")
     @GetMapping(value = "/getPoint")
     public Mono<ObjectResponse<PointPo>> getPoint(ServerWebExchange exh,
         @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
         @Parameter(description = "用户ID") @RequestParam String uid,
-        @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid) {
+        @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid,
+        @Parameter(description = "是否精准的") @RequestParam(required = false) Boolean exact) {
         logger.info(LoggerHelper.formatEnterLog(exh));
-        var ret = this.hyenaCacheFactory.getPointCacheService().getPoint(type, uid, subUid, false);
+        var ret =
+            this.hyenaCacheFactory.getPointCacheService().getPoint(type, uid, subUid, false);
         return ret.map(o -> new ObjectResponse<>(PointPo.copy(o.getPointCache().getPoint())))
             .doOnNext(o -> logger.info(LoggerHelper.formatLeaveLog(exh)));
     }
@@ -177,7 +183,7 @@ public class PointController {
         return res;
     }
 
-    @Idempotent(name = "increase-point")
+    @Idempotent(name = "increase-point", resClass = ObjectResponse.class)
     @Operation(summary = "增加用户积分")
     @PostMapping(value = "/increase")
     public Mono<ObjectResponse<PointPo>> increasePoint(ServerWebExchange exh,
@@ -189,15 +195,19 @@ public class PointController {
             throw new HyenaParameterException("invalid parameter point");
         }
 
-        return this.pointUsageFacade.increase(PSession.fromUsage(usage))
+        return Mono.just(usage)
+            .doOnNext(
+                usageIn -> lockService.lock(param.getType(), param.getUid(), param.getSubUid()))
+            .flatMap(usageIn -> this.pointUsageFacade.increase(PSession.fromUsage(usage)))
             .map(sess -> new ObjectResponse<>((PointPo) sess.getResult()))
             .doOnNext(rt -> {
                 logger.info(LoggerHelper.formatLeaveLog(exh));
                 debugPerformance(exh, startTime);
-            });
+            })
+            .doFinally(x -> lockService.unlock(param.getType(), param.getUid(), param.getSubUid()));
     }
 
-    @Idempotent(name = "decrease-point")
+    @Idempotent(name = "decrease-point", resClass = ObjectResponse.class)
     @Operation(summary = "消费用户积分")
     @PostMapping(value = "/decrease")
     public Mono<ObjectResponse<PointOpResult>> decreasePoint(ServerWebExchange exh,
@@ -209,11 +219,15 @@ public class PointController {
         if (usage.getPoint() == null || DecimalUtils.ltZero(usage.getPoint())) {
             throw new HyenaParameterException("invalid parameter point");
         }
-        return this.pointUsageFacade.decrease(PSession.fromUsage(usage))
-            .map(sess -> mapObjResult(exh, sess, startTime));
+        return Mono.just(usage)
+            .doOnNext(
+                usageIn -> lockService.lock(param.getType(), param.getUid(), param.getSubUid()))
+            .flatMap(usageIn -> this.pointUsageFacade.decrease(PSession.fromUsage(usage)))
+            .map(sess -> mapObjResult(exh, sess, startTime))
+            .doFinally(x -> lockService.unlock(param.getType(), param.getUid(), param.getSubUid()));
     }
 
-    @Idempotent(name = "decreaseFrozen-point")
+    @Idempotent(name = "decreaseFrozen-point", resClass = ObjectResponse.class)
     @Operation(summary = "消费已冻结的用户积分")
     @PostMapping(value = "/decreaseFrozen")
     public Mono<ObjectResponse<PointOpResult>> decreaseFrozenPoint(ServerWebExchange exh,
@@ -221,11 +235,16 @@ public class PointController {
         long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointDecreaseParam(param);
-        return this.pointUsageFacade.decreaseFrozen(PSession.fromUsage(usage))
-            .map(sess -> mapObjResult(exh, sess, startTime));
+        return Mono.just(usage)
+            .doOnNext(
+                usageIn -> lockService.lock(param.getType(), param.getUid(), param.getSubUid()))
+            .flatMap(usageIn ->
+                this.pointUsageFacade.decreaseFrozen(PSession.fromUsage(usage)))
+            .map(sess -> mapObjResult(exh, sess, startTime))
+            .doFinally(x -> lockService.unlock(param.getType(), param.getUid(), param.getSubUid()));
     }
 
-    @Idempotent(name = "freeze-point")
+    @Idempotent(name = "freeze-point", resClass = ObjectResponse.class)
     @Operation(summary = "冻结用户积分")
     @PostMapping(value = "/freeze")
     public Mono<ObjectResponse<PointOpResult>> freezePoint(ServerWebExchange exh,
@@ -233,11 +252,16 @@ public class PointController {
         long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointOpParam(param);
-        return this.pointUsageFacade.freeze(PSession.fromUsage(usage))
-            .map(sess -> mapObjResult(exh, sess, startTime));
+        return Mono.just(usage)
+            .doOnNext(
+                usageIn -> lockService.lock(param.getType(), param.getUid(), param.getSubUid()))
+            .flatMap(usageIn ->
+        this.pointUsageFacade.freeze(PSession.fromUsage(usage)))
+            .map(sess -> mapObjResult(exh, sess, startTime))
+            .doFinally(x -> lockService.unlock(param.getType(), param.getUid(), param.getSubUid()));
     }
 
-    @Idempotent(name = "unfreeze-point")
+    @Idempotent(name = "unfreeze-point", resClass = ObjectResponse.class)
     @Operation(summary = "解冻用户积分")
     @PostMapping(value = "/unfreeze")
     public Mono<ObjectResponse<PointOpResult>> unfreezePoint(ServerWebExchange exh,
@@ -245,23 +269,32 @@ public class PointController {
         long startTime = System.nanoTime();
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
         PointUsage usage = PointUsageBuilder.fromPointUnfreezeParam(param);
-        return this.pointUsageFacade.unfreeze(PSession.fromUsage(usage))
-            .map(sess -> mapObjResult(exh, sess, startTime));
+        return Mono.just(usage)
+            .doOnNext(
+                usageIn -> lockService.lock(param.getType(), param.getUid(), param.getSubUid()))
+            .flatMap(usageIn -> this.pointUsageFacade.unfreeze(PSession.fromUsage(usage)))
+            .map(sess -> mapObjResult(exh, sess, startTime))
+            .doFinally(x -> lockService.unlock(param.getType(), param.getUid(), param.getSubUid()));
     }
 
-    @Idempotent(name = "cancel-point")
+    @Idempotent(name = "cancel-point", resClass = ObjectResponse.class)
     @Operation(summary = "撤销用户积分")
     @PostMapping(value = "/cancel")
     public Mono<ObjectResponse<PointOpResult>> cancelPoint(ServerWebExchange exh,
         @RequestBody PointCancelParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
 
+        long startTime = System.nanoTime();
         PointUsage usage = PointUsageBuilder.fromPointCancelParam(param);
-        return this.pointUsageFacade.cancel(PSession.fromUsage(usage))
-            .map(sess -> mapObjResult(exh, sess, null));
+        return Mono.just(usage)
+            .doOnNext(
+                usageIn -> lockService.lock(param.getType(), param.getUid(), param.getSubUid()))
+            .flatMap(usageIn -> this.pointUsageFacade.cancel(PSession.fromUsage(usage)))
+            .map(sess -> mapObjResult(exh, sess, startTime))
+            .doFinally(x -> lockService.unlock(param.getType(), param.getUid(), param.getSubUid()));
     }
 
-    @Idempotent(name = "freeze-by-rec-id")
+    @Idempotent(name = "freeze-by-rec-id", resClass = ObjectResponse.class)
     @Operation(summary = "按积分块冻结")
     @PostMapping(value = "/freezeByRecId")
     public Mono<ObjectResponse<PointOpResult>> freezeByRecId(ServerWebExchange exh,
@@ -270,25 +303,35 @@ public class PointController {
         //        if (param.getUnfreezePoint() != null && param.getUnfreezePoint() < 0L) {
         //            throw new HyenaParameterException("invalid parameter: unfreezePoint");
         //        }
+        long startTime = System.nanoTime();
         PointUsage usage = PointUsageBuilder.fromPointFreezeByRecIdParam(param);
-        return this.pointUsageFacade.freezeByRecId(PSession.fromUsage(usage))
-            .map(sess -> mapObjResult(exh, sess, null));
+        return Mono.just(usage)
+            .doOnNext(
+                usageIn -> lockService.lock(param.getType(), param.getUid(), param.getSubUid()))
+            .flatMap(usageIn -> this.pointUsageFacade.freezeByRecId(PSession.fromUsage(usage)))
+            .map(sess -> mapObjResult(exh, sess, startTime))
+            .doFinally(x -> lockService.unlock(param.getType(), param.getUid(), param.getSubUid()));
     }
 
-    @Idempotent(name = "freeze-cost")
+    @Idempotent(name = "freeze-cost", resClass = ObjectResponse.class)
     @Operation(summary = "按成本冻结")
     @PostMapping(value = "/freezeCost")
     public Mono<ObjectResponse<PointOpResult>> freezeCost(ServerWebExchange exh,
         @RequestBody PointFreezeParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
+        long startTime = System.nanoTime();
         PointUsage usage = PointUsageBuilder.fromPointFreezeParam(param);
         if (usage.getCost() == null || DecimalUtils.ltZero(usage.getCost())) {
             throw new HyenaParameterException("invalid parameter cost");
         } else if (StringUtils.isBlank(usage.getOrderNo())) {
             throw new HyenaParameterException("invalid parameter 'orderNo'");
         }
-        return this.pointUsageFacade.freezeCost(PSession.fromUsage(usage))
-            .map(sess -> mapObjResult(exh, sess, null));
+        return Mono.just(usage)
+            .doOnNext(
+                usageIn -> lockService.lock(param.getType(), param.getUid(), param.getSubUid()))
+            .flatMap(usageIn -> this.pointUsageFacade.freezeCost(PSession.fromUsage(usage)))
+            .map(sess -> mapObjResult(exh, sess, startTime))
+            .doFinally(x -> lockService.unlock(param.getType(), param.getUid(), param.getSubUid()));
     }
 
     //    @Idempotent(name = "unfreeze-cost")
@@ -303,16 +346,21 @@ public class PointController {
     //        return this.pointUsageFacade.unfreezeCost(PSession.fromUsage(usage)).map(sess -> mapObjResult(exh, sess, null));
     //    }
 
-    @Idempotent(name = "refund")
+    @Idempotent(name = "refund", resClass = ObjectResponse.class)
     @Operation(summary = "退款")
     @PostMapping(value = "/refund")
     public Mono<ObjectResponse<PointOpResult>> refund(ServerWebExchange exh,
         @RequestBody PointRefundParam param) {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + " param = {}", param);
+        long startTime = System.nanoTime();
         PointUsage usage = PointUsageBuilder.fromPointRefundParam(param);
         usage.setUnfreezePoint(param.getUnfreezePoint());
-        return this.pointUsageFacade.refund(PSession.fromUsage(usage))
-            .map(sess -> mapObjResult(exh, sess, null));
+        return Mono.just(usage)
+            .doOnNext(
+                usageIn -> lockService.lock(param.getType(), param.getUid(), param.getSubUid()))
+            .flatMap(usageIn -> this.pointUsageFacade.refund(PSession.fromUsage(usage)))
+            .map(sess -> mapObjResult(exh, sess, startTime))
+            .doFinally(x -> lockService.unlock(param.getType(), param.getUid(), param.getSubUid()));
     }
 
     @Operation(summary = "获取时间段内总共增加的积分数量")

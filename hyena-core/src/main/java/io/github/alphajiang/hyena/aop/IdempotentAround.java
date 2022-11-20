@@ -17,9 +17,13 @@
 
 package io.github.alphajiang.hyena.aop;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.github.alphajiang.hyena.HyenaConstants;
 import io.github.alphajiang.hyena.biz.idempotent.HyenaIdempotent;
 import io.github.alphajiang.hyena.model.base.BaseResponse;
+import io.github.alphajiang.hyena.model.base.ListResponse;
+import io.github.alphajiang.hyena.model.base.ObjectResponse;
 import io.github.alphajiang.hyena.model.param.PointOpParam;
 import io.github.alphajiang.hyena.utils.JsonUtils;
 import io.github.alphajiang.hyena.utils.StringUtils;
@@ -52,6 +56,8 @@ public class IdempotentAround {
 
         Idempotent shelter = method.getAnnotation(Idempotent.class);
         String name = shelter.name();
+        Class resClass = shelter.resClass();
+
         Object[] args = point.getArgs();
 
         ServerWebExchange exh = (ServerWebExchange) args[0];
@@ -67,7 +73,7 @@ public class IdempotentAround {
         }
 //        request.getResponse().getHeaders().set(HyenaConstants.REQ_IDEMPOTENT_SEQ_KEY, seq);
 
-        BaseResponse preRes = this.preProceed(name, param, method);
+        BaseResponse preRes = this.preProceed(name, param, resClass);
 
         if (preRes != null) {
             return Mono.just(preRes);
@@ -75,7 +81,10 @@ public class IdempotentAround {
 
         res = (Mono) point.proceed(point.getArgs());
         res = res.doOnNext(o -> {
-            this.postProceed(name, param, (BaseResponse) o);
+            BaseResponse restRes = (BaseResponse) o;
+            if (restRes.getStatus() == 0) {
+                this.postProceed(name, param, restRes);
+            }
         })
         ;
         return res;
@@ -90,7 +99,7 @@ public class IdempotentAround {
         return null;
     }
 
-    private BaseResponse preProceed(String name, PointOpParam param, Method method)
+    private BaseResponse preProceed(String name, PointOpParam param, Class resClass)
         throws NoSuchMethodException, IllegalAccessException,
         InvocationTargetException, InstantiationException {
 
@@ -102,8 +111,31 @@ public class IdempotentAround {
 
         String resMsg = this.hyenaIdempotent.getByKey(name, key);
         if (StringUtils.isNotBlank(resMsg)) {    // cache match
-            res = (BaseResponse) JsonUtils.fromJson(resMsg, method.getReturnType());
+//            ParameterizedType monoType = (ParameterizedType) method.getGenericReturnType();
+//            Type[] types = monoType.getActualTypeArguments();
+//            try {
+//                Type retType = ((ParameterizedType)types[0]).getActualTypeArguments()[0];
+//                Class<?> retTYpe = Class.forName(types[0].getTypeName());
+            if (resClass.getName().equals(BaseResponse.class.getName())) {
+                res = JsonUtils.fromJson(resMsg, BaseResponse.class);
+            } else if (resClass.getName().equals(ObjectResponse.class.getName())) {
+
+                res = JsonUtils.fromJson(resMsg,
+                    new TypeReference<ObjectResponse<JsonNode>>() {
+                    });
+            } else if (resClass.getName().equals(ListResponse.class.getName())) {
+
+                res = JsonUtils.fromJson(resMsg,
+                    new TypeReference<ListResponse<JsonNode>>() {
+                    });
+            } else {
+                logger.error("not supported type. {}", resClass.getName());
+            }
+
             logger.info("idempotent cache matched. res = {}", JsonUtils.toJsonString(res));
+//            } catch (Exception e) {
+//                logger.error(e.getMessage(), e);
+//            }
             return res;
         }
 
