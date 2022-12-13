@@ -66,6 +66,7 @@ public class PointDs {
         return point;
     }
 
+    @Transactional
     public boolean addPoint(String type, PointPo point) {
         if (point.getSubUid() == null) {
             point.setSubUid("");

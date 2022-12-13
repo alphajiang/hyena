@@ -20,6 +20,7 @@ package io.github.alphajiang.hyena.biz.point.strategy;
 import io.github.alphajiang.hyena.biz.cache.HyenaCacheFactory;
 import io.github.alphajiang.hyena.biz.flow.PointFlowService;
 import io.github.alphajiang.hyena.biz.point.PSession;
+import io.github.alphajiang.hyena.biz.point.PointBizService;
 import io.github.alphajiang.hyena.biz.point.PointBuilder;
 import io.github.alphajiang.hyena.biz.point.PointCache;
 import io.github.alphajiang.hyena.biz.point.PointUsage;
@@ -83,6 +84,9 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
 //    private HyenaCacheFactory hyenaCacheFactory;
 
     @Autowired
+    private PointBizService pointBizService;
+
+    @Autowired
     private PointBuilder pointBuilder;
 
     @Override
@@ -100,7 +104,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
             .flatMap(sess -> {
                 PointWrapper pw = sess.getPw();
                 if (pw.getPointCache().getPoint() == null) {
-                    this.addPoint(usage, pw.getPointCache());
+                    pointBizService.addPoint(usage, pw.getPointCache());
                 } else if (DecimalUtils.gt(usage.getPoint(), DecimalUtils.ZERO)) {
                     this.updatePointCache(usage, pw.getPointCache());
                 } else {
@@ -127,52 +131,7 @@ public class PointIncreaseStrategy extends AbstractPointStrategy {
     }
 
     // 创建新帐号
-    private void addPoint(PointUsage usage, PointCache pc) {
-        var point2Update = PointPo.buildPointPo();
-        point2Update.setSeqNum(1L)
-            .setPoint(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
-            .setAvailable(usage.getPoint().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP))
-            .setUid(usage.getUid())
-            .setSubUid(usage.getSubUid())
-            .setEnable(true)
-            .setCreateTime(new Date())
-            .setUpdateTime(new Date());
-        BigDecimal cost =
-            usage.getCost() != null && DecimalUtils.gt(usage.getCost(), DecimalUtils.ZERO)
-                ? usage.getCost().setScale(DecimalUtils.SCALE_2, RoundingMode.HALF_UP)
-                : DecimalUtils.ZERO;
-        point2Update.setCost(cost);
 
-        if (StringUtils.isNotBlank(usage.getName())) {
-            point2Update.setName(usage.getName());
-        }
-
-        this.pointDs.addPoint(usage.getType(), point2Update);
-        PointRecPo rec = null;
-        if (DecimalUtils.gt(usage.getPoint(), DecimalUtils.ZERO)) {    // <= 0 表示仅创建帐号
-            rec = this.pointRecDs.addPointRec(usage, point2Update.getId(),
-                point2Update.getSeqNum());
-
-            PointLogPo pointLog = this.pointBuilder.buildPointLog(PointOpType.INCREASE, usage,
-                point2Update);
-            PointRecLogDto recLog = this.pointBuilder.buildRecLog(rec, pointLog, usage.getPoint(),
-                cost);
-
-            pointFlowService.addFlow(usage, pointLog, List.of(recLog));
-        }
-
-        pc.setPoint(this.pointDs.getPointVo(usage.getType(), point2Update.getId(), null, null));
-        if (rec != null) {
-            if (pc.getPoint().getRecList() == null) {
-                pc.getPoint().setRecList(new ArrayList<>());
-            }
-            long recSeqNo = rec.getSeqNum();
-            if (pc.getPoint().getRecList().stream().filter(r -> r.getSeqNum() == recSeqNo).findAny()
-                .isEmpty()) {
-                pc.getPoint().getRecList().add(rec);
-            }
-        }
-    }
 
 
     private void updatePointCache(PointUsage usage, PointCache pc) {
