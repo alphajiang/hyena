@@ -65,6 +65,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,6 +165,11 @@ public class PointController {
         logger.info(LoggerHelper.formatEnterLog(exh, false) + "param = {}", param);
         if (CollectionUtils.isEmpty(param.getSorts())) {
             param.setSorts(List.of(SortParam.as("rec.id", SortOrder.desc)));
+        }
+        if (CollectionUtils.isNotEmpty(param.getOrderNos())) {
+            param.setOrderNos(param.getOrderNos().stream()
+                .filter(o -> StringUtils.isNotBlank(o))
+                .collect(Collectors.toList()));
         }
         var res = this.pointRecDs.listPointRec4Page(param);
         logger.info(LoggerHelper.formatLeaveLog(exh));

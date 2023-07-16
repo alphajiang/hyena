@@ -109,6 +109,12 @@
                 #{seqNum}
             </foreach>
         </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.orderNos )">
+            <foreach item="orderNo" collection="param.orderNos"
+              open="and rec.orderNo in (" separator="," close=")">
+                #{orderNo}
+            </foreach>
+        </if>
         <if test="param.cost != null">
             <choose>
                 <when test="param.cost == true">
@@ -183,6 +189,12 @@
             <foreach item="seqNum" collection="param.seqNumList"
                      open="and rec.seqNum in (" separator="," close=")">
                 #{seqNum}
+            </foreach>
+        </if>
+        <if test="@io.github.alphajiang.hyena.utils.CollectionUtils@isNotEmpty( param.orderNos )">
+            <foreach item="orderNo" collection="param.orderNos"
+              open="and rec.orderNo in (" separator="," close=")">
+                #{orderNo}
             </foreach>
         </if>
         <if test="param.cost != null">

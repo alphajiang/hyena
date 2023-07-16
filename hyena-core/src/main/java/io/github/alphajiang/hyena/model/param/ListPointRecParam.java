@@ -47,6 +47,9 @@ public class ListPointRecParam extends BaseListParam {
     @Schema(title = "创建积分的序列号列表")
     private List<Long> seqNumList;
 
+    @Schema(title = "创建积分的订单号")
+    private List<String> orderNos;
+
     @Schema(title = "是否获取积分块对应的流水明细", example = "false")
     private Boolean fetchRecLogs;
 
