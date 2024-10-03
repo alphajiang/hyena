@@ -35,8 +35,11 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-webflux-ui:${springdocVersion}")
 
 
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+    implementation 'io.github.openfeign:feign-micrometer'
 
-    implementation('net.logstash.logback:logstash-logback-encoder:6.6')
+    implementation('net.logstash.logback:logstash-logback-encoder:8.0')
     implementation("org.ehcache:ehcache:${ehcacheVersion}")
 
 

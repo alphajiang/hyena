@@ -1,6 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.13'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '3.2.9'
+    id 'io.spring.dependency-management' version '1.1.6'
     id 'java'
     id 'jacoco'
     id 'maven-publish'
@@ -14,13 +14,13 @@ apply plugin: 'idea'
 
 ext {
 
-    springBootVersion = "2.6.13"
-    springCloudVersion = "2021.0.5"
-    mybatisStarterVersion = '2.2.2'
+    springBootVersion = "3.2.9"
+    springCloudVersion = "2023.0.3"
+    mybatisStarterVersion = '3.0.3'
 //    swaggerVersion = '3.0.0'
 //    swaggerAnnotationsVersion = '1.6.2'
     springdocVersion = '1.6.12'
-    lombokVersion = '1.18.24'
+    lombokVersion = '1.18.34'
     ehcacheVersion = '3.8.1'
     commonsPoolVersion = '2.11.1' //apache commons pool. redis pool 需要 https://commons.apache.org/proper/commons-pool/
 }
@@ -28,13 +28,13 @@ ext {
 
 allprojects {
     group = 'io.github.alphajiang'
-    version = '0.0.27.20230715.1-SNAPSHOT'
-//    version = '0.0.26'
+//    version = '0.0.28.20241003.1-SNAPSHOT'
+    version = '0.0.27'
     apply plugin: 'java'
 //    apply plugin: 'io.spring.dependency-management'
     apply plugin: 'jacoco'
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 
     compileJava {
         options.encoding = "UTF-8"
