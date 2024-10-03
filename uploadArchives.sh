@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/
+PATH=${JAVA_HOME}/bin:${PATH}
+
+java --version
+
 ./gradlew clean
 
 ./gradlew -p hyena-core -DSNAPSHOT publish

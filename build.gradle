@@ -11,18 +11,16 @@ apply plugin: 'idea'
 //apply plugin: 'eclipse'
 
 
-
 ext {
 
     springBootVersion = "3.2.9"
     springCloudVersion = "2023.0.3"
     mybatisStarterVersion = '3.0.3'
-//    swaggerVersion = '3.0.0'
-//    swaggerAnnotationsVersion = '1.6.2'
     springdocVersion = '1.6.12'
     lombokVersion = '1.18.34'
     ehcacheVersion = '3.8.1'
-    commonsPoolVersion = '2.11.1' //apache commons pool. redis pool 需要 https://commons.apache.org/proper/commons-pool/
+    commonsPoolVersion = '2.11.1'
+    //apache commons pool. redis pool 需要 https://commons.apache.org/proper/commons-pool/
 }
 
 
@@ -41,7 +39,7 @@ allprojects {
     }
 
 
-    test.onlyIf { ! Boolean.getBoolean('skipTests') }
+    test.onlyIf { !Boolean.getBoolean('skipTests') }
 
     repositories {
         maven { url 'https://maven.aliyun.com/repository/central' }
@@ -51,7 +49,6 @@ allprojects {
     repositories {
         mavenCentral()
     }
-
 
 
 }
@@ -64,44 +61,30 @@ jar {
 }
 
 
-
 subprojects {
-
+    apply plugin: 'java-library'
     apply plugin: 'signing'
     apply plugin: 'maven-publish'
-//    apply plugin: 'io.spring.dependency-management'
 
-
-    task javadocJar(type: Jar) {
-        archiveClassifier = 'javadoc'
-        from javadoc
+    java {
+        withJavadocJar()
+        withSourcesJar()
     }
 
-    task sourcesJar(type: Jar) {
-        archiveClassifier = 'sources'
-        from sourceSets.main.allSource
+    tasks.sourcesJar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
-
-    artifacts {
-        archives javadocJar, sourcesJar
-    }
-
-    signing {
-        // un-comment the line for release signing
-//        sign configurations.archives
-    }
-
-
 
     publishing {
         publications {
             mavenJava(MavenPublication) {
+                from components.java
                 pom {
                     name = 'hyena'
                     description = 'Micro service for user score hosting. '
                     url = 'https://github.com/alphajiang/hyena'
                     properties = [
-                            myProp: "value",
+                            myProp          : "value",
                             "prop.with.dots": "anotherValue"
                     ]
                     licenses {
@@ -123,18 +106,17 @@ subprojects {
                         url = 'https://github.com/alphajiang/hyena.git'
                     }
                 }
+            }
+            library(MavenPublication) {
                 from components.java
             }
-//            library(MavenPublication) {
-//                from components.java
-//            }
         }
         repositories {
             maven {
                 // change URLs to point to your repos, e.g. http://my.org/repo
                 def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
                 def snapshotsRepoUrl = snapshotRepoUrl
-                credentials  {
+                credentials {
                     username = ossrhUsername
                     password = ossrhPassword
                 }
@@ -143,51 +125,18 @@ subprojects {
         }
     }
 
-//
-//    uploadArchives {
-//        repositories {
-//            mavenDeployer {
-//                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-//
-//                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
-//                    authentication(userName: ossrhUsername, password: ossrhPassword)
-//                }
-//
-//                snapshotRepository(url: snapshotRepoUrl) {
-//                    authentication(userName: ossrhUsername, password: ossrhPassword)
-//                }
-//
-//                pom.project {
-//                    name 'hyena'
-//                    packaging 'jar'
-//                    // optionally artifactId can be defined here
-//                    description 'Micro service for user score hosting. '
-//                    url 'https://github.com/alphajiang/hyena'
-//
-//                    scm {
-//                        connection 'https://github.com/alphajiang/hyena.git'
-//                        developerConnection 'https://github.com/alphajiang/hyena.git'
-//                        url 'https://github.com/alphajiang/hyena.git'
-//                    }
-//
-//                    licenses {
-//                        license {
-//                            name 'The Apache License, Version 2.0'
-//                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-//                        }
-//                    }
-//
-//                    developers {
-//                        developer {
-//                            id 'alphajiang'
-//                            name 'Alpha Jiang'
-//                            email 'alphajiang@163.com'
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+
+    signing {
+        // un-comment the line for release signing
+        sign publishing.publications.mavenJava
+//        sign configurations.archives
+    }
+
+    javadoc {
+        if (JavaVersion.current().isJava9Compatible()) {
+            options.addBooleanOption('html5', true)
+        }
+    }
 
     dependencies {
 
@@ -199,34 +148,32 @@ subprojects {
 
         testImplementation('org.junit.jupiter:junit-jupiter:5.7.1')
         testImplementation('org.junit.platform:junit-platform-launcher:1.7.1')
-        testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}"){
+        testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}") {
             exclude group: 'junit'
         }
 
-//        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
-//        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
     }
 }
 // Only report code coverage for projects that are distributed
 def publishedProjects = subprojects.findAll { it.path == ':hyena-core' }
 
-task jacocoMerge(type: JacocoMerge) {
-    publishedProjects.each { subproject ->
-        executionData subproject.tasks.withType(Test)
-    }
-    doFirst {
-        executionData = files(executionData.findAll { it.exists() })
-    }
-}
+//task jacocoMerge(type: JacocoMerge) {
+//    publishedProjects.each { subproject ->
+//        executionData subproject.tasks.withType(Test)
+//    }
+//    doFirst {
+//        executionData = files(executionData.findAll { it.exists() })
+//    }
+//}
 
 task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
     description = 'Generates an aggregate report from all subprojects'
-    dependsOn publishedProjects.test, jacocoMerge
+    dependsOn publishedProjects.test    //, jacocoMerge
 
     additionalSourceDirs.from = publishedProjects.sourceSets.main.allSource.srcDirs
     sourceDirectories.from = publishedProjects.sourceSets.main.allSource.srcDirs
     classDirectories.from = publishedProjects.sourceSets.main.output
-    executionData jacocoMerge.destinationFile
+//    executionData jacocoMerge.destinationFile
 
     reports {
         html.required = true // human readable
