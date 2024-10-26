@@ -96,9 +96,9 @@ public class SystemController {
     @Operation(summary = "清除缓存")
     @PostMapping(value = "/cleanCache")
     public Mono<BaseResponse> cleanCache(ServerWebExchange exh,
-        @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-        @Parameter(description = "用户ID") @RequestParam String uid,
-        @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid) {
+        @Parameter(description = "积分类型", example = "score") @RequestParam(name = "type", defaultValue = "default") String type,
+        @Parameter(description = "用户ID") @RequestParam(name = "uid") String uid,
+        @Parameter(description = "用户二级ID") @RequestParam(name = "subUid", required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         return this.hyenaCacheFactory.getPointCacheService().removePoint(type, uid, subUid)
             .map(rt -> BaseResponse.success())
@@ -131,9 +131,9 @@ public class SystemController {
     @GetMapping(value = "/analysePointLog")
     public BaseResponse analysePointLog(
         ServerWebExchange exh,
-        @Parameter(description = "积分类型", example = "score") @RequestParam(required = true) String type,
-        @Parameter(description = "用户标识", example = "abcd") @RequestParam(required = true) String uid,
-        @Parameter(description = "用户副标识", example = "efgh") @RequestParam(required = true) String subUid) {
+        @Parameter(description = "积分类型", example = "score") @RequestParam(name = "type", required = true) String type,
+        @Parameter(description = "用户标识", example = "abcd") @RequestParam(name = "uid", required = true) String uid,
+        @Parameter(description = "用户副标识", example = "efgh") @RequestParam(name = "subUid", required = true) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         this.pointLogDs.analyseLog(type, uid, subUid);
         logger.info(LoggerHelper.formatLeaveLog(exh));

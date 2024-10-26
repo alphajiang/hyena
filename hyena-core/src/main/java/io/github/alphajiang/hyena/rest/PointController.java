@@ -61,12 +61,12 @@ import io.github.alphajiang.hyena.utils.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
-import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,10 +111,10 @@ public class PointController {
     @Operation(summary = "获取积分信息")
     @GetMapping(value = "/getPoint")
     public Mono<ObjectResponse<PointPo>> getPoint(ServerWebExchange exh,
-        @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-        @Parameter(description = "用户ID") @RequestParam String uid,
-        @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid,
-        @Parameter(description = "是否精准的") @RequestParam(required = false) Boolean exact) {
+        @Parameter(description = "积分类型", example = "score") @RequestParam(name = "type", defaultValue = "default") String type,
+        @Parameter(description = "用户ID") @RequestParam(name = "uid") String uid,
+        @Parameter(description = "用户二级ID") @RequestParam(name = "subUid", required = false) String subUid,
+        @Parameter(description = "是否精准的") @RequestParam(name = "exact", required = false) Boolean exact) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         var ret =
             this.hyenaCacheFactory.getPointCacheService().getPoint(type, uid, subUid, false);
@@ -377,10 +377,10 @@ public class PointController {
     @Operation(summary = "获取时间段内总共增加的积分数量")
     @GetMapping(value = "/getIncreasedPoint")
     public ObjectResponse<BigDecimal> getIncreasedPoint(ServerWebExchange exh,
-        @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-        @Parameter(description = "用户ID") @RequestParam(required = false) String uid,
-        @Parameter(description = "开始时间", example = "2019-03-25 18:35:21") @RequestParam(required = false, value = "start") String strStart,
-        @Parameter(description = "结束时间", example = "2019-04-26 20:15:31") @RequestParam(required = false, value = "end") String strEnd) {
+        @Parameter(description = "积分类型", example = "score") @RequestParam(name = "type", defaultValue = "default") String type,
+        @Parameter(description = "用户ID") @RequestParam(name = "uid", required = false) String uid,
+        @Parameter(description = "开始时间", example = "2019-03-25 18:35:21") @RequestParam(name = "start", required = false, value = "start") String strStart,
+        @Parameter(description = "结束时间", example = "2019-04-26 20:15:31") @RequestParam(name = "end", required = false, value = "end") String strEnd) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         try {
             Calendar calStart = DateUtils.fromYyyyMmDdHhMmSs(strStart);
@@ -400,9 +400,9 @@ public class PointController {
     @Operation(summary = "禁用帐号")
     @PostMapping(value = "/disableAccount")
     public BaseResponse disableAccount(ServerWebExchange exh,
-        @Parameter(description = "积分类型", example = "score") @RequestParam(defaultValue = "default") String type,
-        @Parameter(description = "用户ID") @RequestParam String uid,
-        @Parameter(description = "用户二级ID") @RequestParam(required = false) String subUid) {
+        @Parameter(description = "积分类型", example = "score") @RequestParam(name = "type", defaultValue = "default") String type,
+        @Parameter(description = "用户ID") @RequestParam(name = "uid") String uid,
+        @Parameter(description = "用户二级ID") @RequestParam(name = "subUid", required = false) String subUid) {
         logger.info(LoggerHelper.formatEnterLog(exh));
         this.pointDs.disableAccount(type, uid, subUid);
         logger.info(LoggerHelper.formatLeaveLog(exh));
